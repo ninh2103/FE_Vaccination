@@ -68,9 +68,6 @@ export const DEFAULT_PAGE_SIZE_OPTION = [10, 20, 30, 40, 50]
  */
 // export const DEFAULT_TAKE = 10;
 export const DEFAULT_PAGE_SIZE = 10
-export const numberConstant = {
-  ONE: 1
-}
 
 export const DEFAULT_PAGE_SIZE_30 = 30
 
