@@ -1,8 +1,5 @@
 import dayjs from 'dayjs'
-import { join } from 'path'
 
-export const PUBLIC_URL: string = process.env.PUBLIC_URL ?? ''
-export const BASE_API_URL: string = process.env.REACT_APP_BASE_API_URL ?? window.location.origin
 /**
  * Date-time constants
  */
@@ -90,8 +87,6 @@ export const EMPTY_STRING = '---'
  * route constants
  */
 export const ROOT_ROUTE: string = import.meta.env.BASE_URL
-export const FORBIDENT_ROUTE = join(ROOT_ROUTE + '/403')
-export const NOT_FOUND_ROUTE = join(ROOT_ROUTE + '/404')
 export const LOGIN_ROUTE = '/login'
 export const LOGOUT_ROUTE = '/logout'
 
@@ -162,3 +157,7 @@ export const datePickerPopupClassName = {
 }
 
 export const DATE_PLACEHOLDER = STANDARD_DATE_FORMAT_SLASH.toLowerCase()
+
+// config role
+export const ROLE_ADMIN = 'ADMIN'
+export const ROLE_EMPLOYEE = 'EMPLOYEE'

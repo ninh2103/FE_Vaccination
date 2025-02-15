@@ -4,7 +4,6 @@ about: Raise your problem when using our boilerplate
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 **Please describe your problem**
