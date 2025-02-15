@@ -5,7 +5,7 @@ import {
   setAccessTokenToLS,
   setRefreshTokenToLS,
   removeAccessTokenFromLS
-} from '@/shared/storage'
+} from '@/core/shared/storage'
 
 import axios, { HttpStatusCode } from 'axios'
 
