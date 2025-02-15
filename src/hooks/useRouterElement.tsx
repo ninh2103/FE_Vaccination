@@ -21,5 +21,5 @@ export default function useRoutesElements() {
     location
   )
 
-  return <div className="w-full">{routeElements}</div>
+  return <div className='w-full'>{routeElements}</div>
 }

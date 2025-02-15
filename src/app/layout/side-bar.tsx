@@ -11,13 +11,13 @@ const Sidebar = () => {
 
   return (
     <div className={`px-4 py-4 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-width duration-300`}>
-      <div className="flex items-center gap-2 mb-5">
-        <Link to="/" className={`flex items-center ${sidebarOpen ? 'justify-center' : 'gap-4 ml-10'}`}>
+      <div className='flex items-center gap-2 mb-5'>
+        <Link to='/' className={`flex items-center ${sidebarOpen ? 'justify-center' : 'gap-4 ml-10'}`}>
           {!sidebarOpen && (
             <img
               src={'https://adminvov1.vov.gov.vn/UploadImages/vov1/2016/thang_5/TCMR.jpg?w=100%'}
-              alt="logo"
-              className="w-24 h-10"
+              alt='logo'
+              className='w-24 h-10'
             />
           )}
         </Link>
