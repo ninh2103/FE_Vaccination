@@ -35,7 +35,7 @@ export default tseslint.config(
           jsxSingleQuote: true
         }
       ],
-      // 'no-console': 'error', // error on console.log
+      'no-console': 'error', // error on console.log
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
     }
   }
