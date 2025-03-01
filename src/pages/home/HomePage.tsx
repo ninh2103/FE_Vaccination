@@ -9,7 +9,7 @@ import ContactSection from '@/components/homepage/Contact'
 import Doctor from '@/components/homepage/Doctor'
 import Vaccines from '@/components/homepage/Vaccines'
 import Testimonials from '@/components/homepage/Testimonials'
-
+import Blog from '@/components/homepage/Blog'
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0)
 
@@ -39,6 +39,9 @@ export default function HomePage() {
           </section>
           <section id='testimonials'>
             <Testimonials />
+          </section>
+          <section id='blog'>
+            <Blog />
           </section>
           {/* 
           <Newsletter />
