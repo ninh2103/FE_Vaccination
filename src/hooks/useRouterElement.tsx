@@ -5,6 +5,8 @@ import Dashboard from '@/pages/dashboard/Dashboard'
 import HomePage from '@/pages/home/HomePage'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
+import BlogDeatails from '@/pages/blog/BlogDetails'
+// import BlogDetails  from '@/pages/blog/BlogDeatails'
 import { useLocation, useRoutes } from 'react-router-dom'
 
 export default function useRoutesElements() {
@@ -16,7 +18,8 @@ export default function useRoutesElements() {
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
       { path: path.admin.dashboard, element: <LayoutMain children={<Dashboard />} /> },
-      { path: '*', element: <PageNotFound /> }
+      // { path: '*', element: <PageNotFound /> },
+      { path: '*', element: <BlogDeatails /> }
     ],
     location
   )

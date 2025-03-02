@@ -18,7 +18,8 @@ const navItems = [
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' }
+  { name: 'Testimonials', href: '#testimonials' },
+  { name: 'Blog', href: '#blog' }
 ]
 
 export default function Header() {
@@ -75,7 +76,7 @@ export default function Header() {
             <Link to={path.home} className='flex items-center space-x-2'>
               <Icons.Syringe className='h-8 w-8 text-blue-400' />
               <span className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-                ABV
+                VAX-BOX
               </span>
             </Link>
             <nav className='hidden md:flex space-x-6'>
