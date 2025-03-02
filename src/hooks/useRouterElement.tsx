@@ -6,6 +6,7 @@ import HomePage from '@/pages/home/HomePage'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
 import { useLocation, useRoutes } from 'react-router-dom'
+import PriceList from '@/components/homepage/PriceList'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -16,6 +17,7 @@ export default function useRoutesElements() {
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
       { path: path.admin.dashboard, element: <LayoutMain children={<Dashboard />} /> },
+      { path: path.pricelist, element: <PriceList /> },
       { path: '*', element: <PageNotFound /> }
     ],
     location

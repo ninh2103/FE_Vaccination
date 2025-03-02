@@ -1,9 +1,11 @@
+// src/core/constants/path.js
+
 export const path = {
   home: '/',
   login: '/login',
   register: '/register',
-  blog: '/blog',
   admin: {
     dashboard: '/admin/dashboard'
-  }
+  },
+  pricelist: '/pricelist' // Thêm đường dẫn cho Price List
 }

@@ -18,7 +18,9 @@ const navItems = [
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' }
+  { name: 'Testimonials', href: '#testimonials' },
+  { name: 'Price List', href: '/pricelist' },
+  { name: 'Introduce', href: '/introduce' }
 ]
 
 export default function Header() {
