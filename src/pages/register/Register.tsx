@@ -48,7 +48,7 @@ export default function FormRegister() {
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-blue-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
             Create your Vax-Box account
           </CardTitle>
-          <CardDescription className='text-gray-400 text-center'>Join our community of learners today</CardDescription>
+          <CardDescription className='text-gray-400 text-center'>Join our vaccination community today!</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form className='space-y-4'>
