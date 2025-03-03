@@ -85,26 +85,27 @@ export default function ListVaccination() {
         </div>
         <h1 className='pb-4'>Vaccine Product Information</h1>
         <div className=' w-11/12 md:w-3/4 lg:max-w-3xl m-auto'>
-          <div className='flex justify-around'>
+          <div className='flex justify-around gap-4'>
             <Button
               variant='secondary'
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
-             hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
-             transition-all duration-300 ease-in-out 
-             font-semibold w-full sm:w-auto text-white px-10 py-3 rounded-full'
+              className='flex-1 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
+      hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
+      transition-all duration-300 ease-in-out 
+      font-semibold text-white rounded-full text-center'
             >
               Vaccines by disease group
             </Button>
             <Button
               variant='secondary'
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
-             hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
-             transition-all duration-300 ease-in-out 
-             font-semibold w-full sm:w-auto text-white px-10 py-3 rounded-full'
+              className='flex-1 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
+      hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
+      transition-all duration-300 ease-in-out 
+      font-semibold text-white rounded-full text-center'
             >
-              Vaccines by disease group
+              Vaccines by age
             </Button>
           </div>
+
           <div className='relative z-30 text-base text-black'>
             <Input
               type='text'
@@ -124,11 +125,7 @@ export default function ListVaccination() {
                 <div className='relative overflow-hidden group'>
                   <img className='object-cover w-full h-full' src={veccine.image} alt={veccine.name} />
                   <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                    <Button
-                      className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white py-2 px-6 rounded-full hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
-             transition-all duration-300 ease-in-out 
-             font-semibold '
-                    >
+                    <Button className=' text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out font-semibold'>
                       View Product
                     </Button>
                   </div>
@@ -137,7 +134,7 @@ export default function ListVaccination() {
                 <p className='text-gray-500 text-sm mt-2'>{veccine.description}</p>
                 <div className='flex items-center justify-between mt-4'>
                   <span className='text-gray-900 font-bold text-lg'>{veccine.price}</span>
-                  <Button className='bg-gray-900 text-white py-2 px-4 rounded-full font-bold hover:bg-gray-800'>
+                  <Button className=' bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:via-green-600 hover:to-teal-600 text-white py-2 px-4 rounded-full font-bold '>
                     Booking
                   </Button>
                 </div>

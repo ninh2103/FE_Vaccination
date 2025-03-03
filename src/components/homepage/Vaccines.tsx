@@ -3,6 +3,8 @@ import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Link } from 'react-router-dom'
+import { path } from '@/core/constants/path'
 
 const VACCINATION_INFO = [
   {
@@ -73,9 +75,11 @@ export function Vaccines() {
                       <h5 className='mb-2 text-lg font-semibold dark:text-white'>{vaccine.title}</h5>
                     </a>
                     <p className='mb-6 text-sm text-gray-500 dark:text-white'>{vaccine.desc}</p>
-                    <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
-                      Learn more
-                    </Button>
+                    <Link to={path.list}>
+                      <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
+                        See more
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               </div>

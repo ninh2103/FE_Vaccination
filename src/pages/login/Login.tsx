@@ -1,140 +1,137 @@
-import { IconEye, IconNonEye } from '@/assets/icons'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ROLE_ADMIN, ROLE_EMPLOYEE } from '@/configs/consts'
-import { authApi } from '@/core/services/auth.service'
-import { setAccessTokenToLS, setRefreshTokenToLS, setUserToLS } from '@/core/shared/storage'
-import { LoginSchema } from '@/core/zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { isEqual } from 'lodash'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { z } from 'zod'
+import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { path } from '@/core/constants/path'
 
-export default function Login() {
-  const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false)
-
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+export default function FormLogin() {
+  const [showPassword, setShowPassword] = useState(false)
+  const form = useForm({
     defaultValues: {
       email: '',
       password: ''
     }
   })
 
-  const mutationLogin = useMutation({
-    mutationKey: ['login'],
-    mutationFn: (data: z.infer<typeof LoginSchema>) => authApi.login(data)
-  })
-
-  function onSubmit() {
-    setIsLoading(true)
-    mutationLogin.mutate({ ...form.getValues() } as z.infer<typeof LoginSchema>, {
-      onSuccess: (data) => {
-        setAccessTokenToLS(data.access_token)
-        setRefreshTokenToLS(data.refresh_token)
-        setUserToLS(data.user)
-        if (isEqual(data?.user?.role, ROLE_ADMIN) || isEqual(data?.user?.role, ROLE_EMPLOYEE)) {
-          navigate('/admin/dashboard')
-        } else {
-          navigate('/')
-        }
-        toast.success('Login success 🚀🚀⚡⚡!')
-      },
-      onError: () => {
-        toast.error('Login failed!')
-      },
-      onSettled: () => {
-        setIsLoading(false)
-      }
-    })
-  }
-
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible)
-  }
+  const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
   return (
-    <div className='flex items-center justify-center w-full h-screen'>
-      <div className='flex items-center justify-between w-full mx-auto my-auto max-w-[90rem]'>
-        <div className='flex flex-col w-full space-y-2'>
-          <Link to='/' className='w-40'>
-            <img
-              src={'https://toidicodedao.com/wp-content/uploads/2018/07/react.png?w=1200'}
-              alt='logo'
-              className='w-40 h-12 mb-10'
-            />
-          </Link>
-          <h1 className='text-5xl font-semibold'>Login</h1>
-          <p className='text-sm text-[#112211]'>Login to access your account</p>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Nhập email' type='email' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='password'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Nhập password'
-                        className='w-full'
-                        type={isPasswordVisible ? 'text' : 'password'}
-                        {...field}
-                        icon={isPasswordVisible ? <IconNonEye /> : <IconEye />}
-                        iconOnClick={togglePasswordVisibility}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className='flex justify-between'>
-                <div className='flex items-center justify-center space-x-2'>
-                  <Checkbox id='terms' className='w-4 h-4' />
-                  <Label htmlFor='terms' className='text-base font-normal text-gray-500 cursor-pointer'>
-                    Remember me
-                  </Label>
-                </div>
-                <Link to='/forgot-password' className='text-redCustom hover:underline'>
-                  Forgot Password
-                </Link>
-              </div>
+    <div className='min-h-screen flex items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
+      <div className='absolute inset-0 pointer-events-none z-0'>
+        {Array.from({ length: 25 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className='absolute h-2 w-2 rounded-full bg-blue-500 opacity-50'
+            animate={{
+              x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
+              y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
+              scale: [0, 1, 0],
+              opacity: [0, 1, 0]
+            }}
+            transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, ease: 'linear' }}
+          />
+        ))}
+      </div>
 
-              <Button loading={isLoading} className='w-full text-white' type='submit'>
-                Login
+      <div className="fixed inset-0 dark:bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
+
+      <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
+        <CardHeader className='space-y-1'>
+          <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r dark:from-blue-400 dark:to-green-500 dark:text-transparent bg-clip-text'>
+            Welcome back to Vax-Box
+          </CardTitle>
+          <CardDescription className='text-gray-400 text-center'>
+            Enter your credentials to access your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form className='space-y-4'>
+              <FormField
+                name='email'
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor='email'>Email</Label>
+                    <FormControl>
+                      <div className='relative'>
+                        <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
+                        <Input
+                          {...field}
+                          id='email'
+                          placeholder='Enter your email'
+                          type='email'
+                          className='pl-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name='password'
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor='password'>Password</Label>
+                    <FormControl>
+                      <div className='relative'>
+                        <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
+                        <Input
+                          {...field}
+                          id='password'
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder='Enter your password'
+                          className='pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
+                        />
+                        <button
+                          type='button'
+                          onClick={togglePasswordVisibility}
+                          className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300'
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type='submit'
+                className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
+              >
+                Sign In
               </Button>
-              <p className='flex items-center justify-center'>
-                Don’t have an account?&nbsp;{' '}
-                <Link to='/register' className='cursor-pointer text-redCustom hover:underline'>
-                  Sign up
-                </Link>
-              </p>
             </form>
           </Form>
-        </div>
-      </div>
+        </CardContent>
+        <CardFooter className='flex flex-col space-y-4'>
+          <Button
+            variant='secondary'
+            className='w-full  items-center bg-gradient-to-r dark:bg-gray-700 border-gray-600 placeholder-gray-400  hover:from-blue-600 hover:to-green-600'
+          >
+            Sign in with Google
+          </Button>
+          <div className='text-sm text-center text-gray-400'>
+            Don't have an account?{' '}
+            <Link to={path.register} className='text-green-400 hover:text-green-300'>
+              Sign up
+            </Link>
+          </div>
+          <Link to={''} className='text-sm text-center text-green-400 hover:text-green-300'>
+            Forgot your password?
+          </Link>
+        </CardFooter>
+      </Card>
     </div>
   )
 }

@@ -35,10 +35,10 @@ export default function HomePage() {
           <section id='doctor' className='px-4'>
             <Doctor />
           </section>
-          <section id='testimonials ' className='mt-32'>
+          <section id='testimonials' className='mt-32'>
             <Testimonials />
           </section>
-          <section id='blog'>
+          <section className='mt-32' id='blog'>
             <Blog />
           </section>
           {/* 

@@ -3,12 +3,12 @@ const BlogCard = ({ title, date, description, image, link }) => (
     <img src={image} alt={title} className='w-full h-48 object-cover' />
     <div className='p-4'>
       <a href={link}>
-        <h3 className='text-xl font-bold text-black hover:text-green-500 transition-colors duration-300 cursor-pointer'>
+        <h3 className='text-xl font-bold dark:text-white hover:text-green-500 transition-colors duration-300 cursor-pointer'>
           {title}
         </h3>
       </a>
-      <p className='text-gray-500 text-sm'>{date}</p>
-      <p className='mt-2 text-gray-700'>{description}</p>
+      <p className='dark:text-white text-sm'>{date}</p>
+      <p className='mt-2 dark:text-white'>{description}</p>
     </div>
   </div>
 )
@@ -49,12 +49,9 @@ const Blog = () => {
 
   return (
     <div className='max-w-[100rem] mx-auto p-4'>
-      <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-2xl font-bold'>BLOG </h2>
-        <button className='bg-green-500 text-white px-4 py-2 rounded-lg'>See All </button>
-      </div>
+      <h2 className='text-balance text-3xl font-bold xl:text-center mb-2'>Expert Articles on Vaccination & Health</h2>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6'>
         {blogs.map((blog, index) => (
           <BlogCard key={index} {...blog} />
         ))}
