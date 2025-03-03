@@ -12,9 +12,9 @@ export function ThemeToggle() {
   return (
     <Button variant='outline' size='icon' className='rounded-md' onClick={toggleTheme}>
       {theme === 'dark' ? (
-        <Sun className='h-[1.2rem] w-[1.2rem] transition-all' />
+        <Sun className='h-[1.2rem] w-[1.2rem] transition-all text-white ' />
       ) : (
-        <Moon className='h-[1.2rem] w-[1.2rem] transition-all' />
+        <Moon className='h-[1.2rem] w-[1.2rem] transition-all ' />
       )}
       <span className='sr-only'>Toggle theme</span>
     </Button>

@@ -14,7 +14,7 @@ export default function Footer() {
       <div className='container mx-auto px-4'>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4'>About Vaccination</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>About Vaccination</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
@@ -34,7 +34,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4'>Resources</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Resources</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
@@ -54,7 +54,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4'>Legal</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Legal</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
@@ -74,7 +74,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4'>Contact Us</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Contact Us</h4>
             <p className='dark:text-gray-400 mb-2'>Health Street</p>
             <p className='dark:text-gray-400 mb-2'>Wellness City</p>
             <p className='dark:text-gray-400'>support@vaccinecare.com</p>

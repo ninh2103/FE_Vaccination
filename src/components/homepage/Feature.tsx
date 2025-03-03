@@ -61,8 +61,8 @@ export default function Feature() {
               />
             </CardHeader>
             <CardContent>
-              <p className='text-sm text-gray-500'>Public Health</p>
-              <h5 className='mb-3 mt-2 text-lg font-bold text-gray-900'>Your Health, Our Priority</h5>
+              <p className='text-sm dark:text-white'>Public Health</p>
+              <h5 className='mb-3 mt-2 text-lg font-bold dark:text-white'>Your Health, Our Priority</h5>
               <p className='text-gray-500'>
                 Immunization is the best way to protect against preventable diseases. Be responsible, get vaccinated,
                 and help build a healthier world.

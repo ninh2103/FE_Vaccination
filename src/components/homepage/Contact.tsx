@@ -9,8 +9,8 @@ export default function ContactSection() {
   return (
     <section className='px-8 py-16'>
       <div className='container mx-auto mb-20 text-center'>
-        <h1 className='text-3xl font-bold text-gray-900'>Vaccination Appointment</h1>
-        <p className='mx-auto mt-4 w-full text-gray-500 lg:w-5/12'>
+        <h1 className='text-3xl font-bold dark:text-white'>Vaccination Appointment</h1>
+        <p className='mx-auto mt-4 w-full dark:text-white lg:w-5/12'>
           Book your vaccination appointment today. Fill in the form below, and our team will contact you with the
           details.
         </p>

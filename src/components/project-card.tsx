@@ -9,7 +9,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ img, title, desc }: ProjectCardProps) {
   return (
-    <Card className='shadow-none'>
+    <Card className='shadow-none w-80'>
       <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
         <img src={img} alt={title} className='h-full w-full object-cover' />
       </CardHeader>
@@ -19,11 +19,9 @@ export function ProjectCard({ img, title, desc }: ProjectCardProps) {
         </a>
         <p className='mb-6 text-sm text-gray-500 dark:text-white'>{desc}</p>
         <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
-          See Details
+          Learn more
         </Button>
       </CardContent>
     </Card>
   )
 }
-
-export default ProjectCard

@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -9,7 +7,6 @@ import { UserCircle, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
-import { ModeToggle } from '@/components/ui/toggle'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 
@@ -24,11 +21,11 @@ const navItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showAlert, setShowAlert] = useState(true)
+  const [, setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userEmail, setUserEmail] = useState('user@example.com')
+  const [userEmail] = useState('user@example.com')
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)

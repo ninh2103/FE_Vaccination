@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import Header from '@/components/homepage/Header'
 import Hero from '@/components/homepage/Hero'
@@ -11,7 +9,7 @@ import Vaccines from '@/components/homepage/Vaccines'
 import Testimonials from '@/components/homepage/Testimonials'
 import Blog from '@/components/homepage/Blog'
 export default function HomePage() {
-  const [scrollY, setScrollY] = useState(0)
+  const [, setScrollY] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -37,7 +35,7 @@ export default function HomePage() {
           <section id='doctor' className='px-4'>
             <Doctor />
           </section>
-          <section id='testimonials'>
+          <section id='testimonials ' className='mt-32'>
             <Testimonials />
           </section>
           <section id='blog'>

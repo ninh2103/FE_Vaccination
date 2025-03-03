@@ -1,61 +1,83 @@
-import { Card, CardContent } from '@/components/ui/card'
-import { Icons } from '@/components/ui/icon'
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
+import { Star } from 'lucide-react'
 
-const testimonials = [
+export const testimonials = [
   {
-    name: 'Anna Thompson',
-    role: 'Mother of Two',
-    image:
-      'https://plus.unsplash.com/premium_photo-1669703777437-27602d656c27?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjl8fFBlb3BsZXxlbnwwfHwwfHx8MA%3D%3D',
-    quote:
-      'Thanks to the vaccination program, my kids are protected from serious diseases. The process was smooth and well-organized!'
+    id: 't01',
+    name: 'Sarah J.',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
+    comment:
+      "Absolutely seamless experience! Booking was quick, and the car was in perfect condition. I'll definitely use this service again.",
+    rating: 5
   },
   {
-    name: 'Dr. Robert Mitchell',
-    role: 'Immunologist',
-    image:
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8UGVvcGxlfGVufDB8fDB8fHww',
-    quote:
-      'Vaccines save lives. I strongly recommend getting vaccinated to protect yourself and your community from preventable diseases.'
+    id: 't02',
+    name: 'Mark T.',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
+    comment:
+      'Great selection of vehicles and very affordable rates. The customer service team was incredibly helpful when .',
+    rating: 5
   },
   {
-    name: 'James Carter',
-    role: 'COVID-19 Survivor',
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1',
-    quote:
-      'After experiencing COVID-19, I got my vaccine shots as soon as possible. It’s reassuring to know I’m better protected now.'
+    id: 't03',
+    name: 'James L.',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
+    comment:
+      'The navigation tools were a lifesaver! They made it so easy to explore the city without getting lost. Highly recommended!',
+    rating: 5
+  },
+  {
+    id: 't04',
+    name: 'Alex P.',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
+    comment:
+      'Fantastic service! The car was clean, well-maintained, and the pickup process was a breeze. I’ll be using this service for all my future trips.',
+    rating: 5
+  },
+  {
+    id: 't05',
+    name: 'David S.',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
+    comment:
+      'Great value for money! The booking process was quick, and the customer support was responsive. Overall, a very positive experience.',
+    rating: 5
   }
 ]
 
 export default function Testimonials() {
   return (
-    <div className='py-24 bg-gray-50 dark:bg-gray-800'>
-      <div className='container mx-auto px-4'>
-        <h2 className='text-3xl md:text-4xl font-bold mb-12 text-center animate-fade-in-up'>
-          What People Say About Vaccination
-        </h2>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-          {testimonials.map((testimonial, index) => (
-            <Card
-              key={index}
-              className='dark:bg-gray-700 rounded-lg p-6 shadow-lg animate-fade-in-up'
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <CardContent className='flex flex-col items-center text-center'>
-                <img
-                  src={testimonial.image || '/placeholder.svg'}
-                  alt={testimonial.name}
-                  className='rounded-full mb-4'
-                />
-                <Icons.Quote className='h-8 w-8 text-green-500 mb-4' />
-                <p className='dark:text-gray-300 italic mb-6'>"{testimonial.quote}"</p>
-                <div>
-                  <h3 className='text-lg font-semibold'>{testimonial.name}</h3>
-                  <p className='dark:text-green-300'>{testimonial.role}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+    <div className='mx-auto max-w-none px-5 sm:max-w-[90%] sm:px-0 2xl:max-w-8xl'>
+      <h2 className='text-balance text-3xl font-bold xl:text-center'>What Our Customers Are Saying</h2>
+      <div className='pt-6 lg:pt-8'>
+        <div className='relative'>
+          <Carousel>
+            <CarouselContent className='m-0 space-x-4 lg:space-x-6'>
+              {testimonials.map(({ id, name, comment, imageUrl, rating }) => {
+                return (
+                  <CarouselItem key={id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4'>
+                    <figure className='rounded-2xl bg-neutral-50 p-8'>
+                      <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
+                        {[...Array(rating)].map((_, index) => (
+                          <Star key={index} className='size-[15px] text-yellow-500' />
+                        ))}
+                      </div>
+                      <div className='pt-4'>
+                        <blockquote className='text-balance text-[14px] leading-[23px] text-neutral-600 sm:text-[15px] sm:leading-normal md:leading-[26px] lg:text-[16px]'>
+                          “{comment}”
+                        </blockquote>
+                      </div>
+                      <div className='pt-8'>
+                        <figcaption className='flex items-center gap-2.5'>
+                          <img src={imageUrl} alt={name} className='size-6 shrink-0 rounded-full object-cover' />
+                          <p className='text-[13px] font-medium text-neutral-700 xl:text-[14px]'>{name}</p>
+                        </figcaption>
+                      </div>
+                    </figure>
+                  </CarouselItem>
+                )
+              })}
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
     </div>
