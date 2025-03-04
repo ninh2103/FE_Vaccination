@@ -3,7 +3,7 @@ export const path = {
   login: '/login',
   register: '/register',
   blog: '/blog',
-  pricelist:'/pricelist',
+  pricelist: '/pricelist',
   list: '/vaccination/list',
   detail: '/vaccination/list/1',
   admin: {
