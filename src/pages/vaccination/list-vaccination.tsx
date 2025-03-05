@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
   Pagination,
@@ -9,8 +10,12 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination'
-import { motion } from 'framer-motion'
-const vaccines = [
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { path } from '@/core/constants/path'
+import { ArrowDownUp, Search } from 'lucide-react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+export const vaccines = [
   {
     id: 1,
     name: 'Tuberculosis Vaccine',
@@ -54,121 +59,167 @@ const vaccines = [
     description: 'A vaccine that prevents cholera caused by Vibrio cholerae bacteria.'
   }
 ]
+const priceOptions = [
+  { id: 'under-4usd', label: 'Price less than $4' },
+  { id: '4usd-8usd', label: 'Price from $4 to $8' },
+  { id: '8usd-20usd', label: 'Price from $8 to $20' },
+  { id: 'above-20usd', label: 'Price more than $20' }
+]
 
 export default function ListVaccination() {
-  return (
-    <div className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white'>
-      <div
-        className='py-52 px-1 md:px-8 text-center relative text-white font-bold text-2xl md:text-3xl bg-cover bg-center '
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1649207856276-289665c31eb0)'
-        }}
-      >
-        <div className='absolute inset-0 pointer-events-none'>
-          {Array.from({ length: 20 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className='absolute h-2 w-2 rounded-full bg-blue-500 opacity-50'
-              animate={{
-                x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-                y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
-                scale: [0, 1, 0]
-              }}
-              transition={{
-                duration: Math.random() * 5 + 5,
-                repeat: Infinity,
-                ease: 'linear'
-              }}
-            />
-          ))}
-        </div>
-        <h1 className='pb-4'>Vaccine Product Information</h1>
-        <div className=' w-11/12 md:w-3/4 lg:max-w-3xl m-auto'>
-          <div className='flex justify-around gap-4'>
-            <Button
-              variant='secondary'
-              className='flex-1 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
-      hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
-      transition-all duration-300 ease-in-out 
-      font-semibold text-white rounded-full text-center'
-            >
-              Vaccines by disease group
-            </Button>
-            <Button
-              variant='secondary'
-              className='flex-1 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 
-      hover:from-blue-500 hover:via-green-600 hover:to-teal-600 
-      transition-all duration-300 ease-in-out 
-      font-semibold text-white rounded-full text-center'
-            >
-              Vaccines by age
-            </Button>
-          </div>
+  const [selectedPrices, setSelectedPrices] = useState<string[]>([])
 
-          <div className='relative z-30 text-base text-black'>
+  const handleCheckboxChange = (id: string) => {
+    setSelectedPrices((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  const clearAll = () => setSelectedPrices([])
+
+  return (
+    <section className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white'>
+      <div className='w-full max-w-7xl mx-auto px-4 md:px-8'>
+        <div className='flex justify-start py-4'>
+          <p className='text-lg text-center text-green-400 hover:text-green-300'>All Vaccines</p>
+        </div>
+        <div className='w-full md:w-auto flex flex-col justify-between sm:flex-row gap-4 items-center'>
+          <div className='relative w-full sm:w-96'>
+            <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 z-10' />
             <Input
-              type='text'
-              placeholder='Search...'
-              className='mt-2 shadow-md focus:outline-none rounded-2xl py-3 px-6 block w-full'
+              type='search'
+              placeholder='Search for vaccine...'
+              className='pl-10 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 focus:border-purple-500 relative z-0'
             />
-            <div className='text-left absolute top-10 rounded-t-none rounded-b-2xl shadow bg-white divide-y w-full max-h-40 overflow-auto'></div>
+          </div>
+          <div className='flex items-center gap-2'>
+            <ArrowDownUp className='text-gray-700 dark:text-gray-300' />
+            <Select>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Sort a Vaccine ' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value='apple'>A to Z</SelectItem>
+                  <SelectItem value='banana'>Z to A</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
-      </div>
-      <div className='dark:bg-gray-900 py-16'>
-        <div className='container mx-auto px-4'>
-          <h2 className='text-3xl font-bold text-white mb-8'>Introduction of our latest veccine product</h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {vaccines.map((veccine) => (
-              <div key={veccine.id} className='bg-white rounded-lg shadow-lg p-8'>
-                <div className='relative overflow-hidden group'>
-                  <img className='object-cover w-full h-full' src={veccine.image} alt={veccine.name} />
-                  <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                    <Button className=' text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out font-semibold'>
-                      View Product
-                    </Button>
+        <hr className='border-t border-gray-300 w-full my-4' />
+        <div className='grid grid-cols-12'>
+          <div className='col-span-12 md:col-span-3 w-full max-md:max-w-md max-md:mx-auto'>
+            <div className=' box rounded-xl border border-gray-300 bg-white p-6 w-full md:max-w-sm'>
+              <div className='flex items-center justify-between w-full pb-3 border-b border-gray-200 mb-7'>
+                <p className='font-medium text-base leading-7 text-black'>Filter Vaccine</p>
+                <p
+                  onClick={clearAll}
+                  className='font-medium text-xs text-gray-500 cursor-pointer transition-all duration-500 hover:text-green-500'
+                >
+                  RESET
+                </p>
+              </div>
+              <p className='dark:text-black font-bold pb-2'>Vaccine price</p>
+
+              <div className='p-4 border rounded-md w-64'>
+                {/* Danh sách đã chọn */}
+                {selectedPrices.length > 0 && (
+                  <div className='mb-4 p-2 border-b'>
+                    <div className='flex justify-between items-center text-green-500 font-semibold'>
+                      <span>📌 Your select</span>
+                    </div>
+                    <ul className='mt-2 space-y-1'>
+                      {selectedPrices.map((id) => {
+                        const option = priceOptions.find((opt) => opt.id === id)
+                        return (
+                          <li key={id} className='flex items-center justify-between text-sm dark:text-black'>
+                            {option?.label}
+                            <button onClick={() => handleCheckboxChange(id)} className='text-red-500 text-xs '>
+                              ❌
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
                   </div>
-                </div>
-                <h3 className='text-xl font-bold text-gray-900 mt-4'>{veccine.name}</h3>
-                <p className='text-gray-500 text-sm mt-2'>{veccine.description}</p>
-                <div className='flex items-center justify-between mt-4'>
-                  <span className='text-gray-900 font-bold text-lg'>{veccine.price}</span>
-                  <Button className=' bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:via-green-600 hover:to-teal-600 text-white py-2 px-4 rounded-full font-bold '>
-                    Booking
-                  </Button>
+                )}
+
+                {/* Danh sách checkbox */}
+                <div className='space-y-2'>
+                  {priceOptions.map((option) => (
+                    <div key={option.id} className='flex items-center space-x-2'>
+                      <Checkbox
+                        id={option.id}
+                        checked={selectedPrices.includes(option.id)}
+                        onCheckedChange={() => handleCheckboxChange(option.id)}
+                      />
+                      <label htmlFor={option.id} className='text-sm dark:text-black'>
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className='col-span-12 md:col-span-9'>
+            <div className='dark:bg-gray-900 '>
+              <div className='container mx-auto px-4'>
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+                  {vaccines.map((veccine) => (
+                    <div key={veccine.id} className='bg-white rounded-lg shadow-lg p-8'>
+                      <div className='relative overflow-hidden group'>
+                        <img className='object-cover w-full h-full' src={veccine.image} alt={veccine.name} />
+                        <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <Link to={path.detail}>
+                            <Button className=' text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out font-semibold'>
+                              View vaccine
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                      <h3 className='text-xl font-bold text-gray-900 mt-4'>{veccine.name}</h3>
+                      <p className='text-gray-500 text-sm mt-2'>{veccine.description}</p>
+                      <div className='flex items-center justify-between mt-4'>
+                        <span className='text-gray-900 font-bold text-lg'>{veccine.price}</span>
+                        <Button className=' bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:via-green-600 hover:to-teal-600 text-white py-2 px-4 rounded-full font-bold '>
+                          Booking
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className='py-4'>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious href='#' />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink href='#'>1</PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink href='#' isActive>
+                          2
+                        </PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink href='#'>3</PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationNext href='#' />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className='py-2'>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href='#' />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href='#'>1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href='#' isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href='#'>3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href='#' />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    </section>
   )
 }
