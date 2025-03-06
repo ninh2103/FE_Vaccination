@@ -7,6 +7,7 @@ export const path = {
   detail: '/vaccination/list/1',
   aboutus: '/aboutus',
   pricelist: '/pricelist',
+  buyvaccines: '/buyvaccines',
   admin: {
     dashboard: '/admin/dashboard'
   }

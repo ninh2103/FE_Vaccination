@@ -11,7 +11,7 @@ import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
-import Vaxbot from '../../assets/images/Logo.png'
+
 
 // Define navigation items type
 interface NavItem {
@@ -40,11 +40,11 @@ const topButtons: { name: string; href: string }[] = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showAlert, setShowAlert] = useState(true)
+  const [setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userEmail, setUserEmail] = useState('user@example.com')
+  const [userEmail] = useState('user@example.com')
   const navigate = useNavigate()
 
   useEffect(() => {

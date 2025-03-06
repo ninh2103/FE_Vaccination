@@ -12,6 +12,7 @@ import { useLocation, useRoutes } from 'react-router-dom'
 import CarFeatures from '@/pages/vaccination/vaccination-detail'
 import Aboutus from '@/pages/aboutus/AboutUs'
 import PriceList from '@/pages/pricelist/PriceList'
+ import BuyVaccines  from '@/pages/buyvaccine/BuyVaccines'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -22,6 +23,8 @@ export default function useRoutesElements() {
       { path: path.register, element: <Register /> },
       { path: path.aboutus, element: <Aboutus /> },
       { path: path.pricelist, element: <PriceList /> },
+    { path: path.buyvaccines, element: <BuyVaccines /> },
+
       {
         path: path.admin.dashboard,
         element: (
