@@ -25,11 +25,11 @@ export default function ContactSection() {
               </p>
               <div className='mt-4 flex items-center gap-4'>
                 <PhoneIcon className='h-6 w-6' />
-                <span>+1(424) 535 3523</span>
+                <span>1900.1900</span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <EnvelopeIcon className='h-6 w-6' />
-                <span>support@vaccinecenter.com</span>
+                <span>support@vaxbot.com</span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <CalendarIcon className='h-6 w-6' />

@@ -27,7 +27,7 @@ const featuresData = [
 
 export default function Feature() {
   return (
-    <div className='container mx-auto'>
+    <div className='container mx-auto '>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
         {featuresData.map(({ color, title, icon: Icon, description }) => (
           <Card key={title} className='p-6'>
