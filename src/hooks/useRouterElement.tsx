@@ -10,6 +10,7 @@ import Register from '@/pages/register/Register'
 import BlogDetails from '@/pages/blog/BlogDetails'
 import { useLocation, useRoutes } from 'react-router-dom'
 import CarFeatures from '@/pages/vaccination/vaccination-detail'
+import Profile from '@/pages/profile/Profile'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -48,6 +49,14 @@ export default function useRoutesElements() {
         element: (
           <LayoutClient>
             <BlogDetails />
+          </LayoutClient>
+        )
+      },
+      {
+        path: path.profile,
+        element: (
+          <LayoutClient>
+            <Profile />
           </LayoutClient>
         )
       },
