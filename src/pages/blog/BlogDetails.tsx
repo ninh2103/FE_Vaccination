@@ -1,21 +1,27 @@
 import React from 'react'
 import Header from '@/components/homepage/Header'
+import Footer from '@/components/homepage/Footer'
 
 const BlogDetails: React.FC = () => {
   // const scrollToTop = () => {
   //   window.scrollTo({ top: 0, behavior: "smooth" });
   // };
   return (
-    <div>
+    <div className=' text-gray-900 dark:text-white dark:bg-gray-900/80'>
       <Header />
-      <div className='max-w-[70rem] mx-auto p-5    '>
-        <div className='border-b pb-4 mt-40   '>
-          <h2 className='text-2xl font-bold'> KHỎI SỐT XUẤT HUYẾT BAO LÂU THÌ ĐƯỢC TẮM? NHỮNG LƯU Ý CẦN BIẾT.</h2>
+      <div className='max-w-[70rem] mx-auto p-5  dark:bg-gray-900/80  '>
+        <div className='border-b pb-4 mt-[10rem]   '>
+          <h2 className='text-2xl font-bold'>
+            {' '}
+            HOW LONG AFTER RECOVERING FROM DENGUE FEVER CAN YOU TAKE A BATH? THINGS YOU NEED TO KNOW
+          </h2>
         </div>
         <div className='italic font-light'>
-          Có thể tắm khi bị sốt xuất huyết, nhưng cần chú ý và cẩn thận để tránh làm tình trạng bệnh nặng hơn, cần lưu ý
-          không tắm nước lạnh, không tắm khi sốt cao hoặc cảm thấy mệt mỏi, không để cơ thể nhiễm lạnh sau khi tắm…{' '}
-          <b>Vậy, khỏi sốt xuất huyết bao lâu thì được tắm</b> bình thường và cần lưu ý những gì?{' '}
+          You can bathe when you have dengue fever, but you need to pay attention and be careful to avoid making the
+          condition worse. You need to note that you should not bathe in cold water, do not bathe when you have a high
+          fever or feel tired, do not let your body get cold after bathing...{' '}
+          <b> So, how long after recovering from dengue fever can you bathe normally</b> and what should you pay
+          attention to?{' '}
         </div>
 
         <div className='max-w-[70rem] mx-auto my-4 bg-white shadow-lg rounded-lg overflow-hidden'>
@@ -24,12 +30,12 @@ const BlogDetails: React.FC = () => {
           </div>
           <div className='p-4 text-gray-700'>
             <blockquote className='border-l-4 border-blue-600 pl-4 '>
-              BS Nguyễn Như Diễn – Quản lý Y khoa vùng 5 miền Bắc, <b>Hệ thống tiêm chủng VAXBOT </b> cho biết: “Mỗi
-              năm, có khoảng 400 triệu người bị nhiễm sốt xuất huyết, nhưng có khoảng 80% người không có triệu chứng.
-              Các triệu chứng thường xuất hiện từ 4 – 10 ngày sau khi bị muỗi đốt và kéo dài từ 3 – 7 ngày. Khoảng 1
-              trong 20 người bị sốt xuất huyết có thể phát triển thành sốt xuất huyết nặng sau khi các triệu chứng ban
-              đầu biến mất, thông thường xảy ra trong 24 – 48 giờ sau khi hết sốt (1). Do đó, sau khi các triệu chứng
-              sốt xuất huyết biến mất, người bệnh vẫn nên cần trọng và theo dõi sức khỏe thường xuyên.”
+              Dr. Nguyen Nhu Dien - Medical Manager of Region 5, Northern Region, <b>VAXBOT Vaccination System</b> said:
+              “Every year, about 400 million people are infected with dengue fever, but about 80% of people have no
+              symptoms. Symptoms usually appear 4-10 days after being bitten by a mosquito and last from 3-7 days. About
+              1 in 20 people with dengue fever can develop severe dengue fever after the initial symptoms disappear,
+              usually occurring within 24-48 hours after the fever subsides (1). Therefore, after the symptoms of dengue
+              fever disappear, patients should still be careful and monitor their health regularly.”
             </blockquote>
           </div>
         </div>
@@ -42,28 +48,29 @@ const BlogDetails: React.FC = () => {
         </div>
 
         <div className='mt-4'>
-          <h2 className='font-bold text-2xl '>Sau khi hết sốt xuất huyết có được tắm không?</h2>
+          <h2 className='font-bold text-2xl '>Can I take a bath after dengue fever?</h2>
           <br></br>
           <p>
-            Sau khi hết sốt xuất huyết, người bệnh có thể tắm, nhưng cần chú ý một số yếu tố quan trọng để tránh ảnh
-            hưởng xấu đến sức khỏe. Khi tắm, người bệnh nên chọn nước ấm, tránh tắm nước quá nóng hoặc quá lạnh, vì sự
-            thay đổi nhiệt độ đột ngột có thể gây ra sự căng thẳng cho cơ thể. Đồng thời, nên tắm nhẹ nhàng và không nên
-            tắm quá lâu để tránh tình trạng mệt mỏi, lạnh cơ thể khi đang trong giai đoạn hồi phục. Nếu không tắm, bệnh
-            nhân có thể lau người bằng khăn sạch và nước ấm.
+            After the dengue fever has subsided, the patient can bathe, but it is necessary to pay attention to some
+            important factors to avoid adverse effects on health. When bathing, the patient should choose warm water,
+            avoid bathing in water that is too hot or too cold, because sudden changes in temperature can cause stress
+            to the body. At the same time, the patient should bathe gently and should not bathe for too long to avoid
+            fatigue and cold body during the recovery period. If not bathing, the patient can wipe the body with a clean
+            towel and warm water.
           </p>
           <br></br>
           <p>
             {' '}
-            Quan niệm “không được tắm” khi mắc sốt xuất huyết hoặc sau khi hết bệnh thường bắt nguồn từ lo ngại cơ thể
-            bị nhiễm lạnh hoặc ảnh hưởng xấu đến mạch máu. Tuy nhiên, từ góc độ y khoa, việc kiêng tắm hoàn toàn trong
-            thời gian dài là không cần thiết và có thể phản tác dụng. Bụi bẩn và mồ hôi tích tụ trên cơ thể có thể trở
-            thành môi trường thuận lợi cho các vi khuẩn, làm tăng nguy cơ viêm nhiễm da và gây khó chịu, bất tiện trong
-            sinh hoạt thường ngày.
+            The notion of “not bathing” when having dengue fever or after recovering from the disease often stems from
+            concerns about the body being cold or having a negative impact on blood vessels. However, from a medical
+            perspective, completely abstaining from bathing for a long time is unnecessary and can be counterproductive.
+            Dirt and sweat accumulated on the body can become a favorable environment for bacteria, increasing the risk
+            of skin infections and causing discomfort and inconvenience in daily life.
           </p>
           <br></br>
           <p>
-            Điều quan trọng là mỗi người bệnh có tình trạng sức khỏe khác nhau và việc tắm cần được điều chỉnh phù hợp
-            theo khả năng phục hồi và tư vấn từ bác sĩ.
+            It is important that each patient has a different health condition and bathing should be adjusted according
+            to recovery ability and medical advice.
           </p>
         </div>
         <div className='my-4'>
@@ -73,26 +80,27 @@ const BlogDetails: React.FC = () => {
             className='w-full h-auto'
           />
         </div>
-        <h2 className='font-bold text-2xl '>Khỏi sốt xuất huyết bao lâu thì được tắm?</h2>
+        <h2 className='font-bold text-2xl '>How long after recovering from dengue fever can I take a bath?</h2>
 
         <br></br>
         <p>
-          Sau khi vượt qua <b>giai đoạn nguy hiểm của sốt xuất huyết</b> 1 – 2 ngày (sau ngày thứ 7 của bệnh), người
-          bệnh sẽ bước vào giai đoạn hồi phục và có thể tắm rửa bình thường. Lúc này, người bệnh sẽ không còn sốt, huyết
-          áp ổn định và cảm giác thèm ăn dần quay lại. Các chỉ số bạch cầu, hồng cầu và tiểu cầu đều phục hồi, chứng tỏ
-          cơ thể đang dần hồi phục.
+          After overcoming the dangerous stage of dengue fever for 1-2 days (after the 7th day of the disease), the
+          patient will enter the recovery stage and can bathe normally. At this time, the patient will no longer have a
+          fever, blood pressure will stabilize and appetite will gradually return. The white blood cell, red blood cell
+          and platelet indices will all recover, proving that the body is gradually recovering.
         </p>
         <br></br>
         <p>
-          Đây là thời điểm mà người bệnh có thể tắm rửa bình thường, nhưng hệ miễn dịch và hệ tuần hoàn máu chưa hoàn
-          toàn ổn định, do virus Dengue gây tổn thương trực tiếp lên mạch máu và hệ thống miễn dịch, người bệnh vẫn cần
-          chú ý tắm rửa cẩn thận trong giai đoạn này để tránh làm ảnh hưởng đến sức khỏe đang dần phục hồi.
+          This is the time when the patient can bathe normally, but the immune system and blood circulation are not yet
+          completely stable, because the Dengue virus causes direct damage to the blood vessels and immune system, the
+          patient still needs to pay attention to bathing carefully during this period to avoid affecting the health
+          that is gradually recovering.
         </p>
         <br></br>
         <p>
-          Người bệnh nên sử dụng nước ấm thay vì nước lạnh hay nước quá nóng, nên tắm trong phòng kín gió để tránh bị
-          nhiễm lạnh. Quan trọng là hạn chế tắm quá lâu và nên tắm nhanh chóng để không gây ảnh hưởng xấu đến sức khỏe
-          trong quá trình phục hồi.
+          Patients should use warm water instead of cold water or water that is too hot, and should bathe in a closed
+          room to avoid catching a cold. It is important to limit bathing for too long and to bathe quickly to avoid
+          negative effects on health during the recovery process.
         </p>
         <div className='my-4'>
           {' '}
@@ -102,72 +110,75 @@ const BlogDetails: React.FC = () => {
             className='w-full h-auto'
           />
         </div>
-        <h2 className='font-bold text-2xl '>Lưu ý khi tắm sau sốt xuất huyết</h2>
+        <h2 className='font-bold text-2xl '>Notes when bathing after dengue fever</h2>
         <br></br>
         <p>
-          Bên cạnh thắc mắc “Sau khi hết sốt xuất huyết có được tắm không?” và “Khỏi sốt xuất huyết bao lâu thì được
-          tắm?” cũng có rất nhiều người quan tâm đến những lưu ý khi tắm sau khi khỏi bệnh. Các chuyên gia cho biết, khi
-          tắm sau sốt xuất huyết, người bệnh cần chú ý một số yếu tố quan trọng để bảo vệ sức khỏe, bao gồm lựa chọn
-          thời điểm tắm phù hợp, kiểm soát nhiệt độ nước và thời gian tắm sao cho cơ thể không bị mệt mỏi hay nhiễm
-          lạnh. Cụ thể:{' '}
+          In addition to the questions "Can I bathe after dengue fever?" and "How long after dengue fever can I bathe?",
+          many people are also interested in the notes when bathing after recovering from the disease. Experts say that
+          when bathing after dengue fever, patients need to pay attention to some important factors to protect their
+          health, including choosing the right time to bathe, controlling the water temperature and bathing time so that
+          the body does not get tired or get cold. Specifically:{' '}
         </p>
         <br></br>
-        <h2 className='font-bold text-2xl '>1. Thời điểm tắm</h2>
+        <h2 className='font-bold text-2xl '>1. Bath time</h2>
         <br></br>
         <p>
-          Mặc dù việc tắm có thể được thực hiện ngay trong giai đoạn hồi phục, thời điểm lựa chọn tắm ảnh hưởng rất lớn
-          đến cơ thể người bệnh. Thời gian tốt nhất để tắm là sau khi cơ thể đã hết sốt và sức khỏe tương đối ổn định,
-          tức khoảng 1 – 2 ngày sau giai đoạn nguy hiểm. Tắm quá sớm, đặc biệt khi nhiệt độ cơ thể chưa trở lại bình
-          thường, có thể khiến người bệnh dễ bị nhiễm lạnh hoặc kiệt sức, làm chậm quá trình phục hồi và tăng nguy cơ
-          biến chứng.
-        </p>
-        <br></br>
-        <p>
-          {' '}
-          Người bệnh cũng cần lưu ý tắm vào thời điểm nhiệt độ môi trường ổn định, tránh giờ sáng sớm hoặc tối muộn –
-          thời gian mà nhiệt độ thường thấp. Buổi sáng muộn hoặc đầu giờ chiều khi trời ấm áp là thời điểm lý tưởng để
-          tắm rửa mà không gây áp lực cho cơ thể. Đồng thời, không nên tắm ngay sau khi ăn hoặc khi cảm thấy quá mệt
-          mỏi, vì điều này có thể gây ra cảm giác choáng váng và hạ đường huyết.
-        </p>
-
-        <br></br>
-        <h2 className='font-bold text-2xl '>2. Nhiệt độ nước</h2>
-        <br></br>
-        <p>
-          Khi tắm sau khi khỏi sốt xuất huyết, việc lựa chọn nhiệt độ nước là điều quan trọng để đảm bảo an toàn cho cơ
-          thể. Nước quá nóng có thể gây giãn mạch máu đột ngột, làm tăng huyết áp, trong khi nước lạnh có thể làm co
-          mạch, ảnh hưởng đến tuần hoàn máu.
+          MAlthough bathing can be done during the recovery period, the time of bathing greatly affects the patient's
+          body. The best time to bathe is after the fever has subsided and the patient's health is relatively stable,
+          which is about 1-2 days after the dangerous period. Bathing too soon, especially when the body temperature has
+          not returned to normal, can make the patient susceptible to cold or exhaustion, slowing the recovery process
+          and increasing the risk of complications.
         </p>
         <br></br>
         <p>
           {' '}
-          Để tránh những tác động xấu, người bệnh nên sử dụng nước ấm vừa phải. Nhiệt độ nước lý tưởng nên dao động từ
-          37 – 40 độ C, đủ để giữ ấm cơ thể nhưng không làm tổn thương đến da và mạch máu. Nước ấm giúp làm sạch cơ thể,
-          giảm căng thẳng và tăng cường tuần hoàn máu, từ đó hỗ trợ quá trình phục hồi một cách hiệu quả hơn
+          Patients should also pay attention to bathing at a time when the environmental temperature is stable, avoiding
+          early morning or late evening - times when the temperature is often low. Late morning or early afternoon when
+          the weather is warm is the ideal time to bathe without putting pressure on the body. At the same time, you
+          should not bathe immediately after eating or when you feel too tired, as this can cause dizziness and
+          hypoglycemia.
         </p>
 
         <br></br>
-        <h2 className='font-bold text-2xl '>3. Thời gian tắm</h2>
+        <h2 className='font-bold text-2xl '>2. Water temperature</h2>
         <br></br>
         <p>
-          Khi tắm sau sốt xuất huyết, người bệnh cần chú ý đến thời gian tắm để tránh làm tổn hại đến làn da. Việc tắm
-          quá lâu có thể khiến da bị khô, làm mất đi lớp dầu tự nhiên bảo vệ da khỏi các tác nhân bên ngoài. Thay vì tắm
-          quá lâu, người bệnh nên tắm nhanh chóng và nhẹ nhàng, đặc biệt là đối với những vùng da đang phục hồi hoặc bị
-          tổn thương.
+          When bathing after recovering from dengue fever, choosing the right water temperature is important to ensure
+          the safety of the body. Water that is too hot can cause sudden dilation of blood vessels, increasing blood
+          pressure, while cold water can cause constriction of blood vessels, affecting blood circulation.
         </p>
         <br></br>
         <p>
-          Thời gian tắm lý tưởng nên giới hạn từ 5 – 10 phút để đảm bảo an toàn và không gây áp lực lên cơ thể. Việc tắm
-          nhanh không chỉ giúp làm sạch cơ thể mà còn giảm nguy cơ bị nhiễm lạnh hoặc kiệt sức. Trong quá trình tắm,
-          người bệnh cũng nên tránh kỳ cọ mạnh vào da, đặc biệt tại các vùng có dấu hiệu phát ban hoặc mạch máu bị tổn
-          thương trước đó, nhằm tránh gây tổn thương da hoặc đau nhức.
+          {' '}
+          To avoid negative effects, patients should use moderately warm water. The ideal water temperature should range
+          from 37 - 40 degrees Celsius, enough to keep the body warm but not damage the skin and blood vessels. Warm
+          water helps to clean the body, reduce stress and increase blood circulation, thereby supporting the recovery
+          process more effectively.
+        </p>
+
+        <br></br>
+        <h2 className='font-bold text-2xl '>3. Bath time</h2>
+        <br></br>
+        <p>
+          When bathing after dengue fever, patients need to pay attention to the bathing time to avoid damaging the
+          skin. Bathing for too long can cause the skin to dry out, removing the natural oil layer that protects the
+          skin from external factors. Instead of bathing for too long, patients should bathe quickly and gently,
+          especially for areas of skin that are recovering or damaged.
         </p>
         <br></br>
         <p>
-          Ngoài những lưu ý chính về thời điểm, nhiệt độ nước và thời gian tắm, người bệnh nên kết hợp các biện pháp
-          chăm sóc khác khi tắm để đẩy nhanh quá trình phục hồi. Có thể sử dụng khăn mềm lau qua nhẹ nhàng cơ thể nếu
-          cảm thấy chưa đủ sức khỏe để tắm đứng. Đồng thời, sau khi tắm, nên lau khô người và giữ ấm cơ thể, đặc biệt
-          trong thời tiết lạnh hoặc khi nhiệt độ môi trường thấp, để tránh hạ thân nhiệt đột ngột.
+          The ideal bathing time should be limited to 5-10 minutes to ensure safety and not put pressure on the body. A
+          quick bath not only helps clean the body but also reduces the risk of catching a cold or becoming exhausted.
+          During the bath, the patient should also avoid rubbing the skin vigorously, especially in areas with signs of
+          rash or previously damaged blood vessels, to avoid causing skin damage or pain.
+        </p>
+        <br></br>
+        <p>
+          In addition to the main notes on the time, water temperature and bathing time, patients should combine other
+          care measures when bathing to speed up the recovery process. You can use a soft towel to gently wipe your body
+          if you feel not strong enough to take a standing bath. At the same time, after bathing, you should dry your
+          body and keep your body warm, especially in cold weather or when the ambient temperature is low, to avoid
+          sudden hypothermia.
         </p>
         <div className='my-4'>
           {' '}
@@ -177,52 +188,51 @@ const BlogDetails: React.FC = () => {
             className='w-full h-auto'
           />
         </div>
-        <h2 className='font-bold text-2xl '>Những lưu ý đặc biệt trong chăm sóc sức khỏe sau sốt xuất huyết</h2>
+        <h2 className='font-bold text-2xl '>Special notes on health care after dengue fever</h2>
         <br></br>
         <br></br>
         <p>
-          Sau khi khỏi sốt xuất huyết, để đảm bảo bệnh đã hoàn toàn hồi phục và không gặp biến chứng nguy hiểm, người
-          bệnh cần lưu ý chăm sóc sức khỏe như sau:
+          After recovering from dengue fever, to ensure that the disease has completely recovered and there are no
+          dangerous complications, the patient needs to pay attention to health care as follows:
         </p>
         <ul className='ml-16 '>
           <p>
-            - Nghỉ ngơi hợp lý, tránh quá sức: Cơ thể cần thời gian để phục hồi sau bệnh. Do đó, người bệnh nên nghỉ
-            ngơi đầy đủ, ngủ đủ 7 – 8 tiếng mỗi đêm để cơ thể sản sinh hormone tăng trưởng, tăng cường hệ miễn dịch.
-            Đồng thời, không nên làm việc nặng, tập thể dục quá sức trong thời gian đầu.
+            - Rest properly, avoid overexertion: The body needs time to recover from illness. Therefore, patients should
+            rest well, sleep 7-8 hours each night so that the body can produce growth hormone and strengthen the immune
+            system. At the same time, do not do heavy work or exercise too hard in the beginning.
           </p>
           <p>
             {' '}
-            - Xây dựng chế độ ăn uống khoa học: Bổ sung đầy đủ chất dinh dưỡng, ưu tiên các loại thực phẩm giàu protein
-            (thịt, cá, trứng, đậu…), vitamin (trái cây, rau xanh) và khoáng chất (các loại hạt). Uống đủ nước mỗi ngày
-            giúp thải độc tố, duy trì sự cân bằng điện giải trong cơ thể. Hạn chế đồ ăn dầu mỡ, cay nóng, đồ uống có ga,
-            vì những thực phẩm này có thể gây khó tiêu, ảnh hưởng đến quá trình hồi phục.
+            - Build a scientific diet: Supplement adequate nutrients, prioritize foods rich in protein (meat, fish,
+            eggs, beans, etc.), vitamins (fruits, green vegetables) and minerals (nuts). Drink enough water every day to
+            help eliminate toxins and maintain electrolyte balance in the body. Limit greasy, spicy foods and carbonated
+            drinks, as these foods can cause indigestion and affect the recovery process.
+          </p>
+          <p> </p> - Exercise gently and regularly: Start with simple exercises such as walking, yoga, etc. to help
+          increase blood circulation and improve cardiovascular health. When the body is healthier, you can increase the
+          intensity of exercise.
+          <p>
+            - Regular health monitoring: Check body temperature daily to detect early signs of fever. Observe other
+            symptoms such as headache, fatigue, loss of appetite, bleeding, etc. If there are unusual signs, take the
+            patient to the nearest medical center for timely examination and treatment by a doctor.
           </p>
           <p>
             {' '}
-            - Tập thể dục nhẹ nhàng, đều đặn: Bắt đầu từ các bài tập đơn giản như đi bộ, yoga… giúp tăng cường tuần hoàn
-            máu, tăng cường sức khỏe tim mạch. Khi cơ thể đã khỏe hơn, có thể tăng cường độ tập luyện.
-          </p>
-          <p>
-            - Theo dõi sức khỏe thường xuyên: Kiểm tra nhiệt độ cơ thể hàng ngày để phát hiện sớm dấu hiệu sốt. Quan sát
-            các triệu chứng khác như đau đầu, mệt mỏi, chán ăn, xuất huyết… Nếu gặp các dấu hiệu bất thường cần đưa
-            người bệnh đến các trung tâm y tế gần nhất để bác sĩ kiểm tra và điều trị kịp thời.
-          </p>
-          <p>
-            {' '}
-            Phòng ngừa tái nhiễm: Sau khi mắc bệnh, người bệnh vẫn có nguy cơ tái nhiễm bởi các tuýp virus sốt xuất
-            huyết khác. Do đó, sau khi mắc sốt xuất huyết 6 tháng, người bệnh cần tiêm vắc xin phòng bệnh sốt xuất huyết
-            đầy đủ. Tiêm vắc xin phòng bệnh sốt xuất huyết đầy đủ theo khuyến cáo của bác sĩ để tăng cường miễn dịch,
-            phòng ngừa nguy cơ tái nhiễm với các tuýp virus sốt xuất huyết Dengue khác.
+            - Prevention of reinfection: After contracting the disease, the patient is still at risk of reinfection with
+            other types of dengue virus. Therefore, after 6 months of contracting dengue fever, the patient needs to be
+            fully vaccinated against dengue fever. Get fully vaccinated against dengue fever as recommended by your
+            doctor to strengthen immunity, prevent the risk of reinfection with other types of dengue virus.
           </p>
         </ul>
 
         <br></br>
         <p>
           {' '}
-          <b>Vắc xin Qdenga </b> (sản xuất tại Đức) có khả năng bảo vệ chống lại cả 4 nhóm huyết thanh của virus dengue,
-          bao gồm DEN-1, DEN-2, DEN-3 và DEN-4, được chỉ định tiêm cho người từ 4 tuổi trở lên. Vắc xin có hiệu lực bảo
-          vệ hơn 80% nguy cơ mắc bệnh do 4 tuýp virus Dengue và hiệu lực trên 90% nguy cơ nhập viện, mắc bệnh nặng và
-          biến chứng nguy hiểm do bệnh sốt xuất huyết gây ra.
+          <b>The Qdenga vaccine </b> (made in Germany) is capable of protecting against all 4 serotypes of the dengue
+          virus, including DEN-1, DEN-2, DEN-3 and DEN-4, and is indicated for people aged 4 years and older. The
+          vaccine is effective in protecting against more than 80% of the risk of disease caused by 4 types of dengue
+          virus and is effective in protecting against more than 90% of the risk of hospitalization, severe illness and
+          dangerous complications caused by dengue fever.
           <div className='my-4'>
             {' '}
             <img
@@ -233,11 +243,12 @@ const BlogDetails: React.FC = () => {
           </div>
           <br></br>
           <p>
-            Bài viết đã cung cấp đầy đủ thông tin về việc “Khỏi sốt xuất huyết bao lâu thì được tắm và những lưu ý cần
-            biết”. Sau khi vượt qua giai đoạn nguy hiểm 1 – 2 ngày, người bệnh sẽ bước vào giai đoạn hồi phục và có thể
-            tắm rửa bình thường. Tuy nhiên, cần lưu ý nên tắm bằng nước ấm và hạn chế thời gian tắm để tránh ảnh hưởng
-            sức khỏe. Việc chăm sóc đúng cách giúp phục hồi nhanh chóng. Đặc biệt, sau khi khỏi bệnh, để phòng tái nhiễm
-            sốt xuất huyết mọi người nên chủ động tiêm vắc xin phòng sốt xuất huyết đầy đủ.
+            The article has provided complete information on "How long after recovering from dengue fever can you take a
+            bath and what you need to know". After overcoming the dangerous stage of 1-2 days, the patient will enter
+            the recovery stage and can bathe normally. However, it is important to note that you should bathe with warm
+            water and limit bathing time to avoid affecting your health. Proper care helps you recover quickly. In
+            particular, after recovering from the disease, to prevent re-infection with dengue fever, everyone should
+            take the initiative to get fully vaccinated against dengue fever.
           </p>
         </p>
       </div>
@@ -247,6 +258,7 @@ const BlogDetails: React.FC = () => {
       >
         Quay về đầu trang
       </button> */}
+      <Footer />
     </div>
   )
 }

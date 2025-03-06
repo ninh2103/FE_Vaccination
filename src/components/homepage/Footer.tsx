@@ -75,9 +75,9 @@ export default function Footer() {
           </div>
           <div className='mx-auto'>
             <h4 className='font-semibold mb-4 dark:text-white'>Contact Us</h4>
-            <p className='dark:text-gray-400 mb-2'>Health Street</p>
-            <p className='dark:text-gray-400 mb-2'>Wellness City</p>
-            <p className='dark:text-gray-400'>support@vaccinecare.com</p>
+            <p className='dark:text-gray-400 mb-2'>120 Hoang Minh Thao, Da Nang </p>
+            <p className='dark:text-gray-400 mb-2'>1900.1900</p>
+            <p className='dark:text-gray-400'>support@vaxbot.com</p>
           </div>
         </div>
         <div className='border-t border-gray-800 pt-8 mt-8 text-center'>

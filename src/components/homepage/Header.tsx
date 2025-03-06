@@ -1,31 +1,51 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ChevronUp } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { UserCircle, LogOut } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
+import Vaxbot from '../../assets/images/Logo.png'
 
-const navItems = [
+// Define navigation items type
+interface NavItem {
+  name: string
+  href: string
+}
+
+const navItems: NavItem[] = [
   { name: 'Home', href: '#home' },
+  { name: 'About US', href: '#aboutus' },
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
+  { name: 'Price List', href: '#pricelist' },
   { name: 'Testimonials', href: '#testimonials' },
   { name: 'Blog', href: '#blog' }
 ]
 
+// Top buttons configuration
+const topButtons: { name: string; href: string }[] = [
+  { name: 'Buy Vaccines', href: '/buy-vaccines' },
+  { name: 'Address', href: '/address' },
+  { name: '1900.1900 ', href: '/contact' },
+  { name: 'Working time  08:00 - 19:00 ', href: ' ' }
+]
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [, setShowAlert] = useState(true)
+  const [showAlert, setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userEmail] = useState('user@example.com')
+  const [userEmail, setUserEmail] = useState('user@example.com')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -59,8 +79,8 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    // Implement sign out logic here
     setIsLoggedIn(false)
+    // Add sign-out logic here (e.g., clearing tokens, redirecting)
   }
 
   return (
@@ -69,11 +89,24 @@ export default function Header() {
         className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-all duration-300 ease-in-out ${scrollY > 0 ? 'shadow-md' : ''}`}
       >
         <div className='container mx-auto px-4 py-4'>
+          {/* Top Buttons Row */}
+          <div className='flex justify-end mb-4 space-x-4'>
+            {topButtons.map((button, index) => (
+              <Button
+                key={index}
+                variant='outline'
+                className='text-gray-900 dark:text-white  hover:bg-blue-100 transition-colors'
+                onClick={() => navigate(button.href)}
+              >
+                {button.name}
+              </Button>
+            ))}
+          </div>
+
           <div className='flex items-center justify-between'>
             <Link to={path.home} className='flex items-center space-x-2'>
-              <Icons.Syringe className='h-8 w-8 text-blue-400' />
               <span className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-                VAX-BOX
+                VAXBOT
               </span>
             </Link>
             <nav className='hidden md:flex space-x-6'>
@@ -108,7 +141,7 @@ export default function Header() {
                       <Avatar className='h-8 w-8'>
                         <AvatarImage src='/avatars/01.png' alt='@user' />
                         <AvatarFallback>
-                          <UserCircle className='h-6 w-6' /> {/* UserCircle is now correctly rendered */}
+                          <UserCircle className='h-6 w-6' />
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -166,6 +199,20 @@ export default function Header() {
                   {item.name}
                 </Button>
               ))}
+              {/* Add top buttons to mobile menu */}
+              {topButtons.map((button, index) => (
+                <Button
+                  key={`mobile-${index}`}
+                  variant='ghost'
+                  className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
+                  onClick={() => {
+                    navigate(button.href)
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  {button.name}
+                </Button>
+              ))}
               {isLoggedIn ? (
                 <>
                   <Button
@@ -213,8 +260,6 @@ export default function Header() {
           <ChevronUp className='h-6 w-6' />
         </Button>
       )}
-
-      {/* <Chatbox /> Chatbox luôn nằm dưới cùng */}
     </div>
   )
 }
