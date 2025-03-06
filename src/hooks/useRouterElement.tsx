@@ -22,7 +22,7 @@ export default function useRoutesElements() {
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
       { path: '/pricelist', element: <VaccinePrices /> },
-      { path: '/introduce', element: <ServiceIntroduce /> },
+      { path: '/serviceintroduce', element: <ServiceIntroduce /> },
       {
         path: path.admin.dashboard,
         element: (

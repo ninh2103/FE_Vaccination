@@ -1,56 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import ContactSection from '@/components/homepage/Contact'
+import Footer from '@/components/homepage/Footer'
 
 const ServiceIntro: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
   const handleClick = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
+    setActiveIndex(activeIndex === index ? null : index)
+  }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-30 px-8">
-    <header className="relative top-0 left-0 w-full bg-white p-20 z-10 rounded-lg shadow-lg">
-      <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center"
-        style={{
-          backgroundImage: 'url("https://img4.thuthuatphanmem.vn/uploads/2020/07/05/hinh-anh-background-ve-cong-nghe-dep_035955098.jpg")',
-          backgroundPosition: 'center',
-          filter: 'blur(2px)',  
-          backgroundSize: 'cover',  
-          opacity: '1'  
-        }}
-      >
-      </div>
-     <div className="flex items-center space-x-12 relative z-20">
-    <h1 className="text-3xl font-extrabold text-white tracking-wider group text-gradient">
-      <span className="relative z-10">Giới Thiệu</span>
-    </h1>
-  </div>         
-  
-    </header>
+    <div className='bg-gray-100 min-h-screen py-30 px-8'>
+      <header className='relative top-0 left-0 w-full bg-white p-20 z-10 rounded-lg shadow-lg'>
+        <div
+          className='absolute rounded-lg shadow-lg  inset-0 w-full h-full bg-cover bg-center'
+          style={{
+            backgroundImage:
+              'url("https://img4.thuthuatphanmem.vn/uploads/2020/07/05/hinh-anh-background-ve-cong-nghe-dep_035955098.jpg")',
+            backgroundPosition: 'center',
+            filter: 'blur(2px)',
+            backgroundSize: 'cover',
+            opacity: '1'
+          }}
+        ></div>
+        <div className='flex items-center space-x-12 relative z-20'>
+          <h1 className='text-3xl font-extrabold text-white tracking-wider group text-gradient'>
+            <span className='relative z-10'>Giới Thiệu</span>
+          </h1>
+        </div>
+      </header>
 
-      <main className="flex flex-col items-center justify-center bg-gray-50 pt-0 pb-10 px-10">
+      <main className='flex flex-col items-center justify-center bg-gray-50 pt-0 pb-10 px-10'>
         {/* Hệ thống hàng trăm trung tâm tiêm chủng */}
-        <section className="bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl">
-        <p className="text-lg text-gray-700 leading-relaxed mb-4 mt-6 text-center">
-           Trong bối cảnh, thế giới đang phải mang gánh nặng của dịch bệnhphức tạp, ảnh hưởng trực tiếp và sâu rộng đến đời sống của loài
-           người. Vắc xin và tiêm chủng là biện pháp phòng bệnh hiệu quả nhấtđể làm giảm tỷ lệ mắc bệnh và tỷ lệ tử vong do bệnh truyền nhiễm
-           của nhân loại. Năm 2020, thời điểm mà dịch bệnh covid-19 đang diễnbiến phức tạp trên toàn cầu, Vax-box ra đời như một xu thế tất yếu
-           của sự phát triển, với mục tiêu góp phần đẩy lùi và loại bỏ dịch bệnh ở thời điểm hiện tại, cũng như nâng cao chất lượng cuộc sống cho người
-           dân Việt Nam trong tương lai.
-</p>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text  text-center">
+        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
+          <p className='text-lg text-gray-700 leading-relaxed mb-4 mt-6 text-center italic'>
+            Trong bối cảnh, thế giới đang phải mang gánh nặng của dịch bệnh phức tạp, ảnh hưởng trực tiếp và sâu rộng
+            đến đời sống của loài người. Vắc xin và tiêm chủng là biện pháp phòng bệnh hiệu quả nhấtđể làm giảm tỷ lệ
+            mắc bệnh và tỷ lệ tử vong do bệnh truyền nhiễm của nhân loại. Năm 2020, thời điểm mà dịch bệnh covid-19 đang
+            diễn biến phức tạp trên toàn cầu, Vax-box ra đời như một xu thế tất yếu của sự phát triển, với mục tiêu góp
+            phần đẩy lùi và loại bỏ dịch bệnh ở thời điểm hiện tại, cũng như nâng cao chất lượng cuộc sống cho người dân
+            Việt Nam trong tương lai.
+          </p>
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text  text-center'>
             HỆ THỐNG HÀNG TRĂM TRUNG TÂM TIÊM CHỦNG VAX-BOX: AN TOÀN, UY TÍN, CHẤT LƯỢNG ĐƯỢC HÀNG CHỤC TRIỆU GIA ĐÌNH
             TIN TƯỞNG LỰA CHỌN!
           </h2>
 
           <img
-            src="https://image.anninhthudo.vn/1200x630/Uploaded/2024/xpcwvoxb/2023_05_14/img-2454-1966-719.jpeg"
-            alt="Trung tâm tiêm chủng"
-            className="w-full h-auto mt-6 rounded-lg shadow-lg"
+            src='https://image.anninhthudo.vn/1200x630/Uploaded/2024/xpcwvoxb/2023_05_14/img-2454-1966-719.jpeg'
+            alt='Trung tâm tiêm chủng'
+            className='w-full h-auto mt-6 rounded-lg shadow-lg'
           />
 
-          <p className="text-lg text-gray-700 leading-relaxed mb-4 mt-6">
+          <p className='text-lg text-gray-700 leading-relaxed mb-4 mt-6'>
             Là đơn vị dẫn đầu ngành tiêm chủng vắc xin dịch vụ tại Việt Nam, trong gần 1 thập kỷ hình thành và phát
             triển, Hệ thống tiêm chủng Vax-box đã nỗ lực không ngừng nghỉ và đạt nhiều thành tích nổi bật trong hoạt
             động tiêm chủng vắc xin, phòng chống dịch bệnh, nhận được sự tin tưởng yêu mến sử dụng dịch vụ của hàng chục
@@ -71,21 +73,25 @@ const ServiceIntro: React.FC = () => {
         </section>
 
         {/* Quy trình tiêm chủng đạt chuẩn */}
-        <section className="bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">Quy Trình Tiêm Chủng Đạt Chuẩn</h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-6 text-left">
+        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
+            Quy Trình Tiêm Chủng Đạt Chuẩn
+          </h2>
+          <p className='text-lg text-gray-700 leading-relaxed mb-6 text-left'>
             Trung tâm Tiêm chủng VAX-BOX áp dụng quy trình tiêm chủng đạt chuẩn, tuân thủ nghiêm ngặt các quy định y tế,
             là lựa chọn phù hợp cho mọi đối tượng. Người dân sẽ được thực hiện đầy đủ các bước quan trọng trong quy
             trình tiêm phòng, bao gồm:
           </p>
-          
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">1. Khám Sàng Lọc Trước Tiêm</h3>
-          <p className="text-lg text-gray-700 mb-4 text-left">
+
+          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
+            1. Khám Sàng Lọc Trước Tiêm
+          </h3>
+          <p className='text-lg text-gray-700 mb-4 text-left'>
             Trước khi tiêm vắc xin, bác sĩ sẽ thực hiện khám sàng lọc để đánh giá tình trạng sức khỏe của người tiêm.
             Điều này giúp xác định khả năng tiếp nhận vắc xin, phòng tránh các rủi ro không mong muốn và lựa chọn loại
             vắc xin phù hợp nhất. Bác sĩ cũng sẽ tư vấn kỹ lưỡng về lợi ích và tác dụng phụ có thể gặp phải sau tiêm.
           </p>
-           <p className='text-lg text-gray-700 mb-4 text-left'>
+          <p className='text-lg text-gray-700 mb-4 text-left'>
             Khám sàng lọc trước khi tiêm chủng là một quá trình y tế thiết yếu nhằm đánh giá tình trạng sức khỏe tổng
             quát và xác định mọi nguy cơ có thể ảnh hưởng đến hiệu quả hoặc an toàn của vaccine. Quá trình này bao gồm
             việc thu thập thông tin y tế chi tiết, kiểm tra sức khỏe vật lý, và thực hiện các xét nghiệm cần thiết để
@@ -97,24 +103,23 @@ const ServiceIntro: React.FC = () => {
             ngừa bệnh, và khuyến cáo về việc theo dõi sức khỏe sau khi tiêm.
           </p>
 
-
           <img
-            src="https://cdn.thuvienphapluat.vn/uploads/tintuc/2023/03/29/kham-sang-loc-truoc-tiem-chung.jpg"
-            alt="Khám sàng lọc trước tiêm"
-            className="w-full h-auto mt-6 rounded-lg shadow-lg"
+            src='https://cdn.thuvienphapluat.vn/uploads/tintuc/2023/03/29/kham-sang-loc-truoc-tiem-chung.jpg'
+            alt='Khám sàng lọc trước tiêm'
+            className='w-full h-auto mt-6 rounded-lg shadow-lg'
           />
-          <p className="text-sm italic text-gray-700 text-center mt-4">* Khám sàng lọc trước khi tiêm chủng.* </p>
+          <p className='text-sm italic text-gray-700 text-center mt-4'>* Khám sàng lọc trước khi tiêm chủng.* </p>
 
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">
+          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
             2. Thực Hiện Quá Trình Tiêm Chủng Đạt Chuẩn An Toàn
           </h3>
-          <p className="text-lg text-gray-700 mb-4 text-left">
+          <p className='text-lg text-gray-700 mb-4 text-left'>
             Trước khi tiến hành tiêm, nhân viên y tế sẽ kiểm tra kỹ vắc xin, bơm tiêm và các dụng cụ y tế để đảm bảo
             chất lượng và an toàn. Đối với trẻ em, cha mẹ sẽ được xem xét kỹ loại vắc xin trước khi tiêm để đảm bảo đúng
             lịch và đúng loại theo khuyến nghị của bác sĩ. Nhân viên y tế sẽ thực hiện tiêm đúng kỹ thuật để giảm thiểu
             tối đa nguy cơ biến chứng.
           </p>
-          
+
           <p className='text-lg text-gray-700 mb-4 text-left'>
             An toàn tiêm chủng không chỉ đơn thuần là việc thực hiện đúng kỹ thuật tiêm, mà còn bao gồm cả một hệ thống
             các yếu tố đảm bảo từ khâu bảo quản vaccine đến theo dõi sau tiêm. Khi được thực hiện đúng quy trình, tiêm
@@ -169,7 +174,9 @@ const ServiceIntro: React.FC = () => {
             *Thần tốc thực hiện chiến dịch tiêm chủng vaccin .*
           </p>
 
-          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>3. Theo Dõi Sức Khỏe Sau Tiêm Phòng</h3>
+          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
+            3. Theo Dõi Sức Khỏe Sau Tiêm Phòng
+          </h3>
           <p className='text-lg text-gray-700 mb-4 text-left'>
             Theo dõi sau tiêm là một phần không thể thiếu trong đảm bảo an toàn tiêm chủng. Người được tiêm cần được
             theo dõi ít nhất 30 phút tại cơ sở tiêm chủng để phát hiện và xử trí kịp thời các phản ứng có thể xảy ra. Cơ
@@ -187,16 +194,16 @@ const ServiceIntro: React.FC = () => {
           </p>
         </section>
         {/* Vắc xin chính hãng */}
-        <section className="bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">
+        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
             Luôn có đầy đủ vắc xin chính hãng, thế hệ mới, kể cả loại thường xuyên khan hiếm cho trẻ em và người lớn
           </h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
             Hệ thống trung tâm tiêm chủng Vax-box có hơn 50 loại vắc xin phòng hơn 40 bệnh truyền nhiễm nguy hiểm cho
             người lớn, kể cả các loại vắc xin thế hệ mới, vắc xin thường xuyên khan hiếm trên thị trường.
           </p>
-          <p className="text-lg text-gray-700 leading-relaxed mb-4">
-          Với uy tín và kinh nghiệm triển khai tiêm chủng nhiều năm, Vax-box đã trở thành đối tác chính thức, toàn
+          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
+            Với uy tín và kinh nghiệm triển khai tiêm chủng nhiều năm, Vax-box đã trở thành đối tác chính thức, toàn
             diện và chiến lược quan trọng với các hãng vắc xin lớn trên thế giới như Glaxosmithkline – Bỉ (GSK), Sanofi
             Pasteur (Pháp), Pfizer (Mỹ), Merck Sharp and Dohme (Mỹ), AstraZeneca (Anh), Sanofi (Pháp), Abbott (Hà Lan),
             Takeda (Nhật Bản)… do đó, Vax-box được quyền đàm phán trực tiếp, nhập khẩu chính hãng tất cả các loại vắc
@@ -213,23 +220,23 @@ const ServiceIntro: React.FC = () => {
           </p>
 
           <img
-            src="https://namphuthai.vn/wp-content/uploads/2021/08/image_2021-08-14_001250.png"
-            alt="Vaccine chính hãng"
-            className="w-full h-auto mt-6 rounded-lg shadow-lg"
+            src='https://namphuthai.vn/wp-content/uploads/2021/08/image_2021-08-14_001250.png'
+            alt='Vaccine chính hãng'
+            className='w-full h-auto mt-6 rounded-lg shadow-lg'
           />
-          <p className="text-sm italic text-gray-700 text-center mt-4">
+          <p className='text-sm italic text-gray-700 text-center mt-4'>
             * Hệ thống kho bảo quản vắc xin đạt chuẩn , đảm bảo lưu trữ và bảo quản các loại vắc xin trong điều kiện tối
             ưu từ 2-8 độ C.*
           </p>
         </section>
 
         {/* Đội ngũ bác sĩ, y tế chuyên nghiệp */}
-        <section className="bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">
+        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
             Đội Ngũ Bác Sĩ, Y Tế Chuyên Nghiệp Trong Quá Trình Thực Hiện Quy Trình Tiêm Chủng
           </h2>
 
-          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
             Hệ thống trung tâm tiêm chủng Vax-box là đơn vị tiêm chủng tại Việt Nam thực hiện quy trình tiêm chủng an
             toàn 8 bước khép kín, đảm bảo tất cả các bước thực hiện tiêm chủng được thực hiện đúng cách, được kiểm soát
             nghiêm ngặt nhằm đảm bảo tính an toàn ở mức tối đa.
@@ -244,16 +251,16 @@ const ServiceIntro: React.FC = () => {
           </p>
 
           <img
-            src="https://lamgiangclinic.com/wp-content/uploads/2024/01/doi-ngu-bac-si.jpg"
-            alt="Đội ngũ bác sĩ"
-            className="w-full h-auto mt-6 rounded-lg shadow-lg"
+            src='https://lamgiangclinic.com/wp-content/uploads/2024/01/doi-ngu-bac-si.jpg'
+            alt='Đội ngũ bác sĩ'
+            className='w-full h-auto mt-6 rounded-lg shadow-lg'
           />
-          <p className="text-sm italic text-gray-700 text-center mt-4">
+          <p className='text-sm italic text-gray-700 text-center mt-4'>
             * Đội ngũ bác sĩ và nhân viên y tế của chúng tôi cam kết mang lại sự an tâm, chăm sóc tận tình cho khách
             hàng trong suốt quá trình tiêm chủng.*
           </p>
 
-             <img
+          <img
             src='https://bvxuyena.com.vn/wp-content/uploads/2016/01/tiem-ngua-02-1024x734.jpg' // Replace with the URL of the image you want to use
             alt='Đội ngũ bác sĩ'
             className='w-full h-auto mt-6 rounded-lg shadow-lg'
@@ -264,56 +271,52 @@ const ServiceIntro: React.FC = () => {
         </section>
 
         {/* Why choose Vax-box section */}
-        <section className="bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl">
-          
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text">
+        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-6xl mx-auto'>
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-center mb-8'>
             Vì sao nên chọn Trung tâm tiêm chủng VAX-BOX?
           </h2>
 
-          <ul className="list-none">
+          <ul className='list-none grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6'>
             {[
               {
                 title: 'Khách hàng là người thân',
-                content: 'Coi khách hàng như người thân để tận tâm phục vụ, mang lại “nụ cười hài lòng” cho khách hàng.',
+                img: 'https://www.tiemchungmorong.vn/sites/default/files/a7_5447_2.jpg'
               },
               {
                 title: 'Mức giá hợp lý',
-                content: 'Với mong muốn ai cũng có thể tiếp cận dịch vụ tiêm chủng chất lượng cao, Trung tâm đưa ra mức giá vắc xin vừa phải, cạnh tranh so với thị trường. Ngoài ra còn nhiều chương trình ưu đãi hấp dẫn cho các đối tượng như trẻ em, người cao tuổi.',
+                img: 'https://toplist.vn/images/800px/gia-ca-hop-ly-182029.jpg'
               },
               {
                 title: 'Vắc xin chất lượng, bảo quản đúng quy định',
-                content: 'Luôn cam kết cung cấp nguồn vaccine nhập khẩu chất lượng cao với giá thành hợp lý cho nhiều đối tượng. Tất cả vắc xin tại Trung tâm đều được cung cấp từ các nhà sản xuất uy tín, đạt tiêu chuẩn WHO và Bộ Y tế. Vắc xin luôn được bảo quản ở nhiệt độ 2-8°C trong dây chuyền lạnh từ khâu vận chuyển đến tồn trữ.',
+                img: 'https://www.docosan.com/blog/wp-content/uploads/2022/06/gia-vacxin-6-trong-1-3.jpg'
               },
               {
                 title: 'Đội ngũ bác sĩ, điều dưỡng giàu kinh nghiệm',
-                content: 'Đội ngũ Bác sĩ lành nghề sẵn sàng tư vấn, cung cấp kiến thức giúp Khách hàng cải thiện sức khoẻ.',
-              },
-              {
-                title: 'Quy trình tiêm chủng khoa học, an toàn',
-                content: 'Trung tâm thiết lập quy trình tiêm chuẩn quốc tế với nhiều bước kiểm tra, giám sát chặt chẽ nhằm đảm bảo an toàn tối đa cho khách hàng. Đặc biệt, việc theo dõi phản ứng sau tiêm được chú trọng để kịp thời xử lý các trường hợp phản ứng bất thường.',
-              },
+                img: 'https://nhakhoavietmy.com.vn/wp-content/uploads/2023/07/Doi-ngu-bac-sy-.jpeg'
+              }
             ].map((item, index) => (
-              <li key={index}>
-                <h3
-                  className="text-2xl font-semibold text-blue-800 mb-4 text-left cursor-pointer"
-                  onClick={() => handleClick(index)}
-                >
+              <li
+                key={index}
+                className='flex flex-col items-center text-center bg-gray-50 rounded-xl p-6 shadow-md transition-shadow'
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className='w-24 h-24 object-cover rounded-full mb-4 border-2 border-blue-500'
+                />
+                <h3 className='text-xl font-semibold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text cursor-pointer transition-colors duration-300'>
                   {index + 1}. {item.title}
                 </h3>
-
-                {/* Toggle content */}
-                {activeIndex === index && (
-                  <p className="text-lg text-gray-700 leading-relaxed mb-4 transition-all duration-300 ease-in-out max-h-[500px] overflow-hidden">
-                    {item.content}
-                  </p>
-                )}
               </li>
             ))}
           </ul>
         </section>
-      </main>
-    </div>
-  );
-};
 
-export default ServiceIntro;
+        <ContactSection />
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export default ServiceIntro

@@ -17,8 +17,8 @@ const navItems = [
   { name: 'Doctor', href: '#doctor' },
   { name: 'Testimonials', href: '#testimonials' },
   { name: 'Blog', href: '#blog' },
-  { name: 'PriceList', href: '#pricelist' },
-  { name: 'Serviceintroduce', href: '#serviceintroduce' }
+  { name: 'PriceList', href: '/pricelist' },
+  { name: 'Serviceintroduce', href: '/serviceintroduce' }
 ]
 
 export default function Header() {
@@ -80,14 +80,16 @@ export default function Header() {
             </Link>
             <nav className='hidden md:flex space-x-6'>
               {navItems.map((item, index) => (
-                <Button
-                  key={index}
-                  variant='ghost'
-                  className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                  onClick={() => scrollToSection(item.name.toLowerCase())}
-                >
-                  {item.name}
-                </Button>
+                <Link to={item.href}>
+                  <Button
+                    key={index}
+                    variant='ghost'
+                    className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
+                    onClick={() => scrollToSection(item.name.toLowerCase())}
+                  >
+                    {item.name}
+                  </Button>
+                </Link>
               ))}
             </nav>
             <div className='grid w-1/2 max-w-xs items-center gap-1.5'>

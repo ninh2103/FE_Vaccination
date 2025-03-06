@@ -1,4 +1,18 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import ContactSection from '@/components/homepage/Contact'
+import Footer from '@/components/homepage/Footer'
+import {
+  FaStethoscope,
+  FaBell,
+  FaSyringe,
+  FaUser,
+  FaShieldAlt,
+  FaClock,
+  FaBox,
+  FaRecycle,
+  FaCheckCircle,
+  FaUserCheck
+} from 'react-icons/fa'
 
 type Vaccine = {
   id: number
@@ -25,13 +39,13 @@ const Filter: React.FC<{
           value={filterOption}
           onChange={(e) => onFilterChange(e.target.value)}
           className='p-2 border rounded-lg shadow-sm bg-white'
-          aria-label='Chọn bộ lọc và sắp xếp'
+          aria-label='Select filter and sort'
         >
-          <option value=''>Sắp Xếp Theo</option>
-          <option value='filter-c-on'>Còn Hàng</option>
-          <option value='filter-h-on'>Hết Hàng</option>
-          <option value='sort-asc'>Giá tăng dần</option>
-          <option value='sort-desc'>Giá giảm dần</option>
+          <option value=''>Sort By</option>
+          <option value='filter-c-on'>In Stock</option>
+          <option value='filter-h-on'>Out of stock</option>
+          <option value='sort-asc'>Rising price</option>
+          <option value='sort-desc'>Declining prices</option>
         </select>
       </div>
     </div>
@@ -42,363 +56,371 @@ const VaccinePrices: React.FC = () => {
   const prices: Vaccine[] = [
     {
       id: 1,
-      name: 'Vắc-xin COVID-19',
-      usage: 'Phòng ngừa COVID-19',
-      country: 'Việt Nam',
-      price: '800.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'COVID-19 Vaccine',
+      usage: 'COVID-19 Prevention',
+      country: 'Vietnam',
+      price: '800,000 VND',
+      status: 'In Stock'
     },
     {
       id: 2,
-      name: 'Vắc-xin Cúm',
-      usage: 'Phòng ngừa cúm mùa',
-      country: 'Nhật Bản',
-      price: '250.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Influenza Vaccine',
+      usage: 'Prevention of seasonal flu',
+      country: 'Japan',
+      price: '250,000 VND',
+      status: 'In Stock'
     },
     {
       id: 3,
-      name: 'Vắc-xin Dại',
-      usage: 'Phòng ngừa bệnh dại',
-      country: 'Mỹ',
-      price: '1.500.000 VNĐ',
-      status: 'Hết hàng'
+      name: 'Rabies Vaccine',
+      usage: 'Prevention of rabies',
+      country: 'USA',
+      price: '1,500,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 4,
-      name: 'Vắc-xin Viêm Gan B',
-      usage: 'Phòng ngừa viêm gan B',
-      country: 'Ấn Độ',
-      price: '700.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Hepatitis B Vaccine',
+      usage: 'Hepatitis B Prevention',
+      country: 'India',
+      price: '700,000 VND',
+      status: 'In Stock'
     },
     {
       id: 5,
-      name: 'Vắc-xin HPV',
-      usage: 'Phòng ngừa ung thư cổ tử cung',
-      country: 'Anh',
-      price: '2.000.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'HPV vaccine',
+      usage: 'Prevention of cervical cancer',
+      country: 'English',
+      price: '2,000,000 VND',
+      status: 'In Stock'
     },
     {
       id: 6,
-      name: 'Vắc-xin Sởi',
-      usage: 'Phòng ngừa bệnh sởi',
-      country: 'Mỹ',
-      price: '500.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Measles Vaccine',
+      usage: 'Prevention of measles',
+      country: 'USA',
+      price: '500,000 VND',
+      status: 'In Stock'
     },
     {
       id: 7,
-      name: 'Vắc-xin Bại Liệt',
-      usage: 'Phòng ngừa bệnh bại liệt',
-      country: 'Pháp',
-      price: '900.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Polio Vaccine',
+      usage: 'Polio Prevention',
+      country: 'France',
+      price: '900,000 VND',
+      status: 'In Stock'
     },
     {
       id: 8,
-      name: 'Vắc-xin Thủy Đậu',
-      usage: 'Phòng ngừa bệnh thủy đậu',
-      country: 'Úc',
-      price: '600.000 VNĐ',
-      status: 'Hết hàng'
+      name: 'Chickenpox Vaccine',
+      usage: 'Chickenpox Prevention',
+      country: 'Australia',
+      price: '600,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 9,
-      name: 'Vắc-xin Meningitis',
-      usage: 'Phòng ngừa viêm màng não',
-      country: 'Hàn Quốc',
-      price: '1.200.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Meningitis Vaccine',
+      usage: 'Prevention of meningitis',
+      country: 'South Korea',
+      price: '1,200,000 VND',
+      status: 'In Stock'
     },
     {
       id: 10,
-      name: 'Vắc-xin Tetanus',
-      usage: 'Phòng ngừa bệnh uốn ván',
-      country: 'Đức',
-      price: '400.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Tetanus Vaccine',
+      usage: 'Tetanus Prevention',
+      country: 'Germany',
+      price: '400,000 VND',
+      status: 'In Stock'
     },
     {
       id: 11,
-      name: 'Vắc-xin Viêm Gan A',
-      usage: 'Phòng ngừa viêm gan A',
-      country: 'Nhật Bản',
-      price: '850.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Hepatitis A Vaccine',
+      usage: 'Hepatitis A Prevention',
+      country: 'Japan',
+      price: '850,000 VND',
+      status: 'In Stock'
     },
     {
       id: 12,
-      name: 'Vắc-xin Viêm Màng Não',
-      usage: 'Phòng ngừa viêm màng não',
+      name: 'Meningitis Vaccine',
+      usage: 'Prevention of meningitis',
       country: 'Brazil',
-      price: '1.300.000 VNĐ',
-      status: 'Còn hàng'
+      price: '1,300,000 VND',
+      status: 'In Stock'
     },
     {
       id: 13,
-      name: 'Vắc-xin Rubella',
-      usage: 'Phòng ngừa bệnh Rubella',
+      name: 'Rubella Vaccine',
+      usage: 'Rubella Prevention',
       country: 'Canada',
-      price: '550.000 VNĐ',
-      status: 'Hết hàng'
+      price: '550,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 14,
-      name: 'Vắc-xin Đậu Mùa',
-      usage: 'Phòng ngừa bệnh đậu mùa',
-      country: 'Trung Quốc',
-      price: '1.000.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Smallpox Vaccine',
+      usage: 'Smallpox Prevention',
+      country: 'China',
+      price: '1,000,000 VND',
+      status: 'In Stock'
     },
     {
       id: 15,
-      name: 'Vắc-xin Viêm Phổi',
-      usage: 'Phòng ngừa viêm phổi',
-      country: 'Thái Lan',
-      price: '1.100.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Pneumonia Vaccine',
+      usage: 'Prevention of pneumonia',
+      country: 'Thailand',
+      price: '1,100,000 VND',
+      status: 'In stock'
     },
     {
       id: 16,
-      name: 'Vắc-xin Cúm Mùa',
-      usage: 'Phòng ngừa cúm mùa',
-      country: 'Nga',
-      price: '350.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Seasonal Flu Vaccine',
+      usage: 'Prevention of seasonal flu',
+      country: 'Russia',
+      price: '350,000 VND',
+      status: 'In stock'
     },
     {
       id: 17,
-      name: 'Vắc-xin Sởi Rubella',
-      usage: 'Phòng ngừa bệnh sởi rubella',
-      country: 'Mỹ',
-      price: '900.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Rubella Measles Vaccine',
+      usage: 'Prevention of rubella measles',
+      country: 'USA',
+      price: '900,000 VND',
+      status: 'In stock'
     },
     {
       id: 18,
-      name: 'Vắc-xin Viêm Gan C',
-      usage: 'Phòng ngừa viêm gan C',
-      country: 'Pháp',
-      price: '2.500.000 VNĐ',
-      status: 'Hết hàng'
+      name: 'Hepatitis C Vaccine',
+      usage: 'Prevention of hepatitis C',
+      country: 'France',
+      price: '2,500,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 19,
-      name: 'Vắc-xin Viêm Màng Não B',
-      usage: 'Phòng ngừa viêm màng não B',
-      country: 'Anh',
-      price: '1.700.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Meningitis B Vaccine',
+      usage: 'Prevention of meningitis B',
+      country: 'UK',
+      price: '1,700,000 VND',
+      status: 'In stock'
     },
     {
       id: 20,
-      name: 'Vắc-xin Dại',
-      usage: 'Phòng ngừa bệnh dại',
-      country: 'Mỹ',
-      price: '1.500.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Rabies Vaccine',
+      usage: 'Prevention of rabies',
+      country: 'USA',
+      price: '1,500,000 VND',
+      status: 'In stock'
     },
     {
       id: 21,
-      name: 'Vắc-xin Ho Gà',
-      usage: 'Phòng ngừa ho gà',
-      country: 'Hàn Quốc',
-      price: '1.200.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Pertussis Vaccine',
+      usage: 'Prevention of pertussis',
+      country: 'Korea',
+      price: '1,200,000 VND',
+      status: 'In stock'
     },
     {
       id: 22,
-      name: 'Vắc-xin Viêm Màng Não C',
-      usage: 'Phòng ngừa viêm màng não C',
-      country: 'Đức',
-      price: '1.300.000 VNĐ',
-      status: 'Hết hàng'
+      name: 'Meningitis C Vaccine',
+      usage: 'Prevention of meningitis C',
+      country: 'Germany',
+      price: '1,300,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 23,
-      name: 'Vắc-xin Bạch Hầu',
-      usage: 'Phòng ngừa bạch hầu',
-      country: 'Pháp',
-      price: '750.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Diphtheria Vaccine',
+      usage: 'Prevention of diphtheria',
+      country: 'France',
+      price: '750,000 VND',
+      status: 'In stock'
     },
     {
       id: 24,
-      name: 'Vắc-xin Tiêu Chảy',
-      usage: 'Phòng ngừa tiêu chảy',
-      country: 'Việt Nam',
-      price: '450.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Diarrhea Vaccine',
+      usage: 'Prevention of diarrhea',
+      country: 'Vietnam',
+      price: '450,000 VND',
+      status: 'In stock'
     },
     {
       id: 25,
-      name: 'Vắc-xin Viêm Màng Não A',
-      usage: 'Phòng ngừa viêm màng não A',
+      name: 'Meningitis A Vaccine',
+      usage: 'Prevention of meningitis A',
       country: 'Brazil',
-      price: '1.100.000 VNĐ',
-      status: 'Hết hàng'
+      price: '1,100,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 26,
-      name: 'Vắc-xin Viêm Mắt',
-      usage: 'Phòng ngừa viêm mắt',
-      country: 'Nhật Bản',
-      price: '500.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Eyelid Vaccine',
+      usage: 'Eyelid Prevention',
+      country: 'Japan',
+      price: '500,000 VND',
+      status: 'In stock'
     },
     {
       id: 27,
-      name: 'Vắc-xin Viêm Mạch Máu',
-      usage: 'Phòng ngừa viêm mạch máu',
-      country: 'Nhật Bản',
-      price: '1.400.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Eyelid Vaccine',
+      usage: 'Eyelid Prevention',
+      country: 'Japan',
+      price: '1,400,000 VND',
+      status: 'In stock'
     },
     {
       id: 28,
-      name: 'Vắc-xin Viêm Hô Hấp',
-      usage: 'Phòng ngừa viêm hô hấp',
-      country: 'Mỹ',
-      price: '1.800.000 VNĐ',
-      status: 'Hết hàng'
+      name: 'Respiratory Infection Vaccine',
+      usage: 'Prevention of respiratory infections',
+      country: 'USA',
+      price: '1,800,000 VND',
+      status: 'Out of stock'
     },
     {
       id: 29,
-      name: 'Vắc-xin Viêm Tụy',
-      usage: 'Phòng ngừa viêm tụy',
+      name: 'Pancreatitis Vaccine',
+      usage: 'Prevention of pancreatitis',
       country: 'Canada',
-      price: '950.000 VNĐ',
-      status: 'Còn hàng'
+      price: '950,000 VND',
+      status: 'In stock'
     },
     {
       id: 30,
-      name: 'Vắc-xin COVID-19 Booster',
-      usage: 'Tăng cường phòng ngừa COVID-19',
-      country: 'Hàn Quốc',
-      price: '1.000.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'COVID-19 Booster Vaccine',
+      usage: 'Enhanced COVID-19 Prevention',
+      country: 'Korea',
+      price: '1,000,000 VND',
+      status: 'In stock'
     },
     {
       id: 31,
-      name: 'Vắc-xin COVID-19',
-      usage: 'Phòng ngừa COVID-19',
-      country: 'Việt Nam',
-      price: '800.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'COVID-19 Vaccine',
+      usage: 'Prevention COVID-19',
+      country: 'Vietnam',
+      price: '800,000 VND',
+      status: 'In stock'
     },
     {
       id: 32,
-      name: 'Vắc-xin phòng cúm mùa',
-      usage: 'Phòng ngừa cúm mùa',
-      country: 'Mỹ',
-      price: '500.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Seasonal flu vaccine',
+      usage: 'Seasonal flu prevention',
+      country: 'USA',
+      price: '500,000 VND',
+      status: 'In stock'
     },
     {
       id: 33,
-      name: 'Vắc-xin phòng sởi',
-      usage: 'Phòng ngừa bệnh sởi',
-      country: 'Anh',
-      price: '450.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Measles vaccine',
+      usage: 'Measles prevention',
+      country: 'UK',
+      price: '450,000 VND',
+      status: 'In stock'
     },
     {
       id: 34,
-      name: 'Vắc-xin phòng rubella',
-      usage: 'Phòng ngừa bệnh rubella',
-      country: 'Nhật Bản',
-      price: '600.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Rubella vaccine',
+      usage: 'Rubella prevention',
+      country: 'Japan',
+      price: '600,000 VND',
+      status: 'In stock'
     },
     {
       id: 35,
-      name: 'Vắc-xin phòng viêm gan B',
-      usage: 'Phòng ngừa viêm gan B',
-      country: 'Mỹ',
-      price: '550.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Hepatitis B vaccine',
+      usage: 'Hepatitis B prevention',
+      country: 'USA',
+      price: '550,000 VND',
+      status: 'In stock'
     },
     {
       id: 36,
-      name: 'Vắc-xin phòng viêm phổi do phế cầu',
-      usage: 'Phòng ngừa viêm phổi do phế cầu',
-      country: 'Hàn Quốc',
-      price: '700.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Pneumococcal pneumonia vaccine',
+      usage: 'Prevention of pneumococcal pneumonia',
+      country: 'Korea',
+      price: '700,000 VND',
+      status: 'In stock'
     },
     {
       id: 37,
-      name: 'Vắc-xin phòng viêm não Nhật Bản',
-      usage: 'Phòng ngừa viêm não Nhật Bản',
-      country: 'Nhật Bản',
-      price: '850.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Japanese encephalitis vaccine',
+      usage: 'Prevention of Japanese encephalitis',
+      country: 'Japan',
+      price: '850,000 VND',
+      status: 'In stock'
     },
     {
       id: 38,
-      name: 'Vắc-xin phòng uốn ván',
-      usage: 'Phòng ngừa uốn ván',
-      country: 'Việt Nam',
-      price: '400.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Tetus vaccine',
+      usage: 'Tetus prevention',
+      country: 'Vietnam',
+      price: '400,000 VND',
+      status: 'In stock'
     },
     {
       id: 39,
-      name: 'Vắc-xin phòng dại',
-      usage: 'Phòng ngừa bệnh dại',
-      country: 'Việt Nam',
-      price: '1.000.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Rabies vaccine',
+      usage: 'Rabies prevention',
+      country: 'Vietnam',
+      price: '1,000,000 VND',
+      status: 'In stock'
     },
     {
       id: 40,
-      name: 'Vắc-xin phòng HPV',
-      usage: 'Phòng ngừa ung thư cổ tử cung',
-      country: 'Mỹ',
-      price: '1.200.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'HPV vaccine',
+      usage: 'Prevention of cervical cancer',
+      country: 'USA',
+      price: '1,200,000 VND',
+      status: 'In stock'
     },
     {
       id: 41,
-      name: 'Vắc-xin phòng bạch hầu',
-      usage: 'Phòng ngừa bệnh bạch hầu',
-      country: 'Ấn Độ',
-      price: '350.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Diphtheria vaccine',
+      usage: 'Prevention of diphtheria',
+      country: 'India',
+      price: '350,000 VND',
+      status: 'In stock'
     },
     {
       id: 42,
-      name: 'Vắc-xin phòng ho gà',
-      usage: 'Phòng ngừa bệnh ho gà',
+      name: 'Pertussis vaccine',
+      usage: 'Prevention of pertussis',
       country: 'Canada',
-      price: '480.000 VNĐ',
-      status: 'Còn hàng'
+      price: '480,000 VND',
+      status: 'In stock'
     },
     {
       id: 43,
-      name: 'Vắc-xin phòng viêm gan A',
-      usage: 'Phòng ngừa viêm gan A',
-      country: 'Pháp',
-      price: '620.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Hepatitis A Vaccine',
+      usage: 'Hepatitis A Prevention',
+      country: 'France',
+      price: '620,000 VND',
+      status: 'In stock'
     },
     {
       id: 44,
-      name: 'Vắc-xin phòng viêm màng não',
-      usage: 'Phòng ngừa viêm màng não',
-      country: 'Mỹ',
-      price: '750.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Meningitis Vaccine',
+      usage: 'Meningitis Prevention',
+      country: 'USA',
+      price: '750,000 VND',
+      status: 'In stock'
     },
     {
       id: 45,
-      name: 'Vắc-xin phòng viêm khớp',
-      usage: 'Phòng ngừa viêm khớp',
-      country: 'Hàn Quốc',
-      price: '900.000 VNĐ',
-      status: 'Còn hàng'
+      name: 'Arthritis Vaccine',
+      usage: 'Arthritis Prevention',
+      country: 'Korea',
+      price: '900,000 VND',
+      status: 'In stock'
+    },
+    {
+      id: 46,
+      name: 'COVID-19 Vaccine',
+      usage: 'COVID-19 Prevention',
+      country: 'Vietnam',
+      price: '800,000 VND',
+      status: 'In Stock'
     }
   ]
 
@@ -414,7 +436,7 @@ const VaccinePrices: React.FC = () => {
 
     if (filterOption) {
       if (filterOption.startsWith('filter')) {
-        const status = filterOption === 'filter-c-on' ? 'Còn hàng' : 'Hết hàng'
+        const status = filterOption === 'filter-c-on' ? 'In Stock' : 'Out of stock'
         result = result.filter((vaccine) => vaccine.status === status)
       } else if (filterOption.startsWith('sort')) {
         result = result.sort((a, b) => {
@@ -446,22 +468,22 @@ const VaccinePrices: React.FC = () => {
   }
 
   const categories = [
-    { name: 'Danh sách Bảng Giá Vắc-Xin', target: '#price-list' },
-    { name: 'Các Dịch Vụ Tiêm Chủng tại VAX-BOX', target: '#vaccine-services' },
-    { name: 'Các Gói Tiêm Vắc-Xin', target: '#vaccine-packages' },
-    { name: 'Dịch Vụ Tiêm Chủng Lưu Động Theo Yêu Cầu', target: '#vaccine-mobile-services' }
+    { name: 'Vaccine Price List', target: '#price-list' },
+    { name: 'Vaccination Services at VAX-BOX', target: '#vaccine-services' },
+    { name: 'Vaccine Packages', target: '#vaccine-packages' },
+    { name: 'Mobile Vaccination Services on Demand', target: '#vaccine-mobile-services' }
   ]
 
   return (
-    <div className='bg-gray-50 p-6 rounded-lg shadow-lg max-w-7xl mx-auto px-4'>
+    <div className='bg-gray-50 p-6 rounded-lg shadow-lg max-w-7xl mx-auto px-4 mt-12'>
       <div className='flex justify-center items-center'>
-        <h2 className='text-5xl font-bold  text-transparent  bg-gradient-to-r  from-blue-400 via-green-500 to-teal-500 mb-6 pb-2 bg-clip-text border-b-4 border-teal-600 inline-block shadow-lg'>
-          Bảng Giá Tiêm Chủng VAX-BOX
+        <h2 className='text-5xl font-bold  text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 mb-6 pb-2 bg-clip-text border-b-4 border-teal-600 inline-block shadow-lg'>
+          VAX-BOX Vaccination Price List
         </h2>
       </div>
-      <p className='text-lg text-gray-800 text-center mb-8'>
-        Bảng giá tiêm chủng VAX-BOX được niêm yết công khai, cam kết bình ổn giá trên toàn hệ thống, miễn phí khám và
-        nhiều tiện ích.
+      <p className='text-lg italic text-gray-800 text-center mb-8'>
+        VAX-BOX vaccination price list is publicly posted, committed to price stability across the system, free
+        examination and many utilities.
       </p>
 
       <div className='mb-6 relative overflow-hidden rounded-xl shadow-xl flex justify-center items-center'>
@@ -474,14 +496,12 @@ const VaccinePrices: React.FC = () => {
       </div>
 
       <div className='relative inline-block mb-6'>
-      <button
-  onClick={() => setShowCategories(!showCategories)}
-  className='px-4 py-2 bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white rounded-lg shadow-md hover:bg-gradient-to-r hover:from-blue-600 hover:via-green-600 hover:to-teal-600'
->
-  <span className='text-1xl font-bold text-white'>
-    Danh Mục
-  </span>
-</button>
+        <button
+          onClick={() => setShowCategories(!showCategories)}
+          className='px-4 py-2 bg-gradient-to-r from-blue-500 via-green-500 to-teal-500 text-white rounded-lg shadow-md hover:bg-gradient-to-r hover:from-blue-600 hover:via-green-600 hover:to-teal-600'
+        >
+          <span className='text-1xl font-bold text-white'>Directory</span>
+        </button>
 
         {showCategories && (
           <div className='absolute left-0 mt-2 w-48 bg-white border rounded-lg shadow-md z-10'>
@@ -503,30 +523,33 @@ const VaccinePrices: React.FC = () => {
         )}
       </div>
 
-      <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text' id='price-list'>
-        Danh sách Bảng Giá Vắc-Xin
+      <h2
+        className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-left pl-20'
+        id='price-list'
+      >
+        Vaccine Price List
       </h2>
 
       <Filter filterOption={filterOption} onFilterChange={handleFilterChange} />
 
       {filteredPrices.length === 0 ? (
-        <p className='text-center mt-4 text-red-500'>Không có kết quả phù hợp với bộ lọc của bạn.</p>
+        <p className='text-center mt-4 text-red-500'>There are no results matching your filters.</p>
       ) : (
-        <div className='overflow-x-auto bg-white shadow-md rounded-lg mx-auto'>
-          <table className='min-w-full table-auto border-collapse border border-gray-300'>
-            <thead className='bg-teal-700 text-white'>
+        <div className='overflow-hidden bg-white rounded-xl shadow-xl mx-auto'>
+          <table className='min-w-full border-collapse'>
+            <thead className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white'>
               <tr>
                 <th className='border px-6 py-4'>STT</th>
-                <th className='border px-6 py-4'>Tên Vắc-Xin</th>
-                <th className='border px-6 py-4'>Công Dụng</th>
-                <th className='border px-6 py-4'>Quốc Gia</th>
-                <th className='border px-6 py-4'>Giá</th>
-                <th className='border px-6 py-4'>Tình Trạng</th>
+                <th className='border px-6 py-4'>Vaccine Name</th>
+                <th className='border px-6 py-4'>Uses</th>
+                <th className='border px-6 py-4'>Country</th>
+                <th className='border px-6 py-4'>Price</th>
+                <th className='border px-6 py-4'>Condition</th>
               </tr>
             </thead>
             <tbody>
               {currentVaccines.map((vaccine, index) => (
-                <tr key={vaccine.id} className='hover:bg-teal-100'>
+                <tr key={vaccine.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className='border-b px-6 py-4'>{startIndex + index + 1}</td>
                   <td className='border-b px-6 py-4'>{vaccine.name}</td>
                   <td className='border-b px-6 py-4'>{vaccine.usage}</td>
@@ -534,7 +557,7 @@ const VaccinePrices: React.FC = () => {
                   <td className='border-b px-6 py-4'>{vaccine.price}</td>
                   <td className='border-b px-6 py-4'>
                     <span
-                      className={`${vaccine.status === 'Còn hàng' ? 'text-green-600' : 'text-red-600'} font-semibold`}
+                      className={`${vaccine.status === 'In Stock' ? 'text-green-600' : 'text-red-600'} font-semibold`}
                     >
                       {vaccine.status}
                     </span>
@@ -558,79 +581,165 @@ const VaccinePrices: React.FC = () => {
             disabled={currentPage === 1}
             className='px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-300 mr-2'
           >
-            Trang Trước
+            Previous Page
           </button>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
             className='px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-300'
           >
-            Trang Sau
+            Next Page
           </button>
         </div>
       </div>
 
       {/* Terms and Services */}
-      {/* Terms and Services */}
       <div className='mt-12 text-lg text-gray-800'>
         <ul className='list-decimal pl-6 mt-4 space-y-4 max-w-4xl mx-auto text-left'>
-          <li className='text-lg text-gray-700 hover:text-teal-600 transition-colors duration-300 ease-in-out'>
-            <span className='font-semibold'>Bảng giá áp dụng trên hệ thống tiêm chủng VAX-BOX từ ngày 03/03/2025.</span>
+          <li className='text-lg text-gray-700 '>
+            <span className='italic'>Price list applied on VAX-BOX vaccination system from March 3, 2025.</span>
           </li>
-          <li className='text-lg text-gray-700 hover:text-teal-600 transition-colors duration-300 ease-in-out'>
-            <span className='font-semibold'>Giá vắc xin tại VAX-BOX đã bao gồm:</span> miễn phí khám với đội ngũ bác sĩ
-            chuyên môn cao, miễn phí các dịch vụ chăm sóc Khách hàng cao cấp; phí cho tài liệu, ấn phẩm phục vụ Khách
-            hàng; chi phí cuộc gọi, tin nhắn (SMS) nhắc lịch tiêm vắc xin; phí chăm sóc Khách hàng trên đa nền tảng; phí
-            lưu trữ thông tin lịch sử tiêm chủng…
+          <li className='text-lg text-gray-700 t'>
+            <span className='italic '>Vaccine prices at VAX-BOX include:</span> Free examination with a team of highly
+            specialized doctors, free premium Customer care services; fees for documents and publications serving
+            Customers; costs of calls and SMS messages to remind vaccination appointments; fees for Customer care on
+            multiple platforms; fees for storing vaccination history information.
           </li>
-          <li className='text-lg text-gray-700 hover:text-teal-600 transition-colors duration-300 ease-in-out'>
-            <span className='font-semibold'>
-              VAX-BOX miễn phí đặt giữ theo yêu cầu tất cả các loại vắc xin, tiêm bằng giá lẻ nếu Quý Khách hoàn tất
-              lịch tiêm trong vòng 5 tuần.
-            </span>{' '}
-            Quý Khách có lịch tiêm sau 5 tuần, phí đặt giữ vắc xin được tính 20% trên giá lẻ hoặc giá lẻ đã được ưu đãi.
+          <li className='text-lg text-gray-700 '>
+            <span className='italic'>
+              VAX-BOX offers free on-demand reservations for all vaccines, and vaccinations at retail prices if you
+              complete your vaccination schedule within 5 weeks. The vaccine reservation fee is 20% of the retail price
+              or discounted retail price.
+            </span>
           </li>
-          <li className='text-lg text-gray-700 hover:text-teal-600 transition-colors duration-300 ease-in-out'>
-            <span className='font-semibold'>
-              VAX-BOX miễn phí bảo quản vắc xin trong hệ thống kho lạnh GSP theo tiêu chuẩn quốc tế, hệ thống dây chuyền
-              lạnh Cold Chain,
-            </span>{' '}
-            đảm bảo vắc xin an toàn, chất lượng cao ở tất cả các trung tâm trên toàn quốc.
+          <li className='text-lg text-gray-700 '>
+            <span className='italic'>
+              VAX-BOX provides free vaccine storage in the GSP cold storage system according to international standards,
+              the Cold Chain system, ensuring safe, high-quality vaccines at all centers nationwide.
+            </span>
           </li>
         </ul>
       </div>
+      {/* Quy trình tiêm chủng */}
+      <div className='mx-auto text-center py-20'>
+        <h2 className='text-3xl text-gray-900 mb-12 font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
+          Vaccination process at VAX-BOX
+        </h2>
 
-      {/* Thêm phần mô tả các gói tiêm vắc-xin */}
+        <div className='relative flex justify-center items-center mb-12'>
+          <div className='absolute w-3/4 border-dashed border-t-2 border-gray-400'></div>
+          <div className='flex justify-between w-4/5'>
+            <div className='absolute top-[-30px] left-[12%] w-16 h-16 flex items-center justify-center rounded-full font-bold text-xl bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'>
+              <FaCheckCircle className='text-3xl' />
+            </div>
+            <div className='absolute top-[-30px] left-1/2 transform -translate-x-1/2 w-16 h-16 flex items-center justify-center rounded-full font-bold text-xl bg-gradient-to-r from-orange-400 to-red-600 text-white shadow-lg'>
+              <FaUserCheck className='text-3xl' />
+            </div>
+            <div className='absolute top-[-30px] right-[12%]  w-16 h-16 flex items-center justify-center rounded-full font-bold text-xl bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg'>
+              <FaShieldAlt className='text-3xl' />
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-center items-center space-x-20'>
+          {/* Bước 1 */}
+          <div className='text-left w-1/3'>
+            <div className='bg-gradient-to-r from-blue-500 to-green-500 text-white p-8 rounded-t-lg shadow-xl transform '>
+              <h3 className='text-2xl font-semibold text-center'>Before injection</h3>
+            </div>
+            <div className='border p-8 rounded-b-lg shadow-xl  bg-white'>
+              <p className='flex items-center text-lg'>
+                <FaStethoscope className='mr-3 text-blue-600' />
+                <strong className='font-semibold'>Screening</strong>
+              </p>
+              <p>Screening and counseling for vaccination subjects</p>
+              <p className='flex items-center mt-4 text-lg'>
+                <FaBell className='mr-3 text-blue-600' />
+                <strong className='font-semibold'>Notifications, FAQs</strong>
+              </p>
+              <p>Notification of the type of vaccine to be administered</p>
+            </div>
+          </div>
+
+          {/* Bước 2 */}
+          <div className='text-left w-1/3'>
+            <div className='bg-gradient-to-r from-orange-400 to-red-600 text-white p-8 rounded-t-lg shadow-xl transform '>
+              <h3 className='text-2xl font-semibold text-center'>Injection process</h3>
+            </div>
+            <div className='border p-8 rounded-b-lg shadow-xl bg-white'>
+              <p className='flex items-center text-lg'>
+                <FaSyringe className='mr-3 text-orange-600' />
+                <strong className='font-semibold'>Healthcare staff</strong>
+              </p>
+              <p>Check vaccines, syringes and equipment before use</p>
+              <p className='flex items-center mt-4 text-lg'>
+                <FaUser className='mr-3 text-orange-600' />
+                <strong className='font-semibold'>Vaccination subjects</strong>
+              </p>
+              <p>Show the vaccine vial to the person being vaccinated or a guardian.</p>
+              <p className='flex items-center mt-4 text-lg'>
+                <FaShieldAlt className='mr-3 text-orange-600' />
+                <strong className='font-semibold'>Perform injection</strong>
+              </p>
+              <p>Inject correctly as prescribed, in the correct dose, and by the correct route.</p>
+            </div>
+          </div>
+
+          {/* Bước 3 */}
+          <div className='text-left w-1/3'>
+            <div className='bg-gradient-to-r from-green-500 to-blue-600 text-white p-8 rounded-t-lg shadow-xl transform'>
+              <h3 className='text-2xl font-semibold text-center'>After injection</h3>
+            </div>
+            <div className='border p-8 rounded-b-lg shadow-xl  bg-white'>
+              <p className='flex items-center text-lg'>
+                <FaClock className='mr-3 text-green-600' />
+                <strong className='font-semibold'>Post-injection follow-up</strong>
+              </p>
+              <p>Stay and monitor post-injection reactions</p>
+              <p className='flex items-center mt-4 text-lg'>
+                <FaBox className='mr-3 text-green-600' />
+                <strong className='font-semibold'>Preserve</strong>
+              </p>
+              <p>Store unused vaccines and vaccination supplies according to regulations</p>
+              <p className='flex items-center mt-4 text-lg'>
+                <FaRecycle className='mr-3 text-green-600' />
+                <strong className='font-semibold'>Waste treatment</strong>
+              </p>
+              <p>Dispose of medical waste after vaccination according to regulations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id='vaccine-services' className='mt-12 text-lg text-gray-800'>
         {/* Tiêu đề của phần dịch vụ tiêm chủng */}
-        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-          Các Dịch Vụ Tiêm Chủng tại VAX-BOX
+        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-left pl-20 mb-4 '>
+          Vaccination Services at VAX-BOX
         </h3>
 
         <p className='max-w-4xl mx-auto text-left'>
-          VAX-BOX mang đến cho quý khách hàng nhiều dịch vụ tiêm chủng linh hoạt, đáp ứng nhu cầu bảo vệ sức khỏe cho
-          từng đối tượng:
+          VAX-BOX offers customers a variety of flexible vaccination services, meeting the health protection needs of
+          each subject:
         </p>
 
         <ul className='list-disc pl-5 mt-4 space-y-2 max-w-4xl mx-auto text-left'>
           <li>
-            <strong>Tiêm lẻ tất cả các loại vắc-xin:</strong> Bạn có thể tiêm riêng từng loại vắc-xin theo nhu cầu.
+            <strong>Vaccination of all types of vaccines:</strong> You can get each vaccine separately as needed..
           </li>
           <li>
-            <strong>Gói vắc-xin theo độ tuổi:</strong> Gói vắc-xin cho trẻ dưới 24 tháng, trẻ tiền học đường, trẻ vị
-            thành niên và thanh niên, phụ nữ chuẩn bị mang thai, người trưởng thành…
+            <strong>Vaccine packages by age:</strong> Vaccine packages for children under 24 months, preschool children,
+            adolescents and young adults, women preparing for pregnancy, adults
           </li>
           <li>
-            <strong>Gói vắc-xin cá thể hóa:</strong> Khách hàng có thể linh động lựa chọn vắc-xin thiết kế thành các gói
-            riêng biệt tùy theo nhu cầu, độ tuổi và khả năng chi trả.
+            <strong>Gói vắc-xin cá thể hóa:</strong> Customers can flexibly choose vaccines designed into separate
+            packages depending on their needs, age and ability to pay.
           </li>
           <li>
-            <strong>Đặt giữ vắc-xin theo yêu cầu:</strong> Quý khách có thể đặt giữ vắc-xin theo yêu cầu với nhiều ưu
-            đãi hấp dẫn.
+            <strong>Reserve vaccines on demand:</strong> You can reserve vaccines on demand with many attractive offers.
           </li>
           <li>
-            <strong>Tiêm chủng lưu động:</strong> Chúng tôi cung cấp dịch vụ tiêm chủng lưu động, theo yêu cầu đối với
-            các nhóm khách hàng, cơ quan, doanh nghiệp.
+            <strong>Mobile vaccination:</strong> We provide mobile, on-demand vaccination services to client groups,
+            agencies, and businesses.
           </li>
         </ul>
       </div>
@@ -638,86 +747,108 @@ const VaccinePrices: React.FC = () => {
       {/* Các Gói Tiêm Vắc-Xin */}
       <div id='vaccine-packages' className='mt-12 text-lg text-gray-800'>
         {/* Tiêu đề của các gói tiêm vắc-xin */}
-        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-          Các Gói Tiêm Vắc-Xin
+        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-left pl-20 mb-4'>
+          Vaccination Packages
         </h3>
 
         <p className='max-w-4xl mx-auto text-left'>
-          Chúng tôi cung cấp các gói tiêm vắc-xin với nhiều lựa chọn khác nhau để bạn có thể bảo vệ sức khỏe cho bản
-          thân và gia đình. Dưới đây là một số gói vắc-xin bạn có thể tham khảo:
+          We offer a variety of vaccination packages to help you protect yourself and your family. Here are some
+          vaccination packages you can consider:
         </p>
 
         {/* Tiêu đề của gói vắc-xin cho trẻ em */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4'>Gói vắc xin cho trẻ em</h4>
+        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'>
+          Vaccine package for children
+        </h4>
         <ul className='list-disc pl-5 mt-4 space-y-2 max-w-4xl mx-auto text-left'>
-          <li>Gói vắc xin cho trẻ từ 0 – 6 tháng: 11 – 12 mũi tiêm, phòng hơn 15 bệnh truyền nhiễm nguy hiểm.</li>
-          <li>Gói vắc xin cho trẻ từ 0 – 9 tháng: 15 – 17 mũi tiêm, phòng hơn 17 bệnh truyền nhiễm nguy hiểm.</li>
-          <li>Gói vắc xin cho trẻ từ 0 – 12 tháng: 21 – 23 mũi tiêm, phòng hơn 22 bệnh truyền nhiễm nguy hiểm.</li>
-          <li>Gói vắc xin cho trẻ từ 0 – 24 tháng: 29 – 30 mũi tiêm, phòng hơn 24 bệnh truyền nhiễm nguy hiểm.</li>
+          <li>
+            Vaccination package for children from 0 – 6 months: 11 – 12 injections, preventing more than 15 dangerous
+            infectious diseases.
+          </li>
+          <li>
+            Vaccine package for children from 0 – 9 months: 15 – 17 injections, preventing more than 17 dangerous
+            infectious diseases.
+          </li>
+          <li>
+            Vaccination package for children from 0 – 12 months: 21 – 23 injections, preventing more than 22 dangerous
+            infectious diseases.
+          </li>
+          <li>
+            Vaccine package for children from 0 – 24 months: 29 – 30 injections, preventing more than 24 dangerous
+            infectious diseases.
+          </li>
         </ul>
 
         {/* Tiêu đề của gói vắc-xin cho trẻ tiền học đường */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4' id='pre-school-vaccine'>
-          Gói vắc xin cho trẻ tiền học đường
+        <h4
+          className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'
+          id='pre-school-vaccine'
+        >
+          Vaccination Package for Preschool Children
         </h4>
         <p className='max-w-4xl mx-auto text-left'>
-          Gói tiêm chủng VNVC cho trẻ tiền học đường bao gồm 10 loại vắc xin, 14 liều cơ bản bảo vệ trẻ trước hơn 20 căn
-          bệnh truyền nhiễm nguy hiểm.
+          The pre-school vaccination package includes 10 vaccines and 14 basic doses to protect children against more
+          than 20 dangerous infectious diseases.
         </p>
 
         {/* Tiêu đề của gói vắc-xin cho tuổi vị thành niên và thanh niên */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4' id='teenage-vaccine'>
-          Gói vắc xin cho tuổi vị thành niên và thanh niên (Từ 9 – 18 tuổi)
+        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='teenage-vaccine'>
+          Vaccine Package for Adolescents and Young Adults (Ages 9 – 18)
         </h4>
         <p className='max-w-4xl mx-auto text-left'>
-          Gói tiêm chủng VNVC cho tuổi vị thành niên và thanh niên bao gồm 15 mũi tiêm cho gần 20 bệnh truyền nhiễm nguy
-          hiểm. Có 2 gói nhỏ cho khách hàng lựa chọn: vắc xin Gardasil và Gardasil 9.
+          The vaccination package for adolescents and young adults includes 15 injections for nearly 20 dangerous
+          infectious diseases. There are 2 small packages for customers to choose from: Gardasil and Gardasil 9
+          vaccines.
         </p>
 
         {/* Tiêu đề của gói vắc-xin cho người trưởng thành */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4' id='adult-vaccine'>
-          Gói vắc xin cho người trưởng thành
+        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='adult-vaccine'>
+          Adult Vaccine Package
         </h4>
         <p className='max-w-4xl mx-auto text-left'>
-          Gói vắc xin cho người trưởng thành gồm 11 mũi tiêm, bảo vệ người trưởng thành trước 17 căn bệnh truyền nhiễm.
+          The adult vaccine package includes 11 injections, protecting adults against 17 infectious diseases.
         </p>
 
         {/* Tiêu đề của gói vắc-xin cho phụ nữ chuẩn bị mang thai */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4' id='pregnant-vaccine'>
-          Gói vắc xin cho phụ nữ chuẩn bị mang thai
+        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='pregnant-vaccine'>
+          Vaccination package for women preparing for pregnancy
         </h4>
         <p className='max-w-4xl mx-auto text-left'>
-          Gói vắc xin cho phụ nữ chuẩn bị mang thai gồm 11 mũi tiêm, bảo vệ trước 17 căn bệnh truyền nhiễm.
+          The vaccine package for women preparing for pregnancy includes 11 injections, protecting against 17 infectious
+          diseases.
         </p>
 
         {/* Tiêu đề của gói vắc-xin cá thể hóa cho người trưởng thành */}
-        <h4 className='font-semibold mt-6 text-left text-teal-600 text-lg font-bold ml-4'>
-          Gói vắc xin cá thể hóa cho người trưởng thành
+        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'>
+          Personalized vaccine packages for adults
         </h4>
         <p className='max-w-4xl mx-auto text-left'>
-          Gói vắc xin cá thể hóa cho người trưởng thành là gói vắc xin có thể lựa chọn theo nhu cầu, như các bệnh dịch
-          đặc thù hoặc yêu cầu riêng của từng cá nhân.
+          Personalized adult vaccine packages are vaccine packages that can be selected according to needs, such as
+          specific epidemics or individual requirements.
         </p>
       </div>
 
       {/* Dịch vụ tiêm chủng lưu động theo yêu cầu */}
       <div className='mt-12 text-lg text-gray-800'>
-        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-          Dịch Vụ Tiêm Chủng Lưu Động Theo Yêu Cầu
+        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-left pl-20 mb-4 '>
+          Mobile Vaccination Service On Demand
         </h3>
         <p className='max-w-4xl mx-auto text-left'>
-          Sau đại dịch Covid-19, người dân đã ý thức hơn về tầm quan trọng và vai trò của vắc xin đối với sức khỏe. Nhu
-          cầu tiêm chủng của người dân ngày càng cao, đặc biệt là các doanh nghiệp sản xuất, kinh doanh có dây chuyền
-          vận hành nhiều khâu chuỗi liên đới, quy mô nhân sự lớn, tần suất và tỷ lệ tiếp xúc giữa người – người diễn ra
-          rất cao trong môi trường làm việc. Không tiêm vắc xin cũng đồng nghĩa với việc mất đi một lớp “lá chắn” vững
-          chãi, nguy cơ mắc bệnh tăng cao, sức khỏe người lao động bị ảnh hưởng dẫn đến đứt gãy chuỗi cung ứng.
+          After the Covid-19 pandemic, people have become more aware of the importance and role of vaccines for health.
+          The need for vaccination among people is increasing, especially in manufacturing and trading enterprises with
+          many interconnected chain links, large scale of human resources, high frequency and rate of contact between
+          people in the working environment. Not getting vaccinated also means losing a strong "shield", increasing the
+          risk of disease, affecting workers' health, leading to supply chain disruption.
         </p>
         <p className='max-w-4xl mx-auto text-left mt-4'>
-          Để bảo vệ sức khỏe cho người lao động, đảm bảo quá trình sản xuất không bị ảnh hưởng, Hệ thống tiêm chủng
-          VAX-BOX mang đến giải pháp tiêm chủng lưu động theo yêu cầu của Khách hàng, như tiêm chủng cá nhân, cơ quan,
-          doanh nghiệp, trường học… giúp thuận tiện, tiết kiệm thời gian và chi phí tiêm chủng.
+          To protect the health of workers and ensure that the production process is not affected, the VAX-BOX
+          vaccination system provides mobile vaccination solutions according to customers' requirements, such as
+          personal vaccination, agencies, businesses, schools, etc., helping to facilitate, save time and vaccination
+          costs.
         </p>
       </div>
+      <ContactSection />
+      <Footer />
     </div>
   )
 }
