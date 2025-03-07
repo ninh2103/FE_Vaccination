@@ -1,19 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import ContactSection from '@/components/homepage/Contact'
 import Footer from '@/components/homepage/Footer'
-import {
-  FaStethoscope,
-  FaBell,
-  FaSyringe,
-  FaUser,
-  FaShieldAlt,
-  FaClock,
-  FaBox,
-  FaRecycle,
-  FaCheckCircle,
-  FaUserCheck
-} from 'react-icons/fa'
-
+import ScrollingBanner from '@/pages/pricelist/Banner'
+import { FaStethoscope,FaBell,FaChild, FaUserAlt, FaFemale, FaPlusCircle,FaSyringe,FaUser,FaShieldAlt,FaClock,FaBox,FaRecycle,FaCheckCircle,FaUserCheck} from 'react-icons/fa'
+import { MdChildCare } from 'react-icons/md'; 
+import { IoMdWarning, IoIosStats  } from 'react-icons/io'; 
 type Vaccine = {
   id: number
   name: string
@@ -731,7 +722,7 @@ const VaccinePrices: React.FC = () => {
             adolescents and young adults, women preparing for pregnancy, adults
           </li>
           <li>
-            <strong>Gói vắc-xin cá thể hóa:</strong> Customers can flexibly choose vaccines designed into separate
+            <strong>Personalized Packages:</strong> Customers can flexibly choose vaccines designed into separate
             packages depending on their needs, age and ability to pay.
           </li>
           <li>
@@ -751,102 +742,144 @@ const VaccinePrices: React.FC = () => {
           Vaccination Packages
         </h3>
 
-        <p className='max-w-4xl mx-auto text-left'>
+        <p className='max-w-4xl mx-auto text-left italic'>
           We offer a variety of vaccination packages to help you protect yourself and your family. Here are some
           vaccination packages you can consider:
         </p>
 
         {/* Tiêu đề của gói vắc-xin cho trẻ em */}
-        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'>
-          Vaccine package for children
-        </h4>
-        <ul className='list-disc pl-5 mt-4 space-y-2 max-w-4xl mx-auto text-left'>
-          <li>
-            Vaccination package for children from 0 – 6 months: 11 – 12 injections, preventing more than 15 dangerous
-            infectious diseases.
-          </li>
-          <li>
-            Vaccine package for children from 0 – 9 months: 15 – 17 injections, preventing more than 17 dangerous
-            infectious diseases.
-          </li>
-          <li>
-            Vaccination package for children from 0 – 12 months: 21 – 23 injections, preventing more than 22 dangerous
-            infectious diseases.
-          </li>
-          <li>
-            Vaccine package for children from 0 – 24 months: 29 – 30 injections, preventing more than 24 dangerous
-            infectious diseases.
-          </li>
-        </ul>
+        <div id="vaccine-packages" className="mt-12 mb-6 text-lg text-gray-800">
+      {/* Tiêu đề của các gói tiêm vắc-xin cho trẻ em */}
+      <h4 className="font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4">
+      <FaChild className="inline mr-2 text-blue-600" /> 
+        Vaccine Package for Children
+      </h4>
 
-        {/* Tiêu đề của gói vắc-xin cho trẻ tiền học đường */}
-        <h4
-          className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'
-          id='pre-school-vaccine'
-        >
-          Vaccination Package for Preschool Children
-        </h4>
-        <p className='max-w-4xl mx-auto text-left'>
-          The pre-school vaccination package includes 10 vaccines and 14 basic doses to protect children against more
-          than 20 dangerous infectious diseases.
-        </p>
+      {/* Các gói tiêm vắc-xin cho trẻ em (1 hàng ngang với 4 khung) */}
+      <div className="flex justify-between space-x-8">
+        {/* Khung 1 */}
+        <div className="w-1/4 bg-white shadow-xl rounded-lg p-6 border border-gray-300">
+          <div className="flex items-center mb-4">
+            <MdChildCare className="text-blue-600 text-3xl mr-3" />
+            <h5 className="font-semibold text-xl bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text"
+            >Children from 0 – 6 months</h5>
+          </div>
+          <p className="text-lg text-gray-600 mb-2"><FaSyringe className="inline text-gray-600 mr-2" /> 11 – 12 injections</p>
+          <p className="text-lg text-gray-600"><IoMdWarning className="inline text-gray-600 mr-2" /> More than 15 dangerous infectious diseases</p>
+        </div>
 
-        {/* Tiêu đề của gói vắc-xin cho tuổi vị thành niên và thanh niên */}
-        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='teenage-vaccine'>
-          Vaccine Package for Adolescents and Young Adults (Ages 9 – 18)
-        </h4>
-        <p className='max-w-4xl mx-auto text-left'>
-          The vaccination package for adolescents and young adults includes 15 injections for nearly 20 dangerous
-          infectious diseases. There are 2 small packages for customers to choose from: Gardasil and Gardasil 9
-          vaccines.
-        </p>
+        {/* Khung 2 */}
+        <div className="w-1/4 bg-white shadow-xl rounded-lg p-6 border border-gray-300">
+          <div className="flex items-center mb-4">
+            <MdChildCare className="text-blue-600 text-3xl mr-3" />
+            <h5 className="font-semibold text-xl bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text"
+            >Children from 0 – 9 months</h5>
+          </div>
+          <p className="text-lg text-gray-600 mb-2"><FaSyringe className="inline text-gray-600 mr-2" /> 15 – 17 injections</p>
+          <p className="text-lg text-gray-600"><IoMdWarning className="inline text-gray-600 mr-2" /> More than 17 dangerous infectious diseases</p>
+        </div>
 
-        {/* Tiêu đề của gói vắc-xin cho người trưởng thành */}
-        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='adult-vaccine'>
-          Adult Vaccine Package
-        </h4>
-        <p className='max-w-4xl mx-auto text-left'>
-          The adult vaccine package includes 11 injections, protecting adults against 17 infectious diseases.
-        </p>
+        {/* Khung 3 */}
+        <div className="w-1/4 bg-white shadow-xl rounded-lg p-6 border border-gray-300">
+          <div className="flex items-center mb-4">
+            <MdChildCare className="text-blue-600 text-3xl mr-3" />
+            <h5 className="font-semibold text-xl bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text"
+            >Children from 0 – 12 months</h5>
+          </div>
+          <p className="text-lg text-gray-600 mb-2"><FaSyringe className="inline text-gray-600 mr-2" /> 21 – 23 injections</p>
+          <p className="text-lg text-gray-600"><IoMdWarning className="inline text-gray-600 mr-2" /> More than 22 dangerous infectious diseases</p>
+        </div>
 
-        {/* Tiêu đề của gói vắc-xin cho phụ nữ chuẩn bị mang thai */}
-        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4' id='pregnant-vaccine'>
-          Vaccination package for women preparing for pregnancy
-        </h4>
-        <p className='max-w-4xl mx-auto text-left'>
-          The vaccine package for women preparing for pregnancy includes 11 injections, protecting against 17 infectious
-          diseases.
-        </p>
-
-        {/* Tiêu đề của gói vắc-xin cá thể hóa cho người trưởng thành */}
-        <h4 className='font-semibold mt-6 text-left pl-20 mb-4 text-black text-lg font-bold ml-4'>
-          Personalized vaccine packages for adults
-        </h4>
-        <p className='max-w-4xl mx-auto text-left'>
-          Personalized adult vaccine packages are vaccine packages that can be selected according to needs, such as
-          specific epidemics or individual requirements.
-        </p>
+        {/* Khung 4 */}
+        <div className="w-1/4 bg-white shadow-xl rounded-lg p-6 border border-gray-300">
+          <div className="flex items-center mb-4">
+            <MdChildCare className="text-blue-600 text-3xl mr-3" />
+            <h5 className="font-semibold text-xl bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text"
+            >Children from 0 – 24 months</h5>
+          </div>
+          <p className="text-lg text-gray-600 mb-2"><FaSyringe className="inline text-gray-600 mr-2" /> 29 – 30 injections</p>
+          <p className="text-lg text-gray-600"><IoMdWarning className="inline text-gray-600 mr-2" /> More than 24 dangerous infectious diseases</p>
+        </div>
       </div>
+    </div>
 
-      {/* Dịch vụ tiêm chủng lưu động theo yêu cầu */}
-      <div className='mt-12 text-lg text-gray-800'>
-        <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-left pl-20 mb-4 '>
-          Mobile Vaccination Service On Demand
-        </h3>
-        <p className='max-w-4xl mx-auto text-left'>
-          After the Covid-19 pandemic, people have become more aware of the importance and role of vaccines for health.
-          The need for vaccination among people is increasing, especially in manufacturing and trading enterprises with
-          many interconnected chain links, large scale of human resources, high frequency and rate of contact between
-          people in the working environment. Not getting vaccinated also means losing a strong "shield", increasing the
-          risk of disease, affecting workers' health, leading to supply chain disruption.
-        </p>
-        <p className='max-w-4xl mx-auto text-left mt-4'>
-          To protect the health of workers and ensure that the production process is not affected, the VAX-BOX
-          vaccination system provides mobile vaccination solutions according to customers' requirements, such as
-          personal vaccination, agencies, businesses, schools, etc., helping to facilitate, save time and vaccination
-          costs.
-        </p>
+    <div className="overflow-x-auto p-6">
+      {/* Wrapper for the grid layout */}
+      <div className="grid grid-cols-5 gap-4">
+        {/* Vaccine package for preschool children */}
+        <div className="flex flex-col items-center border p-4 rounded-lg shadow-lg hover:shadow-2xl">
+          <FaChild className="text-blue-600 text-4xl mb-4" />
+          <h4 className="font-semibold text-center">Vaccine Package for Preschool Children</h4>
+          <p className="text-center mt-2">
+          Includes 10 vaccines and 14 basic doses to protect children from more than 20 dangerous infectious diseases.
+          </p>
+          <img
+            src="https://cdn.tiemchunglongchau.com.vn/unsafe/768x0/filters:quality(90)/Illus_Goi_blue_1_e4effbd2a2.png"  // Replace with your image path
+            alt="Preschool Vaccine"
+            className="w-32 h-32 object-cover rounded-lg mt-4"
+          />
+        </div>
+
+        {/* Vaccine package for adolescents and young adults */}
+        <div className="flex flex-col items-center border p-4 rounded-lg shadow-lg hover:shadow-2xl">
+          <IoIosStats className="text-green-500 text-4xl mb-4" />
+          <h4 className="font-semibold text-center">Vaccine Package for Adolescents and Young Adults (Ages 9 – 18)</h4>
+          <p className="text-center mt-2">
+            Includes 15 injections for nearly 20 dangerous infectious diseases.
+          </p>
+          <img
+            src="https://cdn.tiemchunglongchau.com.vn/unsafe/768x0/filters:quality(90)/Illus_Goi_blue_3_ad13668bfe.png"  // Replace with your image path
+            alt="Adolescent Vaccine"
+            className="w-32 h-32 object-cover rounded-lg mt-4"
+          />
+        </div>
+
+        {/* Vaccine package for adults */}
+        <div className="flex flex-col items-center border p-4 rounded-lg shadow-lg hover:shadow-2xl">
+          <FaUserAlt className="text-purple-600 text-4xl mb-4" />
+          <h4 className="font-semibold text-center">Vaccine Package for Adults</h4>
+          <p className="text-center mt-2">
+            Includes 11 injections, protecting adults against 17 infectious diseases.
+          </p>
+          <img
+            src="https://cdn.tiemchunglongchau.com.vn/unsafe/768x0/filters:quality(90)/Illus_Goi_blue_4_3111f89e24.png"  // Replace with your image path
+            alt="Adult Vaccine"
+            className="w-32 h-32 object-cover rounded-lg mt-4"
+          />
+        </div>
+
+        {/* Vaccine package for women preparing for pregnancy */}
+        <div className="flex flex-col items-center border p-4 rounded-lg shadow-lg hover:shadow-2xl">
+          <FaFemale className="text-pink-600 text-4xl mb-4" />
+          <h4 className="font-semibold text-center">Vaccine Package for Women Preparing for Pregnancy</h4>
+          <p className="text-center mt-2">
+            Includes 11 injections, protecting against 17 infectious diseases.
+          </p>
+          <img
+            src="https://cdn.tiemchunglongchau.com.vn/unsafe/768x0/filters:quality(90)/Illus_02e6955310.png"  // Replace with your image path
+            alt="Pregnancy Vaccine"
+            className="w-32 h-32 object-cover rounded-lg mt-4"
+          />
+        </div>
+
+        {/* Personalized vaccine package for adults */}
+        <div className="flex flex-col items-center border p-4 rounded-lg shadow-lg hover:shadow-2xl">
+          <FaPlusCircle className="text-teal-500 text-4xl mb-4" />
+          <h4 className="font-semibold text-center">Personalized Vaccine Packages for Adults</h4>
+          <p className="text-center mt-2">
+          Selection based on specific needs, such as targeted disease prevention or individual requirements.
+          </p>
+          <img
+            src="https://cdn.tiemchunglongchau.com.vn/unsafe/768x0/filters:quality(90)/Illus_Goi_blue_2_0121d2fee9.png"  // Replace with your image path
+            alt="Personalized Vaccine"
+            className="w-32 h-32 object-cover rounded-lg mt-4"
+          />
+        </div>
       </div>
+      </div>
+  
+      </div>
+      <ScrollingBanner/>
       <ContactSection />
       <Footer />
     </div>
