@@ -12,7 +12,11 @@ import { useLocation, useRoutes } from 'react-router-dom'
 import CarFeatures from '@/pages/vaccination/vaccination-detail'
 import Aboutus from '@/pages/aboutus/AboutUs'
 import PriceList from '@/pages/pricelist/PriceList'
- import BuyVaccines  from '@/pages/buyvaccine/BuyVaccines'
+import BuyVaccines from '@/pages/buyvaccine/BuyVaccines'
+import VaccineDetails from '@/pages/vaccinedetail/VaccineDetails'
+import VaccinRegister from '@/pages/vaccinregister/VaccinRegister'
+import Contactus from '@/pages/contactus/Contactus'
+import Vaccinationhistory from '@/pages/vaccinationhistory/vaccinationhistory'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -23,8 +27,11 @@ export default function useRoutesElements() {
       { path: path.register, element: <Register /> },
       { path: path.aboutus, element: <Aboutus /> },
       { path: path.pricelist, element: <PriceList /> },
-    { path: path.buyvaccines, element: <BuyVaccines /> },
-
+      { path: path.buyvaccines, element: <BuyVaccines /> },
+      { path: path.vaccinedetail, element: <VaccineDetails /> },
+      { path: path.vaccinregister, element: <VaccinRegister /> },
+      { path: path.contactus, element: <Contactus /> },
+      { path: path.vaccinationhistory, element: <Vaccinationhistory /> },
       {
         path: path.admin.dashboard,
         element: (

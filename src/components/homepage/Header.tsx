@@ -12,7 +12,6 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 
-
 // Define navigation items type
 interface NavItem {
   name: string
@@ -21,7 +20,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Home', href: '#home' },
-  { name: 'About US', href: '#aboutus' },
+  { name: 'About US', href: '/aboutus' },
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
@@ -30,17 +29,18 @@ const navItems: NavItem[] = [
   { name: 'Blog', href: '#blog' }
 ]
 
+
 // Top buttons configuration
 const topButtons: { name: string; href: string }[] = [
-  { name: 'Buy Vaccines', href: '/buy-vaccines' },
-  { name: 'Address', href: '/address' },
-  { name: '1900.1900 ', href: '/contact' },
-  { name: 'Working time  08:00 - 19:00 ', href: ' ' }
+  { name: 'Buy Vaccines', href: '/buyvaccines' },
+  { name: 'Address: 120 Hoang Minh Thao, Da Nang', href: ' ' },
+  { name: 'Phone: 1900.1900 ', href: ' ' },
+  { name: 'Working time:  08:00 - 19:00 ', href: ' ' }
 ]
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [setShowAlert] = useState(true)
+  const [showAlert, setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
