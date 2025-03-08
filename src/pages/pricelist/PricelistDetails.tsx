@@ -1,5 +1,20 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { FaStethoscope,FaBell,FaChild,FaUserAlt,FaFemale,FaPlusCircle,FaSyringe,FaUser,FaShieldAlt,FaClock,FaBox,FaRecycle,FaCheckCircle,FaUserCheck} from 'react-icons/fa'
+import {
+  FaStethoscope,
+  FaBell,
+  FaChild,
+  FaUserAlt,
+  FaFemale,
+  FaPlusCircle,
+  FaSyringe,
+  FaUser,
+  FaShieldAlt,
+  FaClock,
+  FaBox,
+  FaRecycle,
+  FaCheckCircle,
+  FaUserCheck
+} from 'react-icons/fa'
 import { MdChildCare } from 'react-icons/md'
 import { IoMdWarning, IoIosStats } from 'react-icons/io'
 import Banner from '@/pages/pricelist/Banner'
@@ -468,7 +483,7 @@ const VaccinePrices: React.FC = () => {
           VAX-BOX Vaccination Price List
         </h2>
       </div>
-  
+
       <p className='text-lg italic text-gray-800 text-center mb-8'>
         VAX-BOX vaccination price list is publicly posted, committed to price stability across the system, free
         examination and many utilities.

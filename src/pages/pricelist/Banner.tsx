@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from 'react'
+import styled from 'styled-components'
 
 // Định nghĩa styled component
 const MarqueeWrapper = styled.div`
@@ -10,36 +10,34 @@ const MarqueeWrapper = styled.div`
   margin-top: 48px;
   position: relative;
   overflow: hidden;
-  height: 80px;  /* Tăng chiều cao khung */
-`;
+  height: 80px; /* Tăng chiều cao khung */
+`
 
 const MarqueeText = styled.div`
   display: inline-block;
-  white-space: nowrap;  /* Ngăn chặn dòng bị ngắt */
+  white-space: nowrap; /* Ngăn chặn dòng bị ngắt */
   animation: marquee 7s linear infinite; /* Điều chỉnh tốc độ và kiểu chạy */
   font-weight: 600;
   color: white;
-  font-size: 2rem;  /* Tăng kích thước chữ */
+  font-size: 2rem; /* Tăng kích thước chữ */
   padding-left: 100%; /* Đảm bảo text bắt đầu từ ngoài màn hình */
 
   @keyframes marquee {
     0% {
-      transform: translateX(100%);  /* Bắt đầu từ bên phải */
+      transform: translateX(100%); /* Bắt đầu từ bên phải */
     }
     100% {
-      transform: translateX(-100%);  /* Chạy qua trái */
+      transform: translateX(-100%); /* Chạy qua trái */
     }
   }
-`;
+`
 
 const Banner = () => {
   return (
     <MarqueeWrapper>
-      <MarqueeText>
-        🌟 Hãy tiêm vaccine để bảo vệ sức khỏe của bạn! 🌟
-      </MarqueeText>
+      <MarqueeText>🌟 Hãy tiêm vaccine để bảo vệ sức khỏe của bạn! 🌟</MarqueeText>
     </MarqueeWrapper>
-  );
-};
+  )
+}
 
-export default Banner;
+export default Banner

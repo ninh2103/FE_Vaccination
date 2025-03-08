@@ -11,6 +11,7 @@ import BlogDetails from '@/pages/blog/BlogDetails'
 import { useLocation, useRoutes } from 'react-router-dom'
 import CarFeatures from '@/pages/vaccination/vaccination-detail'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
+import Introduce from '@/pages/introduce/SiteIntroduction'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -20,6 +21,7 @@ export default function useRoutesElements() {
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
       { path: '/pricelist', element: <VaccinePrices /> },
+      { path: '/introduce', element: <Introduce /> },
       {
         path: path.admin.dashboard,
         element: (
