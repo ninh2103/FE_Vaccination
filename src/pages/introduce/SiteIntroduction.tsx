@@ -4,21 +4,18 @@ import Options from '@/pages/introduce/banner'
 const Introduce: React.FC = () => {
   return (
     <div className='bg-gray-100 w-full py-6 px-8'>
-     <header className='relative top-0 left-0 w-full p-5 z-10 '>
-  <div className='relative z-20'>
-  <h1 className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text text-left relative group mb-6">
-  Introduce
-  
-</h1>
+      <header className='relative top-0 left-0 w-full p-5 z-10 '>
+        <div className='relative z-20'>
+          <h1 className='text-3xl font-extrabold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text text-left relative group mb-6'>
+            Introduce
+          </h1>
 
-<h1 className="text-5xl font-extrabold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text text-center mt-8 ">
-VAX-BOX Vaccination Center
-</h1>
-
-  </div>
-</header>
-<Options />
-
+          <h1 className='text-5xl font-extrabold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text text-center mt-8 '>
+            VAX-BOX Vaccination Center
+          </h1>
+        </div>
+      </header>
+      <Options />
 
       <main className='flex flex-col items-center justify-center bg-gradient-to-r from-blue-100 via-green-50 to-teal-100 pt-4 pb-10 px-10'>
         {/* Hệ thống hàng trăm trung tâm tiêm chủng */}
