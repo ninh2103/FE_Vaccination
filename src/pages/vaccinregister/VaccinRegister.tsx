@@ -24,7 +24,8 @@ const RegistrationForm: React.FC = () => {
         const response = await axios.get<Province[]>('https://api.example.com/provinces')
         setProvinces(response.data)
       } catch (error) {
-        console.error('Error fetching provinces:', error)
+        // eslint-disable-next-line no-console
+        console.error('Error fetching districts:', error)
       }
     }
 
@@ -40,6 +41,7 @@ const RegistrationForm: React.FC = () => {
           )
           setDistricts(response.data)
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error('Error fetching districts:', error)
         }
       }

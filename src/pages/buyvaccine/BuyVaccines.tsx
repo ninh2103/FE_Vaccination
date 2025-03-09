@@ -194,7 +194,7 @@ const VaccineInfoPage: React.FC = () => {
       description: 'Prevention of Rotavirus, Varicella,...',
       category: 'package',
       targetGroup: 'children'
-    },
+    }
   ]
 
   // Hàm lọc dữ liệu
@@ -239,7 +239,7 @@ const VaccineInfoPage: React.FC = () => {
   // }
 
   return (
-    <div >
+    <div>
       <Header />
       <div className='w-[100rem] mx-auto mt-[7rem] p-6 bg-gray-100 min-h-screen '>
         {/* Header */}

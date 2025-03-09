@@ -12,8 +12,7 @@ const Contact: React.FC = () => {
     generateSecurityCode()
   }, [])
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Form submitted:', { role, email, additionalInfo })
+    e.preventDefault().log('Form submitted:', { role, email, additionalInfo })
   }
   const generateSecurityCode = () => {
     const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -26,8 +25,8 @@ const Contact: React.FC = () => {
         <div className='container mx-auto px-4 flex flex-col lg:flex-row gap-6'>
           {/* Main Content (Form) */}
           <div className='bg-blue/80 dark:bg-gray-900/80 dark:text-white flex-1 bg-white p-6 rounded-lg shadow-lg'>
-            <h1 className='dark:text-white  text-2xl font-bold text-blue-800 mb-4'>CONTACT</h1>
-            <div className='bg-blue-800  dark:bg-gray-900/80 dark:text-white text-white p-4 rounded-lg mb-6'>
+            <h1 className='dark:text-white  text-2xl font-bold text-gray-800 mb-4'>CONTACT</h1>
+            <div className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold w-full p-4 py-2 block rounded-lg'>
               <p className='text-sm'>YOUR FEEDBACK IS A MEANINGFUL GIFT TO US</p>
               <p className='text-lg font-semibold mt-2'>VAXBOT VACCIN JOINT STOCK COMPANY</p>
               <p className='text-sm mt-2'>1900.1900 | contactvaxbot@gmail.com </p>
@@ -132,17 +131,19 @@ const Contact: React.FC = () => {
 
               <div className='mb-4 flex items-center gap-4'>
                 <input type='text' placeholder='Enter CAPTCHA' className='p-2 border rounded' />
-                <span className='text-black bg-gray-300 p-2 rounded font-bold'>{securityCode}</span>
+                <span className=' px-6 py-2 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold  text-center py-2 block rounded-lg text-black bg-gray-300 p-2 rounded font-bold'>
+                  {securityCode}
+                </span>
                 <button type='button' onClick={generateSecurityCode} className='text-blue-500 underline'>
-                  Refresh 
+                  Refresh
                 </button>
               </div>
 
               <button
                 type='submit'
-                className='bg-blue/80 dark:bg-gray-900/80 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-bold'
+                className='px-6 py-2 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold text-center py-2 block rounded-lg'
               >
-                SEND 
+                SEND
               </button>
             </form>
           </div>
@@ -152,10 +153,12 @@ const Contact: React.FC = () => {
           {/* Sidebar Links */}
           {/* Sidebar */}
           <div className='dark:bg-gray-900/80 w-full lg:w-80 bg-white p-6 rounded-lg shadow-lg'>
+            <h3 className='dark:text-white  text-gray-900/80 text-lg font-bold  text-blue-800'>CUSTOMER CARE</h3>
+
             <div className='mt-6 space-y-2'>
               <a
                 href='/vaccinregister'
-                className='bg-blue/80 dark:bg-gray-900/80 block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition'
+                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold w-full text-center py-2 block rounded-lg'
               >
                 Vaccination registration
               </a>
@@ -165,38 +168,27 @@ const Contact: React.FC = () => {
             <div className='mt-2 space-y-2'>
               <a
                 href='/vaccinationhistory'
-                className='bg-blue/80 dark:bg-gray-900/80 block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition'
+                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold w-full text-center py-2 block rounded-lg'
               >
                 Vaccination history
               </a>
               {/* Add more link buttons if needed */}
             </div>
-            <div className=' mt-2 space-y-2 '>
-              <a
-                href='/buyvaccines'
-                className=' bg-blue/80 dark:bg-gray-900/80 block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition'
-              >
-                Frequently Asked Questions
-              </a>
-              {/* Add more link buttons if needed */}
-            </div>
-            {/* <h2 className='text-lg font-semibold text-blue-800 mb-4'>ĐẶNG KÝ THÔNG TIN TIÊM CHỦNG</h2> */}
 
             {/* Additional Content */}
             <div className=' mt-2 space-y-4'>
               <div className='space-y-4'>
-                <h3 className='dark:text-white text-lg font-semibold text-blue-800'>CUSTOMER CARE</h3>
                 <div className='mt-2 space-y-2'>
                   <a
                     href='/contactus'
-                    className='bg-blue/80 dark:bg-gray-900/80 block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition'
+                    className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold w-full text-center py-2 block rounded-lg'
                   >
-                    💌 Request a callback
+                    Request a callback
                   </a>
                   {/* Add more link buttons if needed */}
                 </div>
-                <p className='text-xll dark:text-white'>☎ 1900.1900</p>
-                <p className='text-xll dark:text-white'>📧 info@vaxbot.com</p>
+                <p className='text-xl dark:text-white font-bold '>☎ 1900.1900</p>
+                <p className='text-xl dark:text-white font-bold'>📧 info@vaxbot.com</p>
               </div>
             </div>
 

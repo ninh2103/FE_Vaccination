@@ -1,18 +1,21 @@
 // src/components/VaccinePage.tsx
 
 import React from 'react'
-import { useNavigate } from 'react-router-dom' // Sử dụng react-router-dom để chuyển hướng
+// import { useNavigate } from 'react-router-dom' // Sử dụng react-router-dom để chuyển hướng
 import Header from '@/components/homepage/Header'
 import Footer from '@/components/homepage/Footer'
 
 const VaccinePage: React.FC = () => {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   // Hàm xử lý khi nhấn nút "ĐẶT CHỖ"
   const handleBookNow = () => {
     // Chuyển hướng đến link đặt lịch (thay bằng link thực tế)
     window.location.href = '/vaccinregister' // Hoặc sử dụng navigate('/booking') nếu dùng react-router
   }
+  // const goToHome = () => {
+  //   navigate('/home') // ← Sử dụng nó trong một hàm
+  // }
 
   return (
     <div>
@@ -162,6 +165,7 @@ const VaccinePage: React.FC = () => {
           <ul className='list-disc list-inside ml-7'>
             <li>Vaxigrip Tetra vaccine is stored at 2-8 degrees Celsius. Do not freeze and protect from light.</li>
           </ul>
+          {/* <button onClick={goToHome}>Go Home</button>; */}
         </div>
       </div>
       <Footer />

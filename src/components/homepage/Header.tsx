@@ -20,7 +20,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Home', href: '#home' },
-  { name: 'About US', href: '/aboutus' },
+  // { name: 'About US', href: '/aboutus' },
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
@@ -29,13 +29,12 @@ const navItems: NavItem[] = [
   { name: 'Blog', href: '#blog' }
 ]
 
-
 // Top buttons configuration
-const topButtons: { name: string; href: string }[] = [
-  { name: 'Buy Vaccines', href: '/buyvaccines' },
-  { name: 'Address: 120 Hoang Minh Thao, Da Nang', href: ' ' },
-  { name: 'Phone: 1900.1900 ', href: ' ' },
-  { name: 'Working time:  08:00 - 19:00 ', href: ' ' }
+const topButtons: { name: string; href: string ; }[] = [
+  { name: '🛒 Buy Vaccines', href: '/buyvaccines' },
+  { name: 'ℹ️ Introduce', href: '/aboutus ' },
+  { name: '☎ 1900.1900 ', href: ' '},
+  { name: '⏰ 08:00 - 19:00 ', href: ' ' }
 ]
 
 export default function Header() {
@@ -95,7 +94,7 @@ export default function Header() {
               <Button
                 key={index}
                 variant='outline'
-                className='text-gray-900 dark:text-white  hover:bg-blue-100 transition-colors'
+                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 transition text-white font-bold text-center py-2 block rounded-lg hover:text-blue-400'
                 onClick={() => navigate(button.href)}
               >
                 {button.name}
