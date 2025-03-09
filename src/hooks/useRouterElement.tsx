@@ -4,14 +4,13 @@ import { path } from '@/core/constants/path'
 import PageNotFound from '@/pages/404/PageNotFound'
 import Dashboard from '@/pages/dashboard/Dashboard'
 import HomePage from '@/pages/home/HomePage'
-import ListVaccination from '@/pages/vaccination/list-vaccination'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
 import BlogDetails from '@/pages/blog/BlogDetails'
 import { useLocation, useRoutes } from 'react-router-dom'
-import CarFeatures from '@/pages/vaccination/vaccination-detail'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import Introduce from '@/pages/introduce/SiteIntroduction'
+import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -30,22 +29,7 @@ export default function useRoutesElements() {
           </LayoutMain>
         )
       },
-      {
-        path: path.list,
-        element: (
-          <LayoutClient>
-            <ListVaccination />
-          </LayoutClient>
-        )
-      },
-      {
-        path: path.detail,
-        element: (
-          <LayoutClient>
-            <CarFeatures />
-          </LayoutClient>
-        )
-      },
+
       {
         path: path.blog,
         element: (
@@ -53,6 +37,18 @@ export default function useRoutesElements() {
             <BlogDetails />
           </LayoutClient>
         )
+      },
+      {
+        path: path.pricelist,
+        element: (
+          <LayoutClient>
+            <VaccinePrices />
+          </LayoutClient>
+        )
+      },
+      {
+        path: path.introduce,
+        element: <ServiceIntro />
       },
       { path: '*', element: <PageNotFound /> }
     ],

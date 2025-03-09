@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
+
 import {
   FaStethoscope,
   FaBell,
@@ -18,6 +19,7 @@ import {
 import { MdChildCare } from 'react-icons/md'
 import { IoMdWarning, IoIosStats } from 'react-icons/io'
 import Banner from '@/pages/pricelist/Banner'
+
 type Vaccine = {
   id: number
   name: string
@@ -909,6 +911,7 @@ const VaccinePrices: React.FC = () => {
           </div>
         </div>
       </div>
+
       <Banner />
     </div>
   )
