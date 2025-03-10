@@ -8,6 +8,8 @@ export const path = {
   detail: '/vaccination/list/1',
   pricelist: '/pricelist',
   introduce: '/introduce',
+  resetPassword: '/reset-password',
+  forgotPassword: '/forgot-password',
   admin: {
     dashboard: '/admin/dashboard'
   }

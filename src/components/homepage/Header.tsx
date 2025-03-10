@@ -9,7 +9,7 @@ import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
-import Chatbox from '@/pages/chatbox/chatbox'
+import Chatbox from '@/pages/chatbox/Chatbox'
 
 const navItems = [
   { name: 'Home', href: '#home' },

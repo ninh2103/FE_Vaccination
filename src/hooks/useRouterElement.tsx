@@ -11,6 +11,8 @@ import { useLocation, useRoutes } from 'react-router-dom'
 import Profile from '@/pages/profile/Profile'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
+import ResetPassword from '@/pages/reset-password/Reset-Password'
+import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -20,6 +22,8 @@ export default function useRoutesElements() {
       { path: path.home, element: <HomePage /> },
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
+      { path: path.resetPassword, element: <ResetPassword /> },
+      { path: path.forgotPassword, element: <ForgotPassword /> },
 
       {
         path: path.admin.dashboard,

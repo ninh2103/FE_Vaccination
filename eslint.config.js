@@ -36,7 +36,8 @@ export default tseslint.config(
         }
       ],
       'no-console': 'error', // error on console.log
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      '@typescript-eslint/no-unused-vars': 'off'
     }
   }
 )

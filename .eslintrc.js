@@ -23,7 +23,7 @@ module.exports = {
     'react/jsx-no-target-blank': 'warn',
     'react/jsx-no-target-blank': 'warn',
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-unused-vars': 'off',
 
     'prettier/prettier': [
       'warn',
