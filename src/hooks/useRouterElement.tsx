@@ -13,7 +13,7 @@ import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
-import Dashb from '@/pages/das/dash'
+
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -24,7 +24,7 @@ export default function useRoutesElements() {
       { path: path.register, element: <Register /> },
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
-      { path: '/dashb', element: <Dashb/> },
+      { path: '/dashboard', element: <Dashboard/> },
 
       {
         path: path.admin.dashboard,
