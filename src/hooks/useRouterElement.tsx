@@ -13,6 +13,9 @@ import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
+import ListVaccination from '@/pages/vaccination/list-vaccination'
+import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
+import { OTPInput } from '@/pages/otp/otp'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -24,6 +27,7 @@ export default function useRoutesElements() {
       { path: path.register, element: <Register /> },
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
+      { path: path.otp, element: <OTPInput /> },
 
       {
         path: path.admin.dashboard,
@@ -57,6 +61,23 @@ export default function useRoutesElements() {
           </LayoutClient>
         )
       },
+      {
+        path: path.list,
+        element: (
+          <LayoutClient>
+            <ListVaccination />
+          </LayoutClient>
+        )
+      },
+      {
+        path: path.detail,
+        element: (
+          <LayoutClient>
+            <VaccineDetail />
+          </LayoutClient>
+        )
+      },
+
       {
         path: path.introduce,
         element: <ServiceIntro />

@@ -5,11 +5,12 @@ export const path = {
   blog: '/blog',
   profile: '/profile',
   list: '/vaccination/list',
-  detail: '/vaccination/list/1',
+  detail: '/vaccination/:id',
   pricelist: '/pricelist',
   introduce: '/introduce',
   resetPassword: '/reset-password',
   forgotPassword: '/forgot-password',
+  otp: '/otp',
   admin: {
     dashboard: '/admin/dashboard'
   }

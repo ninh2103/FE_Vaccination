@@ -127,7 +127,7 @@ export default function FormLogin() {
               Sign up
             </Link>
           </div>
-          <Link to={''} className='text-sm text-center text-green-400 hover:text-green-300'>
+          <Link to={path.forgotPassword} className='text-sm text-center text-green-400 hover:text-green-300'>
             Forgot your password?
           </Link>
         </CardFooter>

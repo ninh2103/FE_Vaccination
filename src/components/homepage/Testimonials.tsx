@@ -54,17 +54,19 @@ export default function Testimonials() {
             <CarouselContent className='m-0 space-x-4 lg:space-x-6'>
               {testimonials.map(({ id, name, comment, imageUrl, rating }) => {
                 return (
-                  <CarouselItem key={id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4'>
-                    <figure className='rounded-2xl bg-neutral-50 p-8'>
-                      <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
-                        {[...Array(rating)].map((_, index) => (
-                          <Star key={index} className='size-[15px] text-yellow-500' />
-                        ))}
-                      </div>
-                      <div className='pt-4'>
-                        <blockquote className='text-balance text-[14px] leading-[23px] text-neutral-600 sm:text-[15px] sm:leading-normal md:leading-[26px] lg:text-[16px]'>
-                          “{comment}”
-                        </blockquote>
+                  <CarouselItem key={id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4 h-full'>
+                    <figure className='flex flex-col justify-between rounded-2xl bg-neutral-50 p-8 min-h-[250px]'>
+                      <div>
+                        <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
+                          {[...Array(rating)].map((_, index) => (
+                            <Star key={index} className='size-[15px] text-yellow-500' />
+                          ))}
+                        </div>
+                        <div className='pt-4 flex-grow'>
+                          <blockquote className='text-balance text-[14px] leading-[23px] text-neutral-600 sm:text-[15px] sm:leading-normal md:leading-[26px] lg:text-[16px]'>
+                            “{comment}”
+                          </blockquote>
+                        </div>
                       </div>
                       <div className='pt-8'>
                         <figcaption className='flex items-center gap-2.5'>

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,9 +11,12 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { path } from '@/core/constants/path'
-import { ArrowDownUp, Search } from 'lucide-react'
+import { cn } from '@/core/lib/utils'
+import { addDays, format } from 'date-fns'
+import { ArrowDownUp, CalendarIcon, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 export const vaccines = [
@@ -68,12 +72,16 @@ const priceOptions = [
 
 export default function ListVaccination() {
   const [selectedPrices, setSelectedPrices] = useState<string[]>([])
+  const [date, setDate] = useState<Date>()
 
   const handleCheckboxChange = (id: string) => {
     setSelectedPrices((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
   }
 
-  const clearAll = () => setSelectedPrices([])
+  const resetFilters = () => {
+    setDate(undefined)
+    setSelectedPrices([])
+  }
 
   return (
     <section className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white'>
@@ -112,7 +120,7 @@ export default function ListVaccination() {
               <div className='flex items-center justify-between w-full pb-3 border-b border-gray-200 mb-7'>
                 <p className='font-medium text-base leading-7 text-black'>Filter Vaccine</p>
                 <p
-                  onClick={clearAll}
+                  onClick={resetFilters}
                   className='font-medium text-xs text-gray-500 cursor-pointer transition-all duration-500 hover:text-green-500'
                 >
                   RESET
@@ -159,6 +167,37 @@ export default function ListVaccination() {
                   ))}
                 </div>
               </div>
+              <div>
+                <div className='my-6 h-[1px] bg-slate-300'></div>
+                <h2 className='mb-3 font-bold text-text1'>When do you inject the vaccine?</h2>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={'outline'}
+                      className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
+                    >
+                      <CalendarIcon />
+                      {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align='start' className='flex w-auto flex-col space-y-2 p-2'>
+                    <Select onValueChange={(value) => setDate(addDays(new Date(), parseInt(value)))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select' />
+                      </SelectTrigger>
+                      <SelectContent position='popper'>
+                        <SelectItem value='0'>Today</SelectItem>
+                        <SelectItem value='1'>Tomorrow</SelectItem>
+                        <SelectItem value='3'>In 3 days</SelectItem>
+                        <SelectItem value='7'>In a week</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className='rounded-md border'>
+                      <Calendar mode='single' selected={date} onSelect={setDate} />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </div>
 
@@ -171,8 +210,11 @@ export default function ListVaccination() {
                       <div className='relative overflow-hidden group'>
                         <img className='object-cover w-full h-full' src={veccine.image} alt={veccine.name} />
                         <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                          <Link to={path.detail}>
-                            <Button className=' text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out font-semibold'>
+                          <Link to={path.detail.replace(':id', String(veccine.id))}>
+                            <Button
+                              key={veccine.id}
+                              className=' text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out font-semibold'
+                            >
                               View vaccine
                             </Button>
                           </Link>
