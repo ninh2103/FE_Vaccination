@@ -11,6 +11,15 @@ export const path = {
   resetPassword: '/reset-password',
   forgotPassword: '/forgot-password',
   admin: {
-    dashboard: '/admin/dashboard'
+    dashboard: '/admin/dashboard',
+    vaccines: '/admin/vaccines',
+    suppliers: '/admin/suppliers',
+    post: '/admin/post',
+    manufacturers: '/admin/manufacturers',
+    users: '/admin/users',
+    payments: 'admin/payments',
+    history: '/admin/history',
+    appointments: '/admin/appointments',
+order: '/admin/order',
   }
 }
