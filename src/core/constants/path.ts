@@ -11,6 +11,7 @@ export const path = {
   resetPassword: '/reset-password',
   forgotPassword: '/forgot-password',
   otp: '/otp',
+  booking: '/booking',
   admin: {
     dashboard: '/admin/dashboard'
   }
