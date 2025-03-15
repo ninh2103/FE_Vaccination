@@ -731,13 +731,13 @@ export default function VaccinesPage() {
         <div className='fixed bottom-4 right-4 flex items-center gap-4 z-10 mb-[1rem]'>
           <Button variant='outline' size='sm' onClick={goToPreviousPage} disabled={currentPage === 1}>
             <ChevronLeft className='h-4 w-4 mr-2' />
-            Previous
+            
           </Button>
           <span className='text-sm font-medium'>
             Page {currentPage} of {totalPages}
           </span>
           <Button variant='outline' size='sm' onClick={goToNextPage} disabled={currentPage === totalPages}>
-            Next
+           
             <ChevronRight className='h-4 w-4 ml-2' />
           </Button>
         </div>

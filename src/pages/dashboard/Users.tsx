@@ -522,7 +522,9 @@ export default function UsersPage() {
   return (
     <div className='flex flex-col gap-6 ml-4 relative min-h-screen'>
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Users</h1>
+        <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Users
+        </h1>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
             {isExporting ? (
@@ -703,7 +705,7 @@ export default function UsersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className='w-[50px]'>STT</TableHead>
+                      <TableHead className='w-[50px]'>No. </TableHead>
                       <TableHead>User</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead>Role</TableHead>

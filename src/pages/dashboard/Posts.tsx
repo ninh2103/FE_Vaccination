@@ -231,6 +231,7 @@ export default function BlogPage() {
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openOverviewDialog, setOpenOverviewDialog] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedPost, setSelectedPost] = useState<any>(null)
   const [newImage, setNewImage] = useState<File | null>(null)
   const [editImage, setEditImage] = useState<File | null>(null)
@@ -281,6 +282,7 @@ export default function BlogPage() {
         ? (e as React.ChangeEvent<HTMLInputElement>).target.files?.[0]
         : (e as React.DragEvent<HTMLDivElement>).dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
+      // eslint-disable-next-line no-unused-expressions
       isEdit ? setEditImage(file) : setNewImage(file)
     }
   }

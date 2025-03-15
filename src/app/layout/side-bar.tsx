@@ -15,8 +15,8 @@ import { IconMedicalCross } from '@tabler/icons-react'
 import * as Separator from '@radix-ui/react-separator'
 import { useNavigate } from 'react-router-dom'
 import { MdOutlineEmojiTransportation } from 'react-icons/md'
-import { TbBrandBooking } from "react-icons/tb";
-import { IoCartOutline } from "react-icons/io5";
+import { TbBrandBooking } from 'react-icons/tb'
+import { IoCartOutline } from 'react-icons/io5'
 
 import path from 'path'
 

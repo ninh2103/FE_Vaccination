@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { saveAs } from 'file-saver'
+import * as XLSX from 'xlsx'
 import {
   Plus,
-  Search,
   Filter,
   Download,
   MoreHorizontal,
@@ -15,7 +16,10 @@ import {
   Mail,
   Globe,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  RefreshCw,
+  Calendar,
+  AlertCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,7 +31,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem
 } from '@/components/ui/dropdown-menu'
 import {
   Dialog,
@@ -42,9 +47,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
-// Sample data
-const suppliers = [
+// Dữ liệu mẫu ban đầu
+const initialSuppliers = [
   {
     id: 1,
     name: 'Global Vaccine Distributors',
@@ -207,64 +213,224 @@ const suppliers = [
   }
 ]
 
+// Hằng số phân trang
+const ROWS_PER_PAGE = 10
+const MIN_YEAR = 1900
+const MAX_YEAR = new Date().getFullYear()
+
 export default function SuppliersPage() {
+  const [suppliers, setSuppliers] = useState(initialSuppliers)
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [selectedSupplier, setSelectedSupplier] = useState<any>(null)
+  const [selectedSupplier, setSelectedSupplier] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [filters, setFilters] = useState({
+    status: { active: false, inactive: false },
+    establishedFrom: '',
+    establishedTo: ''
+  })
+  const [yearRangeError, setYearRangeError] = useState('')
 
-  const filteredSuppliers = suppliers.filter(
-    (supplier) =>
-      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.products.some((product) => product.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
-      case 'Inactive':
-        return (
-          <Badge
-            variant='outline'
-            className='bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-800/20 dark:text-yellow-500'
-          >
-            Inactive
-          </Badge>
-        )
-      default:
-        return <Badge>{status}</Badge>
-    }
+  // Hàm kiểm tra năm hợp lệ
+  const isValidYear = (year) => {
+    if (!year) return true // Nếu không nhập, coi là hợp lệ (bỏ qua điều kiện)
+    const num = parseInt(year)
+    return !isNaN(num) && year.length === 4 && num >= MIN_YEAR && num <= MAX_YEAR
   }
 
-  const getRatingBadge = (rating: number) => {
-    if (rating >= 4.5) {
-      return <Badge className='bg-green-500 hover:bg-green-600'>{rating.toFixed(1)}</Badge>
-    } else if (rating >= 4.0) {
-      return <Badge className='bg-blue-500 hover:bg-blue-600'>{rating.toFixed(1)}</Badge>
-    } else if (rating >= 3.5) {
+  // Hàm lọc dữ liệu
+  const filteredSuppliers = useMemo(() => {
+    setYearRangeError('') // Đặt lại thông báo lỗi
+
+    // Kiểm tra khoảng năm hợp lệ
+    const fromYear = filters.establishedFrom ? parseInt(filters.establishedFrom) : null
+    const toYear = filters.establishedTo ? parseInt(filters.establishedTo) : null
+
+    if (fromYear && toYear && fromYear > toYear) {
+      setYearRangeError("The 'From' year cannot be greater than the 'To' year.")
+    }
+
+    return suppliers.filter((supplier) => {
+      const matchesSearch =
+        supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        supplier.phone.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesStatus =
+        (!filters.status.active && !filters.status.inactive) ||
+        (filters.status.active && supplier.status === 'Active') ||
+        (filters.status.inactive && supplier.status === 'Inactive')
+
+      const establishedYear = supplier.established ? parseInt(supplier.established) : null
+      const matchesEstablished =
+        (!fromYear || (establishedYear && establishedYear >= fromYear)) &&
+        (!toYear || (establishedYear && establishedYear <= toYear))
+
+      return matchesSearch && matchesStatus && matchesEstablished
+    })
+  }, [suppliers, searchTerm, filters])
+
+  // Phân trang
+  const totalPages = Math.ceil(filteredSuppliers.length / ROWS_PER_PAGE)
+  const paginatedSuppliers = filteredSuppliers.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE)
+
+  // Đặt lại trang nếu vượt quá tổng số trang
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages, currentPage])
+
+  // Hàm hiển thị badge trạng thái
+  const getStatusBadge = (status) => {
+    return status === 'Active' ? (
+      <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
+    ) : (
+      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+        Inactive
+      </Badge>
+    )
+  }
+
+  // Hàm hiển thị badge đánh giá
+  const getRatingBadge = (rating) => {
+    if (rating >= 4.5) return <Badge className='bg-green-500'>{rating.toFixed(1)}</Badge>
+    if (rating >= 4.0) return <Badge className='bg-blue-500'>{rating.toFixed(1)}</Badge>
+    if (rating >= 3.5)
       return (
-        <Badge
-          variant='outline'
-          className='bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-800/20 dark:text-yellow-500'
-        >
+        <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
           {rating.toFixed(1)}
         </Badge>
       )
+    return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
+  }
+
+  // Xuất dữ liệu ra Excel
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredSuppliers)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Suppliers')
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+    saveAs(blob, 'suppliers.xlsx')
+  }
+
+  // Xử lý thêm/sửa nhà cung cấp
+  const handleSaveSupplier = (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const established = formData.get('established')?.toString() || ''
+
+    // Kiểm tra năm hợp lệ
+    if (established && !isValidYear(established)) {
+      alert(`Please enter a valid year (between ${MIN_YEAR} and ${MAX_YEAR}).`)
+      return
+    }
+
+    const newSupplier = {
+      id: isEditMode ? selectedSupplier.id : suppliers.length + 1,
+      name: formData.get('name')?.toString() || '',
+      country: formData.get('country')?.toString() || '',
+      address: formData.get('address')?.toString() || '',
+      phone: formData.get('phone')?.toString() || '',
+      email: formData.get('email')?.toString() || '',
+      website: formData.get('website')?.toString() || '',
+      established,
+      contactPerson: formData.get('contact-person')?.toString() || '',
+      status: formData.get('status')?.toString() || 'Active',
+      leadTime: formData.get('lead-time')?.toString() || '',
+      rating: parseFloat(formData.get('rating')?.toString() || '0') || 0,
+      products:
+        formData
+          .get('products')
+          ?.toString()
+          .split(',')
+          .map((p) => p.trim()) || [],
+      logo: '/placeholder.svg'
+    }
+
+    if (isEditMode) {
+      setSuppliers(suppliers.map((s) => (s.id === newSupplier.id ? newSupplier : s)))
     } else {
-      return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
+      setSuppliers([...suppliers, newSupplier])
+    }
+    setOpenAddDialog(false)
+    setIsEditMode(false)
+    setSelectedSupplier(null)
+  }
+
+  // Xử lý xóa nhà cung cấp
+  const handleDeleteSupplier = () => {
+    setSuppliers(suppliers.filter((s) => s.id !== selectedSupplier?.id))
+    setOpenDeleteDialog(false)
+    setSelectedSupplier(null)
+  }
+
+  // Xử lý chỉnh sửa nhà cung cấp
+  const handleEditSupplier = (supplier) => {
+    setSelectedSupplier(supplier)
+    setIsEditMode(true)
+    setOpenAddDialog(true)
+  }
+
+  // Xử lý mở website
+  const handleVisitWebsite = (website) => {
+    if (website) {
+      window.open(website, '_blank', 'noopener,noreferrer')
     }
   }
 
+  // Xử lý làm mới dữ liệu với hiệu ứng loading
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setSuppliers([...initialSuppliers])
+      setSearchTerm('')
+      setFilters({
+        status: { active: false, inactive: false },
+        establishedFrom: '',
+        establishedTo: ''
+      })
+      setCurrentPage(1)
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
+  // Xử lý xóa bộ lọc
+  const handleClearFilters = () => {
+    setFilters({
+      status: { active: false, inactive: false },
+      establishedFrom: '',
+      establishedTo: ''
+    })
+    setCurrentPage(1)
+  }
+
+  // Xử lý thay đổi năm trong bộ lọc
+  const handleYearChange = (key, value) => {
+    const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 4)
+    setFilters((prev) => ({ ...prev, [key]: sanitizedValue }))
+  }
+
   return (
-    <div className='flex flex-col gap-6'>
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+      {/* Tiêu đề và nút hành động */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight'>Suppliers</h1>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Suppliers</h1>
         <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
             <Download className='mr-2 h-4 w-4' />
             Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+            ) : (
+              <RefreshCw className='mr-2 h-4 w-4' />
+            )}
+            Refresh
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
@@ -275,240 +441,389 @@ export default function SuppliersPage() {
             </DialogTrigger>
             <DialogContent className='sm:max-w-[550px]'>
               <DialogHeader>
-                <DialogTitle>Add New Supplier</DialogTitle>
+                <DialogTitle>{isEditMode ? 'Edit Supplier' : 'Add New Supplier'}</DialogTitle>
                 <DialogDescription>
-                  Enter the details of the new vaccine supplier to add to the system.
+                  {isEditMode ? 'Edit the supplier details below.' : 'Enter the details of the new supplier.'}
                 </DialogDescription>
               </DialogHeader>
-              <div className='grid gap-4 py-4'>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='name'>Supplier Name</Label>
-                    <Input id='name' placeholder='Enter supplier name' />
+              <form onSubmit={handleSaveSupplier}>
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='name'>Supplier Name</Label>
+                      <Input id='name' name='name' defaultValue={isEditMode ? selectedSupplier?.name : ''} required />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='country'>Country</Label>
+                      <Input
+                        id='country'
+                        name='country'
+                        defaultValue={isEditMode ? selectedSupplier?.country : ''}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className='flex flex-col gap-2'>
-                    <Label htmlFor='country'>Country</Label>
-                    <Input id='country' placeholder='Enter country' />
+                    <Label htmlFor='address'>Address</Label>
+                    <Textarea
+                      id='address'
+                      name='address'
+                      defaultValue={isEditMode ? selectedSupplier?.address : ''}
+                      required
+                    />
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='phone'>Phone Number</Label>
+                      <Input
+                        id='phone'
+                        name='phone'
+                        defaultValue={isEditMode ? selectedSupplier?.phone : ''}
+                        required
+                      />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='email'>Email</Label>
+                      <Input
+                        id='email'
+                        name='email'
+                        type='email'
+                        defaultValue={isEditMode ? selectedSupplier?.email : ''}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='website'>Website</Label>
+                      <Input id='website' name='website' defaultValue={isEditMode ? selectedSupplier?.website : ''} />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='established'>Established Year</Label>
+                      <Input
+                        id='established'
+                        name='established'
+                        defaultValue={isEditMode ? selectedSupplier?.established : ''}
+                        placeholder='yyyy'
+                        maxLength={4}
+                        onChange={(e) => {
+                          e.target.value = e.target.value.replace(/[^0-9]/g, '')
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='contact-person'>Contact Person</Label>
+                      <Input
+                        id='contact-person'
+                        name='contact-person'
+                        defaultValue={isEditMode ? selectedSupplier?.contactPerson : ''}
+                      />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='status'>Status</Label>
+                      <Select name='status' defaultValue={isEditMode ? selectedSupplier?.status : 'Active'}>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select status' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='Active'>Active</SelectItem>
+                          <SelectItem value='Inactive'>Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='lead-time'>Lead Time</Label>
+                      <Input
+                        id='lead-time'
+                        name='lead-time'
+                        defaultValue={isEditMode ? selectedSupplier?.leadTime : ''}
+                        required
+                      />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='rating'>Rating</Label>
+                      <Select name='rating' defaultValue={isEditMode ? selectedSupplier?.rating.toString() : '4.5'}>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select rating' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='5.0'>5.0</SelectItem>
+                          <SelectItem value='4.5'>4.5</SelectItem>
+                          <SelectItem value='4.0'>4.0</SelectItem>
+                          <SelectItem value='3.5'>3.5</SelectItem>
+                          <SelectItem value='3.0'>3.0</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label htmlFor='products'>Products (comma separated)</Label>
+                    <Input
+                      id='products'
+                      name='products'
+                      defaultValue={isEditMode ? selectedSupplier?.products.join(', ') : ''}
+                      required
+                    />
                   </div>
                 </div>
-                <div className='flex flex-col gap-2'>
-                  <Label htmlFor='address'>Address</Label>
-                  <Textarea id='address' placeholder='Enter full address' rows={2} />
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='phone'>Phone Number</Label>
-                    <Input id='phone' placeholder='Enter phone number' />
-                  </div>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='email'>Email</Label>
-                    <Input id='email' type='email' placeholder='Enter email address' />
-                  </div>
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='website'>Website</Label>
-                    <Input id='website' placeholder='Enter website URL' />
-                  </div>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='established'>Established Year</Label>
-                    <Input id='established' placeholder='Enter year established' />
-                  </div>
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='contact-person'>Contact Person</Label>
-                    <Input id='contact-person' placeholder='Enter contact person name' />
-                  </div>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='status'>Status</Label>
-                    <Select defaultValue='active'>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select status' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='active'>Active</SelectItem>
-                        <SelectItem value='inactive'>Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='lead-time'>Lead Time</Label>
-                    <Input id='lead-time' placeholder='e.g., 3-5 days' />
-                  </div>
-                  <div className='flex flex-col gap-2'>
-                    <Label htmlFor='rating'>Rating</Label>
-                    <Select defaultValue='4.5'>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select rating' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='5.0'>5.0</SelectItem>
-                        <SelectItem value='4.5'>4.5</SelectItem>
-                        <SelectItem value='4.0'>4.0</SelectItem>
-                        <SelectItem value='3.5'>3.5</SelectItem>
-                        <SelectItem value='3.0'>3.0</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <Label htmlFor='products'>Products (comma separated)</Label>
-                  <Input id='products' placeholder='e.g., COVID-19 Vaccine, Influenza Vaccine' />
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <Label htmlFor='logo'>Logo</Label>
-                  <Input id='logo' type='file' />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setOpenAddDialog(false)}>Save Supplier</Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button type='submit'>{isEditMode ? 'Update Supplier' : 'Save Supplier'}</Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
+      {/* Tìm kiếm và bộ lọc */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
-            <Input
-              placeholder='Search suppliers...'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className='w-full'
-              type='search'
-            />
-            <Button variant='outline' size='icon'>
-              <Search className='h-4 w-4' />
-            </Button>
-          </div>
+          <Input
+            placeholder='Search by name or phone...'
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className='w-full max-w-sm'
+            type='search'
+          />
           <div className='flex items-center gap-2'>
-            <Button variant='outline' size='sm'>
-              <Filter className='mr-2 h-4 w-4' />
-              Filter
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='outline' size='sm'>
+                  <Filter className='mr-2 h-4 w-4' />
+                  Filter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[300px] p-4'>
+                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
+                <p className='text-sm text-muted-foreground mb-4'>
+                  Filter suppliers by status and established year range.
+                </p>
+
+                {/* Bộ lọc trạng thái */}
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Status</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={filters.status.active}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: { ...prev.status, active: checked }
+                      }))
+                    }
+                  >
+                    Active
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={filters.status.inactive}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: { ...prev.status, inactive: checked }
+                      }))
+                    }
+                  >
+                    Inactive
+                  </DropdownMenuCheckboxItem>
+                </div>
+
+                {/* Bộ lọc theo khoảng năm thành lập */}
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Established Year Range</DropdownMenuLabel>
+                  <div className='grid grid-cols-2 gap-2 mt-2'>
+                    <div className='flex flex-col gap-1'>
+                      <Label className='text-xs text-muted-foreground'>From</Label>
+                      <div className='flex items-center'>
+                        <Input
+                          placeholder='yyyy'
+                          value={filters.establishedFrom}
+                          onChange={(e) => handleYearChange('establishedFrom', e.target.value)}
+                          className='w-full'
+                          maxLength={4}
+                        />
+                        <Calendar className='ml-2 h-4 w-4 text-muted-foreground' />
+                      </div>
+                    </div>
+                    <div className='flex flex-col gap-1'>
+                      <Label className='text-xs text-muted-foreground'>To</Label>
+                      <div className='flex items-center'>
+                        <Input
+                          placeholder='yyyy'
+                          value={filters.establishedTo}
+                          onChange={(e) => handleYearChange('establishedTo', e.target.value)}
+                          className='w-full'
+                          maxLength={4}
+                        />
+                        <Calendar className='ml-2 h-4 w-4 text-muted-foreground' />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Thông báo lỗi khoảng năm */}
+                {yearRangeError && (
+                  <Alert variant='destructive' className='mb-4'>
+                    <AlertCircle className='h-4 w-4' />
+                    <AlertDescription>{yearRangeError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Nút xóa bộ lọc */}
+                <Button variant='outline' size='sm' onClick={handleClearFilters}>
+                  Clear Filters
+                </Button>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
+        {/* Bảng dữ liệu */}
         <Card>
           <CardContent className='p-0'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Country</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Lead Time</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className='w-[80px]'></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSuppliers.map((supplier) => (
-                  <TableRow key={supplier.id} className='cursor-pointer transition-colors hover:bg-muted/50'>
-                    <TableCell>
-                      <div className='flex items-center gap-3'>
-                        <div className='h-10 w-10 rounded-md bg-muted flex items-center justify-center'>
-                          <Truck className='h-5 w-5 text-muted-foreground' />
-                        </div>
-                        <div>
-                          <div className='font-medium'>{supplier.name}</div>
-                          <div className='text-sm text-muted-foreground'>{supplier.contactPerson}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex items-center gap-1'>
-                        <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
-                        <span>{supplier.country}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex flex-col'>
-                        <div className='flex items-center gap-1 text-sm'>
-                          <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                          <span>{supplier.phone}</span>
-                        </div>
-                        <div className='flex items-center gap-1 text-sm'>
-                          <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                          <span>{supplier.email}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex flex-wrap gap-1'>
-                        {supplier.products.map((product, index) => (
-                          <Badge
-                            key={index}
-                            variant='outline'
-                            className='bg-primary/10 text-primary hover:bg-primary/20'
-                          >
-                            {product}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>{supplier.leadTime}</TableCell>
-                    <TableCell>{getRatingBadge(supplier.rating)}</TableCell>
-                    <TableCell>{getStatusBadge(supplier.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant='ghost' size='icon'>
-                            <MoreHorizontal className='h-4 w-4' />
-                            <span className='sr-only'>Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Globe className='mr-2 h-4 w-4' />
-                            Visit Website
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className='mr-2 h-4 w-4' />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className='text-red-600 focus:text-red-600'
-                            onClick={() => {
-                              setSelectedSupplier(supplier)
-                              setOpenDeleteDialog(true)
-                            }}
-                          >
-                            <Trash className='mr-2 h-4 w-4' />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            {paginatedSuppliers.length === 0 ? (
+              <div className='p-4 text-center text-muted-foreground'>
+                No suppliers found matching the current filters.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>No.</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Products</TableHead>
+                    <TableHead>Established Year</TableHead>
+                    <TableHead>Lead Time</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className='w-[80px]'></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedSuppliers.map((supplier, index) => (
+                    <TableRow key={supplier.id} className='cursor-pointer hover:bg-muted/50'>
+                      <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
+                      <TableCell>
+                        <div className='flex items-center gap-3'>
+                          <div className='h-10 w-10 rounded-md bg-muted flex items-center justify-center'>
+                            <Truck className='h-5 w-5 text-muted-foreground' />
+                          </div>
+                          <div>
+                            <div className='font-medium'>{supplier.name}</div>
+                            <div className='text-sm text-muted-foreground'>{supplier.contactPerson}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className='flex items-center gap-1'>
+                          <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
+                          <span>{supplier.country}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className='flex flex-col'>
+                          <div className='flex items-center gap-1 text-sm'>
+                            <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                            <span>{supplier.phone}</span>
+                          </div>
+                          <div className='flex items-center gap-1 text-sm'>
+                            <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                            <span>{supplier.email}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className='flex flex-wrap gap-1'>
+                          {supplier.products.map((product, idx) => (
+                            <Badge key={idx} variant='outline' className='bg-primary/10 text-primary'>
+                              {product}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>{supplier.established || 'N/A'}</TableCell>
+                      <TableCell>{supplier.leadTime}</TableCell>
+                      <TableCell>{getRatingBadge(supplier.rating)}</TableCell>
+                      <TableCell>{getStatusBadge(supplier.status)}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant='ghost' size='icon'>
+                              <MoreHorizontal className='h-4 w-4' />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end'>
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleVisitWebsite(supplier.website)}>
+                              <Globe className='mr-2 h-4 w-4' />
+                              Visit Website
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditSupplier(supplier)}>
+                              <Edit className='mr-2 h-4 w-4' />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className='text-red-600'
+                              onClick={() => {
+                                setSelectedSupplier(supplier)
+                                setOpenDeleteDialog(true)
+                              }}
+                            >
+                              <Trash className='mr-2 h-4 w-4' />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
-        <div className='flex items-center justify-end space-x-2 py-4'>
-          <Button variant='outline' size='sm'>
-            <ChevronLeft className='h-4 w-4' />
-            Previous
-          </Button>
-          <Button variant='outline' size='sm'>
-            Next
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-        </div>
+
+        {/* Phân trang cố định */}
+        {paginatedSuppliers.length > 0 && (
+          <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className='h-4 w-4' />
+            
+            </Button>
+            <span className='text-sm'>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              
+              <ChevronRight className='h-4 w-4' />
+            </Button>
+          </div>
+        )}
       </div>
 
+      {/* Dialog xóa */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -528,7 +843,7 @@ export default function SuppliersPage() {
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
               Cancel
             </Button>
-            <Button variant='destructive' onClick={() => setOpenDeleteDialog(false)}>
+            <Button variant='destructive' onClick={handleDeleteSupplier}>
               Delete
             </Button>
           </DialogFooter>

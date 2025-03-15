@@ -6,22 +6,22 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import App from './App.tsx'
 import './index.css'
-import { ThemeProvider } from '@/components/theme/theme-provider';
+import { ThemeProvider } from '@/components/theme/theme-provider'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchIntervalInBackground: false,
       refetchOnWindowFocus: false,
-      retry: false,
-    },
-  },
-});
+      retry: false
+    }
+  }
+})
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById('root')
 
 if (!rootElement) {
-  throw new Error('Root element not found');
+  throw new Error('Root element not found')
 }
 
 createRoot(rootElement).render(
@@ -35,4 +35,4 @@ createRoot(rootElement).render(
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>
-);
+)

@@ -38,7 +38,7 @@ const LayoutMain: React.FC<ILayoutMainProps> = ({ children }) => {
         <Sidebar isCollapsed={isSidebarCollapsed} />
         <main className='flex-1 overflow-auto px-2 py-2 bg-[#F4F4F4]'>{children}</main>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
-import { useState, useMemo, useCallback } from 'react'
-import { format, parseISO, isWithinInterval } from 'date-fns'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { format, parseISO, isWithinInterval, addDays, isBefore } from 'date-fns'
 import * as XLSX from 'xlsx'
 import {
   Search,
@@ -17,20 +17,13 @@ import {
   RefreshCw,
   Loader2,
   Plus,
-  Filter 
+  Filter
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -39,16 +32,20 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/core/lib/utils'
 import { toast } from '@/components/ui/use-toast'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const ITEMS_PER_PAGE = 10
 
 export default function BookingsPage() {
+  // Replace the useState for bookings to make it mutable
+  const [bookingsData, setBookingsData] = useState(bookings)
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -57,10 +54,37 @@ export default function BookingsPage() {
   const [filterStatus, setFilterStatus] = useState([])
   const [filterDateRange, setFilterDateRange] = useState({ start: null, end: null })
   const [isLoading, setIsLoading] = useState(false)
+  const [openAddOrderDialog, setOpenAddOrderDialog] = useState(false)
+  const [newOrder, setNewOrder] = useState({
+    patient: { name: '', phone: '', avatar: '/placeholder.svg', initials: '' },
+    vaccine: '',
+    preferredDate: '',
+    preferredTime: 'Morning',
+    notes: ''
+  })
 
-  // Thêm mã order và STT
+  // Get current date and time for validation
+  const now = new Date()
+  const currentHour = now.getHours()
+  const today = format(now, 'yyyy-MM-dd')
+  const tomorrow = format(addDays(now, 1), 'yyyy-MM-dd')
+
+  // Effect to update time options when date changes
+  useEffect(() => {
+    if (!openAddOrderDialog) {
+      setNewOrder({
+        patient: { name: '', phone: '', avatar: '/placeholder.svg', initials: '' },
+        vaccine: '',
+        preferredDate: '',
+        preferredTime: 'Morning',
+        notes: ''
+      })
+    }
+  }, [openAddOrderDialog])
+
+  // Replace the bookingsWithOrder useMemo to use the mutable bookingsData
   const bookingsWithOrder = useMemo(() => {
-    return bookings.map((booking, index) => {
+    return bookingsData.map((booking, index) => {
       const date = parseISO(booking.requestDate)
       const dateCode = format(date, 'ddMMyy')
       const orderNum = String(index + 1).padStart(2, '0')
@@ -71,9 +95,9 @@ export default function BookingsPage() {
         phone: booking.patient.phone
       }
     })
-  }, [])
+  }, [bookingsData])
 
-  // Xử lý lọc dữ liệu
+  // Xử lý lọc dữ liệu - filters apply automatically now
   const filteredBookings = useMemo(() => {
     let result = bookingsWithOrder
 
@@ -141,17 +165,50 @@ export default function BookingsPage() {
   }, [filteredBookings])
 
   const handleRefresh = useCallback(() => {
-    setSearchTerm('')
-    setFilterStatus([])
-    setFilterDateRange({ start: null, end: null })
-    setCurrentPage(1)
-    toast({ title: 'Refreshed', description: 'Data has been refreshed' })
+    setIsLoading(true)
+    setTimeout(() => {
+      setSearchTerm('')
+      setFilterStatus([])
+      setFilterDateRange({ start: null, end: null })
+      setCurrentPage(1)
+      toast({ title: 'Refreshed', description: 'Data has been refreshed' })
+      setIsLoading(false)
+    }, 500) // Simulate loading for better UX
   }, [])
 
+  // Improved status update function that actually updates the data
   const handleStatusUpdate = useCallback((booking, newStatus) => {
     setSelectedBooking((prev) => (prev ? { ...prev, status: newStatus } : null))
-    toast({ title: 'Status Updated', description: `Booking ${booking.orderCode} updated to ${newStatus}` })
+  }, [])
+
+  // Improved save changes function
+  const handleSaveChanges = useCallback(() => {
+    if (!selectedBooking) return
+
+    setBookingsData((prev) =>
+      prev.map((booking) =>
+        booking.id === selectedBooking.id ? { ...booking, status: selectedBooking.status } : booking
+      )
+    )
+
+    toast({
+      title: 'Changes Saved',
+      description: `Booking status updated successfully to ${selectedBooking.status}`
+    })
+
     setOpenDetailsDialog(false)
+  }, [selectedBooking])
+
+  // Improved direct status update function for the table actions
+  const handleDirectStatusUpdate = useCallback((bookingId, newStatus) => {
+    setBookingsData((prev) =>
+      prev.map((booking) => (booking.id === bookingId ? { ...booking, status: newStatus } : booking))
+    )
+
+    toast({
+      title: 'Status Updated',
+      description: `Booking status changed to ${newStatus}`
+    })
   }, [])
 
   const handleDelete = useCallback((booking) => {
@@ -159,8 +216,17 @@ export default function BookingsPage() {
     setOpenDeleteDialog(true)
   }, [])
 
+  // Improved delete function that actually removes the booking
   const confirmDelete = useCallback(() => {
-    toast({ title: 'Deleted', description: `Booking ${selectedBooking.orderCode} has been deleted` })
+    if (!selectedBooking) return
+
+    setBookingsData((prev) => prev.filter((booking) => booking.id !== selectedBooking.id))
+
+    toast({
+      title: 'Deleted',
+      description: `Booking has been deleted successfully`
+    })
+
     setOpenDeleteDialog(false)
     setOpenDetailsDialog(false)
   }, [selectedBooking])
@@ -181,36 +247,43 @@ export default function BookingsPage() {
   return (
     <div className='container mx-auto py-10 ml-[1cm]'>
       <Card className='shadow-lg'>
-        <CardHeader className='flex flex-row items-center justify-between p-6 bg-muted'>
-          <div className='flex items-center gap-4'>
-            <h1 className='text-2xl font-bold'>Bookings</h1>
-            <div className='relative w-full max-w-sm'>
-              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder='Search by name, phone, or order ID...'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className='pl-8 w-full'
-              />
+        <CardHeader className='flex flex-col p-6 bg-muted'>
+          <div className='flex items-center justify-between w-full mb-4'>
+            <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+              Orders
+            </h1>
+            <div className='flex items-center gap-2'>
+              <Button variant='outline' size='sm' onClick={handleExport} disabled={isLoading}>
+                {isLoading ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <Download className='h-4 w-4 mr-2' />}
+                <span className='hidden md:inline'>Export to Excel</span>
+              </Button>
+              <Button variant='outline' size='sm' onClick={handleRefresh} disabled={isLoading}>
+                <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
+                <span className='hidden md:inline'>Refresh</span>
+              </Button>
+              <Button
+                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
+                variant='default'
+                size='sm'
+                onClick={() => setOpenAddOrderDialog(true)}
+              >
+                <Plus className='h-4 w-4 mr-2' />
+                <span className='hidden md:inline'>Add Order</span>
+              </Button>
             </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <Button variant='outline' size='sm' onClick={handleExport} disabled={isLoading}>
-              {isLoading ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <Download className='h-4 w-4 mr-2' />}
-              <span className='hidden md:inline'>Export to Excel</span>
-            </Button>
-            <Button variant='outline' size='sm' onClick={handleRefresh} disabled={isLoading}>
-              <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
-              <span className='hidden md:inline'>Refresh</span>
-            </Button>
-            <Button variant='default' size='sm'>
-              <Plus className='h-4 w-4 mr-2' />
-              <span className='hidden md:inline'>Add User</span>
-            </Button>
+          <div className='relative w-full max-w-md'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Search by name, phone, or order ID...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='pl-8 w-full'
+            />
           </div>
         </CardHeader>
         <CardContent className='p-6'>
-          <div className='flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4'>
+          <div className='flex flex-col md:flex-row md:items-center md:justify-end mb-4 gap-4'>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant='outline' size='sm'>
@@ -235,6 +308,8 @@ export default function BookingsPage() {
                               setFilterStatus(
                                 checked ? [...filterStatus, status] : filterStatus.filter((s) => s !== status)
                               )
+                              // Reset to page 1 when filter changes
+                              setCurrentPage(1)
                             }}
                           />
                           <label htmlFor={`status-${status}`} className='text-sm'>
@@ -253,12 +328,14 @@ export default function BookingsPage() {
                         <Input
                           type='date'
                           value={filterDateRange.start ? format(filterDateRange.start, 'yyyy-MM-dd') : ''}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setFilterDateRange((prev) => ({
                               ...prev,
                               start: e.target.value ? parseISO(e.target.value) : null
                             }))
-                          }
+                            // Reset to page 1 when filter changes
+                            setCurrentPage(1)
+                          }}
                         />
                       </div>
                       <div className='space-y-1'>
@@ -266,12 +343,14 @@ export default function BookingsPage() {
                         <Input
                           type='date'
                           value={filterDateRange.end ? format(filterDateRange.end, 'yyyy-MM-dd') : ''}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setFilterDateRange((prev) => ({
                               ...prev,
                               end: e.target.value ? parseISO(e.target.value) : null
                             }))
-                          }
+                            // Reset to page 1 when filter changes
+                            setCurrentPage(1)
+                          }}
                         />
                       </div>
                     </div>
@@ -283,11 +362,11 @@ export default function BookingsPage() {
                       onClick={() => {
                         setFilterStatus([])
                         setFilterDateRange({ start: null, end: null })
+                        setCurrentPage(1)
                       }}
                     >
                       Clear Filters
                     </Button>
-                    <Button onClick={() => {}}>Apply Filters</Button>
                   </div>
                 </div>
               </PopoverContent>
@@ -297,7 +376,7 @@ export default function BookingsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-[60px]'>STT</TableHead>
+                <TableHead className='w-[60px]'>No.</TableHead>
                 <TableHead className='w-[120px]'>Order ID</TableHead>
                 <TableHead>Patient</TableHead>
                 <TableHead>Phone</TableHead>
@@ -341,8 +420,9 @@ export default function BookingsPage() {
                               size='icon'
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleStatusUpdate(booking, 'Approved')
+                                handleDirectStatusUpdate(booking.id, 'Approved')
                               }}
+                              title='Approve'
                             >
                               <Check className='h-4 w-4 text-green-500' />
                             </Button>
@@ -351,8 +431,9 @@ export default function BookingsPage() {
                               size='icon'
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleStatusUpdate(booking, 'Rejected')
+                                handleDirectStatusUpdate(booking.id, 'Rejected')
                               }}
+                              title='Reject'
                             >
                               <X className='h-4 w-4 text-red-500' />
                             </Button>
@@ -484,7 +565,7 @@ export default function BookingsPage() {
                   <Button
                     variant={selectedBooking.status === 'Approved' ? 'default' : 'outline'}
                     onClick={() => handleStatusUpdate(selectedBooking, 'Approved')}
-                    className='flex-1'
+                    className='flex-1 '
                   >
                     Approve
                   </Button>
@@ -508,8 +589,9 @@ export default function BookingsPage() {
           )}
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Close
+              Cancel
             </Button>
+            <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white' onClick={handleSaveChanges}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -533,6 +615,184 @@ export default function BookingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add Order Dialog */}
+      <Dialog open={openAddOrderDialog} onOpenChange={setOpenAddOrderDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Add New Order</DialogTitle>
+            <DialogDescription>Create a new booking order</DialogDescription>
+          </DialogHeader>
+          <div className='grid gap-6 py-4'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='patient-name'>Patient Name</Label>
+                <Input
+                  id='patient-name'
+                  value={newOrder.patient.name}
+                  onChange={(e) =>
+                    setNewOrder((prev) => ({
+                      ...prev,
+                      patient: {
+                        ...prev.patient,
+                        name: e.target.value,
+                        initials: e.target.value
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                      }
+                    }))
+                  }
+                />
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='patient-phone'>Phone Number</Label>
+                <Input
+                  id='patient-phone'
+                  value={newOrder.patient.phone}
+                  onChange={(e) =>
+                    setNewOrder((prev) => ({
+                      ...prev,
+                      patient: { ...prev.patient, phone: e.target.value }
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='vaccine'>Vaccine</Label>
+              <Input
+                id='vaccine'
+                value={newOrder.vaccine}
+                onChange={(e) => setNewOrder((prev) => ({ ...prev, vaccine: e.target.value }))}
+              />
+            </div>
+
+            {/* Improved date picker with calendar */}
+            <div className='space-y-2'>
+              <Label htmlFor='preferred-date'>Preferred Date</Label>
+              <div className='relative'>
+                <Input
+                  id='preferred-date'
+                  type='date'
+                  min={format(addDays(new Date(), 1), 'yyyy-MM-dd')}
+                  value={newOrder.preferredDate}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value
+                    setNewOrder((prev) => ({ ...prev, preferredDate: selectedDate }))
+                  }}
+                />
+              </div>
+              <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
+            </div>
+
+            {/* Improved time selection */}
+            <div className='space-y-2'>
+              <Label htmlFor='preferred-time'>Preferred Time</Label>
+              <Select
+                value={newOrder.preferredTime}
+                onValueChange={(value) => setNewOrder((prev) => ({ ...prev, preferredTime: value }))}
+                disabled={!newOrder.preferredDate}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Select time' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='Morning'>Morning</SelectItem>
+                  <SelectItem value='Afternoon'>Afternoon</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='notes'>Notes</Label>
+              <Input
+                id='notes'
+                value={newOrder.notes}
+                onChange={(e) => setNewOrder((prev) => ({ ...prev, notes: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenAddOrderDialog(false)}>
+              Cancel
+            </Button>
+            <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
+              onClick={() => {
+                // Validate form
+                if (
+                  !newOrder.patient.name ||
+                  !newOrder.patient.phone ||
+                  !newOrder.vaccine ||
+                  !newOrder.preferredDate ||
+                  !newOrder.preferredTime
+                ) {
+                  toast({
+                    title: 'Missing Information',
+                    description: 'Please fill in all required fields',
+                    variant: 'destructive'
+                  })
+                  return
+                }
+
+                // Validate date is in the future
+                const selectedDate = parseISO(newOrder.preferredDate)
+                const tomorrow = addDays(new Date(), 1)
+                tomorrow.setHours(0, 0, 0, 0)
+
+                if (isBefore(selectedDate, tomorrow)) {
+                  toast({
+                    title: 'Invalid Date',
+                    description: 'Please select a future date for your booking',
+                    variant: 'destructive'
+                  })
+                  return
+                }
+
+                // Add new order logic
+                const date = new Date()
+                const newBooking = {
+                  id: Math.max(...bookingsData.map((b) => b.id)) + 1,
+                  patient: {
+                    ...newOrder.patient,
+                    email: `${newOrder.patient.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+                    avatar: '/placeholder.svg',
+                    initials: newOrder.patient.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                  },
+                  vaccine: newOrder.vaccine,
+                  requestDate: format(date, 'yyyy-MM-dd'),
+                  preferredDate: newOrder.preferredDate,
+                  preferredTime: newOrder.preferredTime,
+                  status: 'Pending',
+                  notes: newOrder.notes
+                }
+
+                // Add to bookings data
+                setBookingsData((prev) => [...prev, newBooking])
+
+                toast({
+                  title: 'Order Created',
+                  description: `New order has been created successfully`
+                })
+                setOpenAddOrderDialog(false)
+                setNewOrder({
+                  patient: { name: '', phone: '', avatar: '/placeholder.svg', initials: '' },
+                  vaccine: '',
+                  preferredDate: '',
+                  preferredTime: 'Morning',
+                  notes: ''
+                })
+              }}
+            >
+              Create Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -550,9 +810,9 @@ const bookings = [
     vaccine: 'Vaccine COVID-19',
     requestDate: '2025-03-01',
     preferredDate: '2025-03-05',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Pending',
-    notes: 'Liều đầu tiên'
+    notes: 'First dose'
   },
   {
     id: 2,
@@ -566,9 +826,9 @@ const bookings = [
     vaccine: 'Vaccine cúm',
     requestDate: '2025-03-02',
     preferredDate: '2025-03-06',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Approved',
-    notes: 'Tiêm hàng năm'
+    notes: 'Annual vaccination'
   },
   {
     id: 3,
@@ -582,9 +842,9 @@ const bookings = [
     vaccine: 'Vaccine uốn ván',
     requestDate: '2025-03-03',
     preferredDate: '2025-03-07',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Rejected',
-    notes: 'Liều bổ sung'
+    notes: 'Supplementary dose'
   },
   {
     id: 4,
@@ -598,9 +858,9 @@ const bookings = [
     vaccine: 'Vaccine viêm gan B',
     requestDate: '2025-03-04',
     preferredDate: '2025-03-08',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Pending',
-    notes: 'Liều thứ hai'
+    notes: 'Second dose'
   },
   {
     id: 5,
@@ -614,9 +874,9 @@ const bookings = [
     vaccine: 'Vaccine COVID-19',
     requestDate: '2025-03-05',
     preferredDate: '2025-03-09',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Approved',
-    notes: 'Liều tăng cường'
+    notes: 'Booster dose'
   },
   {
     id: 6,
@@ -630,9 +890,9 @@ const bookings = [
     vaccine: 'Vaccine MMR',
     requestDate: '2025-03-06',
     preferredDate: '2025-03-10',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Pending',
-    notes: 'Tiêm định kỳ'
+    notes: 'Regular vaccination'
   },
   {
     id: 7,
@@ -646,9 +906,9 @@ const bookings = [
     vaccine: 'Vaccine phế cầu',
     requestDate: '2025-03-07',
     preferredDate: '2025-03-11',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Approved',
-    notes: 'Lần đầu'
+    notes: 'First time'
   },
   {
     id: 8,
@@ -662,9 +922,9 @@ const bookings = [
     vaccine: 'Vaccine HPV',
     requestDate: '2025-03-08',
     preferredDate: '2025-03-12',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Rejected',
-    notes: 'Liều đầu tiên'
+    notes: 'First dose'
   },
   {
     id: 9,
@@ -678,9 +938,9 @@ const bookings = [
     vaccine: 'Vaccine thủy đậu',
     requestDate: '2025-03-09',
     preferredDate: '2025-03-13',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Pending',
-    notes: 'Tiêm trẻ em'
+    notes: 'Child vaccination'
   },
   {
     id: 10,
@@ -694,9 +954,9 @@ const bookings = [
     vaccine: 'Vaccine COVID-19',
     requestDate: '2025-03-10',
     preferredDate: '2025-03-14',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Approved',
-    notes: 'Liều nhắc lại'
+    notes: 'Reminder dose'
   },
   {
     id: 11,
@@ -710,9 +970,9 @@ const bookings = [
     vaccine: 'Vaccine sởi',
     requestDate: '2025-03-11',
     preferredDate: '2025-03-15',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Pending',
-    notes: 'Tiêm phòng'
+    notes: 'Preventive vaccination'
   },
   {
     id: 12,
@@ -726,9 +986,9 @@ const bookings = [
     vaccine: 'Vaccine bại liệt',
     requestDate: '2025-03-12',
     preferredDate: '2025-03-16',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Approved',
-    notes: 'Liều bổ sung'
+    notes: 'Supplementary dose'
   },
   {
     id: 13,
@@ -742,9 +1002,9 @@ const bookings = [
     vaccine: 'Vaccine viêm màng não',
     requestDate: '2025-03-13',
     preferredDate: '2025-03-17',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Rejected',
-    notes: 'Lần đầu'
+    notes: 'First time'
   },
   {
     id: 14,
@@ -758,9 +1018,9 @@ const bookings = [
     vaccine: 'Vaccine rubella',
     requestDate: '2025-03-14',
     preferredDate: '2025-03-18',
-    preferredTime: 'Chiều',
+    preferredTime: 'Afternoon',
     status: 'Pending',
-    notes: 'Tiêm phụ nữ'
+    notes: "Women's vaccination"
   },
   {
     id: 15,
@@ -774,8 +1034,8 @@ const bookings = [
     vaccine: 'Vaccine COVID-19',
     requestDate: '2025-03-15',
     preferredDate: '2025-03-19',
-    preferredTime: 'Sáng',
+    preferredTime: 'Morning',
     status: 'Approved',
-    notes: 'Liều thứ ba'
+    notes: 'Third dose'
   }
 ]

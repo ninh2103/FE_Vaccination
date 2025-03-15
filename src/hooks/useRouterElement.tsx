@@ -34,7 +34,6 @@ export default function useRoutesElements() {
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
 
-
       {
         path: path.admin.dashboard, // Giả định là "/admin/dashboard"
         element: (
