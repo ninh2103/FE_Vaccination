@@ -418,7 +418,9 @@ export default function SuppliersPage() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Tiêu đề và nút hành động */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Suppliers</h1>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Suppliers
+        </h1>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
             <Download className='mr-2 h-4 w-4' />
@@ -434,7 +436,7 @@ export default function SuppliersPage() {
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9'>
+              <Button size='sm' className='h-9 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Supplier
               </Button>
@@ -574,7 +576,7 @@ export default function SuppliersPage() {
                   <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
                     Cancel
                   </Button>
-                  <Button type='submit'>{isEditMode ? 'Update Supplier' : 'Save Supplier'}</Button>
+                  <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white' type='submit'>{isEditMode ? 'Update Supplier' : 'Save Supplier'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -805,7 +807,6 @@ export default function SuppliersPage() {
               disabled={currentPage === 1}
             >
               <ChevronLeft className='h-4 w-4' />
-            
             </Button>
             <span className='text-sm'>
               Page {currentPage} of {totalPages}
@@ -816,7 +817,6 @@ export default function SuppliersPage() {
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              
               <ChevronRight className='h-4 w-4' />
             </Button>
           </div>

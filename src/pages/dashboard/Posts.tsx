@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, MoreHorizontal, Edit, Trash, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { saveAs } from 'file-saver'
+import * as XLSX from 'xlsx'
+import { Plus, MoreHorizontal, Edit, Trash, Eye, ChevronLeft, ChevronRight, RefreshCw, Filter, Download, Search, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -12,7 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem
 } from '@/components/ui/dropdown-menu'
 import {
   Dialog,
@@ -28,9 +31,10 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 // Sample data with 12 blog posts, including image URLs
-const blogPosts = [
+const initialBlogPosts = [
   {
     id: 1,
     title: 'Understanding Vaccine Safety',
@@ -83,7 +87,7 @@ const blogPosts = [
     id: 4,
     title: 'Childhood Immunization Guide',
     slug: 'childhood-immunization-guide',
-    excerpt: 'A parent’s guide to childhood vaccines.',
+    excerpt: "A parent's guide to childhood vaccines.",
     content:
       "<p style='font-family: Arial; font-size: 16px; font-weight: bold; line-height: 1.6;'>Immunizations protect kids from serious diseases...</p>",
     author: 'ADMIN',
@@ -225,70 +229,95 @@ const blogPosts = [
   }
 ]
 
+// Hằng số phân trang
+const ROWS_PER_PAGE = 10
+
 export default function BlogPage() {
+  const [blogPosts, setBlogPosts] = useState(initialBlogPosts)
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openOverviewDialog, setOpenOverviewDialog] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedPost, setSelectedPost] = useState<any>(null)
-  const [newImage, setNewImage] = useState<File | null>(null)
-  const [editImage, setEditImage] = useState<File | null>(null)
+  const [selectedPost, setSelectedPost] = useState(null)
+  const [newImage, setNewImage] = useState(null)
+  const [editImage, setEditImage] = useState(null)
   const [currentTab, setCurrentTab] = useState('all')
   const [newContent, setNewContent] = useState('')
   const [editContent, setEditContent] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const postsPerPage = 10
-
-  const filteredPosts = blogPosts.filter((post) => {
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-
-    if (currentTab === 'all') return matchesSearch
-    if (currentTab === 'published') return matchesSearch && post.status === 'Published'
-    if (currentTab === 'drafts') return matchesSearch && post.status === 'Draft'
-    return matchesSearch
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [filters, setFilters] = useState({
+    featured: { yes: false, no: false },
+    category: ''
   })
 
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
-  const paginatedPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
+  // Hàm lọc dữ liệu
+  const filteredPosts = useMemo(() => {
+    return blogPosts.filter((post) => {
+      const matchesSearch =
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Published':
-        return <Badge className='bg-green-500 text-white hover:bg-green-600'>Published</Badge>
-      case 'Draft':
-        return (
-          <Badge variant='outline' className='bg-yellow-100 text-yellow-800 border-yellow-300'>
-            Draft
-          </Badge>
-        )
-      default:
-        return <Badge>{status}</Badge>
+      const matchesTab = 
+        currentTab === 'all' || 
+        (currentTab === 'published' && post.status === 'Published') || 
+        (currentTab === 'drafts' && post.status === 'Draft')
+
+      const matchesFeatured =
+        (!filters.featured.yes && !filters.featured.no) ||
+        (filters.featured.yes && post.featured) ||
+        (filters.featured.no && !post.featured)
+
+      const matchesCategory =
+        !filters.category || post.category.toLowerCase() === filters.category.toLowerCase()
+
+      return matchesSearch && matchesTab && matchesFeatured && matchesCategory
+    })
+  }, [blogPosts, searchTerm, currentTab, filters])
+
+  // Phân trang
+  const totalPages = Math.ceil(filteredPosts.length / ROWS_PER_PAGE)
+  const paginatedPosts = filteredPosts.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE)
+
+  // Đặt lại trang nếu vượt quá tổng số trang
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
     }
+  }, [totalPages, currentPage])
+
+  // Hàm hiển thị badge trạng thái
+  const getStatusBadge = (status) => {
+    return status === 'Published' ? (
+      <Badge className='bg-green-500 hover:bg-green-600'>Published</Badge>
+    ) : (
+      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+        Draft
+      </Badge>
+    )
   }
 
+  // Xử lý thay đổi hình ảnh
   const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>,
-    isEdit: boolean
+    e,
+    isEdit
   ) => {
     e.preventDefault()
     const file =
       e.type === 'change'
-        ? (e as React.ChangeEvent<HTMLInputElement>).target.files?.[0]
-        : (e as React.DragEvent<HTMLDivElement>).dataTransfer.files[0]
+        ? e.target.files?.[0]
+        : e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      // eslint-disable-next-line no-unused-expressions
       isEdit ? setEditImage(file) : setNewImage(file)
     }
   }
 
-  const applyContentStyle = (style: string, value?: string, isEdit: boolean = false) => {
-    const contentInput = document.getElementById(isEdit ? 'edit-content' : 'content') as HTMLDivElement
+  // Xử lý áp dụng kiểu cho nội dung
+  const applyContentStyle = (style, value, isEdit = false) => {
+    const contentInput = document.getElementById(isEdit ? 'edit-content' : 'content')
     if (contentInput) {
       if (style === 'fontSize') {
         const selection = window.getSelection()
@@ -327,50 +356,735 @@ export default function BlogPage() {
     }
   }
 
+  // Xuất dữ liệu ra Excel
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredPosts)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Blog Posts')
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+    saveAs(blob, 'blog-posts.xlsx')
+  }
+
+  // Xử lý làm mới dữ liệu với hiệu ứng loading
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setBlogPosts([...initialBlogPosts])
+      setSearchTerm('')
+      setFilters({
+        featured: { yes: false, no: false },
+        category: ''
+      })
+      setCurrentPage(1)
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
+  // Xử lý xóa bộ lọc
+  const handleClearFilters = () => {
+    setFilters({
+      featured: { yes: false, no: false },
+      category: ''
+    })
+    setCurrentPage(1)
+  }
+
   return (
-    <div className='flex flex-col gap-6 p-6 bg-gray-50 min-h-screen relative'>
-      <div className='flex items-center justify-between bg-white p-4 rounded-lg shadow-sm'>
-        <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Blog Management
-        </h1>
-        <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-          <DialogTrigger asChild>
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+      {/* Tiêu đề và nút hành động */}
+      <div className='flex items-center justify-between'>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Blog Management</h1>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
+            <Download className='mr-2 h-4 w-4' />
+            Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+            ) : (
+              <RefreshCw className='mr-2 h-4 w-4' />
+            )}
+            Refresh
+          </Button>
+          <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+            <DialogTrigger asChild>
+              <Button size='sm' className='h-9 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'>
+                <Plus className='mr-2 h-4 w-4' />
+                New Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent className='sm:max-w-[700px] max-h-[80vh] overflow-y-auto'>
+              <DialogHeader>
+                <DialogTitle>Create New Blog Post</DialogTitle>
+                <DialogDescription>
+                  Create a new blog post to publish on your website.
+                </DialogDescription>
+              </DialogHeader>
+              <form>
+                <div className='grid gap-4 py-4'>
+                  <div className='flex flex-col gap-2'>
+                    <Label htmlFor='title'>Title</Label>
+                    <Input id='title' placeholder='Enter blog post title' />
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='slug'>Slug</Label>
+                      <Input id='slug' placeholder='Enter URL slug' />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='category'>Category</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select category' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='vaccine-science'>Vaccine Science</SelectItem>
+                          <SelectItem value='influenza'>Influenza</SelectItem>
+                          <SelectItem value='travel'>Travel</SelectItem>
+                          <SelectItem value='pediatric'>Pediatric</SelectItem>
+                          <SelectItem value='geriatric'>Geriatric</SelectItem>
+                          <SelectItem value='covid-19'>COVID-19</SelectItem>
+                          <SelectItem value='respiratory-health'>Respiratory Health</SelectItem>
+                          <SelectItem value='preventive-care'>Preventive Care</SelectItem>
+                          <SelectItem value='cancer-prevention'>Cancer Prevention</SelectItem>
+                          <SelectItem value='maternal-health'>Maternal Health</SelectItem>
+                          <SelectItem value='global-health'>Global Health</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label htmlFor='excerpt'>Excerpt</Label>
+                    <Textarea id='excerpt' placeholder='Enter a brief summary' rows={2} />
+                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label htmlFor='content'>Content</Label>
+                    <div className='flex flex-wrap gap-2 mb-2 bg-white p-2 border border-gray-300 rounded-md'>
+                      <Select onValueChange={(value) => applyContentStyle('fontName', value, false)}>
+                        <SelectTrigger className='w-[120px]'>
+                          <SelectValue placeholder='Font' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='Times New Roman'>Times New Roman</SelectItem>
+                          <SelectItem value='Arial'>Arial</SelectItem>
+                          <SelectItem value='Verdana'>Verdana</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select onValueChange={(value) => applyContentStyle('fontSize', value, false)}>
+                        <SelectTrigger className='w-[80px]'>
+                          <SelectValue placeholder='Size' />
+                        </SelectTrigger>
+                        <SelectContent className='max-h-[200px] overflow-y-auto'>
+                          <SelectItem value='8'>8pt</SelectItem>
+                          <SelectItem value='10'>10pt</SelectItem>
+                          <SelectItem value='12'>12pt</SelectItem>
+                          <SelectItem value='14'>14pt</SelectItem>
+                          <SelectItem value='16'>16pt</SelectItem>
+                          <SelectItem value='18'>18pt</SelectItem>
+                          <SelectItem value='20'>20pt</SelectItem>
+                          <SelectItem value='22'>22pt</SelectItem>
+                          <SelectItem value='24'>24pt</SelectItem>
+                          <SelectItem value='26'>26pt</SelectItem>
+                          <SelectItem value='28'>28pt</SelectItem>
+                          <SelectItem value='32'>32pt</SelectItem>
+                          <SelectItem value='36'>36pt</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('bold', undefined, false)}
+                      >
+                        <b>B</b>
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('italic', undefined, false)}
+                      >
+                        <i>I</i>
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('underline', undefined, false)}
+                      >
+                        <u>U</u>
+                      </Button>
+                      <Select onValueChange={(value) => applyContentStyle('foreColor', value, false)}>
+                        <SelectTrigger className='w-[80px]'>
+                          <SelectValue placeholder='Color' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='#000000'>Black</SelectItem>
+                          <SelectItem value='#FF0000'>Red</SelectItem>
+                          <SelectItem value='#00FF00'>Green</SelectItem>
+                          <SelectItem value='#0000FF'>Blue</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('justifyLeft', undefined, false)}
+                      >
+                        <span>Left</span>
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('justifyCenter', undefined, false)}
+                      >
+                        <span>Center</span>
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => applyContentStyle('justifyRight', undefined, false)}
+                      >
+                        <span>Right</span>
+                      </Button>
+                    </div>
+                    <div
+                      id='content'
+                      contentEditable
+                      className='border border-gray-300 p-2 min-h-[200px] rounded-md focus:outline-none'
+                      placeholder='Write your content here...'
+                      onInput={(e) => setNewContent(e.currentTarget.innerHTML)}
+                    />
+                  </div>
+                  <div className='grid gap-2'>
+                    <Label>Featured Image</Label>
+                    <div
+                      className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
+                      onDrop={(e) => handleImageChange(e, false)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onClick={() => document.getElementById('new-image-input')?.click()}
+                    >
+                      {newImage ? (
+                        <img src={URL.createObjectURL(newImage) || "/placeholder.svg"} alt='Featured' className='max-h-32 mx-auto' />
+                      ) : (
+                        <p className='text-muted-foreground'>Drag and drop an image here or click to select</p>
+                      )}
+                      <input
+                        id='new-image-input'
+                        type='file'
+                        accept='image/*'
+                        className='hidden'
+                        onChange={(e) => handleImageChange(e, false)}
+                      />
+                    </div>
+                  </div>
+                  <div className='flex flex-col gap-2'>
+                    <Label htmlFor='tags'>Tags (comma separated)</Label>
+                    <Input id='tags' placeholder='e.g., Vaccination, Health' />
+                  </div>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='status'>Status</Label>
+                      <Select defaultValue='draft'>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select status' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='draft'>Draft</SelectItem>
+                          <SelectItem value='published'>Published</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <Label htmlFor='featured'>Featured</Label>
+                      <Select defaultValue='false'>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select featured status' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='false'>No</SelectItem>
+                          <SelectItem value='true'>Yes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setOpenAddDialog(false)}>
+                    Save Draft
+                  </Button>
+                  <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white' onClick={() => setOpenAddDialog(false)}>
+                    Publish
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Tìm kiếm và bộ lọc */}
+      <div className='grid gap-6'>
+        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <Input
+            placeholder='Search by title, excerpt, category or tags...'
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className='w-full max-w-sm'
+            type='search'
+          />
+          <div className='flex items-center gap-2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='outline' size='sm'>
+                  <Filter className='mr-2 h-4 w-4' />
+                  Filter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[300px] p-4'>
+                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
+                <p className='text-sm text-muted-foreground mb-4'>
+                  Filter blog posts by featured status and category.
+                </p>
+
+                {/* Bộ lọc trạng thái featured */}
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Featured Status</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={filters.featured.yes}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        featured: { ...prev.featured, yes: checked }
+                      }))
+                    }
+                  >
+                    Featured
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={filters.featured.no}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        featured: { ...prev.featured, no: checked }
+                      }))
+                    }
+                  >
+                    Not Featured
+                  </DropdownMenuCheckboxItem>
+                </div>
+
+                {/* Bộ lọc theo danh mục */}
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Category</DropdownMenuLabel>
+                  <Select 
+                    value={filters.category} 
+                    onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
+                  >
+                    <SelectTrigger className='mt-2'>
+                      <SelectValue placeholder='Select category' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value=''>All Categories</SelectItem>
+                      <SelectItem value='vaccine science'>Vaccine Science</SelectItem>
+                      <SelectItem value='influenza'>Influenza</SelectItem>
+                      <SelectItem value='travel'>Travel</SelectItem>
+                      <SelectItem value='pediatric'>Pediatric</SelectItem>
+                      <SelectItem value='geriatric'>Geriatric</SelectItem>
+                      <SelectItem value='covid-19'>COVID-19</SelectItem>
+                      <SelectItem value='respiratory health'>Respiratory Health</SelectItem>
+                      <SelectItem value='preventive care'>Preventive Care</SelectItem>
+                      <SelectItem value='cancer prevention'>Cancer Prevention</SelectItem>
+                      <SelectItem value='maternal health'>Maternal Health</SelectItem>
+                      <SelectItem value='global health'>Global Health</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Nút xóa bộ lọc */}
+                <Button variant='outline' size='sm' onClick={handleClearFilters}>
+                  Clear Filters
+                </Button>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Tabs và Bảng dữ liệu */}
+        <Tabs defaultValue='all' onValueChange={setCurrentTab} className='w-full'>
+          <TabsList className='grid w-full max-w-md grid-cols-3'>
+            <TabsTrigger value='all'>All Posts</TabsTrigger>
+            <TabsTrigger value='published'>Published</TabsTrigger>
+            <TabsTrigger value='drafts'>Drafts</TabsTrigger>
+          </TabsList>
+          <TabsContent value='all' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedPosts.length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No blog posts found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Author</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Published</TableHead>
+                        <TableHead>Featured</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedPosts.map((post, index) => (
+                        <TableRow key={post.id} className='cursor-pointer hover:bg-muted/50'>
+                          <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
+                          <TableCell>
+                            <div className='font-medium'>{post.title}</div>
+                            <div className='text-sm text-muted-foreground truncate max-w-[300px]'>{post.excerpt}</div>
+                          </TableCell>
+                          <TableCell>{post.author}</TableCell>
+                          <TableCell>{post.category}</TableCell>
+                          <TableCell>{getStatusBadge(post.status)}</TableCell>
+                          <TableCell>{post.publishDate || '—'}</TableCell>
+                          <TableCell>{post.featured ? 'Yes' : 'No'}</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant='ghost' size='icon'>
+                                  <MoreHorizontal className='h-4 w-4' />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenOverviewDialog(true)
+                                  }}
+                                >
+                                  <Eye className='mr-2 h-4 w-4' />
+                                  View Overview
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setEditImage(null)
+                                    setEditContent(post.content)
+                                    setOpenEditDialog(true)
+                                  }}
+                                >
+                                  <Edit className='mr-2 h-4 w-4' />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className='text-red-600'
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenDeleteDialog(true)
+                                  }}
+                                >
+                                  <Trash className='mr-2 h-4 w-4' />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value='published' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedPosts.length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No published posts found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Author</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Published</TableHead>
+                        <TableHead>Featured</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedPosts.map((post, index) => (
+                        <TableRow key={post.id} className='cursor-pointer hover:bg-muted/50'>
+                          <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
+                          <TableCell>
+                            <div className='font-medium'>{post.title}</div>
+                            <div className='text-sm text-muted-foreground truncate max-w-[300px]'>{post.excerpt}</div>
+                          </TableCell>
+                          <TableCell>{post.author}</TableCell>
+                          <TableCell>{post.category}</TableCell>
+                          <TableCell>{post.publishDate}</TableCell>
+                          <TableCell>{post.featured ? 'Yes' : 'No'}</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant='ghost' size='icon'>
+                                  <MoreHorizontal className='h-4 w-4' />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenOverviewDialog(true)
+                                  }}
+                                >
+                                  <Eye className='mr-2 h-4 w-4' />
+                                  View Overview
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setEditImage(null)
+                                    setEditContent(post.content)
+                                    setOpenEditDialog(true)
+                                  }}
+                                >
+                                  <Edit className='mr-2 h-4 w-4' />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className='text-red-600'
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenDeleteDialog(true)
+                                  }}
+                                >
+                                  <Trash className='mr-2 h-4 w-4' />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value='drafts' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedPosts.length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No draft posts found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Author</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Last Updated</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedPosts.map((post, index) => (
+                        <TableRow key={post.id} className='cursor-pointer hover:bg-muted/50'>
+                          <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
+                          <TableCell>
+                            <div className='font-medium'>{post.title}</div>
+                            <div className='text-sm text-muted-foreground truncate max-w-[300px]'>{post.excerpt}</div>
+                          </TableCell>
+                          <TableCell>{post.author}</TableCell>
+                          <TableCell>{post.category}</TableCell>
+                          <TableCell>—</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant='ghost' size='icon'>
+                                  <MoreHorizontal className='h-4 w-4' />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenOverviewDialog(true)
+                                  }}
+                                >
+                                  <Eye className='mr-2 h-4 w-4' />
+                                  View Overview
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setEditImage(null)
+                                    setEditContent(post.content)
+                                    setOpenEditDialog(true)
+                                  }}
+                                >
+                                  <Edit className='mr-2 h-4 w-4' />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className='text-red-600'
+                                  onClick={() => {
+                                    setSelectedPost(post)
+                                    setOpenDeleteDialog(true)
+                                  }}
+                                >
+                                  <Trash className='mr-2 h-4 w-4' />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Phân trang cố định */}
+        {paginatedPosts.length > 0 && (
+          <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
+              variant='outline'
               size='sm'
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
             >
-              <Plus className='mr-2 h-4 w-4' />
-              New Post
+              <ChevronLeft className='h-4 w-4' />
             </Button>
-          </DialogTrigger>
-          <DialogContent className='sm:max-w-[700px] max-h-[80vh] overflow-y-auto'>
-            <DialogHeader>
-              <DialogTitle className='text-2xl font-semibold text-gray-900'>Create New Blog Post</DialogTitle>
-              <DialogDescription className='text-gray-600'>
-                Create a new blog post to publish on your website.
-              </DialogDescription>
-            </DialogHeader>
+            <span className='text-sm'>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className='h-4 w-4' />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Dialog xem tổng quan */}
+      <Dialog open={openOverviewDialog} onOpenChange={setOpenOverviewDialog}>
+        <DialogContent className='sm:max-w-[700px]'>
+          <DialogHeader>
+            <DialogTitle>{selectedPost?.title}</DialogTitle>
+            <DialogDescription>
+              Overview of the selected blog post.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='grid gap-4 py-4'>
+            <div className='flex flex-col gap-2'>
+              <Label>Featured Image</Label>
+              <div className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center'>
+                {selectedPost?.image ? (
+                  <img src={selectedPost.image || "/placeholder.svg"} alt='Featured' className='max-h-32 mx-auto' />
+                ) : (
+                  <p className='text-muted-foreground'>No image uploaded</p>
+                )}
+              </div>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Excerpt</Label>
+              <p>{selectedPost?.excerpt}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Author</Label>
+              <p>{selectedPost?.author}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Category</Label>
+              <p>{selectedPost?.category}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Tags</Label>
+              <p>{selectedPost?.tags.join(', ')}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Status</Label>
+              <div>{getStatusBadge(selectedPost?.status)}</div>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Published Date</Label>
+              <p>{selectedPost?.publishDate || '—'}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Featured</Label>
+              <p>{selectedPost?.featured ? 'Yes' : 'No'}</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Content</Label>
+              <div dangerouslySetInnerHTML={{ __html: selectedPost?.content || '' }} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenOverviewDialog(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog chỉnh sửa */}
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className='sm:max-w-[700px] max-h-[80vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>Edit Blog Post</DialogTitle>
+            <DialogDescription>
+              Modify the details of your blog post.
+            </DialogDescription>
+          </DialogHeader>
+          <form>
             <div className='grid gap-4 py-4'>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='title' className='text-sm font-medium text-gray-700'>
-                  Title
-                </Label>
-                <Input id='title' placeholder='Enter blog post title' className='border-gray-300' />
+                <Label htmlFor='edit-title'>Title</Label>
+                <Input id='edit-title' defaultValue={selectedPost?.title} />
               </div>
               <div className='grid grid-cols-2 gap-4'>
                 <div className='flex flex-col gap-2'>
-                  <Label htmlFor='slug' className='text-sm font-medium text-gray-700'>
-                    Slug
-                  </Label>
-                  <Input id='slug' placeholder='Enter URL slug' className='border-gray-300' />
+                  <Label htmlFor='edit-slug'>Slug</Label>
+                  <Input id='edit-slug' defaultValue={selectedPost?.slug} />
                 </div>
                 <div className='flex flex-col gap-2'>
-                  <Label htmlFor='category' className='text-sm font-medium text-gray-700'>
-                    Category
-                  </Label>
-                  <Select>
-                    <SelectTrigger className='border-gray-300'>
-                      <SelectValue placeholder='Select category' />
+                  <Label htmlFor='edit-category'>Category</Label>
+                  <Select defaultValue={selectedPost?.category.toLowerCase()}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value='vaccine-science'>Vaccine Science</SelectItem>
@@ -389,18 +1103,14 @@ export default function BlogPage() {
                 </div>
               </div>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='excerpt' className='text-sm font-medium text-gray-700'>
-                  Excerpt
-                </Label>
-                <Textarea id='excerpt' placeholder='Enter a brief summary' rows={2} className='border-gray-300' />
+                <Label htmlFor='edit-excerpt'>Excerpt</Label>
+                <Textarea id='edit-excerpt' defaultValue={selectedPost?.excerpt} rows={2} />
               </div>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='content' className='text-sm font-medium text-gray-700'>
-                  Content
-                </Label>
+                <Label htmlFor='edit-content'>Content</Label>
                 <div className='flex flex-wrap gap-2 mb-2 bg-white p-2 border border-gray-300 rounded-md'>
-                  <Select onValueChange={(value) => applyContentStyle('fontName', value, false)}>
-                    <SelectTrigger className='w-[120px] border-gray-300'>
+                  <Select onValueChange={(value) => applyContentStyle('fontName', value, true)}>
+                    <SelectTrigger className='w-[120px]'>
                       <SelectValue placeholder='Font' />
                     </SelectTrigger>
                     <SelectContent>
@@ -409,8 +1119,8 @@ export default function BlogPage() {
                       <SelectItem value='Verdana'>Verdana</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select onValueChange={(value) => applyContentStyle('fontSize', value, false)}>
-                    <SelectTrigger className='w-[80px] border-gray-300'>
+                  <Select onValueChange={(value) => applyContentStyle('fontSize', value, true)}>
+                    <SelectTrigger className='w-[80px]'>
                       <SelectValue placeholder='Size' />
                     </SelectTrigger>
                     <SelectContent className='max-h-[200px] overflow-y-auto'>
@@ -432,29 +1142,26 @@ export default function BlogPage() {
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('bold', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('bold', undefined, true)}
                   >
                     <b>B</b>
                   </Button>
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('italic', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('italic', undefined, true)}
                   >
                     <i>I</i>
                   </Button>
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('underline', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('underline', undefined, true)}
                   >
                     <u>U</u>
                   </Button>
-                  <Select onValueChange={(value) => applyContentStyle('foreColor', value, false)}>
-                    <SelectTrigger className='w-[80px] border-gray-300'>
+                  <Select onValueChange={(value) => applyContentStyle('foreColor', value, true)}>
+                    <SelectTrigger className='w-[80px]'>
                       <SelectValue placeholder='Color' />
                     </SelectTrigger>
                     <SelectContent>
@@ -467,72 +1174,68 @@ export default function BlogPage() {
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('justifyLeft', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('justifyLeft', undefined, true)}
                   >
                     <span>Left</span>
                   </Button>
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('justifyCenter', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('justifyCenter', undefined, true)}
                   >
                     <span>Center</span>
                   </Button>
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => applyContentStyle('justifyRight', undefined, false)}
-                    className='text-gray-600'
+                    onClick={() => applyContentStyle('justifyRight', undefined, true)}
                   >
                     <span>Right</span>
                   </Button>
                 </div>
                 <div
-                  id='content'
+                  id='edit-content'
                   contentEditable
                   className='border border-gray-300 p-2 min-h-[200px] rounded-md focus:outline-none'
                   placeholder='Write your content here...'
-                  onInput={(e) => setNewContent(e.currentTarget.innerHTML)}
+                  dangerouslySetInnerHTML={{ __html: editContent || '' }}
+                  onInput={(e) => setEditContent(e.currentTarget.innerHTML)}
                 />
               </div>
               <div className='grid gap-2'>
                 <Label>Featured Image</Label>
                 <div
                   className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
-                  onDrop={(e) => handleImageChange(e, false)}
+                  onDrop={(e) => handleImageChange(e, true)}
                   onDragOver={(e) => e.preventDefault()}
-                  onClick={() => document.getElementById('new-image-input')?.click()}
+                  onClick={() => document.getElementById('edit-image-input')?.click()}
                 >
-                  {newImage ? (
-                    <img src={URL.createObjectURL(newImage)} alt='Featured' className='max-h-32 mx-auto' />
+                  {editImage ? (
+                    <img src={URL.createObjectURL(editImage) || "/placeholder.svg"} alt='Featured' className='max-h-32 mx-auto' />
+                  ) : selectedPost?.image ? (
+                    <img src={selectedPost.image || "/placeholder.svg"} alt='Featured' className='max-h-32 mx-auto' />
                   ) : (
-                    <p className='text-gray-500'>Drag and drop an image here or click to select</p>
+                    <p className='text-muted-foreground'>Drag and drop an image here or click to select</p>
                   )}
                   <input
-                    id='new-image-input'
+                    id='edit-image-input'
                     type='file'
                     accept='image/*'
                     className='hidden'
-                    onChange={(e) => handleImageChange(e, false)}
+                    onChange={(e) => handleImageChange(e, true)}
                   />
                 </div>
               </div>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='tags' className='text-sm font-medium text-gray-700'>
-                  Tags (comma separated)
-                </Label>
-                <Input id='tags' placeholder='e.g., Vaccination, Health' className='border-gray-300' />
+                <Label htmlFor='edit-tags'>Tags (comma separated)</Label>
+                <Input id='edit-tags' defaultValue={selectedPost?.tags.join(', ')} />
               </div>
               <div className='grid grid-cols-2 gap-4'>
                 <div className='flex flex-col gap-2'>
-                  <Label htmlFor='status' className='text-sm font-medium text-gray-700'>
-                    Status
-                  </Label>
-                  <Select defaultValue='draft'>
-                    <SelectTrigger className='border-gray-300'>
-                      <SelectValue placeholder='Select status' />
+                  <Label htmlFor='edit-status'>Status</Label>
+                  <Select defaultValue={selectedPost?.status.toLowerCase()}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value='draft'>Draft</SelectItem>
@@ -541,12 +1244,10 @@ export default function BlogPage() {
                   </Select>
                 </div>
                 <div className='flex flex-col gap-2'>
-                  <Label htmlFor='featured' className='text-sm font-medium text-gray-700'>
-                    Featured
-                  </Label>
-                  <Select defaultValue='false'>
-                    <SelectTrigger className='border-gray-300'>
-                      <SelectValue placeholder='Select featured status' />
+                  <Label htmlFor='edit-featured'>Featured</Label>
+                  <Select defaultValue={selectedPost?.featured.toString()}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value='false'>No</SelectItem>
@@ -557,633 +1258,38 @@ export default function BlogPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant='outline'
-                onClick={() => setOpenAddDialog(false)}
-                className='border-gray-300 text-gray-600'
-              >
+              <Button variant='outline' onClick={() => setOpenEditDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setOpenAddDialog(false)} className='bg-blue-600 text-white hover:bg-blue-700'>
-                Save Draft
-              </Button>
-              <Button
-                onClick={() => setOpenAddDialog(false)}
-                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
-              >
-                Publish
+              <Button onClick={() => setOpenEditDialog(false)}>
+                Save Changes
               </Button>
             </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className='grid gap-6'>
-        <Tabs defaultValue='all' onValueChange={setCurrentTab} className='bg-white rounded-lg shadow-sm'>
-          <TabsList className='grid w-full max-w-md grid-cols-3 border-b border-gray-200'>
-            <TabsTrigger value='all' className='data-[state=active]:bg-gray-100 data-[state=active]:text-blue-600'>
-              All Posts
-            </TabsTrigger>
-            <TabsTrigger
-              value='published'
-              className='data-[state=active]:bg-gray-100 data-[state=active]:text-blue-600'
-            >
-              Published
-            </TabsTrigger>
-            <TabsTrigger value='drafts' className='data-[state=active]:bg-gray-100 data-[state=active]:text-blue-600'>
-              Drafts
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value='all' className='p-4 border border-gray-200 rounded-lg'>
-            <Card className='border-none shadow-none'>
-              <CardContent className='p-0'>
-                <Table>
-                  <TableHeader className='bg-gray-100'>
-                    <TableRow>
-                      <TableHead className='w-[60px] text-gray-700'>No.</TableHead>
-                      <TableHead className='text-gray-700'>Title</TableHead>
-                      <TableHead className='text-gray-700'>Author</TableHead>
-                      <TableHead className='text-gray-700'>Category</TableHead>
-                      <TableHead className='text-gray-700'>Status</TableHead>
-                      <TableHead className='text-gray-700'>Published</TableHead>
-                      <TableHead className='text-gray-700'>Featured</TableHead>
-                      <TableHead className='w-[80px] text-gray-700'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedPosts.map((post, index) => (
-                      <TableRow key={post.id} className='hover:bg-gray-50 transition-colors'>
-                        <TableCell className='font-medium text-gray-600'>
-                          {(currentPage - 1) * postsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          <div className='font-medium text-gray-800'>{post.title}</div>
-                          <div className='text-sm text-gray-500 truncate max-w-[300px]'>{post.excerpt}</div>
-                        </TableCell>
-                        <TableCell className='text-gray-600'>{post.author}</TableCell>
-                        <TableCell className='text-gray-600'>{post.category}</TableCell>
-                        <TableCell>{getStatusBadge(post.status)}</TableCell>
-                        <TableCell className='text-gray-600'>{post.publishDate || '—'}</TableCell>
-                        <TableCell className='text-gray-600'>{post.featured ? 'Yes' : 'No'}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon' className='text-gray-600'>
-                                <MoreHorizontal className='h-4 w-4' />
-                                <span className='sr-only'>Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end' className='bg-white border-gray-200'>
-                              <DropdownMenuLabel className='text-gray-700'>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator className='bg-gray-200' />
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenOverviewDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Eye className='mr-2 h-4 w-4 text-gray-600' />
-                                View Overview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setEditImage(null)
-                                  setEditContent(post.content)
-                                  setOpenEditDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Edit className='mr-2 h-4 w-4 text-gray-600' />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className='text-red-600 hover:bg-red-50'
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenDeleteDialog(true)
-                                }}
-                              >
-                                <Trash className='mr-2 h-4 w-4' />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value='published' className='p-4 border border-gray-200 rounded-lg'>
-            <Card className='border-none shadow-none'>
-              <CardContent className='p-0'>
-                <Table>
-                  <TableHeader className='bg-gray-100'>
-                    <TableRow>
-                      <TableHead className='w-[60px] text-gray-700'>No.</TableHead>
-                      <TableHead className='text-gray-700'>Title</TableHead>
-                      <TableHead className='text-gray-700'>Author</TableHead>
-                      <TableHead className='text-gray-700'>Category</TableHead>
-                      <TableHead className='text-gray-700'>Published</TableHead>
-                      <TableHead className='text-gray-700'>Featured</TableHead>
-                      <TableHead className='w-[80px] text-gray-700'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedPosts.map((post, index) => (
-                      <TableRow key={post.id} className='hover:bg-gray-50 transition-colors'>
-                        <TableCell className='font-medium text-gray-600'>
-                          {(currentPage - 1) * postsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          <div className='font-medium text-gray-800'>{post.title}</div>
-                          <div className='text-sm text-gray-500 truncate max-w-[300px]'>{post.excerpt}</div>
-                        </TableCell>
-                        <TableCell className='text-gray-600'>{post.author}</TableCell>
-                        <TableCell className='text-gray-600'>{post.category}</TableCell>
-                        <TableCell className='text-gray-600'>{post.publishDate}</TableCell>
-                        <TableCell className='text-gray-600'>{post.featured ? 'Yes' : 'No'}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon' className='text-gray-600'>
-                                <MoreHorizontal className='h-4 w-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end' className='bg-white border-gray-200'>
-                              <DropdownMenuLabel className='text-gray-700'>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator className='bg-gray-200' />
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenOverviewDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Eye className='mr-2 h-4 w-4 text-gray-600' />
-                                View Overview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setEditImage(null)
-                                  setEditContent(post.content)
-                                  setOpenEditDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Edit className='mr-2 h-4 w-4 text-gray-600' />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className='text-red-600 hover:bg-red-50'
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenDeleteDialog(true)
-                                }}
-                              >
-                                <Trash className='mr-2 h-4 w-4' />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value='drafts' className='p-4 border border-gray-200 rounded-lg'>
-            <Card className='border-none shadow-none'>
-              <CardContent className='p-0'>
-                <Table>
-                  <TableHeader className='bg-gray-100'>
-                    <TableRow>
-                      <TableHead className='w-[60px] text-gray-700'>No.</TableHead>
-                      <TableHead className='text-gray-700'>Title</TableHead>
-                      <TableHead className='text-gray-700'>Author</TableHead>
-                      <TableHead className='text-gray-700'>Category</TableHead>
-                      <TableHead className='text-gray-700'>Last Updated</TableHead>
-                      <TableHead className='w-[80px] text-gray-700'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedPosts.map((post, index) => (
-                      <TableRow key={post.id} className='hover:bg-gray-50 transition-colors'>
-                        <TableCell className='font-medium text-gray-600'>
-                          {(currentPage - 1) * postsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          <div className='font-medium text-gray-800'>{post.title}</div>
-                          <div className='text-sm text-gray-500 truncate max-w-[300px]'>{post.excerpt}</div>
-                        </TableCell>
-                        <TableCell className='text-gray-600'>{post.author}</TableCell>
-                        <TableCell className='text-gray-600'>{post.category}</TableCell>
-                        <TableCell className='text-gray-600'>—</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon' className='text-gray-600'>
-                                <MoreHorizontal className='h-4 w-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end' className='bg-white border-gray-200'>
-                              <DropdownMenuLabel className='text-gray-700'>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator className='bg-gray-200' />
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenOverviewDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Eye className='mr-2 h-4 w-4 text-gray-600' />
-                                View Overview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setEditImage(null)
-                                  setEditContent(post.content)
-                                  setOpenEditDialog(true)
-                                }}
-                                className='text-gray-700 hover:bg-gray-100'
-                              >
-                                <Edit className='mr-2 h-4 w-4 text-gray-600' />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className='text-red-600 hover:bg-red-50'
-                                onClick={() => {
-                                  setSelectedPost(post)
-                                  setOpenDeleteDialog(true)
-                                }}
-                              >
-                                <Trash className='mr-2 h-4 w-4' />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <div className='fixed bottom-6 right-6 flex items-center space-x-2'>
-        <Button
-          variant='outline'
-          size='sm'
-          className='border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          <ChevronLeft className='h-4 w-4' />
-          Previous
-        </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          className='border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-          <ChevronRight className='h-4 w-4' />
-        </Button>
-      </div>
-
-      <Dialog open={openOverviewDialog} onOpenChange={setOpenOverviewDialog}>
-        <DialogContent className='sm:max-w-[700px] bg-white'>
-          <DialogHeader>
-            <DialogTitle className='text-2xl font-semibold text-gray-900'>{selectedPost?.title}</DialogTitle>
-            <DialogDescription className='text-gray-600'>Overview of the selected blog post.</DialogDescription>
-          </DialogHeader>
-          <div className='grid gap-4 py-4'>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Featured Image</Label>
-              <div className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center'>
-                {selectedPost?.image ? (
-                  <img src={selectedPost.image} alt='Featured' className='max-h-32 mx-auto' />
-                ) : (
-                  <p className='text-gray-500'>No image uploaded</p>
-                )}
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Excerpt</Label>
-              <p className='text-gray-600'>{selectedPost?.excerpt}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Author</Label>
-              <p className='text-gray-600'>{selectedPost?.author}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Category</Label>
-              <p className='text-gray-600'>{selectedPost?.category}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Tags</Label>
-              <p className='text-gray-600'>{selectedPost?.tags.join(', ')}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Status</Label>
-              <p className='text-gray-600'>{getStatusBadge(selectedPost?.status)}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Published Date</Label>
-              <p className='text-gray-600'>{selectedPost?.publishDate || '—'}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Featured</Label>
-              <p className='text-gray-600'>{selectedPost?.featured ? 'Yes' : 'No'}</p>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label className='text-sm font-medium text-gray-700'>Content</Label>
-              <div className='text-gray-600' dangerouslySetInnerHTML={{ __html: selectedPost?.content || '' }} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant='outline'
-              onClick={() => setOpenOverviewDialog(false)}
-              className='border-gray-300 text-gray-600 hover:bg-gray-100'
-            >
-              Close
-            </Button>
-          </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-        <DialogContent className='sm:max-w-[700px]'>
-          <DialogHeader>
-            <DialogTitle className='text-2xl font-semibold text-gray-900'>Edit Blog Post</DialogTitle>
-            <DialogDescription className='text-gray-600'>Modify the details of your blog post.</DialogDescription>
-          </DialogHeader>
-          <div className='grid gap-4 py-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-title' className='text-sm font-medium text-gray-700'>
-                Title
-              </Label>
-              <Input id='edit-title' defaultValue={selectedPost?.title} className='border-gray-300' />
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='edit-slug' className='text-sm font-medium text-gray-700'>
-                  Slug
-                </Label>
-                <Input id='edit-slug' defaultValue={selectedPost?.slug} className='border-gray-300' />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='edit-category' className='text-sm font-medium text-gray-700'>
-                  Category
-                </Label>
-                <Select defaultValue={selectedPost?.category.toLowerCase()}>
-                  <SelectTrigger className='border-gray-300'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='vaccine-science'>Vaccine Science</SelectItem>
-                    <SelectItem value='influenza'>Influenza</SelectItem>
-                    <SelectItem value='travel'>Travel</SelectItem>
-                    <SelectItem value='pediatric'>Pediatric</SelectItem>
-                    <SelectItem value='geriatric'>Geriatric</SelectItem>
-                    <SelectItem value='covid-19'>COVID-19</SelectItem>
-                    <SelectItem value='respiratory-health'>Respiratory Health</SelectItem>
-                    <SelectItem value='preventive-care'>Preventive Care</SelectItem>
-                    <SelectItem value='cancer-prevention'>Cancer Prevention</SelectItem>
-                    <SelectItem value='maternal-health'>Maternal Health</SelectItem>
-                    <SelectItem value='global-health'>Global Health</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-excerpt' className='text-sm font-medium text-gray-700'>
-                Excerpt
-              </Label>
-              <Textarea id='edit-excerpt' defaultValue={selectedPost?.excerpt} rows={2} className='border-gray-300' />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-content' className='text-sm font-medium text-gray-700'>
-                Content
-              </Label>
-              <div className='flex flex-wrap gap-2 mb-2 bg-white p-2 border border-gray-300 rounded-md'>
-                <Select onValueChange={(value) => applyContentStyle('fontName', value, true)}>
-                  <SelectTrigger className='w-[120px] border-gray-300'>
-                    <SelectValue placeholder='Font' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='Times New Roman'>Times New Roman</SelectItem>
-                    <SelectItem value='Arial'>Arial</SelectItem>
-                    <SelectItem value='Verdana'>Verdana</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select onValueChange={(value) => applyContentStyle('fontSize', value, true)}>
-                  <SelectTrigger className='w-[80px] border-gray-300'>
-                    <SelectValue placeholder='Size' />
-                  </SelectTrigger>
-                  <SelectContent className='max-h-[200px] overflow-y-auto'>
-                    <SelectItem value='8'>8pt</SelectItem>
-                    <SelectItem value='10'>10pt</SelectItem>
-                    <SelectItem value='12'>12pt</SelectItem>
-                    <SelectItem value='14'>14pt</SelectItem>
-                    <SelectItem value='16'>16pt</SelectItem>
-                    <SelectItem value='18'>18pt</SelectItem>
-                    <SelectItem value='20'>20pt</SelectItem>
-                    <SelectItem value='22'>22pt</SelectItem>
-                    <SelectItem value='24'>24pt</SelectItem>
-                    <SelectItem value='26'>26pt</SelectItem>
-                    <SelectItem value='28'>28pt</SelectItem>
-                    <SelectItem value='32'>32pt</SelectItem>
-                    <SelectItem value='36'>36pt</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('bold', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <b>B</b>
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('italic', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <i>I</i>
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('underline', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <u>U</u>
-                </Button>
-                <Select onValueChange={(value) => applyContentStyle('foreColor', value, true)}>
-                  <SelectTrigger className='w-[80px] border-gray-300'>
-                    <SelectValue placeholder='Color' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='#000000'>Black</SelectItem>
-                    <SelectItem value='##FF0000'>Red</SelectItem>
-                    <SelectItem value='#00FF00'>Green</SelectItem>
-                    <SelectItem value='#0000FF'>Blue</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('justifyLeft', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <span>Left</span>
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('justifyCenter', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <span>Center</span>
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => applyContentStyle('justifyRight', undefined, true)}
-                  className='text-gray-600'
-                >
-                  <span>Right</span>
-                </Button>
-              </div>
-              <div
-                id='edit-content'
-                contentEditable
-                className='border border-gray-300 p-2 min-h-[200px] rounded-md focus:outline-none'
-                placeholder='Write your content here...'
-                dangerouslySetInnerHTML={{ __html: editContent || '' }}
-                onInput={(e) => setEditContent(e.currentTarget.innerHTML)}
-              />
-            </div>
-            <div className='grid gap-2'>
-              <Label>Featured Image</Label>
-              <div
-                className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
-                onDrop={(e) => handleImageChange(e, true)}
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById('edit-image-input')?.click()}
-              >
-                {editImage ? (
-                  <img src={URL.createObjectURL(editImage)} alt='Featured' className='max-h-32 mx-auto' />
-                ) : selectedPost?.image ? (
-                  <img src={selectedPost.image} alt='Featured' className='max-h-32 mx-auto' />
-                ) : (
-                  <p className='text-gray-500'>Drag and drop an image here or click to select</p>
-                )}
-                <input
-                  id='edit-image-input'
-                  type='file'
-                  accept='image/*'
-                  className='hidden'
-                  onChange={(e) => handleImageChange(e, true)}
-                />
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-tags' className='text-sm font-medium text-gray-700'>
-                Tags (comma separated)
-              </Label>
-              <Input id='edit-tags' defaultValue={selectedPost?.tags.join(', ')} className='border-gray-300' />
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='edit-status' className='text-sm font-medium text-gray-700'>
-                  Status
-                </Label>
-                <Select defaultValue={selectedPost?.status.toLowerCase()}>
-                  <SelectTrigger className='border-gray-300'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='draft'>Draft</SelectItem>
-                    <SelectItem value='published'>Published</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='edit-featured' className='text-sm font-medium text-gray-700'>
-                  Featured
-                </Label>
-                <Select defaultValue={selectedPost?.featured.toString()}>
-                  <SelectTrigger className='border-gray-300'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='false'>No</SelectItem>
-                    <SelectItem value='true'>Yes</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant='outline'
-              onClick={() => setOpenEditDialog(false)}
-              className='border-gray-300 text-gray-600 hover:bg-gray-100'
-            >
-              Cancel
-            </Button>
-            <Button onClick={() => setOpenEditDialog(false)} className='bg-blue-600 text-white hover:bg-blue-700'>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+      {/* Dialog xóa */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent className='sm:max-w-[425px] bg-white'>
+        <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle className='text-2xl font-semibold text-gray-900'>Delete Blog Post</DialogTitle>
-            <DialogDescription className='text-gray-600'>
+            <DialogTitle>Delete Blog Post</DialogTitle>
+            <DialogDescription>
               Are you sure you want to delete this blog post? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
             {selectedPost && (
-              <p className='text-sm font-medium text-gray-700'>
-                You are about to delete: <span className='font-bold text-gray-900'>{selectedPost.title}</span>
+              <p className='text-sm font-medium'>
+                You are about to delete: <span className='font-bold'>{selectedPost.title}</span>
               </p>
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant='outline'
-              onClick={() => setOpenDeleteDialog(false)}
-              className='border-gray-300 text-gray-600 hover:bg-gray-100'
-            >
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
               Cancel
             </Button>
-            <Button
-              variant='destructive'
-              onClick={() => setOpenDeleteDialog(false)}
-              className='bg-red-600 text-white hover:bg-red-700'
-            >
+            <Button variant='destructive' onClick={() => setOpenDeleteDialog(false)}>
               Delete
             </Button>
           </DialogFooter>

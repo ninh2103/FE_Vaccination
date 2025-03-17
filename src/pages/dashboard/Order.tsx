@@ -1,9 +1,11 @@
 'use client'
+
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format, parseISO, isWithinInterval, addDays, isBefore } from 'date-fns'
 import * as XLSX from 'xlsx'
 import {
   Search,
+  Filter,
   Download,
   MoreHorizontal,
   Edit,
@@ -17,26 +19,33 @@ import {
   RefreshCw,
   Loader2,
   Plus,
-  Filter
+  Phone,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
-import { cn } from '@/core/lib/utils'
 import { toast } from '@/components/ui/use-toast'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -44,32 +53,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const ITEMS_PER_PAGE = 10
 
 export default function BookingsPage() {
-  // Replace the useState for bookings to make it mutable
   const [bookingsData, setBookingsData] = useState(bookings)
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [filterStatus, setFilterStatus] = useState([])
-  const [filterDateRange, setFilterDateRange] = useState({ start: null, end: null })
-  const [isLoading, setIsLoading] = useState(false)
+  const [filters, setFilters] = useState({
+    status: { approved: false, pending: false, rejected: false },
+    dateRange: { from: '', to: '' },
+  })
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [openAddOrderDialog, setOpenAddOrderDialog] = useState(false)
   const [newOrder, setNewOrder] = useState({
     patient: { name: '', phone: '', avatar: '/placeholder.svg', initials: '' },
     vaccine: '',
     preferredDate: '',
     preferredTime: 'Morning',
-    notes: ''
+    notes: '',
   })
 
-  // Get current date and time for validation
   const now = new Date()
-  const currentHour = now.getHours()
   const today = format(now, 'yyyy-MM-dd')
   const tomorrow = format(addDays(now, 1), 'yyyy-MM-dd')
 
-  // Effect to update time options when date changes
   useEffect(() => {
     if (!openAddOrderDialog) {
       setNewOrder({
@@ -77,12 +84,11 @@ export default function BookingsPage() {
         vaccine: '',
         preferredDate: '',
         preferredTime: 'Morning',
-        notes: ''
+        notes: '',
       })
     }
   }, [openAddOrderDialog])
 
-  // Replace the bookingsWithOrder useMemo to use the mutable bookingsData
   const bookingsWithOrder = useMemo(() => {
     return bookingsData.map((booking, index) => {
       const date = parseISO(booking.requestDate)
@@ -92,52 +98,46 @@ export default function BookingsPage() {
         ...booking,
         orderCode: `ODR${dateCode}${orderNum}`,
         stt: index + 1,
-        phone: booking.patient.phone
+        phone: booking.patient.phone,
       }
     })
   }, [bookingsData])
 
-  // Xử lý lọc dữ liệu - filters apply automatically now
   const filteredBookings = useMemo(() => {
-    let result = bookingsWithOrder
+    return bookingsWithOrder.filter((booking) => {
+      const matchesSearch =
+        booking.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.vaccine.toLowerCase().includes(searchTerm.toLowerCase())
 
-    if (searchTerm) {
-      result = result.filter(
-        (booking) =>
-          (booking.patient.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-          (booking.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-          (booking.orderCode?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-      )
-    }
+      const noStatusFilter = !filters.status.approved && !filters.status.pending && !filters.status.rejected
+      const matchesStatus =
+        noStatusFilter ||
+        (filters.status.approved && booking.status === 'Approved') ||
+        (filters.status.pending && booking.status === 'Pending') ||
+        (filters.status.rejected && booking.status === 'Rejected')
 
-    if (filterStatus.length > 0) {
-      result = result.filter((booking) => filterStatus.includes(booking.status))
-    }
+      const bookingDate = parseISO(booking.requestDate)
+      const fromDate = filters.dateRange.from ? parseISO(filters.dateRange.from) : null
+      const toDate = filters.dateRange.to ? parseISO(filters.dateRange.to) : null
+      const matchesDateRange = (!fromDate || !isBefore(bookingDate, fromDate)) && (!toDate || !isBefore(toDate, bookingDate))
 
-    if (filterDateRange.start && filterDateRange.end) {
-      result = result.filter((booking) => {
-        const requestDate = parseISO(booking.requestDate)
-        return isWithinInterval(requestDate, {
-          start: filterDateRange.start,
-          end: filterDateRange.end
-        })
-      })
-    }
-
-    return result
-  }, [searchTerm, filterStatus, filterDateRange, bookingsWithOrder])
-
-  // Phân trang
-  const paginatedBookings = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredBookings.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredBookings, currentPage])
+      return matchesSearch && matchesStatus && matchesDateRange
+    })
+  }, [bookingsWithOrder, searchTerm, filters])
 
   const totalPages = Math.max(1, Math.ceil(filteredBookings.length / ITEMS_PER_PAGE))
+  const paginatedBookings = filteredBookings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
 
-  // Các hàm xử lý
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages, currentPage])
+
   const handleExport = useCallback(async () => {
-    setIsLoading(true)
+    setIsRefreshing(true)
     try {
       const exportData = filteredBookings.map((booking) => ({
         'Mã Order': booking.orderCode,
@@ -149,9 +149,8 @@ export default function BookingsPage() {
         'Preferred Date': booking.preferredDate,
         'Preferred Time': booking.preferredTime,
         Status: booking.status,
-        Notes: booking.notes
+        Notes: booking.notes,
       }))
-
       const worksheet = XLSX.utils.json_to_sheet(exportData)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings')
@@ -160,54 +159,48 @@ export default function BookingsPage() {
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to export file', variant: 'destructive' })
     } finally {
-      setIsLoading(false)
+      setIsRefreshing(false)
     }
   }, [filteredBookings])
 
   const handleRefresh = useCallback(() => {
-    setIsLoading(true)
+    setIsRefreshing(true)
     setTimeout(() => {
+      setBookingsData(bookings)
       setSearchTerm('')
-      setFilterStatus([])
-      setFilterDateRange({ start: null, end: null })
+      setFilters({
+        status: { approved: false, pending: false, rejected: false },
+        dateRange: { from: '', to: '' },
+      })
       setCurrentPage(1)
       toast({ title: 'Refreshed', description: 'Data has been refreshed' })
-      setIsLoading(false)
-    }, 500) // Simulate loading for better UX
+      setIsRefreshing(false)
+    }, 1000)
   }, [])
 
-  // Improved status update function that actually updates the data
   const handleStatusUpdate = useCallback((booking, newStatus) => {
     setSelectedBooking((prev) => (prev ? { ...prev, status: newStatus } : null))
   }, [])
 
-  // Improved save changes function
   const handleSaveChanges = useCallback(() => {
     if (!selectedBooking) return
-
     setBookingsData((prev) =>
-      prev.map((booking) =>
-        booking.id === selectedBooking.id ? { ...booking, status: selectedBooking.status } : booking
-      )
+      prev.map((booking) => (booking.id === selectedBooking.id ? { ...booking, status: selectedBooking.status } : booking))
     )
-
     toast({
       title: 'Changes Saved',
-      description: `Booking status updated successfully to ${selectedBooking.status}`
+      description: `Booking status updated successfully to ${selectedBooking.status}`,
     })
-
     setOpenDetailsDialog(false)
   }, [selectedBooking])
 
-  // Improved direct status update function for the table actions
   const handleDirectStatusUpdate = useCallback((bookingId, newStatus) => {
     setBookingsData((prev) =>
       prev.map((booking) => (booking.id === bookingId ? { ...booking, status: newStatus } : booking))
     )
-
     toast({
       title: 'Status Updated',
-      description: `Booking status changed to ${newStatus}`
+      description: `Booking status changed to ${newStatus}`,
     })
   }, [])
 
@@ -216,17 +209,13 @@ export default function BookingsPage() {
     setOpenDeleteDialog(true)
   }, [])
 
-  // Improved delete function that actually removes the booking
   const confirmDelete = useCallback(() => {
     if (!selectedBooking) return
-
     setBookingsData((prev) => prev.filter((booking) => booking.id !== selectedBooking.id))
-
     toast({
       title: 'Deleted',
-      description: `Booking has been deleted successfully`
+      description: `Booking has been deleted successfully`,
     })
-
     setOpenDeleteDialog(false)
     setOpenDetailsDialog(false)
   }, [selectedBooking])
@@ -234,338 +223,643 @@ export default function BookingsPage() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Approved':
-        return <Badge className='bg-green-100 text-green-800'>Approved</Badge>
+        return <Badge className='bg-green-500 hover:bg-green-600'>Approved</Badge>
       case 'Pending':
-        return <Badge className='bg-yellow-100 text-yellow-800'>Pending</Badge>
+        return <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>Pending</Badge>
       case 'Rejected':
-        return <Badge className='bg-red-100 text-red-800'>Rejected</Badge>
+        return <Badge variant='destructive'>Rejected</Badge>
       default:
         return <Badge>{status}</Badge>
     }
   }
 
+  const handleClearFilters = () => {
+    setFilters({
+      status: { approved: false, pending: false, rejected: false },
+      dateRange: { from: '', to: '' },
+    })
+    setCurrentPage(1)
+  }
+
   return (
-    <div className='container mx-auto py-10 ml-[1cm]'>
-      <Card className='shadow-lg'>
-        <CardHeader className='flex flex-col p-6 bg-muted'>
-          <div className='flex items-center justify-between w-full mb-4'>
-            <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-              Orders
-            </h1>
-            <div className='flex items-center gap-2'>
-              <Button variant='outline' size='sm' onClick={handleExport} disabled={isLoading}>
-                {isLoading ? <Loader2 className='h-4 w-4 animate-spin mr-2' /> : <Download className='h-4 w-4 mr-2' />}
-                <span className='hidden md:inline'>Export to Excel</span>
-              </Button>
-              <Button variant='outline' size='sm' onClick={handleRefresh} disabled={isLoading}>
-                <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
-                <span className='hidden md:inline'>Refresh</span>
-              </Button>
-              <Button
-                className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
-                variant='default'
-                size='sm'
-                onClick={() => setOpenAddOrderDialog(true)}
-              >
-                <Plus className='h-4 w-4 mr-2' />
-                <span className='hidden md:inline'>Add Order</span>
-              </Button>
-            </div>
-          </div>
-          <div className='relative w-full max-w-md'>
-            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+      {/* Title and action buttons */}
+      <div className='flex items-center justify-between'>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Orders
+        </h1>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isRefreshing}>
+            {isRefreshing ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
+            Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+            ) : (
+              <RefreshCw className='mr-2 h-4 w-4' />
+            )}
+            Refresh
+          </Button>
+          <Button
+            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+            size='sm'
+            onClick={() => setOpenAddOrderDialog(true)}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Order
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and filters */}
+      <div className='grid gap-6'>
+        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <div className='flex w-full max-w-sm items-center space-x-2'>
             <Input
               placeholder='Search by name, phone, or order ID...'
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className='pl-8 w-full'
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
+              className='w-full'
+              type='search'
             />
+            <Button variant='outline' size='icon' className='h-9 w-9'>
+              <Search className='h-4 w-4' />
+            </Button>
           </div>
-        </CardHeader>
-        <CardContent className='p-6'>
-          <div className='flex flex-col md:flex-row md:items-center md:justify-end mb-4 gap-4'>
-            <Popover>
-              <PopoverTrigger asChild>
+          <div className='flex items-center gap-2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button variant='outline' size='sm'>
-                  <Filter className='h-4 w-4 mr-2' />
+                  <Filter className='mr-2 h-4 w-4' />
                   Filter
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className='w-80 p-4'>
-                <div className='space-y-4'>
-                  <h3 className='font-semibold text-lg'>Filters</h3>
-                  <p className='text-sm text-muted-foreground'>Filter bookings by status and request date.</p>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[300px] p-4'>
+                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
+                <p className='text-sm text-muted-foreground mb-4'>
+                  Filter bookings by status and request date range.
+                </p>
 
-                  <div className='space-y-2'>
-                    <h4 className='font-medium'>Status</h4>
-                    <div className='space-y-1'>
-                      {['Approved', 'Pending', 'Rejected'].map((status) => (
-                        <div key={status} className='flex items-center space-x-2'>
-                          <Checkbox
-                            id={`status-${status}`}
-                            checked={filterStatus.includes(status)}
-                            onCheckedChange={(checked) => {
-                              setFilterStatus(
-                                checked ? [...filterStatus, status] : filterStatus.filter((s) => s !== status)
-                              )
-                              // Reset to page 1 when filter changes
-                              setCurrentPage(1)
-                            }}
-                          />
-                          <label htmlFor={`status-${status}`} className='text-sm'>
-                            {status}
-                          </label>
-                        </div>
-                      ))}
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Booking Status</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={filters.status.approved}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: { ...prev.status, approved: checked },
+                      }))
+                    }
+                  >
+                    Approved
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={filters.status.pending}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: { ...prev.status, pending: checked },
+                      }))
+                    }
+                  >
+                    Pending
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={filters.status.rejected}
+                    onCheckedChange={(checked) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: { ...prev.status, rejected: checked },
+                      }))
+                    }
+                  >
+                    Rejected
+                  </DropdownMenuCheckboxItem>
+                </div>
+
+                <div className='mb-4'>
+                  <DropdownMenuLabel className='text-sm font-medium'>Request Date Range</DropdownMenuLabel>
+                  <div className='grid grid-cols-2 gap-2 mt-2'>
+                    <div className='flex flex-col gap-1'>
+                      <label className='text-xs text-muted-foreground'>From</label>
+                      <Input
+                        type='date'
+                        value={filters.dateRange.from}
+                        onChange={(e) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            dateRange: { ...prev.dateRange, from: e.target.value },
+                          }))
+                        }
+                        className='w-full'
+                      />
                     </div>
-                  </div>
-
-                  <div className='space-y-2'>
-                    <h4 className='font-medium'>Request Date Range</h4>
-                    <div className='grid grid-cols-2 gap-2'>
-                      <div className='space-y-1'>
-                        <label className='text-sm text-muted-foreground'>From</label>
-                        <Input
-                          type='date'
-                          value={filterDateRange.start ? format(filterDateRange.start, 'yyyy-MM-dd') : ''}
-                          onChange={(e) => {
-                            setFilterDateRange((prev) => ({
-                              ...prev,
-                              start: e.target.value ? parseISO(e.target.value) : null
-                            }))
-                            // Reset to page 1 when filter changes
-                            setCurrentPage(1)
-                          }}
-                        />
-                      </div>
-                      <div className='space-y-1'>
-                        <label className='text-sm text-muted-foreground'>To</label>
-                        <Input
-                          type='date'
-                          value={filterDateRange.end ? format(filterDateRange.end, 'yyyy-MM-dd') : ''}
-                          onChange={(e) => {
-                            setFilterDateRange((prev) => ({
-                              ...prev,
-                              end: e.target.value ? parseISO(e.target.value) : null
-                            }))
-                            // Reset to page 1 when filter changes
-                            setCurrentPage(1)
-                          }}
-                        />
-                      </div>
+                    <div className='flex flex-col gap-1'>
+                      <label className='text-xs text-muted-foreground'>To</label>
+                      <Input
+                        type='date'
+                        value={filters.dateRange.to}
+                        onChange={(e) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            dateRange: { ...prev.dateRange, to: e.target.value },
+                          }))
+                        }
+                        className='w-full'
+                      />
                     </div>
-                  </div>
-
-                  <div className='flex justify-end gap-2 mt-4'>
-                    <Button
-                      variant='outline'
-                      onClick={() => {
-                        setFilterStatus([])
-                        setFilterDateRange({ start: null, end: null })
-                        setCurrentPage(1)
-                      }}
-                    >
-                      Clear Filters
-                    </Button>
                   </div>
                 </div>
-              </PopoverContent>
-            </Popover>
+
+                <Button variant='outline' size='sm' onClick={handleClearFilters}>
+                  Clear Filters
+                </Button>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+        </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-[60px]'>No.</TableHead>
-                <TableHead className='w-[120px]'>Order ID</TableHead>
-                <TableHead>Patient</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Vaccine</TableHead>
-                <TableHead>Request Date</TableHead>
-                <TableHead>Preferred Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Notes</TableHead>
-                <TableHead className='w-[100px]'>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedBookings.length > 0 ? (
-                paginatedBookings.map((booking) => (
-                  <TableRow key={booking.id} className='hover:bg-muted/50'>
-                    <TableCell>{booking.stt}</TableCell>
-                    <TableCell className='font-mono'>{booking.orderCode}</TableCell>
-                    <TableCell>
-                      <div className='flex items-center gap-2'>
-                        <Avatar className='h-8 w-8'>
-                          <AvatarImage src={booking.patient.avatar} />
-                          <AvatarFallback>{booking.patient.initials}</AvatarFallback>
-                        </Avatar>
-                        <div>{booking.patient.name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{booking.phone}</TableCell>
-                    <TableCell>{booking.vaccine}</TableCell>
-                    <TableCell>{booking.requestDate}</TableCell>
-                    <TableCell>{booking.preferredDate}</TableCell>
-                    <TableCell>{booking.preferredTime}</TableCell>
-                    <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                    <TableCell className='max-w-[200px] truncate'>{booking.notes}</TableCell>
-                    <TableCell>
-                      <div className='flex items-center gap-2'>
-                        {booking.status === 'Pending' && (
-                          <>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDirectStatusUpdate(booking.id, 'Approved')
-                              }}
-                              title='Approve'
-                            >
-                              <Check className='h-4 w-4 text-green-500' />
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDirectStatusUpdate(booking.id, 'Rejected')
-                              }}
-                              title='Reject'
-                            >
-                              <X className='h-4 w-4 text-red-500' />
-                            </Button>
-                          </>
-                        )}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon'>
-                              <MoreHorizontal className='h-4 w-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedBooking(booking)
-                                setOpenDetailsDialog(true)
-                              }}
-                            >
-                              <Edit className='mr-2 h-4 w-4' />
-                              Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className='text-red-600' onClick={() => handleDelete(booking)}>
-                              <Trash className='mr-2 h-4 w-4' />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={11} className='text-center py-4'>
-                    No bookings found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-lg shadow-md z-10'>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1 || isLoading}
-          className='h-8 w-8 p-0'
-        >
-          <ChevronLeft className='h-4 w-4' />
-        </Button>
-        <span className='text-sm font-medium'>
-          Page {currentPage} of {totalPages}
-        </span>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages || isLoading}
-          className='h-8 w-8 p-0'
-        >
-          <ChevronRight className='h-4 w-4' />
-        </Button>
+        {/* Tabs and data table */}
+        <Tabs defaultValue='all' className='w-full'>
+          <TabsList className='grid w-full max-w-md grid-cols-3'>
+            <TabsTrigger value='all'>All Bookings</TabsTrigger>
+            <TabsTrigger value='approved'>Approved</TabsTrigger>
+            <TabsTrigger value='pending'>Pending/Rejected</TabsTrigger>
+          </TabsList>
+          <TabsContent value='all' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedBookings.length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No bookings found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Vaccine</TableHead>
+                        <TableHead>Request Date</TableHead>
+                        <TableHead>Preferred Date</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedBookings.map((booking, index) => (
+                        <TableRow
+                          key={booking.id}
+                          className='cursor-pointer hover:bg-muted/50'
+                          onClick={() => {
+                            setSelectedBooking(booking)
+                            setOpenDetailsDialog(true)
+                          }}
+                        >
+                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                          <TableCell className='font-medium'>{booking.orderCode}</TableCell>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
+                              <Avatar className='h-8 w-8'>
+                                <AvatarImage src={booking.patient.avatar} alt={booking.patient.name} />
+                                <AvatarFallback>{booking.patient.initials}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className='font-medium'>{booking.patient.name}</div>
+                                <div className='text-sm text-muted-foreground flex items-center'>
+                                  <Phone className='h-3 w-3 mr-1' />
+                                  {booking.phone}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.vaccine}</TableCell>
+                          <TableCell>
+                            <div className='flex items-center'>
+                              <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                              {format(parseISO(booking.requestDate), 'dd/MM/yyyy')}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center'>
+                              <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                              {format(parseISO(booking.preferredDate), 'dd/MM/yyyy')}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center'>
+                              <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
+                              {booking.preferredTime}
+                            </div>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                  <MoreHorizontal className='h-4 w-4' />
+                                  <span className='sr-only'>Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedBooking(booking)
+                                    setOpenDetailsDialog(true)
+                                  }}
+                                >
+                                  <Edit className='mr-2 h-4 w-4' />
+                                  Details
+                                </DropdownMenuItem>
+                                {booking.status === 'Pending' && (
+                                  <>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDirectStatusUpdate(booking.id, 'Approved')
+                                      }}
+                                    >
+                                      <Check className='mr-2 h-4 w-4 text-green-500' />
+                                      Approve
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDirectStatusUpdate(booking.id, 'Rejected')
+                                      }}
+                                    >
+                                      <X className='mr-2 h-4 w-4 text-red-500' />
+                                      Reject
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDelete(booking)
+                                  }}
+                                >
+                                  <Trash className='mr-2 h-4 w-4' />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value='approved' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedBookings.filter((b) => b.status === 'Approved').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No approved bookings found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Vaccine</TableHead>
+                        <TableHead>Request Date</TableHead>
+                        <TableHead>Preferred Date</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedBookings
+                        .filter((booking) => booking.status === 'Approved')
+                        .map((booking, index) => (
+                          <TableRow
+                            key={booking.id}
+                            className='cursor-pointer hover:bg-muted/50'
+                            onClick={() => {
+                              setSelectedBooking(booking)
+                              setOpenDetailsDialog(true)
+                            }}
+                          >
+                            <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                            <TableCell className='font-medium'>{booking.orderCode}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Avatar className='h-8 w-8'>
+                                  <AvatarImage src={booking.patient.avatar} alt={booking.patient.name} />
+                                  <AvatarFallback>{booking.patient.initials}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className='font-medium'>{booking.patient.name}</div>
+                                  <div className='text-sm text-muted-foreground flex items-center'>
+                                    <Phone className='h-3 w-3 mr-1' />
+                                    {booking.phone}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{booking.vaccine}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {format(parseISO(booking.requestDate), 'dd/MM/yyyy')}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {format(parseISO(booking.preferredDate), 'dd/MM/yyyy')}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {booking.preferredTime}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                    <MoreHorizontal className='h-4 w-4' />
+                                    <span className='sr-only'>Open menu</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedBooking(booking)
+                                      setOpenDetailsDialog(true)
+                                    }}
+                                  >
+                                    <Edit className='mr-2 h-4 w-4' />
+                                    Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDelete(booking)
+                                    }}
+                                  >
+                                    <Trash className='mr-2 h-4 w-4' />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value='pending' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedBookings.filter((b) => b.status === 'Pending' || b.status === 'Rejected').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    No pending or rejected bookings found matching the current filters.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Vaccine</TableHead>
+                        <TableHead>Request Date</TableHead>
+                        <TableHead>Preferred Date</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedBookings
+                        .filter((booking) => booking.status === 'Pending' || booking.status === 'Rejected')
+                        .map((booking, index) => (
+                          <TableRow
+                            key={booking.id}
+                            className='cursor-pointer hover:bg-muted/50'
+                            onClick={() => {
+                              setSelectedBooking(booking)
+                              setOpenDetailsDialog(true)
+                            }}
+                          >
+                            <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                            <TableCell className='font-medium'>{booking.orderCode}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Avatar className='h-8 w-8'>
+                                  <AvatarImage src={booking.patient.avatar} alt={booking.patient.name} />
+                                  <AvatarFallback>{booking.patient.initials}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className='font-medium'>{booking.patient.name}</div>
+                                  <div className='text-sm text-muted-foreground flex items-center'>
+                                    <Phone className='h-3 w-3 mr-1' />
+                                    {booking.phone}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{booking.vaccine}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {format(parseISO(booking.requestDate), 'dd/MM/yyyy')}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {format(parseISO(booking.preferredDate), 'dd/MM/yyyy')}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex items-center'>
+                                <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
+                                {booking.preferredTime}
+                              </div>
+                            </TableCell>
+                            <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                    <MoreHorizontal className='h-4 w-4' />
+                                    <span className='sr-only'>Open menu</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedBooking(booking)
+                                      setOpenDetailsDialog(true)
+                                    }}
+                                  >
+                                    <Edit className='mr-2 h-4 w-4' />
+                                    Details
+                                  </DropdownMenuItem>
+                                  {booking.status === 'Pending' && (
+                                    <>
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDirectStatusUpdate(booking.id, 'Approved')
+                                        }}
+                                      >
+                                        <Check className='mr-2 h-4 w-4 text-green-500' />
+                                        Approve
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDirectStatusUpdate(booking.id, 'Rejected')
+                                        }}
+                                      >
+                                        <X className='mr-2 h-4 w-4 text-red-500' />
+                                        Reject
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDelete(booking)
+                                    }}
+                                  >
+                                    <Trash className='mr-2 h-4 w-4' />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Dialog Details */}
+      {/* Fixed pagination controls */}
+      {paginatedBookings.length > 0 && totalPages > 1 && (
+        <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1 || isRefreshing}
+          >
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+          <span className='text-sm'>
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages || isRefreshing}
+          >
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+        </div>
+      )}
+
+      {/* Booking details dialog */}
       <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
-        <DialogContent className='sm:max-w-[600px]'>
+        <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
             <DialogTitle>Booking Details</DialogTitle>
-            <DialogDescription>View and manage booking request</DialogDescription>
+            <DialogDescription>View and manage booking request.</DialogDescription>
           </DialogHeader>
           {selectedBooking && (
-            <div className='grid gap-6 py-4'>
-              <div className='flex items-center gap-4'>
-                <Avatar className='h-12 w-12'>
-                  <AvatarImage src={selectedBooking.patient.avatar} />
-                  <AvatarFallback>{selectedBooking.patient.initials}</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <h3 className='font-semibold'>{selectedBooking.patient.name}</h3>
-                  <p className='text-sm text-muted-foreground'>{selectedBooking.orderCode}</p>
+            <div className='grid gap-4 py-4'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-4'>
+                  <Avatar className='h-12 w-12'>
+                    <AvatarImage src={selectedBooking.patient.avatar} alt={selectedBooking.patient.name} />
+                    <AvatarFallback>{selectedBooking.patient.initials}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className='font-medium'>{selectedBooking.patient.name}</h3>
+                    <p className='text-sm text-muted-foreground'>{selectedBooking.orderCode}</p>
+                  </div>
                 </div>
-                <Badge variant='outline'>{selectedBooking.status}</Badge>
+                <div>{getStatusBadge(selectedBooking.status)}</div>
               </div>
 
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='space-y-1'>
-                  <p className='text-sm text-muted-foreground'>Request Date</p>
-                  <div className='flex items-center gap-2'>
-                    <Calendar className='h-4 w-4' />
-                    {selectedBooking.requestDate}
+              <div className='rounded-lg border p-4'>
+                <div className='flex justify-between'>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Request Date</h4>
+                    <p>{format(parseISO(selectedBooking.requestDate), 'dd/MM/yyyy')}</p>
+                  </div>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Preferred Date</h4>
+                    <p>{format(parseISO(selectedBooking.preferredDate), 'dd/MM/yyyy')}</p>
                   </div>
                 </div>
-                <div className='space-y-1'>
-                  <p className='text-sm text-muted-foreground'>Preferred Date</p>
-                  <div className='flex items-center gap-2'>
-                    <Calendar className='h-4 w-4' />
-                    {selectedBooking.preferredDate}
+                <div className='mt-4 flex justify-between'>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Time</h4>
+                    <p>{selectedBooking.preferredTime}</p>
+                  </div>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Vaccine</h4>
+                    <p className='font-medium'>{selectedBooking.vaccine}</p>
                   </div>
                 </div>
-                <div className='space-y-1'>
-                  <p className='text-sm text-muted-foreground'>Time</p>
-                  <div className='flex items-center gap-2'>
-                    <Clock className='h-4 w-4' />
-                    {selectedBooking.preferredTime}
-                  </div>
-                </div>
-                <div className='space-y-1'>
-                  <p className='text-sm text-muted-foreground'>Vaccine</p>
-                  <p className='font-medium'>{selectedBooking.vaccine}</p>
-                </div>
-                <div className='space-y-1'>
-                  <p className='text-sm text-muted-foreground'>Phone</p>
-                  <p className='font-medium'>{selectedBooking.phone}</p>
+                <div className='mt-4'>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Notes</h4>
+                  <p>{selectedBooking.notes}</p>
                 </div>
               </div>
 
-              <div className='space-y-1'>
-                <p className='text-sm text-muted-foreground'>Notes</p>
-                <p className='text-sm'>{selectedBooking.notes}</p>
+              <div>
+                <h4 className='text-sm font-medium text-muted-foreground'>Contact Information</h4>
+                <p className='text-sm flex items-center gap-1'>
+                  <Phone className='h-3 w-3' /> {selectedBooking.phone}
+                </p>
+                <p className='text-sm'>{selectedBooking.patient.email}</p>
               </div>
 
               <div className='space-y-2'>
-                <p className='text-sm text-muted-foreground'>Update Status</p>
+                <h4 className='text-sm font-medium text-muted-foreground'>Update Status</h4>
                 <div className='flex gap-2'>
                   <Button
                     variant={selectedBooking.status === 'Approved' ? 'default' : 'outline'}
                     onClick={() => handleStatusUpdate(selectedBooking, 'Approved')}
-                    className='flex-1 '
+                    className='flex-1'
                   >
                     Approve
                   </Button>
@@ -589,14 +883,19 @@ export default function BookingsPage() {
           )}
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Cancel
+              Close
             </Button>
-            <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white' onClick={handleSaveChanges}>Save Changes</Button>
+            <Button
+              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Dialog Delete Confirmation */}
+      {/* Delete confirmation dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
           <DialogHeader>
@@ -616,14 +915,14 @@ export default function BookingsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Order Dialog */}
+      {/* Add order dialog */}
       <Dialog open={openAddOrderDialog} onOpenChange={setOpenAddOrderDialog}>
-        <DialogContent className='sm:max-w-[600px]'>
+        <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
             <DialogTitle>Add New Order</DialogTitle>
-            <DialogDescription>Create a new booking order</DialogDescription>
+            <DialogDescription>Create a new booking order.</DialogDescription>
           </DialogHeader>
-          <div className='grid gap-6 py-4'>
+          <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-2 gap-4'>
               <div className='space-y-2'>
                 <Label htmlFor='patient-name'>Patient Name</Label>
@@ -639,8 +938,8 @@ export default function BookingsPage() {
                         initials: e.target.value
                           .split(' ')
                           .map((n) => n[0])
-                          .join('')
-                      }
+                          .join(''),
+                      },
                     }))
                   }
                 />
@@ -653,13 +952,12 @@ export default function BookingsPage() {
                   onChange={(e) =>
                     setNewOrder((prev) => ({
                       ...prev,
-                      patient: { ...prev.patient, phone: e.target.value }
+                      patient: { ...prev.patient, phone: e.target.value },
                     }))
                   }
                 />
               </div>
             </div>
-
             <div className='space-y-2'>
               <Label htmlFor='vaccine'>Vaccine</Label>
               <Input
@@ -668,26 +966,17 @@ export default function BookingsPage() {
                 onChange={(e) => setNewOrder((prev) => ({ ...prev, vaccine: e.target.value }))}
               />
             </div>
-
-            {/* Improved date picker with calendar */}
             <div className='space-y-2'>
               <Label htmlFor='preferred-date'>Preferred Date</Label>
-              <div className='relative'>
-                <Input
-                  id='preferred-date'
-                  type='date'
-                  min={format(addDays(new Date(), 1), 'yyyy-MM-dd')}
-                  value={newOrder.preferredDate}
-                  onChange={(e) => {
-                    const selectedDate = e.target.value
-                    setNewOrder((prev) => ({ ...prev, preferredDate: selectedDate }))
-                  }}
-                />
-              </div>
+              <Input
+                id='preferred-date'
+                type='date'
+                min={tomorrow}
+                value={newOrder.preferredDate}
+                onChange={(e) => setNewOrder((prev) => ({ ...prev, preferredDate: e.target.value }))}
+              />
               <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
             </div>
-
-            {/* Improved time selection */}
             <div className='space-y-2'>
               <Label htmlFor='preferred-time'>Preferred Time</Label>
               <Select
@@ -704,7 +993,6 @@ export default function BookingsPage() {
                 </SelectContent>
               </Select>
             </div>
-
             <div className='space-y-2'>
               <Label htmlFor='notes'>Notes</Label>
               <Input
@@ -718,9 +1006,9 @@ export default function BookingsPage() {
             <Button variant='outline' onClick={() => setOpenAddOrderDialog(false)}>
               Cancel
             </Button>
-            <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
+            <Button
+              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
               onClick={() => {
-                // Validate form
                 if (
                   !newOrder.patient.name ||
                   !newOrder.patient.phone ||
@@ -731,26 +1019,21 @@ export default function BookingsPage() {
                   toast({
                     title: 'Missing Information',
                     description: 'Please fill in all required fields',
-                    variant: 'destructive'
+                    variant: 'destructive',
                   })
                   return
                 }
-
-                // Validate date is in the future
                 const selectedDate = parseISO(newOrder.preferredDate)
-                const tomorrow = addDays(new Date(), 1)
-                tomorrow.setHours(0, 0, 0, 0)
-
-                if (isBefore(selectedDate, tomorrow)) {
+                const tomorrowDate = addDays(new Date(), 1)
+                tomorrowDate.setHours(0, 0, 0, 0)
+                if (isBefore(selectedDate, tomorrowDate)) {
                   toast({
                     title: 'Invalid Date',
                     description: 'Please select a future date for your booking',
-                    variant: 'destructive'
+                    variant: 'destructive',
                   })
                   return
                 }
-
-                // Add new order logic
                 const date = new Date()
                 const newBooking = {
                   id: Math.max(...bookingsData.map((b) => b.id)) + 1,
@@ -761,22 +1044,19 @@ export default function BookingsPage() {
                     initials: newOrder.patient.name
                       .split(' ')
                       .map((n) => n[0])
-                      .join('')
+                      .join(''),
                   },
                   vaccine: newOrder.vaccine,
                   requestDate: format(date, 'yyyy-MM-dd'),
                   preferredDate: newOrder.preferredDate,
                   preferredTime: newOrder.preferredTime,
                   status: 'Pending',
-                  notes: newOrder.notes
+                  notes: newOrder.notes,
                 }
-
-                // Add to bookings data
                 setBookingsData((prev) => [...prev, newBooking])
-
                 toast({
                   title: 'Order Created',
-                  description: `New order has been created successfully`
+                  description: `New order has been created successfully`,
                 })
                 setOpenAddOrderDialog(false)
                 setNewOrder({
@@ -784,7 +1064,7 @@ export default function BookingsPage() {
                   vaccine: '',
                   preferredDate: '',
                   preferredTime: 'Morning',
-                  notes: ''
+                  notes: '',
                 })
               }}
             >
@@ -796,6 +1076,7 @@ export default function BookingsPage() {
     </div>
   )
 }
+
 
 const bookings = [
   {

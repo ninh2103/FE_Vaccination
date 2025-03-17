@@ -1,7 +1,7 @@
 'use client'
 
 import type React from 'react'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import {
   Plus,
   Edit,
@@ -13,10 +13,10 @@ import {
   ShieldCheck,
   FilterIcon,
   X,
-  FileSpreadsheet,
+  Download,
   RefreshCw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,7 +28,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
@@ -63,7 +63,7 @@ const initialUsers = [
     phone: '+84 913 456 789',
     avatar: '/placeholder.svg',
     initials: 'TB',
-    role: 'Patient',
+    role: 'Doctor',
     status: 'Active',
     registeredDate: '2023-02-05',
     lastLogin: '2025-03-12',
@@ -89,7 +89,7 @@ const initialUsers = [
     phone: '+84 915 678 901',
     avatar: '/placeholder.svg',
     initials: 'PD',
-    role: 'Patient',
+    role: 'Nurse',
     status: 'Active',
     registeredDate: '2023-03-01',
     lastLogin: '2025-03-11',
@@ -115,7 +115,7 @@ const initialUsers = [
     phone: '+84 917 890 123',
     avatar: '/placeholder.svg',
     initials: 'VG',
-    role: 'Patient',
+    role: 'Nurse',
     status: 'Active',
     registeredDate: '2023-01-25',
     lastLogin: '2025-03-08',
@@ -154,7 +154,7 @@ const initialUsers = [
     phone: '+84 920 123 456',
     avatar: '/placeholder.svg',
     initials: 'PK',
-    role: 'Patient',
+    role: 'Doctor',
     status: 'Active',
     registeredDate: '2022-11-05',
     lastLogin: '2025-03-05',
@@ -225,19 +225,7 @@ const initialUsers = [
     lastLogin: '2025-03-13',
     vaccinations: 2
   },
-  {
-    id: 15,
-    name: 'Trần Văn Nam',
-    email: 'nam.tran@example.com',
-    phone: '+84 926 789 012',
-    avatar: '/placeholder.svg',
-    initials: 'TN',
-    role: 'Patient',
-    status: 'Inactive',
-    registeredDate: '2022-08-20',
-    lastLogin: '2024-11-15',
-    vaccinations: 1
-  }
+  
 ]
 
 type User = (typeof initialUsers)[0]
@@ -249,12 +237,10 @@ export default function UsersPage() {
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [currentTab, setCurrentTab] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
 
   const [formData, setFormData] = useState({
     name: '',
@@ -263,15 +249,17 @@ export default function UsersPage() {
     role: 'Patient',
     status: 'Active',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   })
   const [filters, setFilters] = useState({
     role: [] as string[],
     status: [] as string[],
-    registeredDate: '' as string
+    registeredDate: '' as string,
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+
+  const ITEMS_PER_PAGE = 10
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -295,7 +283,7 @@ export default function UsersPage() {
       role: 'Patient',
       status: 'Active',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
     })
     resetAvatarState()
   }
@@ -321,7 +309,7 @@ export default function UsersPage() {
     }
     setTimeout(() => {
       const newUser: User = {
-        id: users.length + 1,
+        id: Math.max(...users.map((u) => u.id)) + 1,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -334,7 +322,7 @@ export default function UsersPage() {
         status: formData.status,
         registeredDate: new Date().toISOString().split('T')[0],
         lastLogin: '-',
-        vaccinations: 0
+        vaccinations: 0,
       }
       setUsers([...users, newUser])
       setOpenAddDialog(false)
@@ -362,11 +350,11 @@ export default function UsersPage() {
               phone: formData.phone,
               role: formData.role,
               status: formData.status,
-              avatar: avatarPreview || '/placeholder.svg',
+              avatar: avatarPreview || user.avatar,
               initials: formData.name
                 .split(' ')
                 .map((n) => n[0])
-                .join('')
+                .join(''),
             }
           : user
       )
@@ -416,7 +404,7 @@ export default function UsersPage() {
         Status: user.status,
         'Registered Date': user.registeredDate,
         'Last Login': user.lastLogin,
-        Vaccinations: user.vaccinations
+        Vaccinations: user.vaccinations,
       }))
       const worksheet = XLSX.utils.json_to_sheet(data)
       const workbook = XLSX.utils.book_new()
@@ -442,39 +430,38 @@ export default function UsersPage() {
   const toggleRoleFilter = (role: string) => {
     setFilters((prev) => ({
       ...prev,
-      role: prev.role.includes(role) ? prev.role.filter((r) => r !== role) : [...prev.role, role]
+      role: prev.role.includes(role) ? prev.role.filter((r) => r !== role) : [...prev.role, role],
     }))
   }
 
   const toggleStatusFilter = (status: string) => {
     setFilters((prev) => ({
       ...prev,
-      status: prev.status.includes(status) ? prev.status.filter((s) => s !== status) : [...prev.status, status]
+      status: prev.status.includes(status) ? prev.status.filter((s) => s !== status) : [...prev.status, status],
     }))
   }
 
   const clearFilters = () => {
     setFilters({ role: [], status: [], registeredDate: '' })
+    setCurrentPage(1)
   }
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesTab =
-      currentTab === 'all' ||
-      (currentTab === 'patients' && user.role === 'Patient') ||
-      (currentTab === 'staff' && ['Doctor', 'Nurse', 'Admin'].includes(user.role))
-    const matchesRoleFilter = filters.role.length === 0 || filters.role.includes(user.role)
-    const matchesStatusFilter = filters.status.length === 0 || filters.status.includes(user.status)
-    const matchesDateFilter = !filters.registeredDate || user.registeredDate >= filters.registeredDate
-    return matchesSearch && matchesTab && matchesRoleFilter && matchesStatusFilter && matchesDateFilter
-  })
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch =
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesRoleFilter = filters.role.length === 0 || filters.role.includes(user.role)
+      const matchesStatusFilter = filters.status.length === 0 || filters.status.includes(user.status)
+      const matchesDateFilter = !filters.registeredDate || user.registeredDate >= filters.registeredDate
+      return matchesSearch && matchesRoleFilter && matchesStatusFilter && matchesDateFilter
+    })
+  }, [users, searchTerm, filters])
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE))
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -520,7 +507,8 @@ export default function UsersPage() {
   }
 
   return (
-    <div className='flex flex-col gap-6 ml-4 relative min-h-screen'>
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+      {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
           Users
@@ -528,33 +516,23 @@ export default function UsersPage() {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
             {isExporting ? (
-              <>
-                <LoadingSpinner className='mr-2 h-4 w-4' />
-                Exporting...
-              </>
+              <LoadingSpinner className='mr-2 h-4 w-4' />
             ) : (
-              <>
-                <FileSpreadsheet className='mr-2 h-4 w-4' />
-                Export to Excel
-              </>
+              <Download className='mr-2 h-4 w-4' />
             )}
+            Export
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoading}>
             {isLoading ? (
-              <>
-                <LoadingSpinner className='mr-2 h-4 w-4' />
-                Refreshing...
-              </>
+              <LoadingSpinner className='mr-2 h-4 w-4' />
             ) : (
-              <>
-                <RefreshCw className='mr-2 h-4 w-4' />
-                Refresh
-              </>
+              <RefreshCw className='mr-2 h-4 w-4' />
             )}
+            Refresh
           </Button>
           <Button
             size='sm'
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
+            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
             onClick={() => {
               resetForm()
               setOpenAddDialog(true)
@@ -566,13 +544,17 @@ export default function UsersPage() {
         </div>
       </div>
 
+      {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='flex w-full max-w-sm items-center space-x-2'>
             <Input
               placeholder='Search users by name, email, phone...'
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
               className='w-full'
             />
             {searchTerm && (
@@ -597,7 +579,9 @@ export default function UsersPage() {
               <div className='grid gap-4'>
                 <div className='space-y-2'>
                   <h4 className='font-medium leading-none'>Filters</h4>
-                  <p className='text-sm text-muted-foreground'>Filter users by role, status, and registration date.</p>
+                  <p className='text-sm text-muted-foreground'>
+                    Filter users by role, status, and registration date.
+                  </p>
                 </div>
                 <div className='grid gap-2'>
                   <div className='grid gap-1'>
@@ -693,40 +677,41 @@ export default function UsersPage() {
           </Popover>
         </div>
 
-        <Tabs defaultValue='all' onValueChange={setCurrentTab}>
-          <TabsList className='grid w-full max-w-md grid-cols-3 mb-4'>
+        {/* Tabs and table */}
+        <Tabs defaultValue='all' className='w-full'>
+          <TabsList className='grid w-full max-w-md grid-cols-3'>
             <TabsTrigger value='all'>All Users</TabsTrigger>
             <TabsTrigger value='patients'>Patients</TabsTrigger>
             <TabsTrigger value='staff'>Staff</TabsTrigger>
           </TabsList>
-          <TabsContent value='all'>
-            <Card className='border rounded-md'>
-              <CardContent className='p-6'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[50px]'>No. </TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[100px]'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers.length === 0 ? (
+          <TabsContent value='all' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedUsers.length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>No users found.</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={9} className='h-24 text-center'>
-                          No users found.
-                        </TableCell>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Registered</TableHead>
+                        <TableHead>Last Login</TableHead>
+                        <TableHead>Vaccinations</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
                       </TableRow>
-                    ) : (
-                      paginatedUsers.map((user, index) => (
-                        <TableRow key={user.id} className='cursor-pointer transition-colors hover:bg-muted/50'>
-                          <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedUsers.map((user, index) => (
+                        <TableRow
+                          key={user.id}
+                          className='cursor-pointer hover:bg-muted/50'
+                          onClick={() => handleEditClick(user)}
+                        >
+                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
                           <TableCell>
                             <div className='flex items-center gap-2'>
                               <Avatar className='h-8 w-8'>
@@ -764,7 +749,6 @@ export default function UsersPage() {
                                 }}
                               >
                                 <Edit className='h-4 w-4' />
-                                <span className='sr-only'>Edit</span>
                               </Button>
                               <Button
                                 variant='ghost'
@@ -775,215 +759,216 @@ export default function UsersPage() {
                                 }}
                               >
                                 <Trash className='h-4 w-4 text-destructive' />
-                                <span className='sr-only'>Delete</span>
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value='patients'>
-            <Card className='border rounded-md'>
-              <CardContent className='p-6'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[50px]'>STT</TableHead>
-                      <TableHead>Patient</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[100px]'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers.length === 0 ? (
+          <TabsContent value='patients' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedUsers.filter((u) => u.role === 'Patient').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>No patients found.</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={7} className='h-24 text-center'>
-                          No patients found.
-                        </TableCell>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Registered</TableHead>
+                        <TableHead>Vaccinations</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
                       </TableRow>
-                    ) : (
-                      paginatedUsers.map((user, index) => (
-                        <TableRow key={user.id} className='cursor-pointer transition-colors hover:bg-muted/50'>
-                          <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedUsers
+                        .filter((user) => user.role === 'Patient')
+                        .map((user, index) => (
+                          <TableRow
+                            key={user.id}
+                            className='cursor-pointer hover:bg-muted/50'
+                            onClick={() => handleEditClick(user)}
+                          >
+                            <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Avatar className='h-8 w-8'>
+                                  <AvatarImage src={user.avatar} alt={user.name} />
+                                  <AvatarFallback>{user.initials}</AvatarFallback>
+                                </Avatar>
+                                <div className='font-medium'>{user.name}</div>
                               </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex flex-col'>
+                                <div className='flex items-center gap-1 text-sm'>
+                                  <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                                  {user.email}
+                                </div>
+                                <div className='flex items-center gap-1 text-sm'>
+                                  <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                                  {user.phone}
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.vaccinations}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                                <span className='sr-only'>Edit</span>
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                                <span className='sr-only'>Delete</span>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                            </TableCell>
+                            <TableCell>{getStatusBadge(user.status)}</TableCell>
+                            <TableCell>{user.registeredDate}</TableCell>
+                            <TableCell>{user.vaccinations}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleEditClick(user)
+                                  }}
+                                >
+                                  <Edit className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteClick(user)
+                                  }}
+                                >
+                                  <Trash className='h-4 w-4 text-destructive' />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value='staff'>
-            <Card className='border rounded-md'>
-              <CardContent className='p-6'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[50px]'>STT</TableHead>
-                      <TableHead>Staff Member</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead className='w-[100px]'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers.length === 0 ? (
+          <TabsContent value='staff' className='mt-4'>
+            <Card>
+              <CardContent className='p-0'>
+                {paginatedUsers.filter((u) => ['Doctor', 'Nurse', 'Admin'].includes(u.role)).length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>No staff members found.</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={8} className='h-24 text-center'>
-                          No staff members found.
-                        </TableCell>
+                        <TableHead className='w-[60px]'>No.</TableHead>
+                        <TableHead>Staff Member</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Registered</TableHead>
+                        <TableHead>Last Login</TableHead>
+                        <TableHead className='w-[80px]'></TableHead>
                       </TableRow>
-                    ) : (
-                      paginatedUsers.map((user, index) => (
-                        <TableRow key={user.id} className='cursor-pointer transition-colors hover:bg-muted/50'>
-                          <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedUsers
+                        .filter((user) => ['Doctor', 'Nurse', 'Admin'].includes(user.role))
+                        .map((user, index) => (
+                          <TableRow
+                            key={user.id}
+                            className='cursor-pointer hover:bg-muted/50'
+                            onClick={() => handleEditClick(user)}
+                          >
+                            <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Avatar className='h-8 w-8'>
+                                  <AvatarImage src={user.avatar} alt={user.name} />
+                                  <AvatarFallback>{user.initials}</AvatarFallback>
+                                </Avatar>
+                                <div className='font-medium'>{user.name}</div>
                               </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
+                            </TableCell>
+                            <TableCell>
+                              <div className='flex flex-col'>
+                                <div className='flex items-center gap-1 text-sm'>
+                                  <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                                  {user.email}
+                                </div>
+                                <div className='flex items-center gap-1 text-sm'>
+                                  <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                                  {user.phone}
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getRoleBadge(user.role)}</TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.lastLogin}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                                <span className='sr-only'>Edit</span>
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                                <span className='sr-only'>Delete</span>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                            </TableCell>
+                            <TableCell>{getRoleBadge(user.role)}</TableCell>
+                            <TableCell>{getStatusBadge(user.status)}</TableCell>
+                            <TableCell>{user.registeredDate}</TableCell>
+                            <TableCell>{user.lastLogin}</TableCell>
+                            <TableCell>
+                              <div className='flex items-center gap-2'>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleEditClick(user)
+                                  }}
+                                >
+                                  <Edit className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteClick(user)
+                                  }}
+                                >
+                                  <Trash className='h-4 w-4 text-destructive' />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        {totalPages > 1 && (
-          <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className='h-4 w-4' />
-            </Button>
-            <span className='text-sm'>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className='h-4 w-4' />
-            </Button>
-          </div>
-        )}
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1 || isLoading}
+          >
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+          <span className='text-sm'>
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages || isLoading}
+          >
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+        </div>
+      )}
+
+      {/* Add User Dialog */}
       <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
         <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
@@ -1085,20 +1070,19 @@ export default function UsersPage() {
             <Button variant='outline' onClick={() => setOpenAddDialog(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button onClick={handleAddUser} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <LoadingSpinner className='mr-2 h-4 w-4' />
-                  Saving...
-                </>
-              ) : (
-                'Save User'
-              )}
+            <Button
+              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              onClick={handleAddUser}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading ? 'Saving...' : 'Save User'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Edit User Dialog */}
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
         <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
@@ -1176,20 +1160,19 @@ export default function UsersPage() {
             <Button variant='outline' onClick={() => setOpenEditDialog(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button onClick={handleEditUser} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <LoadingSpinner className='mr-2 h-4 w-4' />
-                  Updating...
-                </>
-              ) : (
-                'Update User'
-              )}
+            <Button
+              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              onClick={handleEditUser}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading ? 'Updating...' : 'Update User'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Delete User Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -1217,14 +1200,8 @@ export default function UsersPage() {
               Cancel
             </Button>
             <Button variant='destructive' onClick={handleDeleteUser} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <LoadingSpinner className='mr-2 h-4 w-4' />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
+              {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>
