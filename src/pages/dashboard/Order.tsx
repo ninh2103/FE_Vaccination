@@ -262,7 +262,7 @@ export default function BookingsPage() {
             Refresh
           </Button>
           <Button
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+            // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
             size='sm'
             onClick={() => setOpenAddOrderDialog(true)}
           >
@@ -772,7 +772,7 @@ export default function BookingsPage() {
 
       {/* Fixed pagination controls */}
       {paginatedBookings.length > 0 && totalPages > 1 && (
-        <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+        <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
           <Button
             variant='outline'
             size='sm'
@@ -886,7 +886,7 @@ export default function BookingsPage() {
               Close
             </Button>
             <Button
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
               onClick={handleSaveChanges}
             >
               Save Changes
@@ -1007,7 +1007,7 @@ export default function BookingsPage() {
               Cancel
             </Button>
             <Button
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+// bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-whit              className='e'
               onClick={() => {
                 if (
                   !newOrder.patient.name ||

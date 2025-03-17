@@ -464,7 +464,7 @@ export default function AppointmentsPage() {
           </Button>
           <Dialog  open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'>
+              <Button size='sm' className='h-9 '>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Appointment
               </Button>
@@ -598,7 +598,7 @@ export default function AppointmentsPage() {
                 <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
                   Cancel
                 </Button>
-                <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white' onClick={handleAddAppointment}>Save</Button>
+                <Button  onClick={handleAddAppointment}>Save</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -976,7 +976,7 @@ export default function AppointmentsPage() {
 
         {/* Fixed pagination */}
         {paginatedAppointments.length > 0 && totalPages > 1 && (
-          <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+          <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
               variant='outline'
               size='sm'

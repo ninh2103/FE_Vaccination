@@ -394,7 +394,7 @@ export default function BlogPage() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Tiêu đề và nút hành động */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Blog Management</h1>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>Blog </h1>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
             <Download className='mr-2 h-4 w-4' />
@@ -410,7 +410,7 @@ export default function BlogPage() {
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9 bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'>
+              <Button size='sm' className='h-9 '>
                 <Plus className='mr-2 h-4 w-4' />
                 New Post
               </Button>
@@ -614,7 +614,7 @@ export default function BlogPage() {
                   <Button onClick={() => setOpenAddDialog(false)}>
                     Save Draft
                   </Button>
-                  <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white' onClick={() => setOpenAddDialog(false)}>
+                  <Button  onClick={() => setOpenAddDialog(false)}>
                     Publish
                   </Button>
                 </DialogFooter>
@@ -975,7 +975,7 @@ export default function BlogPage() {
 
         {/* Phân trang cố định */}
         {paginatedPosts.length > 0 && (
-          <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+          <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
               variant='outline'
               size='sm'

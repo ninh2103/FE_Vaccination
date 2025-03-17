@@ -532,7 +532,7 @@ export default function UsersPage() {
           </Button>
           <Button
             size='sm'
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+            // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
             onClick={() => {
               resetForm()
               setOpenAddDialog(true)
@@ -668,9 +668,9 @@ export default function UsersPage() {
                   <Button variant='outline' size='sm' onClick={clearFilters}>
                     Clear Filters
                   </Button>
-                  <Button size='sm' onClick={() => setFilterOpen(false)}>
+                  {/* <Button size='sm' onClick={() => setFilterOpen(false)}>
                     Apply Filters
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </PopoverContent>
@@ -945,7 +945,7 @@ export default function UsersPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+        <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
           <Button
             variant='outline'
             size='sm'
@@ -1071,7 +1071,7 @@ export default function UsersPage() {
               Cancel
             </Button>
             <Button
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
               onClick={handleAddUser}
               disabled={isLoading}
             >
@@ -1161,7 +1161,7 @@ export default function UsersPage() {
               Cancel
             </Button>
             <Button
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
+              // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
               onClick={handleEditUser}
               disabled={isLoading}
             >

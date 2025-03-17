@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { saveAs } from "file-saver"
 import * as XLSX from "xlsx"
+import jsPDF from "jspdf"
 import {
   Search,
   Filter,
@@ -16,6 +17,7 @@ import {
   RefreshCw,
   Calendar,
   Phone,
+  Printer,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -322,36 +324,22 @@ export default function PaymentsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [filters, setFilters] = useState({
-    status: {
-      completed: false,
-      pending: false,
-      failed: false,
-      refunded: false,
-    },
-    method: {
-      qrMomo: false,
-      cash: false,
-    },
-    dateRange: {
-      from: "",
-      to: "",
-    },
+    status: { completed: false, pending: false, failed: false, refunded: false },
+    method: { qrMomo: false, cash: false },
+    dateRange: { from: "", to: "" },
   })
 
-  // Filter payments based on search term and filters
+  // Filter payments
   const filteredPayments = useMemo(() => {
     return payments.filter((payment) => {
-      // Search filter
       const matchesSearch =
         payment.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.patient.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.patient.phone.includes(searchTerm.toLowerCase()) ||
         payment.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.service.toLowerCase().includes(searchTerm.toLowerCase())
 
-      // Status filter
       const noStatusFilter =
         !filters.status.completed && !filters.status.pending && !filters.status.failed && !filters.status.refunded
-
       const matchesStatus =
         noStatusFilter ||
         (filters.status.completed && payment.status === "Completed") ||
@@ -359,19 +347,15 @@ export default function PaymentsPage() {
         (filters.status.failed && payment.status === "Failed") ||
         (filters.status.refunded && payment.status === "Refunded")
 
-      // Payment method filter
       const noMethodFilter = !filters.method.qrMomo && !filters.method.cash
-
       const matchesMethod =
         noMethodFilter ||
         (filters.method.qrMomo && payment.method === "QR Momo") ||
         (filters.method.cash && payment.method === "Cash")
 
-      // Date range filter
       const paymentDate = new Date(payment.date)
       const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null
       const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null
-
       const matchesDateRange = (!fromDate || paymentDate >= fromDate) && (!toDate || paymentDate <= toDate)
 
       return matchesSearch && matchesStatus && matchesMethod && matchesDateRange
@@ -380,54 +364,47 @@ export default function PaymentsPage() {
 
   // Pagination
   const totalPages = Math.ceil(filteredPayments.length / ROWS_PER_PAGE)
-  const paginatedPayments = filteredPayments.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE)
+  const paginatedPayments = useMemo(() => {
+    const start = (currentPage - 1) * ROWS_PER_PAGE
+    const end = start + ROWS_PER_PAGE
+    return filteredPayments.slice(start, end)
+  }, [filteredPayments, currentPage])
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters change or total pages change
   useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
+    if (filteredPayments.length === 0) {
+      setCurrentPage(1)
+    } else if (currentPage > totalPages) {
       setCurrentPage(totalPages)
     }
-  }, [totalPages, currentPage])
+  }, [filteredPayments, totalPages, currentPage])
 
   // Get status badge
   const getStatusBadge = (status) => {
-    switch (status) {
-      case "Completed":
-        return <Badge className="bg-green-500 hover:bg-green-600">Completed</Badge>
-      case "Pending":
-        return (
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-            Pending
-          </Badge>
-        )
-      case "Failed":
-        return <Badge variant="destructive">Failed</Badge>
-      case "Refunded":
-        return <Badge className="bg-blue-500 hover:bg-blue-600">Refunded</Badge>
-      default:
-        return <Badge>{status}</Badge>
+    const variants = {
+      Completed: { className: "bg-green-500 hover:bg-green-600" },
+      Pending: { variant: "outline", className: "bg-yellow-100 text-yellow-800" },
+      Failed: { variant: "destructive" },
+      Refunded: { className: "bg-blue-500 hover:bg-blue-600" },
     }
+    const { variant, className } = variants[status] || {}
+    return <Badge variant={variant} className={className}>{status}</Badge>
   }
 
   // Get payment method icon
   const getPaymentMethodIcon = (method) => {
-    switch (method) {
-      case "QR Momo":
-        return <QrCode className="h-4 w-4 text-pink-500" />
-      case "Cash":
-        return <DollarSign className="h-4 w-4 text-green-500" />
-      default:
-        return <Receipt className="h-4 w-4 text-muted-foreground" />
-    }
+    return method === "QR Momo" ? (
+      <QrCode className="h-4 w-4 text-pink-500" />
+    ) : method === "Cash" ? (
+      <DollarSign className="h-4 w-4 text-green-500" />
+    ) : (
+      <Receipt className="h-4 w-4 text-muted-foreground" />
+    )
   }
 
   // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount)
-  }
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
 
   // Handle export to Excel
   const handleExport = () => {
@@ -460,20 +437,9 @@ export default function PaymentsPage() {
       setPayments([...initialPayments])
       setSearchTerm("")
       setFilters({
-        status: {
-          completed: false,
-          pending: false,
-          failed: false,
-          refunded: false,
-        },
-        method: {
-          qrMomo: false,
-          cash: false,
-        },
-        dateRange: {
-          from: "",
-          to: "",
-        },
+        status: { completed: false, pending: false, failed: false, refunded: false },
+        method: { qrMomo: false, cash: false },
+        dateRange: { from: "", to: "" },
       })
       setCurrentPage(1)
       setIsRefreshing(false)
@@ -483,22 +449,219 @@ export default function PaymentsPage() {
   // Handle clear filters
   const handleClearFilters = () => {
     setFilters({
-      status: {
-        completed: false,
-        pending: false,
-        failed: false,
-        refunded: false,
-      },
-      method: {
-        qrMomo: false,
-        cash: false,
-      },
-      dateRange: {
-        from: "",
-        to: "",
-      },
+      status: { completed: false, pending: false, failed: false, refunded: false },
+      method: { qrMomo: false, cash: false },
+      dateRange: { from: "", to: "" },
     })
     setCurrentPage(1)
+  }
+
+  // Generate PDF content directly with jsPDF
+  const generatePDF = (payment) => {
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    })
+
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const margin = 15
+    let y = margin
+
+    // Add header
+    pdf.setFontSize(18)
+    pdf.setFont("helvetica", "bold")
+    pdf.text("VAXBOT Vaccine Joint Stock Company", pageWidth / 2, y, { align: "center" })
+    y += 10
+
+    pdf.setFontSize(12)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(`Receipt #${payment.orderCode}`, pageWidth / 2, y, { align: "center" })
+    y += 5
+    pdf.text(`Date: ${format(new Date(payment.date), "dd/MM/yyyy")}`, pageWidth / 2, y, { align: "center" })
+    y += 10
+
+    // Add line
+    pdf.setLineWidth(0.5)
+    pdf.line(margin, y, pageWidth - margin, y)
+    y += 10
+
+    // Add details
+    pdf.setFontSize(12)
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Patient Name:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(payment.patient.name, margin + 30, y)
+    y += 8
+
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Service:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(payment.service, margin + 30, y)
+    y += 8
+
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Time:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(payment.time, margin + 30, y)
+    y += 8
+
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Payment Method:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(payment.method, margin + 30, y)
+    y += 8
+
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Amount:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(formatCurrency(payment.amount), margin + 30, y)
+    y += 8
+
+    if (payment.method === "QR Momo" && payment.transactionId) {
+      pdf.setFont("helvetica", "bold")
+      pdf.text("Transaction ID:", margin, y)
+      pdf.setFont("helvetica", "normal")
+      pdf.text(payment.transactionId, margin + 30, y)
+      y += 8
+    }
+
+    if (payment.status === "Refunded" && payment.refundReason) {
+      pdf.setFont("helvetica", "bold")
+      pdf.text("Refund Reason:", margin, y)
+      pdf.setFont("helvetica", "normal")
+      pdf.text(payment.refundReason, margin + 30, y)
+      y += 8
+    }
+
+    pdf.setFont("helvetica", "bold")
+    pdf.text("Status:", margin, y)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(payment.status, margin + 30, y)
+    y += 10
+
+    // Add footer
+    pdf.setLineWidth(0.5)
+    pdf.line(margin, y, pageWidth - margin, y)
+    y += 10
+
+    pdf.setFontSize(10)
+    pdf.setFont("helvetica", "normal")
+    pdf.text("Thank you for your payment!", pageWidth / 2, y, { align: "center" })
+    y += 5
+    pdf.text(`Contact: ${payment.patient.phone}`, pageWidth / 2, y, { align: "center" })
+    y += 5
+    pdf.text(`VAXBOT © ${new Date().getFullYear()}`, pageWidth / 2, y, { align: "center" })
+
+    return pdf
+  }
+
+  // Handle Download Receipt as PDF
+  const handleDownloadReceipt = (payment) => {
+    if (!payment) return
+    const pdf = generatePDF(payment)
+    pdf.save(`receipt_${payment.orderCode}.pdf`)
+  }
+
+  // Handle Print Receipt
+  const handlePrintReceipt = (payment) => {
+    if (!payment) return
+
+    const printWindow = window.open("", "", "width=800,height=600")
+    if (!printWindow) return
+
+    const statusClass = payment.status.toLowerCase()
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Print Receipt - ${payment.orderCode}</title>
+        <style>
+          @media print {
+            body { margin: 0; padding: 20mm; font-family: Arial, sans-serif; }
+            .receipt { width: 100%; max-width: 500px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; box-shadow: none; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { font-size: 24px; margin: 0; }
+            .header p { font-size: 16px; margin: 5px 0; }
+            .details { margin-bottom: 15px; }
+            .details h4 { font-size: 14px; color: #666; margin-bottom: 5px; font-weight: 600; }
+            .details p { font-size: 16px; margin: 0; font-weight: 500; }
+            .status-badge { padding: 5px 10px; border-radius: 12px; color: white; font-size: 14px; }
+            .completed { background-color: #4CAF50; }
+            .pending { background-color: #FFCA28; color: #333; }
+            .failed { background-color: #F44336; }
+            .refunded { background-color: #2196F3; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+            @page { margin: 20mm; }
+          }
+          @media screen {
+            body { font-family: Arial, sans-serif; padding: 20mm; }
+            .receipt { width: 100%; max-width: 500px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { font-size: 24px; margin: 0; }
+            .header p { font-size: 16px; margin: 5px 0; }
+            .details { margin-bottom: 15px; }
+            .details h4 { font-size: 14px; color: #666; margin-bottom: 5px; font-weight: 600; }
+            .details p { font-size: 16px; margin: 0; font-weight: 500; }
+            .status-badge { padding: 5px 10px; border-radius: 12px; color: white; font-size: 14px; }
+            .completed { background-color: #4CAF50; }
+            .pending { background-color: #FFCA28; color: #333; }
+            .failed { background-color: #F44336; }
+            .refunded { background-color: #2196F3; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="receipt">
+          <div class="header">
+            <h2>VAXBOT Vaccine Joint Stock Company</h2>
+            <p>Receipt #${payment.orderCode}</p>
+            <p>Date: ${format(new Date(payment.date), "dd/MM/yyyy")}</p>
+          </div>
+          <div class="details">
+            <h4>Patient Name</h4>
+            <p>${payment.patient.name}</p>
+          </div>
+          <div class="details">
+            <h4>Service</h4>
+            <p>${payment.service}</p>
+          </div>
+          <div class="details">
+            <h4>Time</h4>
+            <p>${payment.time}</p>
+          </div>
+          <div class="details">
+            <h4>Payment Method</h4>
+            <p>${payment.method}</p>
+          </div>
+          <div class="details">
+            <h4>Amount</h4>
+            <p>${formatCurrency(payment.amount)}</p>
+          </div>
+          ${payment.method === "QR Momo" && payment.transactionId
+            ? `<div class="details"><h4>Transaction ID</h4><p>${payment.transactionId}</p></div>`
+            : ""}
+          ${payment.status === "Refunded" && payment.refundReason
+            ? `<div class="details"><h4>Refund Reason</h4><p>${payment.refundReason}</p></div>`
+            : ""}
+          <div class="details">
+            <h4>Status</h4>
+            <span class="status-badge ${statusClass}">${payment.status}</span>
+          </div>
+          <div class="footer">
+            <p>Thank you for your payment!</p>
+            <p>Contact: ${payment.patient.phone}</p>
+            <p>VAXBOT © ${new Date().getFullYear()}</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+    printWindow.close()
   }
 
   return (
@@ -514,11 +677,7 @@ export default function PaymentsPage() {
             Export
           </Button>
           <Button variant="outline" size="sm" className="h-9" onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
+            {isRefreshing ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Refresh
           </Button>
         </div>
@@ -553,7 +712,6 @@ export default function PaymentsPage() {
               <DropdownMenuContent align="end" className="w-[300px] p-4">
                 <DropdownMenuLabel className="font-semibold">Filters</DropdownMenuLabel>
                 <p className="text-sm text-muted-foreground mb-4">Filter payments by status, method, and date range.</p>
-
                 {/* Status filter */}
                 <div className="mb-4">
                   <DropdownMenuLabel className="text-sm font-medium">Payment Status</DropdownMenuLabel>
@@ -561,10 +719,7 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.status.completed}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, completed: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, status: { ...prev.status, completed: checked } }))
                     }
                   >
                     Completed
@@ -572,10 +727,7 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.status.pending}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, pending: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, status: { ...prev.status, pending: checked } }))
                     }
                   >
                     Pending
@@ -583,10 +735,7 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.status.failed}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, failed: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, status: { ...prev.status, failed: checked } }))
                     }
                   >
                     Failed
@@ -594,16 +743,12 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.status.refunded}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, refunded: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, status: { ...prev.status, refunded: checked } }))
                     }
                   >
                     Refunded
                   </DropdownMenuCheckboxItem>
                 </div>
-
                 {/* Payment method filter */}
                 <div className="mb-4">
                   <DropdownMenuLabel className="text-sm font-medium">Payment Method</DropdownMenuLabel>
@@ -611,10 +756,7 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.method.qrMomo}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        method: { ...prev.method, qrMomo: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, method: { ...prev.method, qrMomo: checked } }))
                     }
                   >
                     QR Momo
@@ -622,16 +764,12 @@ export default function PaymentsPage() {
                   <DropdownMenuCheckboxItem
                     checked={filters.method.cash}
                     onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        method: { ...prev.method, cash: checked },
-                      }))
+                      setFilters((prev) => ({ ...prev, method: { ...prev.method, cash: checked } }))
                     }
                   >
                     Cash
                   </DropdownMenuCheckboxItem>
                 </div>
-
                 {/* Date range filter */}
                 <div className="mb-4">
                   <DropdownMenuLabel className="text-sm font-medium">Date Range</DropdownMenuLabel>
@@ -666,8 +804,6 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Clear filters button */}
                 <Button variant="outline" size="sm" onClick={handleClearFilters}>
                   Clear Filters
                 </Button>
@@ -768,9 +904,23 @@ export default function PaymentsPage() {
                                   <Receipt className="mr-2 h-4 w-4" />
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDownloadReceipt(payment)
+                                  }}
+                                >
                                   <Download className="mr-2 h-4 w-4" />
                                   Download Receipt
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handlePrintReceipt(payment)
+                                  }}
+                                >
+                                  <Printer className="mr-2 h-4 w-4" />
+                                  Print Receipt
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -868,9 +1018,23 @@ export default function PaymentsPage() {
                                     <Receipt className="mr-2 h-4 w-4" />
                                     View Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDownloadReceipt(payment)
+                                    }}
+                                  >
                                     <Download className="mr-2 h-4 w-4" />
                                     Download Receipt
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePrintReceipt(payment)
+                                    }}
+                                  >
+                                    <Printer className="mr-2 h-4 w-4" />
+                                    Print Receipt
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -974,6 +1138,24 @@ export default function PaymentsPage() {
                                       Process Payment
                                     </DropdownMenuItem>
                                   )}
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDownloadReceipt(payment)
+                                    }}
+                                  >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download Receipt
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePrintReceipt(payment)
+                                    }}
+                                  >
+                                    <Printer className="mr-2 h-4 w-4" />
+                                    Print Receipt
+                                  </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>
@@ -990,7 +1172,7 @@ export default function PaymentsPage() {
 
       {/* Fixed pagination controls */}
       {paginatedPayments.length > 0 && totalPages > 1 && (
-        <div className="fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md">
+        <div className="mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md">
           <Button
             variant="outline"
             size="sm"
@@ -999,9 +1181,7 @@ export default function PaymentsPage() {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
+          <span className="text-sm">Page {currentPage} of {totalPages}</span>
           <Button
             variant="outline"
             size="sm"
@@ -1108,8 +1288,12 @@ export default function PaymentsPage() {
             <Button variant="outline" onClick={() => setOpenDetailsDialog(false)}>
               Close
             </Button>
-            <Button onClick={() => setOpenDetailsDialog(false)}>
-              <Receipt className="mr-2 h-4 w-4" />
+            <Button onClick={() => handlePrintReceipt(selectedPayment)}>
+              <Printer className="mr-2 h-4 w-4" />
+              Print
+            </Button>
+            <Button variant="outline" onClick={() => handleDownloadReceipt(selectedPayment)}>
+              <Download className="mr-2 h-4 w-4" />
               Download Receipt
             </Button>
           </DialogFooter>
@@ -1118,4 +1302,3 @@ export default function PaymentsPage() {
     </div>
   )
 }
-

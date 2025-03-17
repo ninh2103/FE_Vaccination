@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import { useState, useMemo, useEffect } from "react"
-import { saveAs } from "file-saver"
-import * as XLSX from "xlsx"
+import { useState, useMemo, useEffect } from 'react'
+import { saveAs } from 'file-saver'
+import * as XLSX from 'xlsx'
+import jsPDF from 'jspdf' // Thêm import jsPDF
 import {
   Filter,
   MoreHorizontal,
@@ -17,319 +18,308 @@ import {
   MapPin,
   User,
   Search,
-  Download,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+  Download
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { format } from "date-fns"
-import { Label } from "@/components/ui/label"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import { format } from 'date-fns'
+import { Label } from '@/components/ui/label'
 
 // Sample data with English translations
 const vaccinationHistory = [
   {
     id: 1,
     patient: {
-      name: "Nguyen Van An",
-      avatar: "/placeholder.svg",
-      initials: "NA",
-      phone: "0912 345 678",
-      email: "nguyenvanan@example.com",
+      name: 'Nguyen Van An',
+      avatar: '/placeholder.svg',
+      initials: 'NA',
+      phone: '0912 345 678',
+      email: 'nguyenvanan@example.com'
     },
-    vaccine: "COVID-19 Vaccine",
-    date: "2023-03-01",
-    time: "09:15",
+    vaccine: 'COVID-19 Vaccine',
+    date: '2023-03-01',
+    time: '09:15',
     doseNumber: 1,
-    administeredBy: "Dr. Tran Van Binh",
-    location: "120 Hoang Minh Thao",
-    notes: "No adverse reactions",
+    administeredBy: 'Dr. Tran Van Binh',
+    location: '120 Hoang Minh Thao',
+    notes: 'No adverse reactions'
   },
   {
     id: 2,
     patient: {
-      name: "Tran Thi Binh",
-      avatar: "/placeholder.svg",
-      initials: "TB",
-      phone: "0987 654 321",
-      email: "tranthibinh@example.com",
+      name: 'Tran Thi Binh',
+      avatar: '/placeholder.svg',
+      initials: 'TB',
+      phone: '0987 654 321',
+      email: 'tranthibinh@example.com'
     },
-    vaccine: "Influenza Vaccine",
-    date: "2023-03-02",
-    time: "10:30",
+    vaccine: 'Influenza Vaccine',
+    date: '2023-03-02',
+    time: '10:30',
     doseNumber: 1,
-    administeredBy: "Nurse Nguyen Thi Cuc",
-    location: "120 Hoang Minh Thao",
-    notes: "Mild pain at injection site",
+    administeredBy: 'Nurse Nguyen Thi Cuc',
+    location: '120 Hoang Minh Thao',
+    notes: 'Mild pain at injection site'
   },
   {
     id: 3,
     patient: {
-      name: "Le Van Cuong",
-      avatar: "/placeholder.svg",
-      initials: "LC",
-      phone: "0909 123 456",
-      email: "levancuong@example.com",
+      name: 'Le Van Cuong',
+      avatar: '/placeholder.svg',
+      initials: 'LC',
+      phone: '0909 123 456',
+      email: 'levancuong@example.com'
     },
-    vaccine: "Tetanus Vaccine",
-    date: "2023-03-03",
-    time: "11:45",
+    vaccine: 'Tetanus Vaccine',
+    date: '2023-03-03',
+    time: '11:45',
     doseNumber: 1,
-    administeredBy: "Dr. Tran Van Binh",
-    location: "Main Clinic",
-    notes: "Patient has history of mild reaction to tetanus vaccine",
+    administeredBy: 'Dr. Tran Van Binh',
+    location: 'Main Clinic',
+    notes: 'Patient has history of mild reaction to tetanus vaccine'
   },
   {
     id: 4,
     patient: {
-      name: "Pham Thi Dung",
-      avatar: "/placeholder.svg",
-      initials: "PD",
-      phone: "0978 234 567",
-      email: "phamthidung@example.com",
+      name: 'Pham Thi Dung',
+      avatar: '/placeholder.svg',
+      initials: 'PD',
+      phone: '0978 234 567',
+      email: 'phamthidung@example.com'
     },
-    vaccine: "Hepatitis B Vaccine",
-    date: "2023-03-04",
-    time: "14:00",
+    vaccine: 'Hepatitis B Vaccine',
+    date: '2023-03-04',
+    time: '14:00',
     doseNumber: 2,
-    administeredBy: "Nurse Nguyen Thi Cuc",
-    location: "120 Hoang Minh Thao",
-    notes: "Second dose in series of three",
+    administeredBy: 'Nurse Nguyen Thi Cuc',
+    location: '120 Hoang Minh Thao',
+    notes: 'Second dose in series of three'
   },
   {
     id: 5,
     patient: {
-      name: "Hoang Van Em",
-      avatar: "/placeholder.svg",
-      initials: "HE",
-      phone: "0932 876 543",
-      email: "hoangvanem@example.com",
+      name: 'Hoang Van Em',
+      avatar: '/placeholder.svg',
+      initials: 'HE',
+      phone: '0932 876 543',
+      email: 'hoangvanem@example.com'
     },
-    vaccine: "COVID-19 Vaccine",
-    date: "2023-03-05",
-    time: "15:30",
+    vaccine: 'COVID-19 Vaccine',
+    date: '2023-03-05',
+    time: '15:30',
     doseNumber: 2,
-    administeredBy: "Dr. Tran Van Binh",
-    location: "Main Clinic",
-    notes: "Completed primary vaccination series",
+    administeredBy: 'Dr. Tran Van Binh',
+    location: 'Main Clinic',
+    notes: 'Completed primary vaccination series'
   },
   {
     id: 6,
     patient: {
-      name: "Ngo Thi Phuong",
-      avatar: "/placeholder.svg",
-      initials: "NP",
-      phone: "0945 345 678",
-      email: "ngothiphuong@example.com",
+      name: 'Ngo Thi Phuong',
+      avatar: '/placeholder.svg',
+      initials: 'NP',
+      phone: '0945 345 678',
+      email: 'ngothiphuong@example.com'
     },
-    vaccine: "MMR Vaccine",
-    date: "2023-03-06",
-    time: "09:45",
+    vaccine: 'MMR Vaccine',
+    date: '2023-03-06',
+    time: '09:45',
     doseNumber: 1,
-    administeredBy: "Nurse Nguyen Thi Cuc",
-    location: "120 Hoang Minh Thao",
-    notes: "First dose in series of two",
+    administeredBy: 'Nurse Nguyen Thi Cuc',
+    location: '120 Hoang Minh Thao',
+    notes: 'First dose in series of two'
   },
   {
     id: 7,
     patient: {
-      name: "Do Van Giang",
-      avatar: "/placeholder.svg",
-      initials: "DG",
-      phone: "0967 567 890",
-      email: "dovangiang@example.com",
+      name: 'Do Van Giang',
+      avatar: '/placeholder.svg',
+      initials: 'DG',
+      phone: '0967 567 890',
+      email: 'dovangiang@example.com'
     },
-    vaccine: "Pneumococcal Vaccine",
-    date: "2023-03-07",
-    time: "11:00",
+    vaccine: 'Pneumococcal Vaccine',
+    date: '2023-03-07',
+    time: '11:00',
     doseNumber: 1,
-    administeredBy: "Dr. Tran Van Binh",
-    location: "Main Clinic",
-    notes: "Patient has history of asthma",
+    administeredBy: 'Dr. Tran Van Binh',
+    location: 'Main Clinic',
+    notes: 'Patient has history of asthma'
   },
   {
     id: 8,
     patient: {
-      name: "Ly Thi Huong",
-      avatar: "/placeholder.svg",
-      initials: "LH",
-      phone: "0912 678 901",
-      email: "lythihuong@example.com",
+      name: 'Ly Thi Huong',
+      avatar: '/placeholder.svg',
+      initials: 'LH',
+      phone: '0912 678 901',
+      email: 'lythihuong@example.com'
     },
-    vaccine: "HPV Vaccine",
-    date: "2023-03-08",
-    time: "13:15",
+    vaccine: 'HPV Vaccine',
+    date: '2023-03-08',
+    time: '13:15',
     doseNumber: 1,
-    administeredBy: "Nurse Nguyen Thi Cuc",
-    location: "120 Hoang Minh Thao",
-    notes: "First dose in series of three",
+    administeredBy: 'Nurse Nguyen Thi Cuc',
+    location: '120 Hoang Minh Thao',
+    notes: 'First dose in series of three'
   },
   {
     id: 9,
     patient: {
-      name: "Vu Van Khoa",
-      avatar: "/placeholder.svg",
-      initials: "VK",
-      phone: "0989 789 012",
-      email: "vuvankhoa@example.com",
+      name: 'Vu Van Khoa',
+      avatar: '/placeholder.svg',
+      initials: 'VK',
+      phone: '0989 789 012',
+      email: 'vuvankhoa@example.com'
     },
-    vaccine: "Varicella Vaccine",
-    date: "2023-03-09",
-    time: "14:45",
+    vaccine: 'Varicella Vaccine',
+    date: '2023-03-09',
+    time: '14:45',
     doseNumber: 1,
-    administeredBy: "Dr. Tran Van Binh",
-    location: "Main Clinic",
-    notes: "No history of chickenpox",
+    administeredBy: 'Dr. Tran Van Binh',
+    location: 'Main Clinic',
+    notes: 'No history of chickenpox'
   },
   {
     id: 10,
     patient: {
-      name: "Mai Thi Lan",
-      avatar: "/placeholder.svg",
-      initials: "ML",
-      phone: "0956 890 123",
-      email: "maithilan@example.com",
+      name: 'Mai Thi Lan',
+      avatar: '/placeholder.svg',
+      initials: 'ML',
+      phone: '0956 890 123',
+      email: 'maithilan@example.com'
     },
-    vaccine: "COVID-19 Vaccine",
-    date: "2023-03-10",
-    time: "16:00",
+    vaccine: 'COVID-19 Vaccine',
+    date: '2023-03-10',
+    time: '16:00',
     doseNumber: 3,
-    administeredBy: "Nurse Nguyen Thi Cuc",
-    location: "120 Hoang Minh Thao",
-    notes: "Booster dose",
+    administeredBy: 'Nurse Nguyen Thi Cuc',
+    location: '120 Hoang Minh Thao',
+    notes: 'Booster dose'
   },
   {
     id: 11,
     patient: {
-      name: "Truong Van Minh",
-      avatar: "/placeholder.svg",
-      initials: "TM",
-      phone: "0923 456 789",
-      email: "truongvanminh@example.com",
+      name: 'Truong Van Minh',
+      avatar: '/placeholder.svg',
+      initials: 'TM',
+      phone: '0923 456 789',
+      email: 'truongvanminh@example.com'
     },
-    vaccine: "Hepatitis A Vaccine",
-    date: "2023-03-11",
-    time: "09:30",
+    vaccine: 'Hepatitis A Vaccine',
+    date: '2023-03-11',
+    time: '09:30',
     doseNumber: 1,
-    administeredBy: "Dr. Pham Thi Hoa",
-    location: "120 Hoang Minh Thao",
-    notes: "First dose",
+    administeredBy: 'Dr. Pham Thi Hoa',
+    location: '120 Hoang Minh Thao',
+    notes: 'First dose'
   },
   {
     id: 12,
     patient: {
-      name: "Phan Thi Nga",
-      avatar: "/placeholder.svg",
-      initials: "PN",
-      phone: "0934 567 890",
-      email: "phanthinga@example.com",
+      name: 'Phan Thi Nga',
+      avatar: '/placeholder.svg',
+      initials: 'PN',
+      phone: '0934 567 890',
+      email: 'phanthinga@example.com'
     },
-    vaccine: "Diphtheria Vaccine",
-    date: "2023-03-12",
-    time: "11:15",
+    vaccine: 'Diphtheria Vaccine',
+    date: '2023-03-12',
+    time: '11:15',
     doseNumber: 1,
-    administeredBy: "Dr. Pham Thi Hoa",
-    location: "Main Clinic",
-    notes: "Routine vaccination",
-  },
+    administeredBy: 'Dr. Pham Thi Hoa',
+    location: 'Main Clinic',
+    notes: 'Routine vaccination'
+  }
 ]
 
 // Constants
 const ROWS_PER_PAGE = 10
-const DOCTORS = ["All Doctors", "Dr. Tran Van Binh", "Nurse Nguyen Thi Cuc", "Dr. Pham Thi Hoa"]
-const LOCATIONS = ["All Locations", "120 Hoang Minh Thao", "Main Clinic"]
-const DOSE_NUMBERS = ["All Doses", "1", "2", "3"]
+const DOCTORS = ['All Doctors', 'Dr. Tran Van Binh', 'Nurse Nguyen Thi Cuc', 'Dr. Pham Thi Hoa']
+const LOCATIONS = ['All Locations', '120 Hoang Minh Thao', 'Main Clinic']
+const DOSE_NUMBERS = ['All Doses', '1', '2', '3']
 const VACCINES = [
-  "All Vaccines",
-  "COVID-19 Vaccine",
-  "Influenza Vaccine",
-  "Hepatitis B Vaccine",
-  "Tetanus Vaccine",
-  "MMR Vaccine",
-  "HPV Vaccine",
-  "Pneumococcal Vaccine",
-  "Varicella Vaccine",
-  "Hepatitis A Vaccine",
-  "Diphtheria Vaccine",
+  'All Vaccines',
+  'COVID-19 Vaccine',
+  'Influenza Vaccine',
+  'Hepatitis B Vaccine',
+  'Tetanus Vaccine',
+  'MMR Vaccine',
+  'HPV Vaccine',
+  'Pneumococcal Vaccine',
+  'Varicella Vaccine',
+  'Hepatitis A Vaccine',
+  'Diphtheria Vaccine'
 ]
 
 export default function VaccinationHistoryPage() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [selectedVaccination, setSelectedVaccination] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [filters, setFilters] = useState({
-    doctor: "All Doctors",
-    location: "All Locations",
-    doseNumber: "All Doses",
-    vaccine: "All Vaccines",
+    doctor: 'All Doctors',
+    location: 'All Locations',
+    doseNumber: 'All Doses',
+    vaccine: 'All Vaccines',
     dateRange: {
-      from: "",
-      to: "",
-    },
+      from: '',
+      to: ''
+    }
   })
 
   // Filter vaccinations based on search and filters
   const filteredVaccinations = useMemo(() => {
     return vaccinationHistory.filter((vaccination) => {
-      // Search filter
       const matchesSearch =
         vaccination.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vaccination.patient.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vaccination.vaccine.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vaccination.administeredBy.toLowerCase().includes(searchTerm.toLowerCase())
 
-      // Doctor filter
-      const matchesDoctor = filters.doctor === "All Doctors" || vaccination.administeredBy === filters.doctor
-
-      // Location filter
-      const matchesLocation = filters.location === "All Locations" || vaccination.location === filters.location
-
-      // Dose number filter
-      const matchesDose = filters.doseNumber === "All Doses" || vaccination.doseNumber.toString() === filters.doseNumber
-
-      // Vaccine filter
-      const matchesVaccine = filters.vaccine === "All Vaccines" || vaccination.vaccine === filters.vaccine
-
-      // Date range filter
+      const matchesDoctor = filters.doctor === 'All Doctors' || vaccination.administeredBy === filters.doctor
+      const matchesLocation = filters.location === 'All Locations' || vaccination.location === filters.location
+      const matchesDose = filters.doseNumber === 'All Doses' || vaccination.doseNumber.toString() === filters.doseNumber
+      const matchesVaccine = filters.vaccine === 'All Vaccines' || vaccination.vaccine === filters.vaccine
       const vaccinationDate = new Date(vaccination.date)
       const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null
       const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null
-
       const matchesDateRange = (!fromDate || vaccinationDate >= fromDate) && (!toDate || vaccinationDate <= toDate)
 
       return matchesSearch && matchesDoctor && matchesLocation && matchesDose && matchesVaccine && matchesDateRange
     })
-  }, [vaccinationHistory, searchTerm, filters])
+  }, [searchTerm, filters])
 
   // Pagination
   const totalPages = Math.ceil(filteredVaccinations.length / ROWS_PER_PAGE)
   const paginatedVaccinations = filteredVaccinations.slice(
     (currentPage - 1) * ROWS_PER_PAGE,
-    currentPage * ROWS_PER_PAGE,
+    currentPage * ROWS_PER_PAGE
   )
 
   // Reset to page 1 if current page exceeds total pages
@@ -343,16 +333,16 @@ export default function VaccinationHistoryPage() {
   const handleRefresh = () => {
     setIsRefreshing(true)
     setTimeout(() => {
-      setSearchTerm("")
+      setSearchTerm('')
       setFilters({
-        doctor: "All Doctors",
-        location: "All Locations",
-        doseNumber: "All Doses",
-        vaccine: "All Vaccines",
+        doctor: 'All Doctors',
+        location: 'All Locations',
+        doseNumber: 'All Doses',
+        vaccine: 'All Vaccines',
         dateRange: {
-          from: "",
-          to: "",
-        },
+          from: '',
+          to: ''
+        }
       })
       setCurrentPage(1)
       setIsRefreshing(false)
@@ -362,14 +352,14 @@ export default function VaccinationHistoryPage() {
   // Handle clear filters
   const handleClearFilters = () => {
     setFilters({
-      doctor: "All Doctors",
-      location: "All Locations",
-      doseNumber: "All Doses",
-      vaccine: "All Vaccines",
+      doctor: 'All Doctors',
+      location: 'All Locations',
+      doseNumber: 'All Doses',
+      vaccine: 'All Vaccines',
       dateRange: {
-        from: "",
-        to: "",
-      },
+        from: '',
+        to: ''
+      }
     })
     setCurrentPage(1)
   }
@@ -377,34 +367,32 @@ export default function VaccinationHistoryPage() {
   // Handle export to Excel
   const handleExport = () => {
     const exportData = filteredVaccinations.map((vaccination, index) => ({
-      "No.": index + 1,
-      "Patient Name": vaccination.patient.name,
-      "Phone Number": vaccination.patient.phone,
+      'No.': index + 1,
+      'Patient Name': vaccination.patient.name,
+      'Phone Number': vaccination.patient.phone,
       Email: vaccination.patient.email,
       Vaccine: vaccination.vaccine,
       Date: vaccination.date,
       Time: vaccination.time,
-      "Dose Number": vaccination.doseNumber,
-      "Administered By": vaccination.administeredBy,
+      'Dose Number': vaccination.doseNumber,
+      'Administered By': vaccination.administeredBy,
       Location: vaccination.location,
-      Notes: vaccination.notes,
+      Notes: vaccination.notes
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Vaccination History")
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" })
-    saveAs(blob, `vaccination_history_${format(new Date(), "yyyyMMdd")}.xlsx`)
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vaccination History')
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+    saveAs(blob, `vaccination_history_${format(new Date(), 'yyyyMMdd')}.xlsx`)
   }
 
   // Handle print certificate
   const handlePrintCertificate = (vaccination) => {
-    // Open a new print window
-    const printWindow = window.open("", "_blank")
+    const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
-    // Create HTML content for the certificate
     const certificateContent = `
       <!DOCTYPE html>
       <html>
@@ -428,7 +416,7 @@ export default function VaccinationHistoryPage() {
           <div class="header">
             <h1>VACCINATION CERTIFICATE</h1>
             <p>Certificate ID: CERT-${vaccination.id}-${new Date().getFullYear()}</p>
-            <p>Date: ${format(new Date(), "dd/MM/yyyy")}</p>
+            <p>Date: ${format(new Date(), 'dd/MM/yyyy')}</p>
           </div>
           
           <div class="info">
@@ -459,7 +447,7 @@ export default function VaccinationHistoryPage() {
             </div>
             <div class="info-row">
               <div class="info-label">Date:</div>
-              <div>${format(new Date(vaccination.date), "dd/MM/yyyy")}</div>
+              <div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div>
             </div>
             <div class="info-row">
               <div class="info-label">Time:</div>
@@ -484,7 +472,7 @@ export default function VaccinationHistoryPage() {
           
           <div class="footer">
             <p>This certificate confirms that the individual named above has received the specified vaccination.</p>
-            <p>For inquiries, please contact: 1900 1234</p>
+            <p>For inquiries, please contact: 1900 1900</p>
           </div>
         </div>
         <script>
@@ -496,7 +484,6 @@ export default function VaccinationHistoryPage() {
       </html>
     `
 
-    // Write content to the new window and print
     printWindow.document.open()
     printWindow.document.write(certificateContent)
     printWindow.document.close()
@@ -504,38 +491,93 @@ export default function VaccinationHistoryPage() {
 
   // Handle download invoice
   const handleDownloadInvoice = (vaccination) => {
-    // In a real application, this would generate and download an invoice PDF
-    alert(`Downloading invoice for ${vaccination.patient.name}'s ${vaccination.vaccine} vaccination`)
+    // Tạo instance của jsPDF
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // Thiết lập font và kích thước chữ
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+
+    // Header của hóa đơn
+    doc.text('VACCINATION INVOICE', 105, 20, { align: 'center' })
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Invoice ID: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
+    doc.text(`Date: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
+
+    // Patient Information
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Patient Information', 20, 55)
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Name: ${vaccination.patient.name}`, 20, 65)
+    doc.text(`Phone: ${vaccination.patient.phone}`, 20, 73)
+    doc.text(`Email: ${vaccination.patient.email}`, 20, 81)
+
+    // Vaccination Details
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Vaccination Details', 20, 95)
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
+    doc.text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
+    doc.text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
+    doc.text(`Time: ${vaccination.time}`, 20, 129)
+    doc.text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
+    doc.text(`Location: ${vaccination.location}`, 20, 145)
+
+    // Footer
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text('This invoice confirms the vaccination service provided.', 105, 260, { align: 'center' })
+    doc.text('For inquiries, please contact: 1900 1234', 105, 268, { align: 'center' })
+
+    // Tạo seal đơn giản bằng hình tròn và chữ
+    doc.setDrawColor(79, 70, 229) // Màu #4f46e5
+    doc.setLineWidth(1)
+    doc.circle(105, 200, 20) // Vẽ vòng tròn
+    doc.setFontSize(12)
+    doc.setTextColor(79, 70, 229)
+    doc.text('VERIFIED', 105, 203, { align: 'center' })
+
+    // Tải file PDF
+    doc.save(`vaccination_invoice_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
   }
 
   return (
-    <div className="flex flex-col gap-6 ml-[1cm] p-4">
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500">
+      <div className='flex items-center justify-between'>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
           Vaccination History
         </h1>
-        <div className="flex items-center gap-2">
+        <div className='flex items-center gap-2'>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 gap-1">
-                <Calendar className="h-4 w-4" />
-                {selectedDate ? format(selectedDate, "MM/dd/yyyy") : <span>Select date</span>}
+              <Button variant='outline' size='sm' className='h-9 gap-1'>
+                <Calendar className='h-4 w-4' />
+                {selectedDate ? format(selectedDate, 'MM/dd/yyyy') : <span>Select date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <CalendarComponent mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus />
+            <PopoverContent className='w-auto p-0' align='end'>
+              <CalendarComponent mode='single' selected={selectedDate} onSelect={setSelectedDate} initialFocus />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" size="sm" className="h-9" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
+            <Download className='mr-2 h-4 w-4' />
             Export
           </Button>
-          <Button variant="outline" size="sm" className="h-9" onClick={handleRefresh} disabled={isRefreshing}>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
             ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <RefreshCw className='mr-2 h-4 w-4' />
             )}
             Refresh
           </Button>
@@ -543,38 +585,38 @@ export default function VaccinationHistoryPage() {
       </div>
 
       {/* Search and filters */}
-      <div className="grid gap-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className='grid gap-6'>
+        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder="Search by name, phone, vaccine..."
+              placeholder='Search by name, phone, vaccine...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="pl-8 w-full"
-              type="search"
+              className='pl-8 w-full'
+              type='search'
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="mr-2 h-4 w-4" />
+                <Button variant='outline' size='sm'>
+                  <Filter className='mr-2 h-4 w-4' />
                   Filter
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[300px] p-4">
-                <DropdownMenuLabel className="font-semibold">Filters</DropdownMenuLabel>
-                <p className="text-sm text-muted-foreground mb-4">
+              <DropdownMenuContent align='end' className='w-[300px] p-4'>
+                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
+                <p className='text-sm text-muted-foreground mb-4'>
                   Filter vaccination history by doctor, location, dose number, vaccine type, and date range.
                 </p>
 
                 {/* Doctor filter */}
-                <div className="mb-4">
-                  <Label className="text-sm font-medium">Doctor</Label>
+                <div className='mb-4'>
+                  <Label className='text-sm font-medium'>Doctor</Label>
                   <Select
                     value={filters.doctor}
                     onValueChange={(value) => {
@@ -582,7 +624,7 @@ export default function VaccinationHistoryPage() {
                       setCurrentPage(1)
                     }}
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className='mt-2'>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -596,8 +638,8 @@ export default function VaccinationHistoryPage() {
                 </div>
 
                 {/* Location filter */}
-                <div className="mb-4">
-                  <Label className="text-sm font-medium">Location</Label>
+                <div className='mb-4'>
+                  <Label className='text-sm font-medium'>Location</Label>
                   <Select
                     value={filters.location}
                     onValueChange={(value) => {
@@ -605,7 +647,7 @@ export default function VaccinationHistoryPage() {
                       setCurrentPage(1)
                     }}
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className='mt-2'>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -619,8 +661,8 @@ export default function VaccinationHistoryPage() {
                 </div>
 
                 {/* Dose number filter */}
-                <div className="mb-4">
-                  <Label className="text-sm font-medium">Dose Number</Label>
+                <div className='mb-4'>
+                  <Label className='text-sm font-medium'>Dose Number</Label>
                   <Select
                     value={filters.doseNumber}
                     onValueChange={(value) => {
@@ -628,7 +670,7 @@ export default function VaccinationHistoryPage() {
                       setCurrentPage(1)
                     }}
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className='mt-2'>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -642,8 +684,8 @@ export default function VaccinationHistoryPage() {
                 </div>
 
                 {/* Vaccine type filter */}
-                <div className="mb-4">
-                  <Label className="text-sm font-medium">Vaccine Type</Label>
+                <div className='mb-4'>
+                  <Label className='text-sm font-medium'>Vaccine Type</Label>
                   <Select
                     value={filters.vaccine}
                     onValueChange={(value) => {
@@ -651,7 +693,7 @@ export default function VaccinationHistoryPage() {
                       setCurrentPage(1)
                     }}
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className='mt-2'>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -665,42 +707,42 @@ export default function VaccinationHistoryPage() {
                 </div>
 
                 {/* Date range filter */}
-                <div className="mb-4">
-                  <Label className="text-sm font-medium">Date Range</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-xs text-muted-foreground">From</Label>
+                <div className='mb-4'>
+                  <Label className='text-sm font-medium'>Date Range</Label>
+                  <div className='grid grid-cols-2 gap-2 mt-2'>
+                    <div className='flex flex-col gap-1'>
+                      <Label className='text-xs text-muted-foreground'>From</Label>
                       <Input
-                        type="date"
+                        type='date'
                         value={filters.dateRange.from}
                         onChange={(e) =>
                           setFilters((prev) => ({
                             ...prev,
-                            dateRange: { ...prev.dateRange, from: e.target.value },
+                            dateRange: { ...prev.dateRange, from: e.target.value }
                           }))
                         }
-                        className="w-full"
+                        className='w-full'
                       />
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-xs text-muted-foreground">To</Label>
+                    <div className='flex flex-col gap-1'>
+                      <Label className='text-xs text-muted-foreground'>To</Label>
                       <Input
-                        type="date"
+                        type='date'
                         value={filters.dateRange.to}
                         onChange={(e) =>
                           setFilters((prev) => ({
                             ...prev,
-                            dateRange: { ...prev.dateRange, to: e.target.value },
+                            dateRange: { ...prev.dateRange, to: e.target.value }
                           }))
                         }
-                        className="w-full"
+                        className='w-full'
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Clear filters button */}
-                <Button variant="outline" size="sm" onClick={handleClearFilters}>
+                <Button variant='outline' size='sm' onClick={handleClearFilters}>
                   Clear Filters
                 </Button>
               </DropdownMenuContent>
@@ -710,30 +752,30 @@ export default function VaccinationHistoryPage() {
 
         {/* Vaccination history table */}
         <Card>
-          <CardContent className="p-0">
+          <CardContent className='p-0'>
             {paginatedVaccinations.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
+              <div className='p-4 text-center text-muted-foreground'>
                 No vaccination records found matching the current filters.
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[60px]">No.</TableHead>
+                    <TableHead className='w-[60px]'>No.</TableHead>
                     <TableHead>Patient</TableHead>
                     <TableHead>Vaccine</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Dose</TableHead>
                     <TableHead>Doctor</TableHead>
                     <TableHead>Location</TableHead>
-                    <TableHead className="w-[80px]"></TableHead>
+                    <TableHead className='w-[80px]'></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedVaccinations.map((vaccination, index) => (
                     <TableRow
                       key={vaccination.id}
-                      className="cursor-pointer transition-colors hover:bg-muted/50"
+                      className='cursor-pointer transition-colors hover:bg-muted/50'
                       onClick={() => {
                         setSelectedVaccination(vaccination)
                         setOpenDetailsDialog(true)
@@ -741,15 +783,15 @@ export default function VaccinationHistoryPage() {
                     >
                       <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
+                        <div className='flex items-center gap-2'>
+                          <Avatar className='h-8 w-8'>
                             <AvatarImage src={vaccination.patient.avatar} alt={vaccination.patient.name} />
                             <AvatarFallback>{vaccination.patient.initials}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{vaccination.patient.name}</div>
-                            <div className="text-sm text-muted-foreground flex items-center">
-                              <Phone className="h-3 w-3 mr-1" />
+                            <div className='font-medium'>{vaccination.patient.name}</div>
+                            <div className='text-sm text-muted-foreground flex items-center'>
+                              <Phone className='h-3 w-3 mr-1' />
                               {vaccination.patient.phone}
                             </div>
                           </div>
@@ -757,37 +799,37 @@ export default function VaccinationHistoryPage() {
                       </TableCell>
                       <TableCell>{vaccination.vaccine}</TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
-                          {format(new Date(vaccination.date), "MM/dd/yyyy")}
+                        <div className='flex items-center'>
+                          <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                          {format(new Date(vaccination.date), 'MM/dd/yyyy')}
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
+                        <div className='text-sm text-muted-foreground flex items-center'>
+                          <Clock className='h-3 w-3 mr-1' />
                           {vaccination.time}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{vaccination.doseNumber}</Badge>
+                        <Badge variant='outline'>{vaccination.doseNumber}</Badge>
                       </TableCell>
                       <TableCell>{vaccination.administeredBy}</TableCell>
                       <TableCell>{vaccination.location}</TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Open menu</span>
+                            <Button variant='ghost' size='icon'>
+                              <MoreHorizontal className='h-4 w-4' />
+                              <span className='sr-only'>Open menu</span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align='end'>
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handlePrintCertificate(vaccination)}>
-                              <FileText className="mr-2 h-4 w-4" />
+                              <FileText className='mr-2 h-4 w-4' />
                               Print Certificate
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDownloadInvoice(vaccination)}>
-                              <Printer className="mr-2 h-4 w-4" />
+                              <Printer className='mr-2 h-4 w-4' />
                               Download Invoice
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -803,25 +845,25 @@ export default function VaccinationHistoryPage() {
 
         {/* Fixed pagination */}
         {paginatedVaccinations.length > 0 && (
-          <div className="fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md">
+          <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className='h-4 w-4' />
             </Button>
-            <span className="text-sm">
+            <span className='text-sm'>
               Page {currentPage} of {totalPages}
             </span>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className='h-4 w-4' />
             </Button>
           </div>
         )}
@@ -829,93 +871,93 @@ export default function VaccinationHistoryPage() {
 
       {/* Vaccination details dialog */}
       <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
             <DialogTitle>Vaccination Details</DialogTitle>
             <DialogDescription>View detailed information about this vaccination record.</DialogDescription>
           </DialogHeader>
           {selectedVaccination && (
-            <div className="grid gap-4 py-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
+            <div className='grid gap-4 py-4'>
+              <div className='flex items-center gap-4'>
+                <Avatar className='h-12 w-12'>
                   <AvatarImage src={selectedVaccination.patient.avatar} alt={selectedVaccination.patient.name} />
                   <AvatarFallback>{selectedVaccination.patient.initials}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-medium">{selectedVaccination.patient.name}</h3>
-                  <p className="text-sm text-muted-foreground">{selectedVaccination.patient.email}</p>
+                  <h3 className='font-medium'>{selectedVaccination.patient.name}</h3>
+                  <p className='text-sm text-muted-foreground'>{selectedVaccination.patient.email}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Vaccine</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Vaccine</h4>
                   <p>{selectedVaccination.vaccine}</p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Dose Number</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Dose Number</h4>
                   <p>{selectedVaccination.doseNumber}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Date</h4>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <p>{format(new Date(selectedVaccination.date), "MM/dd/yyyy")}</p>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Date</h4>
+                  <div className='flex items-center gap-1'>
+                    <Calendar className='h-4 w-4 text-muted-foreground' />
+                    <p>{format(new Date(selectedVaccination.date), 'MM/dd/yyyy')}</p>
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Time</h4>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                  <h4 className='text-sm font-medium text-muted-foreground'>Time</h4>
+                  <div className='flex items-center gap-1'>
+                    <Clock className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.time}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Administered By</h4>
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4 text-muted-foreground" />
+                  <h4 className='text-sm font-medium text-muted-foreground'>Administered By</h4>
+                  <div className='flex items-center gap-1'>
+                    <User className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.administeredBy}</p>
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Location</h4>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <h4 className='text-sm font-medium text-muted-foreground'>Location</h4>
+                  <div className='flex items-center gap-1'>
+                    <MapPin className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.location}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
+                <h4 className='text-sm font-medium text-muted-foreground'>Notes</h4>
                 <p>{selectedVaccination.notes}</p>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground">Contact Information</h4>
-                <p className="text-sm flex items-center gap-1">
-                  <Phone className="h-3 w-3" /> {selectedVaccination.patient.phone}
+                <h4 className='text-sm font-medium text-muted-foreground'>Contact Information</h4>
+                <p className='text-sm flex items-center gap-1'>
+                  <Phone className='h-3 w-3' /> {selectedVaccination.patient.phone}
                 </p>
-                <p className="text-sm">{selectedVaccination.patient.email}</p>
+                <p className='text-sm'>{selectedVaccination.patient.email}</p>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDetailsDialog(false)}>
+            <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
               Close
             </Button>
             <Button onClick={() => handlePrintCertificate(selectedVaccination)}>
-              <FileText className="mr-2 h-4 w-4" />
+              <FileText className='mr-2 h-4 w-4' />
               Print Certificate
             </Button>
             <Button onClick={() => handleDownloadInvoice(selectedVaccination)}>
-              <Printer className="mr-2 h-4 w-4" />
+              <Printer className='mr-2 h-4 w-4' />
               Download Invoice
             </Button>
           </DialogFooter>
@@ -924,4 +966,3 @@ export default function VaccinationHistoryPage() {
     </div>
   )
 }
-

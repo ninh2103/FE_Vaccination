@@ -24,7 +24,7 @@ const vaccinationData = [
   { month: 'Sep', doses: 1450 },
   { month: 'Oct', doses: 1300 },
   { month: 'Nov', doses: 1550 },
-  { month: 'Dec', doses: 1600 },
+  { month: 'Dec', doses: 1600 }
 ] // Total: 17,000 doses
 
 const appointmentData = [
@@ -39,7 +39,7 @@ const appointmentData = [
   { month: 'Sep', appointments: 290 },
   { month: 'Oct', appointments: 260 },
   { month: 'Nov', appointments: 310 },
-  { month: 'Dec', appointments: 320 },
+  { month: 'Dec', appointments: 320 }
 ] // Total: 3,400 appointments
 
 const revenueData = [
@@ -54,7 +54,7 @@ const revenueData = [
   { month: 'Sep', revenue: 725000000 },
   { month: 'Oct', revenue: 650000000 },
   { month: 'Nov', revenue: 775000000 },
-  { month: 'Dec', revenue: 800000000 },
+  { month: 'Dec', revenue: 800000000 }
 ] // Total: 8,500,000,000 VND
 
 const vaccineInventory = [
@@ -62,7 +62,7 @@ const vaccineInventory = [
   { name: 'Influenza Vaccine', stock: 45, doses: 900 },
   { name: 'Hepatitis B Vaccine', stock: 90, doses: 1800 },
   { name: 'Tetanus Vaccine', stock: 30, doses: 600 },
-  { name: 'Pneumococcal Vaccine', stock: 60, doses: 1200 },
+  { name: 'Pneumococcal Vaccine', stock: 60, doses: 1200 }
 ]
 
 const General: React.FC = () => {
@@ -79,14 +79,14 @@ const General: React.FC = () => {
           item.month,
           item.doses,
           appointmentData[index].appointments,
-          revenueData[index].revenue,
+          revenueData[index].revenue
         ]),
         [
           'Total',
           vaccinationData.reduce((sum, item) => sum + item.doses, 0),
           appointmentData.reduce((sum, item) => sum + item.appointments, 0),
-          revenueData.reduce((sum, item) => sum + item.revenue, 0),
-        ],
+          revenueData.reduce((sum, item) => sum + item.revenue, 0)
+        ]
       ]
 
       const ws = XLSX.utils.aoa_to_sheet(reportData)
@@ -132,7 +132,9 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{vaccinationData.reduce((sum, item) => sum + item.doses, 0).toLocaleString()}</div>
+              <div className='text-2xl font-bold'>
+                {vaccinationData.reduce((sum, item) => sum + item.doses, 0).toLocaleString()}
+              </div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+12.5%</span>
@@ -149,7 +151,9 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{appointmentData.reduce((sum, item) => sum + item.appointments, 0).toLocaleString()}</div>
+              <div className='text-2xl font-bold'>
+                {appointmentData.reduce((sum, item) => sum + item.appointments, 0).toLocaleString()}
+              </div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowDownRight className='h-4 w-4 text-red-500' />
                 <span className='text-red-500 font-medium'>-3.1%</span>
@@ -183,7 +187,9 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{revenueData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()} VND</div>
+              <div className='text-2xl font-bold'>
+                {revenueData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()} VND
+              </div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+15.3%</span>
@@ -344,7 +350,9 @@ const General: React.FC = () => {
                   <TableCell>{(1 * 500000).toLocaleString()} VND</TableCell>
                   <TableCell>16/03/2025</TableCell>
                   <TableCell>
-                    <Badge variant='outline' className='bg-yellow-100 text-yellow-800 hover:bg-yellow-200'>Pending</Badge>
+                    <Badge variant='outline' className='bg-yellow-100 text-yellow-800 hover:bg-yellow-200'>
+                      Pending
+                    </Badge>
                   </TableCell>
                 </TableRow>
                 <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
@@ -366,3 +374,4 @@ const General: React.FC = () => {
 }
 
 export default General
+//DUCCTDUCCT
