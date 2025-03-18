@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf' // Thêm import jsPDF
+import jsPDF from 'jspdf'
 import {
   Filter,
   MoreHorizontal,
@@ -48,8 +48,40 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { format } from 'date-fns'
 import { Label } from '@/components/ui/label'
 
-// Sample data with English translations
-const vaccinationHistory = [
+// Định nghĩa các interface cho TypeScript
+interface Patient {
+  name: string
+  avatar: string
+  initials: string
+  phone: string
+  email: string
+}
+
+interface Vaccination {
+  id: number
+  patient: Patient
+  vaccine: string
+  date: string
+  time: string
+  doseNumber: number
+  administeredBy: string
+  location: string
+  notes: string
+}
+
+interface Filters {
+  doctor: string
+  location: string
+  doseNumber: string
+  vaccine: string
+  dateRange: {
+    from: string
+    to: string
+  }
+}
+
+// Sample data
+const vaccinationHistory: Vaccination[] = [
   {
     id: 1,
     patient: {
@@ -275,22 +307,115 @@ const VACCINES = [
   'Diphtheria Vaccine'
 ]
 
+// Utility functions
+const generateCertificateContent = (vaccination: Vaccination) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Vaccination Certificate</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+      .certificate { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
+      .header { text-align: center; margin-bottom: 20px; }
+      .header h1 { margin: 0; color: #4f46e5; }
+      .info { margin-bottom: 20px; }
+      .info-row { display: flex; margin-bottom: 5px; }
+      .info-label { font-weight: bold; width: 150px; }
+      .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+      .seal { text-align: center; margin: 30px 0; }
+      .seal div { border: 2px solid #4f46e5; border-radius: 50%; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+    </style>
+  </head>
+  <body>
+    <div class="certificate">
+      <div class="header">
+        <h1>VACCINATION CERTIFICATE</h1>
+        <p>Certificate ID: CERT-${vaccination.id}-${new Date().getFullYear()}</p>
+        <p>Date: ${format(new Date(), 'dd/MM/yyyy')}</p>
+      </div>
+      <div class="info">
+        <h3>Patient Information</h3>
+        <div class="info-row"><div class="info-label">Name:</div><div>${vaccination.patient.name}</div></div>
+        <div class="info-row"><div class="info-label">Phone:</div><div>${vaccination.patient.phone}</div></div>
+        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email}</div></div>
+      </div>
+      <div class="info">
+        <h3>Vaccination Details</h3>
+        <div class="info-row"><div class="info-label">Vaccine:</div><div>${vaccination.vaccine}</div></div>
+        <div class="info-row"><div class="info-label">Dose Number:</div><div>${vaccination.doseNumber}</div></div>
+        <div class="info-row"><div class="info-label">Date:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
+        <div class="info-row"><div class="info-label">Time:</div><div>${vaccination.time}</div></div>
+        <div class="info-row"><div class="info-label">Administered By:</div><div>${vaccination.administeredBy}</div></div>
+        <div class="info-row"><div class="info-label">Location:</div><div>${vaccination.location}</div></div>
+      </div>
+      <div class="seal">
+        <p>Official Seal</p>
+        <div><span style="color: #4f46e5; font-weight: bold;">VERIFIED</span></div>
+      </div>
+      <div class="footer">
+        <p>This certificate confirms that the individual named above has received the specified vaccination.</p>
+        <p>For inquiries, please contact: 1900 1900</p>
+      </div>
+    </div>
+    <script>window.onload = function() { window.print(); }</script>
+  </body>
+  </html>
+`
+
+const generateInvoicePDF = (vaccination: Vaccination) => {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+  doc.setFontSize(16).setFont('helvetica', 'bold').text('VACCINATION INVOICE', 105, 20, { align: 'center' })
+  doc
+    .setFontSize(12)
+    .setFont('helvetica', 'normal')
+    .text(`Invoice ID: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
+    .text(`Date: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
+
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Patient Information', 20, 55)
+  doc
+    .setFontSize(12)
+    .setFont('helvetica', 'normal')
+    .text(`Name: ${vaccination.patient.name}`, 20, 65)
+    .text(`Phone: ${vaccination.patient.phone}`, 20, 73)
+    .text(`Email: ${vaccination.patient.email}`, 20, 81)
+
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Vaccination Details', 20, 95)
+  doc
+    .setFontSize(12)
+    .setFont('helvetica', 'normal')
+    .text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
+    .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
+    .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
+    .text(`Time: ${vaccination.time}`, 20, 129)
+    .text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
+    .text(`Location: ${vaccination.location}`, 20, 145)
+
+  doc
+    .setFontSize(10)
+    .setTextColor(100)
+    .text('This invoice confirms the vaccination service provided.', 105, 260, { align: 'center' })
+    .text('For inquiries, please contact: 1900 1234', 105, 268, { align: 'center' })
+
+  doc.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
+  doc.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
+
+  doc.save(`vaccination_invoice_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
+}
+
 export default function VaccinationHistoryPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
-  const [selectedVaccination, setSelectedVaccination] = useState(null)
+  const [selectedVaccination, setSelectedVaccination] = useState<Vaccination | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [filters, setFilters] = useState({
+  const [selectedDate] = useState<Date>(new Date()) // Đặt mặc định là ngày hiện tại và không cho phép thay đổi
+  const [filters, setFilters] = useState<Filters>({
     doctor: 'All Doctors',
     location: 'All Locations',
     doseNumber: 'All Doses',
     vaccine: 'All Vaccines',
-    dateRange: {
-      from: '',
-      to: ''
-    }
+    dateRange: { from: '', to: '' }
   })
 
   // Filter vaccinations based on search and filters
@@ -339,10 +464,7 @@ export default function VaccinationHistoryPage() {
         location: 'All Locations',
         doseNumber: 'All Doses',
         vaccine: 'All Vaccines',
-        dateRange: {
-          from: '',
-          to: ''
-        }
+        dateRange: { from: '', to: '' }
       })
       setCurrentPage(1)
       setIsRefreshing(false)
@@ -356,10 +478,7 @@ export default function VaccinationHistoryPage() {
       location: 'All Locations',
       doseNumber: 'All Doses',
       vaccine: 'All Vaccines',
-      dateRange: {
-        from: '',
-        to: ''
-      }
+      dateRange: { from: '', to: '' }
     })
     setCurrentPage(1)
   }
@@ -389,165 +508,18 @@ export default function VaccinationHistoryPage() {
   }
 
   // Handle print certificate
-  const handlePrintCertificate = (vaccination) => {
+  const handlePrintCertificate = (vaccination: Vaccination) => {
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
-    const certificateContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Vaccination Certificate</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-          .certificate { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
-          .header { text-align: center; margin-bottom: 20px; }
-          .header h1 { margin: 0; color: #4f46e5; }
-          .info { margin-bottom: 20px; }
-          .info-row { display: flex; margin-bottom: 5px; }
-          .info-label { font-weight: bold; width: 150px; }
-          .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
-          .seal { text-align: center; margin: 30px 0; }
-          .seal img { width: 100px; height: 100px; }
-        </style>
-      </head>
-      <body>
-        <div class="certificate">
-          <div class="header">
-            <h1>VACCINATION CERTIFICATE</h1>
-            <p>Certificate ID: CERT-${vaccination.id}-${new Date().getFullYear()}</p>
-            <p>Date: ${format(new Date(), 'dd/MM/yyyy')}</p>
-          </div>
-          
-          <div class="info">
-            <h3>Patient Information</h3>
-            <div class="info-row">
-              <div class="info-label">Name:</div>
-              <div>${vaccination.patient.name}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Phone:</div>
-              <div>${vaccination.patient.phone}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Email:</div>
-              <div>${vaccination.patient.email}</div>
-            </div>
-          </div>
-          
-          <div class="info">
-            <h3>Vaccination Details</h3>
-            <div class="info-row">
-              <div class="info-label">Vaccine:</div>
-              <div>${vaccination.vaccine}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Dose Number:</div>
-              <div>${vaccination.doseNumber}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Date:</div>
-              <div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Time:</div>
-              <div>${vaccination.time}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Administered By:</div>
-              <div>${vaccination.administeredBy}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Location:</div>
-              <div>${vaccination.location}</div>
-            </div>
-          </div>
-          
-          <div class="seal">
-            <p>Official Seal</p>
-            <div style="border: 2px solid #4f46e5; border-radius: 50%; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #4f46e5; font-weight: bold;">VERIFIED</span>
-            </div>
-          </div>
-          
-          <div class="footer">
-            <p>This certificate confirms that the individual named above has received the specified vaccination.</p>
-            <p>For inquiries, please contact: 1900 1900</p>
-          </div>
-        </div>
-        <script>
-          window.onload = function() {
-            window.print();
-          }
-        </script>
-      </body>
-      </html>
-    `
-
     printWindow.document.open()
-    printWindow.document.write(certificateContent)
+    printWindow.document.write(generateCertificateContent(vaccination))
     printWindow.document.close()
   }
 
   // Handle download invoice
-  const handleDownloadInvoice = (vaccination) => {
-    // Tạo instance của jsPDF
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    })
-
-    // Thiết lập font và kích thước chữ
-    doc.setFontSize(16)
-    doc.setFont('helvetica', 'bold')
-
-    // Header của hóa đơn
-    doc.text('VACCINATION INVOICE', 105, 20, { align: 'center' })
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Invoice ID: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
-    doc.text(`Date: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
-
-    // Patient Information
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Patient Information', 20, 55)
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Name: ${vaccination.patient.name}`, 20, 65)
-    doc.text(`Phone: ${vaccination.patient.phone}`, 20, 73)
-    doc.text(`Email: ${vaccination.patient.email}`, 20, 81)
-
-    // Vaccination Details
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Vaccination Details', 20, 95)
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
-    doc.text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
-    doc.text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
-    doc.text(`Time: ${vaccination.time}`, 20, 129)
-    doc.text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
-    doc.text(`Location: ${vaccination.location}`, 20, 145)
-
-    // Footer
-    doc.setFontSize(10)
-    doc.setTextColor(100)
-    doc.text('This invoice confirms the vaccination service provided.', 105, 260, { align: 'center' })
-    doc.text('For inquiries, please contact: 1900 1234', 105, 268, { align: 'center' })
-
-    // Tạo seal đơn giản bằng hình tròn và chữ
-    doc.setDrawColor(79, 70, 229) // Màu #4f46e5
-    doc.setLineWidth(1)
-    doc.circle(105, 200, 20) // Vẽ vòng tròn
-    doc.setFontSize(12)
-    doc.setTextColor(79, 70, 229)
-    doc.text('VERIFIED', 105, 203, { align: 'center' })
-
-    // Tải file PDF
-    doc.save(`vaccination_invoice_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
+  const handleDownloadInvoice = (vaccination: Vaccination) => {
+    generateInvoicePDF(vaccination)
   }
 
   return (
@@ -560,13 +532,18 @@ export default function VaccinationHistoryPage() {
         <div className='flex items-center gap-2'>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant='outline' size='sm' className='h-9 gap-1'>
+              <Button variant='outline' size='sm' className='h-9 gap-1' disabled>
                 <Calendar className='h-4 w-4' />
-                {selectedDate ? format(selectedDate, 'MM/dd/yyyy') : <span>Select date</span>}
+                <span>{format(selectedDate, 'MM/dd/yyyy')}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className='w-auto p-0' align='end'>
-              <CalendarComponent mode='single' selected={selectedDate} onSelect={setSelectedDate} initialFocus />
+              <CalendarComponent
+                mode='single'
+                selected={selectedDate}
+                // Không truyền onSelect để vô hiệu hóa khả năng chọn ngày
+                disabled // Vô hiệu hóa tương tác với lịch
+              />
             </PopoverContent>
           </Popover>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
@@ -952,11 +929,11 @@ export default function VaccinationHistoryPage() {
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
               Close
             </Button>
-            <Button onClick={() => handlePrintCertificate(selectedVaccination)}>
+            <Button onClick={() => selectedVaccination && handlePrintCertificate(selectedVaccination)}>
               <FileText className='mr-2 h-4 w-4' />
               Print Certificate
             </Button>
-            <Button onClick={() => handleDownloadInvoice(selectedVaccination)}>
+            <Button onClick={() => selectedVaccination && handleDownloadInvoice(selectedVaccination)}>
               <Printer className='mr-2 h-4 w-4' />
               Download Invoice
             </Button>

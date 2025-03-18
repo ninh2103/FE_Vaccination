@@ -16,7 +16,7 @@ import {
   Download,
   RefreshCw,
   ChevronLeft,
-  ChevronRight,
+  ChevronRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,7 +28,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
@@ -224,8 +224,7 @@ const initialUsers = [
     registeredDate: '2023-04-15',
     lastLogin: '2025-03-13',
     vaccinations: 2
-  },
-  
+  }
 ]
 
 type User = (typeof initialUsers)[0]
@@ -249,12 +248,12 @@ export default function UsersPage() {
     role: 'Patient',
     status: 'Active',
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   })
   const [filters, setFilters] = useState({
     role: [] as string[],
     status: [] as string[],
-    registeredDate: '' as string,
+    registeredDate: '' as string
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -263,11 +262,11 @@ export default function UsersPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value })
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const resetAvatarState = () => {
@@ -283,7 +282,7 @@ export default function UsersPage() {
       role: 'Patient',
       status: 'Active',
       password: '',
-      confirmPassword: '',
+      confirmPassword: ''
     })
     resetAvatarState()
   }
@@ -291,7 +290,9 @@ export default function UsersPage() {
   const handleFileUpload = useCallback((file: File) => {
     setAvatarFile(file)
     const reader = new FileReader()
-    reader.onloadend = () => setAvatarPreview(reader.result as string)
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string)
+    }
     reader.readAsDataURL(file)
   }, [])
 
@@ -322,9 +323,9 @@ export default function UsersPage() {
         status: formData.status,
         registeredDate: new Date().toISOString().split('T')[0],
         lastLogin: '-',
-        vaccinations: 0,
+        vaccinations: 0
       }
-      setUsers([...users, newUser])
+      setUsers((prev) => [...prev, newUser])
       setOpenAddDialog(false)
       resetForm()
       setIsLoading(false)
@@ -354,7 +355,7 @@ export default function UsersPage() {
               initials: formData.name
                 .split(' ')
                 .map((n) => n[0])
-                .join(''),
+                .join('')
             }
           : user
       )
@@ -404,7 +405,7 @@ export default function UsersPage() {
         Status: user.status,
         'Registered Date': user.registeredDate,
         'Last Login': user.lastLogin,
-        Vaccinations: user.vaccinations,
+        Vaccinations: user.vaccinations
       }))
       const worksheet = XLSX.utils.json_to_sheet(data)
       const workbook = XLSX.utils.book_new()
@@ -430,14 +431,14 @@ export default function UsersPage() {
   const toggleRoleFilter = (role: string) => {
     setFilters((prev) => ({
       ...prev,
-      role: prev.role.includes(role) ? prev.role.filter((r) => r !== role) : [...prev.role, role],
+      role: prev.role.includes(role) ? prev.role.filter((r) => r !== role) : [...prev.role, role]
     }))
   }
 
   const toggleStatusFilter = (status: string) => {
     setFilters((prev) => ({
       ...prev,
-      status: prev.status.includes(status) ? prev.status.filter((s) => s !== status) : [...prev.status, status],
+      status: prev.status.includes(status) ? prev.status.filter((s) => s !== status) : [...prev.status, status]
     }))
   }
 
@@ -515,24 +516,15 @@ export default function UsersPage() {
         </h1>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
-            {isExporting ? (
-              <LoadingSpinner className='mr-2 h-4 w-4' />
-            ) : (
-              <Download className='mr-2 h-4 w-4' />
-            )}
+            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
             Export
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? (
-              <LoadingSpinner className='mr-2 h-4 w-4' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
+            {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
             Refresh
           </Button>
           <Button
             size='sm'
-            // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
             onClick={() => {
               resetForm()
               setOpenAddDialog(true)
@@ -579,9 +571,7 @@ export default function UsersPage() {
               <div className='grid gap-4'>
                 <div className='space-y-2'>
                   <h4 className='font-medium leading-none'>Filters</h4>
-                  <p className='text-sm text-muted-foreground'>
-                    Filter users by role, status, and registration date.
-                  </p>
+                  <p className='text-sm text-muted-foreground'>Filter users by role, status, and registration date.</p>
                 </div>
                 <div className='grid gap-2'>
                   <div className='grid gap-1'>
@@ -660,7 +650,7 @@ export default function UsersPage() {
                       id='registered-after'
                       type='date'
                       value={filters.registeredDate}
-                      onChange={(e) => setFilters({ ...filters, registeredDate: e.target.value })}
+                      onChange={(e) => setFilters((prev) => ({ ...prev, registeredDate: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -668,9 +658,6 @@ export default function UsersPage() {
                   <Button variant='outline' size='sm' onClick={clearFilters}>
                     Clear Filters
                   </Button>
-                  {/* <Button size='sm' onClick={() => setFilterOpen(false)}>
-                    Apply Filters
-                  </Button> */}
                 </div>
               </div>
             </PopoverContent>
@@ -1070,11 +1057,7 @@ export default function UsersPage() {
             <Button variant='outline' onClick={() => setOpenAddDialog(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button
-              // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
-              onClick={handleAddUser}
-              disabled={isLoading}
-            >
+            <Button onClick={handleAddUser} disabled={isLoading}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoading ? 'Saving...' : 'Save User'}
             </Button>
@@ -1160,11 +1143,7 @@ export default function UsersPage() {
             <Button variant='outline' onClick={() => setOpenEditDialog(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button
-              // className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold text-white'
-              onClick={handleEditUser}
-              disabled={isLoading}
-            >
+            <Button onClick={handleEditUser} disabled={isLoading}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoading ? 'Updating...' : 'Update User'}
             </Button>

@@ -51,10 +51,11 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
+import { format, isBefore, addDays } from 'date-fns'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { toast } from '@/components/ui/use-toast'
 
 // Define data types for appointments
 interface Patient {
@@ -151,14 +152,12 @@ const todayAppointments: Appointment[] = [
     time: '14:00',
     status: 'Confirmed',
     notes: 'Routine vaccination'
-  },
-  // ... (other sample data remains the same, only translated to English)
+  }
 ]
 
 // Sample data for all appointments
 const initialAppointments: Appointment[] = [
   ...todayAppointments,
-
   {
     id: 7,
     patient: {
@@ -204,7 +203,6 @@ const initialAppointments: Appointment[] = [
     status: 'Confirmed',
     notes: 'Third dose'
   }
-  // ... (other sample data remains the same, only translated to English)
 ]
 
 // Pagination constant
@@ -222,7 +220,7 @@ export default function AppointmentsPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [newAppointment, setNewAppointment] = useState<Partial<Appointment>>({
-    patient: { name: '', avatar: '', initials: '', phone: '', email: '' },
+    patient: { name: '', avatar: '/placeholder.svg', initials: '', phone: '', email: '' },
     vaccine: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '',
@@ -306,7 +304,22 @@ export default function AppointmentsPage() {
   // Handle adding new appointment
   const handleAddAppointment = () => {
     if (!newAppointment.patient?.name || !newAppointment.vaccine || !newAppointment.date || !newAppointment.time) {
-      alert('Please fill in all required fields')
+      toast({
+        title: 'Error',
+        description: 'Please fill in all required fields',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    const today = new Date()
+    const selectedDate = new Date(newAppointment.date)
+    if (isBefore(selectedDate, today)) {
+      toast({
+        title: 'Error',
+        description: 'Please select a future date',
+        variant: 'destructive'
+      })
       return
     }
 
@@ -320,7 +333,8 @@ export default function AppointmentsPage() {
       id: appointments.length + 1,
       patient: {
         ...(newAppointment.patient as Patient),
-        initials: initials
+        avatar: newAppointment.patient.avatar || '/placeholder.svg',
+        initials
       },
       vaccine: newAppointment.vaccine,
       date: newAppointment.date,
@@ -332,12 +346,16 @@ export default function AppointmentsPage() {
     setAppointments([...appointments, newAppointmentWithId])
     setOpenAddDialog(false)
     setNewAppointment({
-      patient: { name: '', avatar: '', initials: '', phone: '', email: '' },
+      patient: { name: '', avatar: '/placeholder.svg', initials: '', phone: '', email: '' },
       vaccine: '',
       date: format(new Date(), 'yyyy-MM-dd'),
       time: '',
       status: 'Pending',
       notes: ''
+    })
+    toast({
+      title: 'Success',
+      description: 'Appointment added successfully'
     })
   }
 
@@ -349,6 +367,10 @@ export default function AppointmentsPage() {
       )
       setAppointments(updatedAppointments)
       setOpenEditDialog(false)
+      toast({
+        title: 'Success',
+        description: 'Appointment updated successfully'
+      })
     }
   }
 
@@ -358,6 +380,10 @@ export default function AppointmentsPage() {
       setAppointments(appointments.filter((appointment) => appointment.id !== selectedAppointment.id))
       setOpenDeleteDialog(false)
       setSelectedAppointment(null)
+      toast({
+        title: 'Success',
+        description: 'Appointment deleted successfully'
+      })
     }
   }
 
@@ -367,6 +393,10 @@ export default function AppointmentsPage() {
       appointment.id === appointmentId ? { ...appointment, status: newStatus } : appointment
     )
     setAppointments(updatedAppointments)
+    toast({
+      title: 'Success',
+      description: `Status updated to ${newStatus}`
+    })
   }
 
   // Handle exporting to Excel
@@ -389,6 +419,10 @@ export default function AppointmentsPage() {
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
     saveAs(blob, `Appointments_${format(new Date(), 'yyyy-MM-dd')}.xlsx`)
+    toast({
+      title: 'Success',
+      description: 'File exported successfully'
+    })
   }
 
   // Handle refreshing data
@@ -411,6 +445,10 @@ export default function AppointmentsPage() {
       })
       setCurrentPage(1)
       setIsRefreshing(false)
+      toast({
+        title: 'Refreshed',
+        description: 'Data has been refreshed'
+      })
     }, 1000)
   }
 
@@ -462,9 +500,9 @@ export default function AppointmentsPage() {
             )}
             Refresh
           </Button>
-          <Dialog  open={openAddDialog} onOpenChange={setOpenAddDialog}>
+          <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9 '>
+              <Button size='sm' className='h-9'>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Appointment
               </Button>
@@ -525,7 +563,7 @@ export default function AppointmentsPage() {
                 <div className='grid gap-2'>
                   <Label htmlFor='vaccine'>Vaccine</Label>
                   <Select
-                    value={newAppointment.vaccine}
+                    value={newAppointment.vaccine || ''}
                     onValueChange={(value) => setNewAppointment({ ...newAppointment, vaccine: value })}
                   >
                     <SelectTrigger>
@@ -549,9 +587,9 @@ export default function AppointmentsPage() {
                     <Input
                       id='date'
                       type='date'
-                      value={newAppointment.date}
+                      value={newAppointment.date || ''}
                       onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
-                      min={format(new Date(), 'yyyy-MM-dd')}
+                      min={format(addDays(new Date(), 1), 'yyyy-MM-dd')}
                       required
                     />
                   </div>
@@ -560,7 +598,7 @@ export default function AppointmentsPage() {
                     <Input
                       id='time'
                       type='time'
-                      value={newAppointment.time}
+                      value={newAppointment.time || ''}
                       onChange={(e) => setNewAppointment({ ...newAppointment, time: e.target.value })}
                       required
                     />
@@ -569,8 +607,13 @@ export default function AppointmentsPage() {
                 <div className='grid gap-2'>
                   <Label htmlFor='status'>Status</Label>
                   <Select
-                    value={newAppointment.status}
-                    onValueChange={(value: any) => setNewAppointment({ ...newAppointment, status: value })}
+                    value={newAppointment.status || 'Pending'}
+                    onValueChange={(value) =>
+                      setNewAppointment({
+                        ...newAppointment,
+                        status: value as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Select status' />
@@ -587,7 +630,7 @@ export default function AppointmentsPage() {
                   <Label htmlFor='notes'>Notes</Label>
                   <Textarea
                     id='notes'
-                    value={newAppointment.notes}
+                    value={newAppointment.notes || ''}
                     onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                     placeholder='Enter notes'
                     rows={3}
@@ -598,7 +641,7 @@ export default function AppointmentsPage() {
                 <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
                   Cancel
                 </Button>
-                <Button  onClick={handleAddAppointment}>Save</Button>
+                <Button onClick={handleAddAppointment}>Save</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -862,7 +905,7 @@ export default function AppointmentsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[60px]'>No. </TableHead>
+                        <TableHead className='w-[60px]'>No.</TableHead>
                         <TableHead>Patient</TableHead>
                         <TableHead>Vaccine</TableHead>
                         <TableHead>Date</TableHead>
@@ -1051,13 +1094,13 @@ export default function AppointmentsPage() {
                 <h4 className='text-sm font-medium text-muted-foreground'>Update Status</h4>
                 <div className='mt-2'>
                   <Select
-                    defaultValue={selectedAppointment.status}
-                    onValueChange={(value: any) => {
+                    value={selectedAppointment.status}
+                    onValueChange={(value) =>
                       setSelectedAppointment({
                         ...selectedAppointment,
-                        status: value
+                        status: value as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
                       })
-                    }}
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Select status' />
@@ -1173,7 +1216,18 @@ export default function AppointmentsPage() {
                     id='edit-date'
                     type='date'
                     value={selectedAppointment.date}
-                    onChange={(e) => setSelectedAppointment({ ...selectedAppointment, date: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value
+                      if (!isBefore(new Date(newDate), new Date())) {
+                        setSelectedAppointment({ ...selectedAppointment, date: newDate })
+                      } else {
+                        toast({
+                          title: 'Error',
+                          description: 'Date must be in the future',
+                          variant: 'destructive'
+                        })
+                      }
+                    }}
                     required
                   />
                 </div>
@@ -1192,7 +1246,12 @@ export default function AppointmentsPage() {
                 <Label htmlFor='edit-status'>Status</Label>
                 <Select
                   value={selectedAppointment.status}
-                  onValueChange={(value: any) => setSelectedAppointment({ ...selectedAppointment, status: value })}
+                  onValueChange={(value) =>
+                    setSelectedAppointment({
+                      ...selectedAppointment,
+                      status: value as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder='Select status' />

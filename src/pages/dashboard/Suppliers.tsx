@@ -49,8 +49,31 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
-// Dữ liệu mẫu ban đầu
-const initialSuppliers = [
+// Định nghĩa interface cho Supplier
+interface Supplier {
+  id: number
+  name: string
+  logo: string
+  country: string
+  address: string
+  phone: string
+  email: string
+  website: string
+  status: 'Active' | 'Inactive'
+  products: string[]
+  contactPerson: string
+  established: string
+  leadTime: string
+  rating: number
+}
+
+// Constants
+const ROWS_PER_PAGE = 10
+const MIN_YEAR = 1900
+const MAX_YEAR = new Date().getFullYear()
+
+// Initial data
+const initialSuppliers: Supplier[] = [
   {
     id: 1,
     name: 'Global Vaccine Distributors',
@@ -213,17 +236,41 @@ const initialSuppliers = [
   }
 ]
 
-// Hằng số phân trang
-const ROWS_PER_PAGE = 10
-const MIN_YEAR = 1900
-const MAX_YEAR = new Date().getFullYear()
+// Utility functions
+const isValidYear = (year: string): boolean => {
+  if (!year) return true
+  const num = Number.parseInt(year)
+  return !Number.isNaN(num) && year.length === 4 && num >= MIN_YEAR && num <= MAX_YEAR
+}
+
+const getStatusBadge = (status: string) =>
+  status === 'Active' ? (
+    <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
+  ) : (
+    <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+      Inactive
+    </Badge>
+  )
+
+const getRatingBadge = (rating: number) => {
+  if (rating >= 4.5) return <Badge className='bg-green-500'>{rating.toFixed(1)}</Badge>
+  if (rating >= 4.0) return <Badge className='bg-blue-500'>{rating.toFixed(1)}</Badge>
+  if (rating >= 3.5) {
+    return (
+      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+        {rating.toFixed(1)}
+      </Badge>
+    )
+  }
+  return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
+}
 
 export default function SuppliersPage() {
-  const [suppliers, setSuppliers] = useState(initialSuppliers)
+  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers)
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [selectedSupplier, setSelectedSupplier] = useState(null)
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -234,20 +281,11 @@ export default function SuppliersPage() {
   })
   const [yearRangeError, setYearRangeError] = useState('')
 
-  // Hàm kiểm tra năm hợp lệ
-  const isValidYear = (year) => {
-    if (!year) return true // Nếu không nhập, coi là hợp lệ (bỏ qua điều kiện)
-    const num = parseInt(year)
-    return !isNaN(num) && year.length === 4 && num >= MIN_YEAR && num <= MAX_YEAR
-  }
-
-  // Hàm lọc dữ liệu
+  // Filtered suppliers
   const filteredSuppliers = useMemo(() => {
-    setYearRangeError('') // Đặt lại thông báo lỗi
-
-    // Kiểm tra khoảng năm hợp lệ
-    const fromYear = filters.establishedFrom ? parseInt(filters.establishedFrom) : null
-    const toYear = filters.establishedTo ? parseInt(filters.establishedTo) : null
+    setYearRangeError('')
+    const fromYear = filters.establishedFrom ? Number.parseInt(filters.establishedFrom) : null
+    const toYear = filters.establishedTo ? Number.parseInt(filters.establishedTo) : null
 
     if (fromYear && toYear && fromYear > toYear) {
       setYearRangeError("The 'From' year cannot be greater than the 'To' year.")
@@ -263,7 +301,7 @@ export default function SuppliersPage() {
         (filters.status.active && supplier.status === 'Active') ||
         (filters.status.inactive && supplier.status === 'Inactive')
 
-      const establishedYear = supplier.established ? parseInt(supplier.established) : null
+      const establishedYear = supplier.established ? Number.parseInt(supplier.established) : null
       const matchesEstablished =
         (!fromYear || (establishedYear && establishedYear >= fromYear)) &&
         (!toYear || (establishedYear && establishedYear <= toYear))
@@ -272,42 +310,17 @@ export default function SuppliersPage() {
     })
   }, [suppliers, searchTerm, filters])
 
-  // Phân trang
+  // Pagination
   const totalPages = Math.ceil(filteredSuppliers.length / ROWS_PER_PAGE)
   const paginatedSuppliers = filteredSuppliers.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE)
 
-  // Đặt lại trang nếu vượt quá tổng số trang
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages)
     }
   }, [totalPages, currentPage])
 
-  // Hàm hiển thị badge trạng thái
-  const getStatusBadge = (status) => {
-    return status === 'Active' ? (
-      <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
-    ) : (
-      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
-        Inactive
-      </Badge>
-    )
-  }
-
-  // Hàm hiển thị badge đánh giá
-  const getRatingBadge = (rating) => {
-    if (rating >= 4.5) return <Badge className='bg-green-500'>{rating.toFixed(1)}</Badge>
-    if (rating >= 4.0) return <Badge className='bg-blue-500'>{rating.toFixed(1)}</Badge>
-    if (rating >= 3.5)
-      return (
-        <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
-          {rating.toFixed(1)}
-        </Badge>
-      )
-    return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
-  }
-
-  // Xuất dữ liệu ra Excel
+  // Event handlers
   const handleExport = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredSuppliers)
     const workbook = XLSX.utils.book_new()
@@ -317,20 +330,19 @@ export default function SuppliersPage() {
     saveAs(blob, 'suppliers.xlsx')
   }
 
-  // Xử lý thêm/sửa nhà cung cấp
-  const handleSaveSupplier = (e) => {
+  const handleSaveSupplier = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.target)
+    const formData = new FormData(e.currentTarget)
     const established = formData.get('established')?.toString() || ''
 
-    // Kiểm tra năm hợp lệ
     if (established && !isValidYear(established)) {
+      // eslint-disable-next-line no-alert
       alert(`Please enter a valid year (between ${MIN_YEAR} and ${MAX_YEAR}).`)
       return
     }
 
-    const newSupplier = {
-      id: isEditMode ? selectedSupplier.id : suppliers.length + 1,
+    const newSupplier: Supplier = {
+      id: isEditMode ? selectedSupplier!.id : suppliers.length + 1,
       name: formData.get('name')?.toString() || '',
       country: formData.get('country')?.toString() || '',
       address: formData.get('address')?.toString() || '',
@@ -339,9 +351,9 @@ export default function SuppliersPage() {
       website: formData.get('website')?.toString() || '',
       established,
       contactPerson: formData.get('contact-person')?.toString() || '',
-      status: formData.get('status')?.toString() || 'Active',
+      status: (formData.get('status')?.toString() as 'Active' | 'Inactive') || 'Active',
       leadTime: formData.get('lead-time')?.toString() || '',
-      rating: parseFloat(formData.get('rating')?.toString() || '0') || 0,
+      rating: Number.parseFloat(formData.get('rating')?.toString() || '0'),
       products:
         formData
           .get('products')
@@ -361,28 +373,26 @@ export default function SuppliersPage() {
     setSelectedSupplier(null)
   }
 
-  // Xử lý xóa nhà cung cấp
   const handleDeleteSupplier = () => {
-    setSuppliers(suppliers.filter((s) => s.id !== selectedSupplier?.id))
+    if (selectedSupplier) {
+      setSuppliers(suppliers.filter((s) => s.id !== selectedSupplier.id))
+    }
     setOpenDeleteDialog(false)
     setSelectedSupplier(null)
   }
 
-  // Xử lý chỉnh sửa nhà cung cấp
-  const handleEditSupplier = (supplier) => {
+  const handleEditSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
     setIsEditMode(true)
     setOpenAddDialog(true)
   }
 
-  // Xử lý mở website
-  const handleVisitWebsite = (website) => {
+  const handleVisitWebsite = (website: string) => {
     if (website) {
       window.open(website, '_blank', 'noopener,noreferrer')
     }
   }
 
-  // Xử lý làm mới dữ liệu với hiệu ứng loading
   const handleRefresh = () => {
     setIsRefreshing(true)
     setTimeout(() => {
@@ -398,7 +408,6 @@ export default function SuppliersPage() {
     }, 1000)
   }
 
-  // Xử lý xóa bộ lọc
   const handleClearFilters = () => {
     setFilters({
       status: { active: false, inactive: false },
@@ -408,15 +417,15 @@ export default function SuppliersPage() {
     setCurrentPage(1)
   }
 
-  // Xử lý thay đổi năm trong bộ lọc
-  const handleYearChange = (key, value) => {
+  const handleYearChange = (key: 'establishedFrom' | 'establishedTo', value: string) => {
     const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 4)
     setFilters((prev) => ({ ...prev, [key]: sanitizedValue }))
   }
 
+  // Render
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
-      {/* Tiêu đề và nút hành động */}
+      {/* Header */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
           Suppliers
@@ -436,7 +445,7 @@ export default function SuppliersPage() {
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9 '>
+              <Button size='sm' className='h-9'>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Supplier
               </Button>
@@ -576,7 +585,7 @@ export default function SuppliersPage() {
                   <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
                     Cancel
                   </Button>
-                  <Button  type='submit'>{isEditMode ? 'Update Supplier' : 'Save Supplier'}</Button>
+                  <Button type='submit'>{isEditMode ? 'Update Supplier' : 'Save Supplier'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -584,7 +593,7 @@ export default function SuppliersPage() {
         </div>
       </div>
 
-      {/* Tìm kiếm và bộ lọc */}
+      {/* Search and Filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <Input
@@ -611,7 +620,7 @@ export default function SuppliersPage() {
                   Filter suppliers by status and established year range.
                 </p>
 
-                {/* Bộ lọc trạng thái */}
+                {/* Status Filter */}
                 <div className='mb-4'>
                   <DropdownMenuLabel className='text-sm font-medium'>Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -639,7 +648,7 @@ export default function SuppliersPage() {
                   </DropdownMenuCheckboxItem>
                 </div>
 
-                {/* Bộ lọc theo khoảng năm thành lập */}
+                {/* Established Year Range Filter */}
                 <div className='mb-4'>
                   <DropdownMenuLabel className='text-sm font-medium'>Established Year Range</DropdownMenuLabel>
                   <div className='grid grid-cols-2 gap-2 mt-2'>
@@ -672,7 +681,7 @@ export default function SuppliersPage() {
                   </div>
                 </div>
 
-                {/* Thông báo lỗi khoảng năm */}
+                {/* Year Range Error */}
                 {yearRangeError && (
                   <Alert variant='destructive' className='mb-4'>
                     <AlertCircle className='h-4 w-4' />
@@ -680,7 +689,7 @@ export default function SuppliersPage() {
                   </Alert>
                 )}
 
-                {/* Nút xóa bộ lọc */}
+                {/* Clear Filters Button */}
                 <Button variant='outline' size='sm' onClick={handleClearFilters}>
                   Clear Filters
                 </Button>
@@ -689,7 +698,7 @@ export default function SuppliersPage() {
           </div>
         </div>
 
-        {/* Bảng dữ liệu */}
+        {/* Table */}
         <Card>
           <CardContent className='p-0'>
             {paginatedSuppliers.length === 0 ? (
@@ -797,7 +806,7 @@ export default function SuppliersPage() {
           </CardContent>
         </Card>
 
-        {/* Phân trang cố định */}
+        {/* Pagination */}
         {paginatedSuppliers.length > 0 && (
           <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
@@ -823,7 +832,7 @@ export default function SuppliersPage() {
         )}
       </div>
 
-      {/* Dialog xóa */}
+      {/* Delete Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>

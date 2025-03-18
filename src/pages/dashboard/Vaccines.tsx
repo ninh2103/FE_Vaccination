@@ -1,17 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import {
-  Plus,
-  Download,
-  Edit,
-  Trash,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  RefreshCw,
-} from 'lucide-react'
+import { Plus, Download, Edit, Trash, AlertCircle, ChevronLeft, ChevronRight, X, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -22,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
@@ -53,7 +43,6 @@ interface Vaccine {
   storage: string
   status: 'In Stock' | 'Low Stock' | 'Out of Stock'
 }
-
 
 const initialVaccines: Vaccine[] = [
   {
@@ -296,10 +285,7 @@ export default function VaccinesPage() {
   }, [vaccines, searchTerm, filterStatus])
 
   const totalPages = Math.max(1, Math.ceil(filteredVaccines.length / ITEMS_PER_PAGE))
-  const paginatedVaccines = filteredVaccines.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
+  const paginatedVaccines = filteredVaccines.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
 
   const calculateStatus = (quantity: number): 'In Stock' | 'Low Stock' | 'Out of Stock' => {
     if (quantity > 10) return 'In Stock'
@@ -348,7 +334,7 @@ export default function VaccinesPage() {
       setIsLoading(false)
       return
     }
-    if (!newVaccine.name || !newVaccine.manufacturer || !newVaccine.quantity === undefined) {
+    if (!newVaccine.name || !newVaccine.manufacturer || newVaccine.quantity === undefined) {
       setErrorMessage('Please fill in all required fields (Name, Manufacturer, Quantity).')
       setIsLoading(false)
       return
@@ -373,7 +359,7 @@ export default function VaccinesPage() {
         contraindications: newVaccine.contraindications || '',
         sideEffects: newVaccine.sideEffects || '',
         storage: newVaccine.storage || '',
-        status: calculateStatus(newVaccine.quantity || 0),
+        status: calculateStatus(newVaccine.quantity || 0)
       }
       setVaccines([...vaccines, vaccineToAdd])
       setNewVaccine({})
@@ -391,7 +377,7 @@ export default function VaccinesPage() {
       setIsLoading(false)
       return
     }
-    if (!editVaccine.name || !editVaccine.manufacturer || !editVaccine.quantity === undefined) {
+    if (!editVaccine.name || !editVaccine.manufacturer || editVaccine.quantity === undefined) {
       setErrorMessage('Please fill in all required fields (Name, Manufacturer, Quantity).')
       setIsLoading(false)
       return
@@ -462,10 +448,7 @@ export default function VaccinesPage() {
             {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
             Refresh
           </Button>
-          <Button
-            size='sm'
-            onClick={() => setOpenAddDialog(true)}
-          >
+          <Button size='sm' onClick={() => setOpenAddDialog(true)}>
             <Plus className='mr-2 h-4 w-4' />
             Add Vaccine
           </Button>
@@ -609,7 +592,9 @@ export default function VaccinesPage() {
           >
             <ChevronLeft className='h-4 w-4' />
           </Button>
-          <span className='text-sm'>Page {currentPage} of {totalPages}</span>
+          <span className='text-sm'>
+            Page {currentPage} of {totalPages}
+          </span>
           <Button
             variant='outline'
             size='sm'
@@ -661,7 +646,10 @@ export default function VaccinesPage() {
                 className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer hover:border-gray-400'
                 onDrop={(e) => handleImageChange(e, false)}
                 onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById('new-image-input')?.click()}
+                onClick={() => {
+                  const input = document.getElementById('new-image-input') as HTMLInputElement | null
+                  input?.click()
+                }}
               >
                 {newVaccine.image ? (
                   <img src={newVaccine.image} alt='Vaccine' className='max-h-32 mx-auto rounded-md' />
@@ -822,10 +810,7 @@ export default function VaccinesPage() {
             <Button variant='outline' onClick={() => setOpenAddDialog(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button
-              onClick={handleAddVaccine}
-              disabled={isLoading}
-            >
+            <Button onClick={handleAddVaccine} disabled={isLoading}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoading ? 'Saving...' : 'Save Vaccine'}
             </Button>
@@ -873,7 +858,10 @@ export default function VaccinesPage() {
                 className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer hover:border-gray-400'
                 onDrop={(e) => handleImageChange(e, true)}
                 onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById('edit-image-input')?.click()}
+                onClick={() => {
+                  const input = document.getElementById('edit-image-input') as HTMLInputElement | null
+                  input?.click()
+                }}
               >
                 {editVaccine.image ? (
                   <img src={editVaccine.image} alt='Vaccine' className='max-h-32 mx-auto rounded-md' />
@@ -937,7 +925,7 @@ export default function VaccinesPage() {
                     setEditVaccine({
                       ...editVaccine,
                       quantity: Number(e.target.value),
-                      status: calculateStatus(Number(e.target.value)),
+                      status: calculateStatus(Number(e.target.value))
                     })
                   }
                   placeholder='e.g., 15'

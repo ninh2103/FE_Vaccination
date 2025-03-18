@@ -1535,10 +1535,22 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.6.tgz#628effeeae2064a1b4e79f78e81d87b7e5fc7b50"
   integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
 
+"@types/file-saver@^2.0.7":
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/@types/file-saver/-/file-saver-2.0.7.tgz#8dbb2f24bdc7486c54aa854eb414940bbd056f7d"
+  integrity sha512-dNKVfHd/jk0SkR/exKGj2ggkB45MAkzvWCaqLUUgkyjITkGNzH8H+yUwr+BLJUBjZOe9w8X3wgmXhZDRg1ED6A==
+
 "@types/json-schema@^7.0.15":
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
+
+"@types/jspdf@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/jspdf/-/jspdf-2.0.0.tgz#c64d63e9248a62849902085c1cd4753b33f8ee0c"
+  integrity sha512-oonYDXI4GegGaG7FFVtriJ+Yqlh4YR3L3NVDiwCEBVG7sbya19SoGx4MW4kg1MCMRPgkbbFTck8YKJL8PrkDfA==
+  dependencies:
+    jspdf "*"
 
 "@types/lodash@^4.17.15":
   version "4.17.16"
@@ -1568,6 +1580,13 @@
   version "3.4.3"
   resolved "https://registry.yarnpkg.com/@types/raf/-/raf-3.4.3.tgz#85f1d1d17569b28b8db45e16e996407a56b0ab04"
   integrity sha512-c4YAvMedbPZ5tEyxzQdMoOhhJ4RD3rngZIdwC2/qDN3d7JpEhB6fiBRKVY1lg5B7Wk+uPBjn5f39j1/2MY1oOw==
+
+"@types/react-day-picker@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@types/react-day-picker/-/react-day-picker-5.3.0.tgz#10e931f8f1d8585f62ee47d210f708750789cbfe"
+  integrity sha512-iMMXQjwTH8uxPTW3WYP6ZufZBSMFFEScGIztENtKfvukefrojmX/WCUNPrimC9ys1ll5nnM0VGaHolYLAbcEtw==
+  dependencies:
+    react-day-picker "*"
 
 "@types/react-dom@^19.0.3":
   version "19.0.4"
@@ -3608,7 +3627,7 @@ json5@^2.2.3:
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
 
-jspdf@^3.0.0:
+jspdf@*, jspdf@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/jspdf/-/jspdf-3.0.0.tgz#078adb1620f13da2d9e0d901cb1205781aa591c9"
   integrity sha512-QvuQZvOI8CjfjVgtajdL0ihrDYif1cN5gXiF9lb9Pd9JOpmocvnNyFO9sdiJ/8RA5Bu8zyGOUjJLj5kiku16ug==
@@ -4636,7 +4655,7 @@ rc-virtual-list@^3.14.2, rc-virtual-list@^3.5.1, rc-virtual-list@^3.5.2:
     rc-resize-observer "^1.0.0"
     rc-util "^5.36.0"
 
-react-day-picker@^9.6.2:
+react-day-picker@*, react-day-picker@^9.6.2:
   version "9.6.2"
   resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-9.6.2.tgz#1007d9acc6244869716455f3e6b8ebdc5e441b3a"
   integrity sha512-HVrTpDUYGKbi9scU9v2N3BPGMnL5jwekGFXcyyrvpamZdgYGfzVcovsBD4/yNGxhpCIX5X/5IoLDEAayNv1EqA==

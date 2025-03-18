@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import * as XLSX from 'xlsx'
 
@@ -374,4 +373,3 @@ const General: React.FC = () => {
 }
 
 export default General
-//DUCCTDUCCT

@@ -49,8 +49,31 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
-// Dữ liệu mẫu ban đầu
-const initialManufacturers = [
+// Định nghĩa interface cho Manufacturer
+interface Manufacturer {
+  id: number
+  name: string
+  logo: string
+  country: string
+  address: string
+  phone: string
+  email: string
+  website: string
+  status: 'Active' | 'Inactive'
+  vaccines: string[]
+  contactPerson: string
+  established: string
+  leadTime: string
+  rating: number
+}
+
+// Constants
+const ROWS_PER_PAGE = 10
+const MIN_YEAR = 1800
+const MAX_YEAR = new Date().getFullYear()
+
+// Initial data
+const initialManufacturers: Manufacturer[] = [
   {
     id: 1,
     name: 'BioNTech',
@@ -213,17 +236,41 @@ const initialManufacturers = [
   }
 ]
 
-// Hằng số phân trang
-const ROWS_PER_PAGE = 10
-const MIN_YEAR = 1800
-const MAX_YEAR = new Date().getFullYear()
+// Utility functions
+const isValidYear = (year: string): boolean => {
+  if (!year) return true
+  const num = Number.parseInt(year)
+  return !Number.isNaN(num) && year.length === 4 && num >= MIN_YEAR && num <= MAX_YEAR
+}
+
+const getStatusBadge = (status: string) =>
+  status === 'Active' ? (
+    <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
+  ) : (
+    <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+      Inactive
+    </Badge>
+  )
+
+const getRatingBadge = (rating: number) => {
+  if (rating >= 4.5) return <Badge className='bg-green-500'>{rating.toFixed(1)}</Badge>
+  if (rating >= 4.0) return <Badge className='bg-blue-500'>{rating.toFixed(1)}</Badge>
+  if (rating >= 3.5) {
+    return (
+      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+        {rating.toFixed(1)}
+      </Badge>
+    )
+  }
+  return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
+}
 
 export default function ManufacturersPage() {
-  const [manufacturers, setManufacturers] = useState(initialManufacturers)
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>(initialManufacturers)
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [selectedManufacturer, setSelectedManufacturer] = useState(null)
+  const [selectedManufacturer, setSelectedManufacturer] = useState<Manufacturer | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -234,18 +281,9 @@ export default function ManufacturersPage() {
   })
   const [yearRangeError, setYearRangeError] = useState('')
 
-  // Hàm kiểm tra năm hợp lệ
-  const isValidYear = (year) => {
-    if (!year) return true // Nếu không nhập, coi là hợp lệ (bỏ qua điều kiện)
-    const num = Number.parseInt(year)
-    return !isNaN(num) && year.length === 4 && num >= MIN_YEAR && num <= MAX_YEAR
-  }
-
-  // Hàm lọc dữ liệu
+  // Filtered manufacturers
   const filteredManufacturers = useMemo(() => {
-    setYearRangeError('') // Đặt lại thông báo lỗi
-
-    // Kiểm tra khoảng năm hợp lệ
+    setYearRangeError('')
     const fromYear = filters.establishedFrom ? Number.parseInt(filters.establishedFrom) : null
     const toYear = filters.establishedTo ? Number.parseInt(filters.establishedTo) : null
 
@@ -272,45 +310,20 @@ export default function ManufacturersPage() {
     })
   }, [manufacturers, searchTerm, filters])
 
-  // Phân trang
+  // Pagination
   const totalPages = Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)
   const paginatedManufacturers = filteredManufacturers.slice(
     (currentPage - 1) * ROWS_PER_PAGE,
     currentPage * ROWS_PER_PAGE
   )
 
-  // Đặt lại trang nếu vượt quá tổng số trang
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages)
     }
   }, [totalPages, currentPage])
 
-  // Hàm hiển thị badge trạng thái
-  const getStatusBadge = (status) => {
-    return status === 'Active' ? (
-      <Badge className='bg-green-500 hover:bg-green-600'>Active</Badge>
-    ) : (
-      <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
-        Inactive
-      </Badge>
-    )
-  }
-
-  // Hàm hiển thị badge đánh giá
-  const getRatingBadge = (rating) => {
-    if (rating >= 4.5) return <Badge className='bg-green-500'>{rating.toFixed(1)}</Badge>
-    if (rating >= 4.0) return <Badge className='bg-blue-500'>{rating.toFixed(1)}</Badge>
-    if (rating >= 3.5)
-      return (
-        <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
-          {rating.toFixed(1)}
-        </Badge>
-      )
-    return <Badge variant='destructive'>{rating.toFixed(1)}</Badge>
-  }
-
-  // Xuất dữ liệu ra Excel
+  // Event handlers
   const handleExport = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredManufacturers)
     const workbook = XLSX.utils.book_new()
@@ -320,20 +333,19 @@ export default function ManufacturersPage() {
     saveAs(blob, 'manufacturers.xlsx')
   }
 
-  // Xử lý thêm/sửa nhà sản xuất
-  const handleSaveManufacturer = (e) => {
+  const handleSaveManufacturer = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.target)
+    const formData = new FormData(e.currentTarget)
     const established = formData.get('established')?.toString() || ''
 
-    // Kiểm tra năm hợp lệ
     if (established && !isValidYear(established)) {
+      // eslint-disable-next-line no-alert
       alert(`Please enter a valid year (between ${MIN_YEAR} and ${MAX_YEAR}).`)
       return
     }
 
-    const newManufacturer = {
-      id: isEditMode ? selectedManufacturer.id : manufacturers.length + 1,
+    const newManufacturer: Manufacturer = {
+      id: isEditMode ? selectedManufacturer!.id : manufacturers.length + 1,
       name: formData.get('name')?.toString() || '',
       country: formData.get('country')?.toString() || '',
       address: formData.get('address')?.toString() || '',
@@ -342,9 +354,9 @@ export default function ManufacturersPage() {
       website: formData.get('website')?.toString() || '',
       established,
       contactPerson: formData.get('contact-person')?.toString() || '',
-      status: formData.get('status')?.toString() || 'Active',
+      status: (formData.get('status')?.toString() as 'Active' | 'Inactive') || 'Active',
       leadTime: formData.get('lead-time')?.toString() || '',
-      rating: Number.parseFloat(formData.get('rating')?.toString() || '0') || 0,
+      rating: Number.parseFloat(formData.get('rating')?.toString() || '0'),
       vaccines:
         formData
           .get('vaccines')
@@ -355,7 +367,7 @@ export default function ManufacturersPage() {
     }
 
     if (isEditMode) {
-      setManufacturers(manufacturers.map((s) => (s.id === newManufacturer.id ? newManufacturer : s)))
+      setManufacturers(manufacturers.map((m) => (m.id === newManufacturer.id ? newManufacturer : m)))
     } else {
       setManufacturers([...manufacturers, newManufacturer])
     }
@@ -364,28 +376,26 @@ export default function ManufacturersPage() {
     setSelectedManufacturer(null)
   }
 
-  // Xử lý xóa nhà sản xuất
   const handleDeleteManufacturer = () => {
-    setManufacturers(manufacturers.filter((s) => s.id !== selectedManufacturer?.id))
+    if (selectedManufacturer) {
+      setManufacturers(manufacturers.filter((m) => m.id !== selectedManufacturer.id))
+    }
     setOpenDeleteDialog(false)
     setSelectedManufacturer(null)
   }
 
-  // Xử lý chỉnh sửa nhà sản xuất
-  const handleEditManufacturer = (manufacturer) => {
+  const handleEditManufacturer = (manufacturer: Manufacturer) => {
     setSelectedManufacturer(manufacturer)
     setIsEditMode(true)
     setOpenAddDialog(true)
   }
 
-  // Xử lý mở website
-  const handleVisitWebsite = (website) => {
+  const handleVisitWebsite = (website: string) => {
     if (website) {
       window.open(website, '_blank', 'noopener,noreferrer')
     }
   }
 
-  // Xử lý làm mới dữ liệu với hiệu ứng loading
   const handleRefresh = () => {
     setIsRefreshing(true)
     setTimeout(() => {
@@ -401,7 +411,6 @@ export default function ManufacturersPage() {
     }, 1000)
   }
 
-  // Xử lý xóa bộ lọc
   const handleClearFilters = () => {
     setFilters({
       status: { active: false, inactive: false },
@@ -411,15 +420,15 @@ export default function ManufacturersPage() {
     setCurrentPage(1)
   }
 
-  // Xử lý thay đổi năm trong bộ lọc
-  const handleYearChange = (key, value) => {
+  const handleYearChange = (key: 'establishedFrom' | 'establishedTo', value: string) => {
     const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 4)
     setFilters((prev) => ({ ...prev, [key]: sanitizedValue }))
   }
 
+  // Render
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
-      {/* Tiêu đề và nút hành động */}
+      {/* Header */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
           Manufacturers
@@ -439,7 +448,7 @@ export default function ManufacturersPage() {
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
-              <Button size='sm' className='h-9 '>
+              <Button size='sm' className='h-9'>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Manufacturer
               </Button>
@@ -596,7 +605,7 @@ export default function ManufacturersPage() {
         </div>
       </div>
 
-      {/* Tìm kiếm và bộ lọc */}
+      {/* Search and Filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <Input
@@ -623,7 +632,7 @@ export default function ManufacturersPage() {
                   Filter manufacturers by status and established year range.
                 </p>
 
-                {/* Bộ lọc trạng thái */}
+                {/* Status Filter */}
                 <div className='mb-4'>
                   <DropdownMenuLabel className='text-sm font-medium'>Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -651,7 +660,7 @@ export default function ManufacturersPage() {
                   </DropdownMenuCheckboxItem>
                 </div>
 
-                {/* Bộ lọc theo khoảng năm thành lập */}
+                {/* Established Year Range Filter */}
                 <div className='mb-4'>
                   <DropdownMenuLabel className='text-sm font-medium'>Established Year Range</DropdownMenuLabel>
                   <div className='grid grid-cols-2 gap-2 mt-2'>
@@ -684,7 +693,7 @@ export default function ManufacturersPage() {
                   </div>
                 </div>
 
-                {/* Thông báo lỗi khoảng năm */}
+                {/* Year Range Error */}
                 {yearRangeError && (
                   <Alert variant='destructive' className='mb-4'>
                     <AlertCircle className='h-4 w-4' />
@@ -692,7 +701,7 @@ export default function ManufacturersPage() {
                   </Alert>
                 )}
 
-                {/* Nút xóa bộ lọc */}
+                {/* Clear Filters Button */}
                 <Button variant='outline' size='sm' onClick={handleClearFilters}>
                   Clear Filters
                 </Button>
@@ -701,7 +710,7 @@ export default function ManufacturersPage() {
           </div>
         </div>
 
-        {/* Bảng dữ liệu */}
+        {/* Table */}
         <Card>
           <CardContent className='p-0'>
             {paginatedManufacturers.length === 0 ? (
@@ -809,7 +818,7 @@ export default function ManufacturersPage() {
           </CardContent>
         </Card>
 
-        {/* Phân trang cố định */}
+        {/* Pagination */}
         {paginatedManufacturers.length > 0 && (
           <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
             <Button
@@ -835,7 +844,7 @@ export default function ManufacturersPage() {
         )}
       </div>
 
-      {/* Dialog xóa */}
+      {/* Delete Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
