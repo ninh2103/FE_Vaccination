@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import {
@@ -276,6 +276,7 @@ export default function BlogPage() {
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openOverviewDialog, setOpenOverviewDialog] = useState(false)
+  const [openPublishConfirmDialog, setOpenPublishConfirmDialog] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [newImage, setNewImage] = useState<File | null>(null)
   const [editImage, setEditImage] = useState<File | null>(null)
@@ -288,6 +289,8 @@ export default function BlogPage() {
     featured: { yes: false, no: false },
     category: ''
   })
+  const [tempStatus, setTempStatus] = useState<'published' | 'draft' | ''>('')
+  const [originalStatus, setOriginalStatus] = useState<'Published' | 'Draft'>('Draft')
 
   // Filtered posts
   const filteredPosts = useMemo(() => {
@@ -325,7 +328,6 @@ export default function BlogPage() {
   }, [totalPages, currentPage])
 
   // Event handlers
-
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>,
     isEdit: boolean
@@ -343,6 +345,7 @@ export default function BlogPage() {
       }
     }
   }
+
   const handleExport = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredPosts)
     const workbook = XLSX.utils.book_new()
@@ -391,38 +394,9 @@ export default function BlogPage() {
           ?.toString()
           .split(',')
           .map((tag) => tag.trim()) || [],
-      status: 'Draft',
+      status: 'Draft', // Always set to Draft
       publishDate: null,
-      readTime: '5 min', // Giá trị mặc định
-      featured: formData.get('featured') === 'true',
-      image: newImage ? URL.createObjectURL(newImage) : null
-    }
-    setBlogPosts([...blogPosts, newPost])
-    setOpenAddDialog(false)
-    setNewImage(null)
-    setNewContent('')
-  }
-
-  const handlePublish = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newPost: BlogPost = {
-      id: blogPosts.length + 1,
-      title: formData.get('title')?.toString() || '',
-      slug: formData.get('slug')?.toString() || '',
-      excerpt: formData.get('excerpt')?.toString() || '',
-      content: newContent || '<p>Write your content here...</p>',
-      author: 'ADMIN',
-      category: formData.get('category')?.toString() || '',
-      tags:
-        formData
-          .get('tags')
-          ?.toString()
-          .split(',')
-          .map((tag) => tag.trim()) || [],
-      status: 'Published',
-      publishDate: new Date().toISOString().split('T')[0],
-      readTime: '5 min', // Giá trị mặc định
+      readTime: '5 min',
       featured: formData.get('featured') === 'true',
       image: newImage ? URL.createObjectURL(newImage) : null
     }
@@ -435,7 +409,10 @@ export default function BlogPage() {
   const handleSaveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!selectedPost) return
+
     const formData = new FormData(e.currentTarget)
+    const updatedStatus =
+      (formData.get('edit-status')?.toString() as 'published' | 'draft') || selectedPost.status.toLowerCase()
     const updatedPost: BlogPost = {
       ...selectedPost,
       title: formData.get('edit-title')?.toString() || selectedPost.title,
@@ -449,28 +426,53 @@ export default function BlogPage() {
           ?.toString()
           .split(',')
           .map((tag) => tag.trim()) || selectedPost.tags,
-      status: (formData.get('edit-status')?.toString() as 'Published' | 'Draft') || selectedPost.status,
+      status: updatedStatus === 'published' ? 'Published' : 'Draft',
       publishDate:
-        formData.get('edit-status') === 'published' && !selectedPost.publishDate
-          ? new Date().toISOString().split('T')[0]
-          : formData.get('edit-status') === 'draft'
-            ? null
-            : selectedPost.publishDate,
+        updatedStatus === 'published' ? selectedPost.publishDate || new Date().toISOString().split('T')[0] : null,
       featured: formData.get('edit-featured') === 'true',
       image: editImage ? URL.createObjectURL(editImage) : selectedPost.image
     }
+
     setBlogPosts(blogPosts.map((post) => (post.id === updatedPost.id ? updatedPost : post)))
     setOpenEditDialog(false)
     setEditImage(null)
     setEditContent('')
+    setTempStatus('')
+    setOriginalStatus('Draft')
   }
 
   const handleDeletePost = () => {
     if (selectedPost) {
       setBlogPosts(blogPosts.filter((post) => post.id !== selectedPost.id))
+      setOpenDeleteDialog(false)
+      setSelectedPost(null)
     }
-    setOpenDeleteDialog(false)
-    setSelectedPost(null)
+  }
+
+  const handleStatusChange = (value: 'published' | 'draft') => {
+    if (value === 'published' && selectedPost?.status !== 'Published') {
+      setOriginalStatus(selectedPost?.status || 'Draft')
+      setTempStatus(value)
+      setOpenPublishConfirmDialog(true)
+    } else {
+      setTempStatus(value)
+    }
+  }
+
+  const handleConfirmPublish = () => {
+    setOpenPublishConfirmDialog(false)
+    // Keep the status as 'published' (already set in tempStatus)
+  }
+
+  const handleCancelPublish = () => {
+    setOpenPublishConfirmDialog(false)
+    setTempStatus(originalStatus.toLowerCase() as 'published' | 'draft')
+  }
+
+  const handleClosePublishDialog = () => {
+    // When the user clicks the "X" button, revert to the original status (same as Cancel)
+    setOpenPublishConfirmDialog(false)
+    setTempStatus(originalStatus.toLowerCase() as 'published' | 'draft')
   }
 
   // Render
@@ -506,7 +508,7 @@ export default function BlogPage() {
                 <DialogTitle>Create New Blog Post</DialogTitle>
                 <DialogDescription>Create a new blog post to publish on your website.</DialogDescription>
               </DialogHeader>
-              <form onSubmit={(e) => handleSaveDraft(e)}>
+              <form onSubmit={handleSaveDraft}>
                 <div className='grid gap-4 py-4'>
                   <div className='flex flex-col gap-2'>
                     <Label htmlFor='title'>Title</Label>
@@ -560,7 +562,10 @@ export default function BlogPage() {
                       className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
                       onDrop={(e) => handleImageChange(e, false)}
                       onDragOver={(e) => e.preventDefault()}
-                      onClick={() => document.getElementById('new-image-input')?.click()}
+                      onClick={() => {
+                        const input = document.getElementById('new-image-input')
+                        if (input) input.click()
+                      }}
                     >
                       {newImage ? (
                         <img
@@ -586,18 +591,6 @@ export default function BlogPage() {
                   </div>
                   <div className='grid grid-cols-2 gap-4'>
                     <div className='flex flex-col gap-2'>
-                      <Label htmlFor='status'>Status</Label>
-                      <Select name='status' defaultValue='draft'>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select status' />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='draft'>Draft</SelectItem>
-                          <SelectItem value='published'>Published</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className='flex flex-col gap-2'>
                       <Label htmlFor='featured'>Featured</Label>
                       <Select name='featured' defaultValue='false'>
                         <SelectTrigger>
@@ -616,14 +609,6 @@ export default function BlogPage() {
                     Cancel
                   </Button>
                   <Button type='submit'>Save Draft</Button>
-                  <Button
-                    type='button'
-                    onClick={(e) =>
-                      handlePublish({ ...e, currentTarget: e.currentTarget.form } as React.FormEvent<HTMLFormElement>)
-                    }
-                  >
-                    Publish
-                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -1127,7 +1112,10 @@ export default function BlogPage() {
                   className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
                   onDrop={(e) => handleImageChange(e, true)}
                   onDragOver={(e) => e.preventDefault()}
-                  onClick={() => document.getElementById('edit-image-input')?.click()}
+                  onClick={() => {
+                    const input = document.getElementById('edit-image-input')
+                    if (input) input.click()
+                  }}
                 >
                   {editImage ? (
                     <img
@@ -1156,7 +1144,11 @@ export default function BlogPage() {
               <div className='grid grid-cols-2 gap-4'>
                 <div className='flex flex-col gap-2'>
                   <Label htmlFor='edit-status'>Status</Label>
-                  <Select name='edit-status' defaultValue={selectedPost?.status.toLowerCase()}>
+                  <Select
+                    name='edit-status'
+                    value={tempStatus || selectedPost?.status.toLowerCase()}
+                    onValueChange={handleStatusChange}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1187,6 +1179,32 @@ export default function BlogPage() {
               <Button type='submit'>Save Changes</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Publish Confirmation Dialog */}
+      <Dialog
+        open={openPublishConfirmDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            // When the dialog is closed (via "X" or other means), revert the status
+            handleClosePublishDialog()
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Confirm Publish</DialogTitle>
+            <DialogDescription>
+              Have you reviewed the post details and are you sure you want to publish it?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant='outline' onClick={handleCancelPublish}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmPublish}>OK</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

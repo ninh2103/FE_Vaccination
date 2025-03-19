@@ -33,19 +33,25 @@ const Sidebar: React.FC = () => {
 
   const sidebarItems: SidebarItem[] = [
     { name: 'General', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
-    { name: 'Vaccine', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
-    { name: 'User', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
-    { name: 'Appointment Order', icon: <TbBrandBooking className='h-5 w-5' />, path: '/admin/order' },
-    { name: 'Appointment Scheduling', icon: <IoCartOutline className='h-5 w-5' />, path: '/admin/appointments' },
+    { name: 'Vaccines', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
+    { name: 'Users', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
+    { name: 'Appointment Orders', icon: <TbBrandBooking className='h-5 w-5' />, path: '/admin/order' },
+    { name: 'Appointment Schedulings', icon: <IoCartOutline className='h-5 w-5' />, path: '/admin/appointments' },
     { name: 'Vaccination History', icon: <ClockIcon className='h-5 w-5' />, path: '/admin/history' },
-    { name: 'Payment', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
-    { name: 'Manufacturer', icon: <BuildingOfficeIcon className='h-5 w-5' />, path: '/admin/manufacturers' },
-    { name: 'Supplier', icon: <MdOutlineEmojiTransportation className='h-5 w-5' />, path: '/admin/suppliers' },
-    { name: 'Blog', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' }
+    { name: 'Payments', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
+    { name: 'Manufacturers', icon: <BuildingOfficeIcon className='h-5 w-5' />, path: '/admin/manufacturers' },
+    { name: 'Suppliers', icon: <MdOutlineEmojiTransportation className='h-5 w-5' />, path: '/admin/suppliers' },
+    { name: 'Blogs', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' }
   ]
 
   const handleItemClick = (itemName: string, path?: string) => {
-    setActiveItem(activeItem === itemName ? null : itemName)
+    // If the clicked item is already active, do nothing
+    if (activeItem === itemName) {
+      return
+    }
+
+    // Otherwise, update the active item and navigate
+    setActiveItem(itemName)
     setActiveSubItem(null) // Reset sub-item khi click vào mục chính
     if (path) {
       navigate(path)
@@ -53,6 +59,12 @@ const Sidebar: React.FC = () => {
   }
 
   const handleSubItemClick = (subItemPath: string) => {
+    // If the clicked sub-item is already active, do nothing
+    if (activeSubItem === subItemPath) {
+      return
+    }
+
+    // Otherwise, update the active sub-item and navigate
     setActiveSubItem(subItemPath)
     navigate(subItemPath)
   }

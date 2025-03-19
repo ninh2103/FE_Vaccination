@@ -49,13 +49,11 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar as CalendarComponent } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format, isBefore, addDays } from 'date-fns'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { toast } from '@/components/ui/use-toast'
+import { format } from 'date-fns'
 
 // Define data types for appointments
 interface Patient {
@@ -88,7 +86,7 @@ const todayAppointments: Appointment[] = [
       email: 'nguyenvanan@example.com'
     },
     vaccine: 'COVID-19 Vaccine',
-    date: '2023-03-13',
+    date: format(new Date(), 'yyyy-MM-dd'), // Ngày hiện tại
     time: '09:00',
     status: 'Confirmed',
     notes: 'First dose'
@@ -103,7 +101,7 @@ const todayAppointments: Appointment[] = [
       email: 'tranthibinh@example.com'
     },
     vaccine: 'Flu Vaccine',
-    date: '2023-03-13',
+    date: format(new Date(), 'yyyy-MM-dd'), // Ngày hiện tại
     time: '10:15',
     status: 'Pending',
     notes: 'Annual flu shot'
@@ -211,7 +209,6 @@ const ROWS_PER_PAGE = 10
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
@@ -312,17 +309,6 @@ export default function AppointmentsPage() {
       return
     }
 
-    const today = new Date()
-    const selectedDate = new Date(newAppointment.date)
-    if (isBefore(selectedDate, today)) {
-      toast({
-        title: 'Error',
-        description: 'Please select a future date',
-        variant: 'destructive'
-      })
-      return
-    }
-
     const initials = newAppointment.patient.name
       .split(' ')
       .map((name) => name.charAt(0))
@@ -367,6 +353,7 @@ export default function AppointmentsPage() {
       )
       setAppointments(updatedAppointments)
       setOpenEditDialog(false)
+      setOpenDetailsDialog(false)
       toast({
         title: 'Success',
         description: 'Appointment updated successfully'
@@ -477,17 +464,11 @@ export default function AppointmentsPage() {
           Appointments
         </h1>
         <div className='flex items-center gap-2'>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant='outline' size='sm' className='h-9 gap-1'>
-                <CalendarIcon className='h-4 w-4' />
-                {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : <span>Select Date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className='w-auto p-0' align='end'>
-              <CalendarComponent mode='single' selected={selectedDate} onSelect={setSelectedDate} initialFocus />
-            </PopoverContent>
-          </Popover>
+          {/* Label hiển thị ngày hiện tại, không cho phép chỉnh sửa */}
+          <div className='text-sm font-medium text-muted-foreground flex items-center gap-2'>
+            <CalendarIcon className='h-4 w-4' />
+            <span>{format(new Date(), 'dd/MM/yyyy')}</span>
+          </div>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
             <Download className='mr-2 h-4 w-4' />
             Export
@@ -589,7 +570,6 @@ export default function AppointmentsPage() {
                       type='date'
                       value={newAppointment.date || ''}
                       onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
-                      min={format(addDays(new Date(), 1), 'yyyy-MM-dd')}
                       required
                     />
                   </div>
@@ -1216,18 +1196,7 @@ export default function AppointmentsPage() {
                     id='edit-date'
                     type='date'
                     value={selectedAppointment.date}
-                    onChange={(e) => {
-                      const newDate = e.target.value
-                      if (!isBefore(new Date(newDate), new Date())) {
-                        setSelectedAppointment({ ...selectedAppointment, date: newDate })
-                      } else {
-                        toast({
-                          title: 'Error',
-                          description: 'Date must be in the future',
-                          variant: 'destructive'
-                        })
-                      }
-                    }}
+                    onChange={(e) => setSelectedAppointment({ ...selectedAppointment, date: e.target.value })}
                     required
                   />
                 </div>
