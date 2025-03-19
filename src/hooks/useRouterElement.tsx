@@ -17,6 +17,7 @@ import ListVaccination from '@/pages/vaccination/list-vaccination'
 import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
 import { OTPInput } from '@/pages/otp/otp'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
+import VaccinesPage from '@/pages/dashboard/Vaccine'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -44,6 +45,14 @@ export default function useRoutesElements() {
           <LayoutClient>
             <BlogDetails />
           </LayoutClient>
+        )
+      },
+      {
+        path: path.admin.vaccines,
+        element: (
+          <LayoutMain>
+            <VaccinesPage />
+          </LayoutMain>
         )
       },
       {
