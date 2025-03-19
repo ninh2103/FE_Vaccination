@@ -609,9 +609,6 @@ export default function BookingsPage() {
               className='w-full'
               type='search'
             />
-            <Button variant='outline' size='icon' className='h-9 w-9'>
-              <Search className='h-4 w-4' />
-            </Button>
           </div>
           <div className='flex items-center gap-2'>
             <DropdownMenu>

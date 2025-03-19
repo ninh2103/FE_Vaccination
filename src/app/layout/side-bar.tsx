@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CogIcon,
   UserIcon,
@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom'
 import { MdOutlineEmojiTransportation } from 'react-icons/md'
 import { TbBrandBooking } from 'react-icons/tb'
 import { IoCartOutline } from 'react-icons/io5'
-import { useLayout } from './LayoutContext'
 
 interface SidebarItem {
   name: string
@@ -23,9 +22,13 @@ interface SidebarItem {
 }
 
 const Sidebar: React.FC = () => {
-  const { isCollapsed } = useLayout() // Lấy isCollapsed từ LayoutContext
-  const [activeItem, setActiveItem] = React.useState<string | null>('General')
-  const [activeSubItem, setActiveSubItem] = React.useState<string | null>(null)
+  // Khởi tạo trạng thái dựa trên giá trị ban đầu của data-sidebar-collapsed
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const storedValue = document.body.getAttribute('data-sidebar-collapsed')
+    return storedValue === 'true'
+  })
+  const [activeItem, setActiveItem] = useState<string | null>('General')
+  const [activeSubItem, setActiveSubItem] = useState<string | null>(null)
   const navigate = useNavigate()
 
   const sidebarItems: SidebarItem[] = [
@@ -53,6 +56,18 @@ const Sidebar: React.FC = () => {
     setActiveSubItem(subItemPath)
     navigate(subItemPath)
   }
+
+  // Lắng nghe sự kiện toggleSidebar từ Topbar
+  useEffect(() => {
+    const handleToggleSidebar = (event: CustomEvent<{ isCollapsed: boolean }>) => {
+      setIsCollapsed(event.detail.isCollapsed)
+    }
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar as EventListener)
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggleSidebar as EventListener)
+    }
+  }, [])
 
   return (
     <div

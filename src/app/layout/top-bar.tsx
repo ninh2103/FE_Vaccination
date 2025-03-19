@@ -1,12 +1,31 @@
-import React from 'react'
-import { SunIcon, MoonIcon, UserCircleIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import React, { useState, useEffect } from 'react'
+import { SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { useLayout } from './LayoutContext'
+import { UserCircleIcon } from '@heroicons/react/24/outline'
+
+// Định nghĩa kiểu cho CustomEvent
+interface SidebarToggleEvent extends Event {
+  detail: {
+    isCollapsed: boolean
+  }
+}
 
 const Topbar: React.FC = () => {
-  const { isCollapsed, toggleSidebar } = useLayout() // Lấy isCollapsed và toggleSidebar từ LayoutContext
-  const [isDarkMode, setIsDarkMode] = React.useState(false)
-  const [language, setLanguage] = React.useState('EN')
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [language, setLanguage] = useState('EN')
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
+    document.body.getAttribute('data-sidebar-collapsed') === 'true'
+  )
+
+  // Sync state with document.body attribute on mount and update
+  useEffect(() => {
+    const handleSidebarToggle = (event: SidebarToggleEvent) => {
+      setIsSidebarCollapsed(event.detail.isCollapsed)
+    }
+
+    window.addEventListener('toggleSidebar', handleSidebarToggle as EventListener)
+    return () => window.removeEventListener('toggleSidebar', handleSidebarToggle as EventListener)
+  }, [])
 
   // Toggle Dark Mode
   const toggleDarkMode = () => {
@@ -16,6 +35,15 @@ const Topbar: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark')
     }
+  }
+
+  // Toggle Sidebar Collapse
+  const toggleSidebar = () => {
+    const newCollapsed = !isSidebarCollapsed
+    setIsSidebarCollapsed(newCollapsed)
+    document.body.setAttribute('data-sidebar-collapsed', newCollapsed.toString())
+    const event = new CustomEvent('toggleSidebar', { detail: { isCollapsed: newCollapsed } })
+    window.dispatchEvent(event)
   }
 
   // Language Options
@@ -28,18 +56,18 @@ const Topbar: React.FC = () => {
     <div className='w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 shadow-sm'>
       {/* Left Section: Logo and Collapse Button */}
       <div className='flex items-center space-x-4'>
-        <span className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+        <span className='ml-[2rem] text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
           VAXBOT
         </span>
         <button
-          onClick={toggleSidebar} // Sử dụng toggleSidebar từ LayoutContext
-          className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
+          onClick={toggleSidebar}
+          className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center'
           aria-label='Toggle sidebar'
         >
-          {isCollapsed ? (
-            <ChevronRightIcon className='h-5 w-5 text-gray-600 dark:text-gray-300' />
+          {isSidebarCollapsed ? (
+            <ChevronRightIcon className='h-5 w-5 text-gray-600 dark:text-gray-300 transition-transform duration-300 transform hover:scale-110' />
           ) : (
-            <ChevronLeftIcon className='h-5 w-5 text-gray-600 dark:text-gray-300' />
+            <ChevronLeftIcon className='h-5 w-5 text-gray-600 dark:text-gray-300 transition-transform duration-300 transform hover:scale-110' />
           )}
         </button>
       </div>
@@ -49,7 +77,7 @@ const Topbar: React.FC = () => {
         {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
-          className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
+          className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200'
           aria-label='Toggle dark mode'
         >
           {isDarkMode ? (
@@ -63,7 +91,7 @@ const Topbar: React.FC = () => {
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center'
+              className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center'
               aria-label='Change language'
             >
               <span className='text-sm font-medium text-gray-700 dark:text-gray-200'>{language}</span>
@@ -92,7 +120,7 @@ const Topbar: React.FC = () => {
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center'
+              className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center'
               aria-label='Account menu'
             >
               <UserCircleIcon className='h-6 w-6 text-gray-600 dark:text-gray-300' />
