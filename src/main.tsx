@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from '@/components/theme/theme-provider'
+import { Toaster } from 'sonner'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ToastContainer />
+      <Toaster richColors position='bottom-right' />
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <App />

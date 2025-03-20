@@ -22,3 +22,12 @@ export interface RegisterReponse {
   confirmPassword: string
   phone?: string
 }
+
+export interface Login {
+  email?: string
+  password?: string
+}
+export interface VerifyEmail {
+  email?: string
+  verificationCode?: string
+}

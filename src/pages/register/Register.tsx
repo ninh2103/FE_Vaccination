@@ -7,24 +7,55 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
-import { RegisterSchema } from '@/core/zod'
 import { Eye, EyeOff } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { path } from '@/core/constants/path'
+import { RegisterBody, RegisterBodyType } from '@/schemaValidator/auth.schema'
+import { useRegisterMutation } from '@/queries/useAuth'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
 
 export default function FormRegister() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm({
-    resolver: zodResolver(RegisterSchema),
+  const form = useForm<RegisterBodyType>({
+    resolver: zodResolver(RegisterBody),
     defaultValues: {
       name: '',
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      phone: ''
     }
   })
+
+  const registerMutation = useRegisterMutation()
+
+  const handleSubmit = (body: RegisterBodyType) => {
+    if (body.password !== body.confirmPassword) {
+      form.setError('confirmPassword', {
+        type: 'manual',
+        message: 'Passwords do not match'
+      })
+      return
+    }
+
+    registerMutation.mutate(body, {
+      onSuccess: (data) => {
+        form.reset()
+        toast.success('Register success !')
+        localStorage.setItem('email', body.email)
+        navigate('/verify-email')
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error
+        })
+      }
+    })
+  }
 
   return (
     <div className='min-h-screen flex items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
@@ -51,7 +82,7 @@ export default function FormRegister() {
           <CardDescription className='text-gray-400 text-center'>Join our vaccination community today!</CardDescription>
         </CardHeader>
         <Form {...form}>
-          <form className='space-y-4'>
+          <form className='space-y-4' onSubmit={form.handleSubmit(handleSubmit)}>
             <CardContent className='space-y-4'>
               <FormField
                 name='name'
@@ -140,6 +171,24 @@ export default function FormRegister() {
                           {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name='phone'
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Phone</Label>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='phone'
+                        placeholder='Enter your phone number'
+                        className='dark:bg-gray-700 border-gray-600'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

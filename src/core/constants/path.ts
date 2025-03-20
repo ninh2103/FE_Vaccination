@@ -10,7 +10,7 @@ export const path = {
   introduce: '/introduce',
   resetPassword: '/reset-password',
   forgotPassword: '/forgot-password',
-  otp: '/otp',
+  otp: '/verify-email',
   admin: {
     dashboard: '/admin/dashboard'
   }

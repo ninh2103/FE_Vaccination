@@ -7,17 +7,49 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { path } from '@/core/constants/path'
+import { useLoginMutation } from '@/queries/useAuth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoginBody, LoginBodyType } from '@/schemaValidator/auth.schema'
+import { setAccessTokenToLS, setRefreshTokenToLS } from '@/core/shared/storage'
+import { handleErrorApi } from '@/core/lib/utils'
+import { toast } from 'sonner'
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = useState(false)
-  const form = useForm({
+  const loginMutation = useLoginMutation()
+  const navigate = useNavigate()
+  const form = useForm<LoginBodyType>({
+    resolver: zodResolver(LoginBody),
     defaultValues: {
       email: '',
       password: ''
     }
   })
+
+  const handleLogin = (body: LoginBodyType) => {
+    loginMutation.mutate(body, {
+      onSuccess: (data) => {
+        const access_token = data.access_token
+        const refresh_token = data.refresh_token
+
+        if (access_token && refresh_token) {
+          setAccessTokenToLS(access_token)
+          setRefreshTokenToLS(refresh_token)
+
+          toast.success('Login success!')
+          navigate(path.home)
+        }
+      },
+
+      onError: (error) => {
+        handleErrorApi({
+          error: error
+        })
+      }
+    })
+  }
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
@@ -52,7 +84,7 @@ export default function FormLogin() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form className='space-y-4'>
+            <form onSubmit={form.handleSubmit(handleLogin)} className='space-y-4'>
               <FormField
                 name='email'
                 control={form.control}

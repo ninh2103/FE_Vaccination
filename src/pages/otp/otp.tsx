@@ -1,12 +1,52 @@
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
-import * as React from 'react'
 import { motion } from 'framer-motion'
+import { useVerifyEmailMutation } from '@/queries/useAuth'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { VerifyEmailBody, VerifyEmailBodyType } from '@/schemaValidator/auth.schema'
+import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
+import { handleErrorApi } from '@/core/lib/utils'
+import { path } from '@/core/constants/path'
+import { Button } from '@/components/ui/button'
 
 export function OTPInput() {
-  const [value, setValue] = React.useState('')
+  const navigate = useNavigate()
+  const email = localStorage.getItem('email') || ''
+
+  const form = useForm<VerifyEmailBodyType>({
+    resolver: zodResolver(VerifyEmailBody),
+    defaultValues: {
+      email,
+      verificationCode: ''
+    }
+  })
+
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors }
+  } = form
+
+  const verifyEmailMutation = useVerifyEmailMutation()
+
+  const handleVerify = (body: VerifyEmailBodyType) => {
+    verifyEmailMutation.mutate(body, {
+      onSuccess: () => {
+        toast.success('Verify success!')
+        localStorage.removeItem('email')
+        navigate(path.login)
+      },
+      onError: (error) => handleErrorApi({ error })
+    })
+  }
+
+  const otpValue = watch('verificationCode')
 
   return (
-    <div className='min-h-screen flex items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
+    <div className='min-h-screen flex flex-col items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
+      {/* Background Animation */}
       <div className='absolute inset-0 pointer-events-none z-0'>
         {Array.from({ length: 25 }).map((_, i) => (
           <motion.div
@@ -18,33 +58,30 @@ export function OTPInput() {
               scale: [0, 1, 0],
               opacity: [0, 1, 0]
             }}
-            transition={{
-              duration: Math.random() * 5 + 5,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: 'linear'
-            }}
+            transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, ease: 'linear' }}
           />
         ))}
       </div>
 
-      {/* Background Pattern */}
       <div className="fixed inset-0 dark:bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
 
-      <div className='space-y-2 text-white'>
-        <InputOTP maxLength={6} value={value} onChange={(value) => setValue(value)}>
+      <form onSubmit={handleSubmit(handleVerify)} className='flex flex-col items-center space-y-4 z-10'>
+        <InputOTP maxLength={6} value={otpValue} onChange={(value) => setValue('verificationCode', value)}>
           <InputOTPGroup>
-            <InputOTPSlot index={0} />
-            <InputOTPSlot index={1} />
-            <InputOTPSlot index={2} />
-            <InputOTPSlot index={3} />
-            <InputOTPSlot index={4} />
-            <InputOTPSlot index={5} />
+            {[...Array(6)].map((_, index) => (
+              <InputOTPSlot key={index} index={index} />
+            ))}
           </InputOTPGroup>
         </InputOTP>
-        <div className='text-center text-lg'>
-          {value === '' ? <>Enter your one-time password.</> : <>You entered: {value}</>}
-        </div>
-      </div>
+
+        {errors.verificationCode && <p className='text-red-500 text-sm'>{errors.verificationCode.message}</p>}
+
+        <div className='text-lg'>{otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}</div>
+
+        <Button type='submit' className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded'>
+          Verify OTP
+        </Button>
+      </form>
     </div>
   )
 }
