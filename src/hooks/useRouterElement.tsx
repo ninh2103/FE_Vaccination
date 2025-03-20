@@ -1,24 +1,34 @@
+import React from 'react'
+import { useLocation, useRoutes } from 'react-router-dom'
 import LayoutClient from '@/app/layout/LayoutClient'
 import LayoutMain from '@/app/layout/LayoutMain'
 import { path } from '@/core/constants/path'
 import PageNotFound from '@/pages/404/PageNotFound'
-import Dashboard from '@/pages/dashboard/Dashboard'
+import General from '@/pages/dashboard/General' // Import General thay vì Dashboard
 import HomePage from '@/pages/home/HomePage'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
 import BlogDetails from '@/pages/blog/BlogDetails'
-import { useLocation, useRoutes } from 'react-router-dom'
 import Profile from '@/pages/profile/Profile'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
+
+import Vaccines from '@/pages/dashboard/Vaccines'
+import Posts from '@/pages/dashboard/Posts'
+import Suppliers from '@/pages/dashboard/Suppliers'
+import Manufacturers from '@/pages/dashboard/Manufacturers'
+import Users from '@/pages/dashboard/Users'
+import Payments from '@/pages/dashboard/Payments'
+import History from '@/pages/dashboard/History'
+import Appointments from '@/pages/dashboard/Appointments'
+import Order from '@/pages/dashboard/Order'
+import { OTPInput } from '@/pages/otp/otp'
+import VaccinesPage from '@/pages/dashboard/Vaccines'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
-import { OTPInput } from '@/pages/otp/otp'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
-import VaccinesPage from '@/pages/dashboard/Vaccine'
-
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -32,10 +42,82 @@ export default function useRoutesElements() {
       { path: path.otp, element: <OTPInput /> },
 
       {
-        path: path.admin.dashboard,
+        path: path.admin.dashboard, // Giả định là "/admin/dashboard"
         element: (
           <LayoutMain>
-            <Dashboard />
+            <General /> {/* Thay Dashboard bằng General */}
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.vaccines, // "/vaccines"
+        element: (
+          <LayoutMain>
+            <Vaccines />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.post, // "/posts"
+        element: (
+          <LayoutMain>
+            <Posts />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.suppliers, // "/suppliers"
+        element: (
+          <LayoutMain>
+            <Suppliers />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.manufacturers, // "/Manufacturers"
+        element: (
+          <LayoutMain>
+            <Manufacturers />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.users, // "/Users "
+        element: (
+          <LayoutMain>
+            <Users />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.payments, // "/Payments "
+        element: (
+          <LayoutMain>
+            <Payments />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.history, // "/History "
+        element: (
+          <LayoutMain>
+            <History />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.appointments, // "/Appointments "
+        element: (
+          <LayoutMain>
+            <Appointments />
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.order, // "/Order "
+        element: (
+          <LayoutMain>
+            <Order />
           </LayoutMain>
         )
       },
