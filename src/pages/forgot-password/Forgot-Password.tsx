@@ -3,11 +3,36 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, Syringe } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ForgotPasswordBody, ForgotPasswordBodyType } from '@/schemaValidator/auth.schema'
+import { useForgotPasswordMutation } from '@/queries/useAuth'
+import { handleErrorApi } from '@/core/lib/utils'
+import { toast } from 'sonner'
 
 export default function ForgotPassword() {
+  const form = useForm<ForgotPasswordBodyType>({
+    resolver: zodResolver(ForgotPasswordBody),
+    defaultValues: {
+      email: ''
+    }
+  })
+  const forgotPasswordMutation = useForgotPasswordMutation()
+  const handleSubmit = async (body: ForgotPasswordBodyType) => {
+    await forgotPasswordMutation.mutateAsync(body, {
+      onSuccess: () => {
+        toast.success('Password reset instructions have been sent to your email.')
+      },
+      onError: (error: Error) => {
+        handleErrorApi({
+          error
+        })
+      }
+    })
+  }
   return (
     <div className='min-h-screen flex items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
       <div className='absolute inset-0 pointer-events-none z-0'>
@@ -52,13 +77,22 @@ export default function ForgotPassword() {
                 id='email'
                 placeholder='Enter your email'
                 type='email'
-                className={`pl-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 `}
+                {...form.register('email')}
+                className={`pl-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 ${
+                  form.formState.errors.email && 'border-red-500'
+                }`}
               />
             </div>
+            {form.formState.errors.email && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.email.message}</p>
+            )}
           </div>
         </CardContent>
         <CardFooter className='flex flex-col space-y-4'>
-          <Button className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 '>
+          <Button
+            onClick={() => form.handleSubmit(handleSubmit)()}
+            className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 '
+          >
             Send Reset Link
           </Button>
           <div className='text-sm text-center text-gray-400'>

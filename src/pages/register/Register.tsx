@@ -43,13 +43,13 @@ export default function FormRegister() {
     }
 
     registerMutation.mutate(body, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         form.reset()
         toast.success('Register success !')
         localStorage.setItem('email', body.email)
         navigate('/verify-email')
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         handleErrorApi({
           error
         })

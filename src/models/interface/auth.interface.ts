@@ -31,3 +31,10 @@ export interface VerifyEmail {
   email?: string
   verificationCode?: string
 }
+export interface ForgotPassword {
+  email?: string
+}
+export interface ResetPassword {
+  newPassword?: string
+  confirm_password?: string
+}

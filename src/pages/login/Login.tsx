@@ -15,6 +15,7 @@ import { LoginBody, LoginBodyType } from '@/schemaValidator/auth.schema'
 import { setAccessTokenToLS, setRefreshTokenToLS } from '@/core/shared/storage'
 import { handleErrorApi } from '@/core/lib/utils'
 import { toast } from 'sonner'
+import { LoginResponse } from '@/models/interface/auth.interface'
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = useState(false)
@@ -30,7 +31,7 @@ export default function FormLogin() {
 
   const handleLogin = (body: LoginBodyType) => {
     loginMutation.mutate(body, {
-      onSuccess: (data) => {
+      onSuccess: (data: LoginResponse) => {
         const access_token = data.access_token
         const refresh_token = data.refresh_token
 
@@ -42,8 +43,7 @@ export default function FormLogin() {
           navigate(path.home)
         }
       },
-
-      onError: (error) => {
+      onError: (error: Error) => {
         handleErrorApi({
           error: error
         })

@@ -5,12 +5,65 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Eye, EyeOff, Key, Lock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { path } from '@/core/constants/path'
+import { useResetPasswordMutation } from '@/queries/useAuth'
+import { ResetPasswordBody, ResetPasswordBodyType } from '@/schemaValidator/auth.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
+import { setAccessTokenToLS } from '@/core/shared/storage'
 
 export default function ResetPassword() {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('access_token')
+  setAccessTokenToLS(token as string)
+
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const resetPaswordMutation = useResetPasswordMutation()
+  const form = useForm<ResetPasswordBodyType>({
+    resolver: zodResolver(ResetPasswordBody),
+    defaultValues: {
+      newPassword: '',
+      confirm_password: ''
+    }
+  })
+
+  const handleSubmit = async (body: ResetPasswordBodyType) => {
+    if (!token) {
+      toast.error('Invalid or missing reset token.')
+      return
+    }
+    if (resetPaswordMutation.isPending) return
+
+    if (body.newPassword !== body.confirm_password) {
+      form.setError('confirm_password', {
+        type: 'manual',
+        message: 'Passwords do not match'
+      })
+      return
+    }
+
+    resetPaswordMutation.mutate(
+      { params: body, token: token },
+      {
+        onSuccess: () => {
+          toast.success('Password reset successfully.')
+          navigate(path.login)
+        },
+        onError: (error: Error) => {
+          handleErrorApi({ error })
+        }
+      }
+    )
+  }
+
+  const toggleNewPasswordVisibility = () => setShowNewPassword(!showNewPassword)
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword)
 
   return (
     <div className='min-h-screen flex items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
@@ -57,15 +110,20 @@ export default function ResetPassword() {
                 id='newPassword'
                 type={showNewPassword ? 'text' : 'password'}
                 placeholder='Enter your new password'
-                className={`pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400`}
+                {...form.register('newPassword')}
+                className={`pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 ${form.formState.errors.newPassword ? 'border-red-500' : ''}`}
               />
               <button
                 type='button'
+                onClick={toggleNewPasswordVisibility}
                 className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300'
               >
                 {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+            {form.formState.errors.confirm_password && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.confirm_password.message}</p>
+            )}
           </div>
           <div className='space-y-2'>
             <Label htmlFor='confirmPassword'>Confirm New Password</Label>
@@ -75,20 +133,28 @@ export default function ResetPassword() {
                 id='confirmPassword'
                 type={showConfirmPassword ? 'text' : 'password'}
                 placeholder='Confirm your new password'
+                {...form.register('confirm_password')}
                 className={`pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 `}
               />
 
               <button
                 type='button'
+                onClick={toggleConfirmPasswordVisibility}
                 className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300'
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+            {form.formState.errors.confirm_password && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.confirm_password.message}</p>
+            )}
           </div>
         </CardContent>
         <CardFooter className='flex flex-col space-y-4'>
-          <Button className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'>
+          <Button
+            onClick={form.handleSubmit(handleSubmit)}
+            className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
+          >
             Reset Password
           </Button>
           <div className='text-sm text-center text-gray-400'>
