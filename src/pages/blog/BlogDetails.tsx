@@ -1,18 +1,81 @@
 import React from 'react'
 import Header from '@/components/homepage/Header'
+import { format } from 'date-fns'
 
-const BlogDetails: React.FC = () => {
-  // const scrollToTop = () => {
-  //   window.scrollTo({ top: 0, behavior: "smooth" });
-  // };
+interface BlogDetailsProps {
+  blog?: {
+    title: string
+    content: string
+    author: {
+      name: string
+      avatar?: string
+    }
+    tags: string[]
+    createdAt: Date
+    updatedAt: Date
+    coverImage?: string
+  }
+}
+
+const BlogDetails: React.FC<BlogDetailsProps> = ({ blog }) => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Sample data for demonstration - would normally come from props
+  const demoData = {
+    title: 'KHỎI SỐT XUẤT HUYẾT BAO LÂU THÌ ĐƯỢC TẮM? NHỮNG LƯU Ý CẦN BIẾT.',
+    author: {
+      name: 'BS Nguyễn Như Diễn',
+      avatar: 'https://randomuser.me/api/portraits/men/41.jpg'
+    },
+    tags: ['Sức khỏe', 'Sốt xuất huyết', 'Chăm sóc'],
+    createdAt: new Date('2025-02-15'),
+    updatedAt: new Date('2025-02-20')
+  }
+
+  // Use provided blog data or fallback to demo data
+  const blogData = blog || demoData
+
   return (
     <div>
       <Header />
-      <div className='max-w-[70rem] mx-auto p-5    '>
-        <div className='border-b pb-4 mt-40   '>
-          <h2 className='text-2xl font-bold'> KHỎI SỐT XUẤT HUYẾT BAO LÂU THÌ ĐƯỢC TẮM? NHỮNG LƯU Ý CẦN BIẾT.</h2>
+      <div className='max-w-[70rem] mx-auto p-5'>
+        {/* Blog header with metadata */}
+        <div className='border-b pb-4 mt-40'>
+          <h1 className='text-3xl font-bold mb-4'>{blogData.title}</h1>
+
+          <div className='flex items-center justify-between flex-wrap gap-4 mt-4 mb-2'>
+            {/* Author info */}
+            <div className='flex items-center gap-3'>
+              {blogData.author.avatar && (
+                <img
+                  src={blogData.author.avatar}
+                  alt={blogData.author.name}
+                  className='w-10 h-10 rounded-full object-cover'
+                />
+              )}
+              <span className='font-medium'>{blogData.author.name}</span>
+            </div>
+
+            {/* Date info */}
+            <div className='text-sm text-gray-600'>
+              <div>Đã đăng: {format(blogData.createdAt, 'dd/MM/yyyy')}</div>
+              <div>Cập nhật: {format(blogData.updatedAt, 'dd/MM/yyyy')}</div>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className='flex flex-wrap gap-2 my-3'>
+            {blogData.tags.map((tag, index) => (
+              <span key={index} className='bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full'>
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className='italic font-light'>
+
+        <div className='italic font-light mt-4'>
           Có thể tắm khi bị sốt xuất huyết, nhưng cần chú ý và cẩn thận để tránh làm tình trạng bệnh nặng hơn, cần lưu ý
           không tắm nước lạnh, không tắm khi sốt cao hoặc cảm thấy mệt mỏi, không để cơ thể nhiễm lạnh sau khi tắm…{' '}
           <b>Vậy, khỏi sốt xuất huyết bao lâu thì được tắm</b> bình thường và cần lưu ý những gì?{' '}
@@ -24,12 +87,12 @@ const BlogDetails: React.FC = () => {
           </div>
           <div className='p-4 text-gray-700'>
             <blockquote className='border-l-4 border-blue-600 pl-4 '>
-              BS Nguyễn Như Diễn – Quản lý Y khoa vùng 5 miền Bắc, <b>Hệ thống tiêm chủng VAXBOT </b> cho biết: “Mỗi
+              BS Nguyễn Như Diễn – Quản lý Y khoa vùng 5 miền Bắc, <b>Hệ thống tiêm chủng VAXBOT </b> cho biết: "Mỗi
               năm, có khoảng 400 triệu người bị nhiễm sốt xuất huyết, nhưng có khoảng 80% người không có triệu chứng.
               Các triệu chứng thường xuất hiện từ 4 – 10 ngày sau khi bị muỗi đốt và kéo dài từ 3 – 7 ngày. Khoảng 1
               trong 20 người bị sốt xuất huyết có thể phát triển thành sốt xuất huyết nặng sau khi các triệu chứng ban
               đầu biến mất, thông thường xảy ra trong 24 – 48 giờ sau khi hết sốt (1). Do đó, sau khi các triệu chứng
-              sốt xuất huyết biến mất, người bệnh vẫn nên cần trọng và theo dõi sức khỏe thường xuyên.”
+              sốt xuất huyết biến mất, người bệnh vẫn nên cần trọng và theo dõi sức khỏe thường xuyên."
             </blockquote>
           </div>
         </div>
@@ -54,7 +117,7 @@ const BlogDetails: React.FC = () => {
           <br></br>
           <p>
             {' '}
-            Quan niệm “không được tắm” khi mắc sốt xuất huyết hoặc sau khi hết bệnh thường bắt nguồn từ lo ngại cơ thể
+            Quan niệm "không được tắm" khi mắc sốt xuất huyết hoặc sau khi hết bệnh thường bắt nguồn từ lo ngại cơ thể
             bị nhiễm lạnh hoặc ảnh hưởng xấu đến mạch máu. Tuy nhiên, từ góc độ y khoa, việc kiêng tắm hoàn toàn trong
             thời gian dài là không cần thiết và có thể phản tác dụng. Bụi bẩn và mồ hôi tích tụ trên cơ thể có thể trở
             thành môi trường thuận lợi cho các vi khuẩn, làm tăng nguy cơ viêm nhiễm da và gây khó chịu, bất tiện trong
@@ -105,8 +168,8 @@ const BlogDetails: React.FC = () => {
         <h2 className='font-bold text-2xl '>Lưu ý khi tắm sau sốt xuất huyết</h2>
         <br></br>
         <p>
-          Bên cạnh thắc mắc “Sau khi hết sốt xuất huyết có được tắm không?” và “Khỏi sốt xuất huyết bao lâu thì được
-          tắm?” cũng có rất nhiều người quan tâm đến những lưu ý khi tắm sau khi khỏi bệnh. Các chuyên gia cho biết, khi
+          Bên cạnh thắc mắc "Sau khi hết sốt xuất huyết có được tắm không?" và "Khỏi sốt xuất huyết bao lâu thì được
+          tắm?" cũng có rất nhiều người quan tâm đến những lưu ý khi tắm sau khi khỏi bệnh. Các chuyên gia cho biết, khi
           tắm sau sốt xuất huyết, người bệnh cần chú ý một số yếu tố quan trọng để bảo vệ sức khỏe, bao gồm lựa chọn
           thời điểm tắm phù hợp, kiểm soát nhiệt độ nước và thời gian tắm sao cho cơ thể không bị mệt mỏi hay nhiễm
           lạnh. Cụ thể:{' '}
@@ -233,20 +296,14 @@ const BlogDetails: React.FC = () => {
           </div>
           <br></br>
           <p>
-            Bài viết đã cung cấp đầy đủ thông tin về việc “Khỏi sốt xuất huyết bao lâu thì được tắm và những lưu ý cần
-            biết”. Sau khi vượt qua giai đoạn nguy hiểm 1 – 2 ngày, người bệnh sẽ bước vào giai đoạn hồi phục và có thể
+            Bài viết đã cung cấp đầy đủ thông tin về việc "Khỏi sốt xuất huyết bao lâu thì được tắm và những lưu ý cần
+            biết". Sau khi vượt qua giai đoạn nguy hiểm 1 – 2 ngày, người bệnh sẽ bước vào giai đoạn hồi phục và có thể
             tắm rửa bình thường. Tuy nhiên, cần lưu ý nên tắm bằng nước ấm và hạn chế thời gian tắm để tránh ảnh hưởng
             sức khỏe. Việc chăm sóc đúng cách giúp phục hồi nhanh chóng. Đặc biệt, sau khi khỏi bệnh, để phòng tái nhiễm
             sốt xuất huyết mọi người nên chủ động tiêm vắc xin phòng sốt xuất huyết đầy đủ.
           </p>
         </p>
       </div>
-      {/* <button
-        onClick={scrollToTop}
-        className="fixed bottom-5 right-5 bg-blue-200 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition"
-      >
-        Quay về đầu trang
-      </button> */}
     </div>
   )
 }
