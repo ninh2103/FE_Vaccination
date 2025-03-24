@@ -82,7 +82,7 @@ const vaccines: Vaccine[] = [
   {
     id: 3,
     name: 'Hepatitis B Vaccine',
-    image: 'https://images.unsplash.com/photo-1625831152157-2b0e2ca79efa',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
     info: 'Hepatitis B prevention',
     price: 200000,
     manufacturer: 'Merck',
@@ -122,7 +122,7 @@ const vaccines: Vaccine[] = [
   {
     id: 5,
     name: 'MMR Vaccine',
-    image: 'https://images.unsplash.com/photo-1576073353698-c6406c5f1796',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
     info: 'Measles, Mumps, Rubella',
     price: 400000,
     manufacturer: 'Merck',
@@ -142,7 +142,7 @@ const vaccines: Vaccine[] = [
   {
     id: 6,
     name: 'Polio Vaccine',
-    image: 'https://images.unsplash.com/photo-1612277803164-2d529af86595',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
     info: 'Polio prevention',
     price: 250000,
     manufacturer: 'Sanofi',
@@ -162,7 +162,7 @@ const vaccines: Vaccine[] = [
   {
     id: 7,
     name: 'HPV Vaccine',
-    image: 'https://images.unsplash.com/photo-1582650544481-b98ce8b7319f',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
     info: 'Human Papillomavirus',
     price: 600000,
     manufacturer: 'Merck',
@@ -182,7 +182,7 @@ const vaccines: Vaccine[] = [
   {
     id: 8,
     name: 'Rotavirus Vaccine',
-    image: 'https://images.unsplash.com/photo-1617391258000-4b063a3066fa',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
     info: 'Rotavirus prevention',
     price: 350000,
     manufacturer: 'GSK',
@@ -311,22 +311,22 @@ export default function ListVaccination() {
 
         {/* Sorting buttons */}
         <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => toggleSort('name')} className='flex-1'>
+          <Button variant='outline' onClick={() => toggleSort('name')} className='flex-1 dark:text-white'>
             Name
             {sortBy === 'name' &&
               (sortDirection === 'asc' ? (
-                <ChevronUp className='ml-1 h-4 w-4' />
+                <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
               ) : (
-                <ChevronDown className='ml-1 h-4 w-4' />
+                <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
               ))}
           </Button>
-          <Button variant='outline' onClick={() => toggleSort('price')} className='flex-1'>
+          <Button variant='outline' onClick={() => toggleSort('price')} className='flex-1 dark:text-white'>
             Price
             {sortBy === 'price' &&
               (sortDirection === 'asc' ? (
-                <ChevronUp className='ml-1 h-4 w-4' />
+                <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
               ) : (
-                <ChevronDown className='ml-1 h-4 w-4' />
+                <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
               ))}
           </Button>
         </div>
@@ -417,8 +417,12 @@ export default function ListVaccination() {
             </PaginationItem>
 
             {Array.from({ length: totalPages }).map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink isActive={currentPage === index + 1} onClick={() => setCurrentPage(index + 1)}>
+              <PaginationItem key={index} className='dark!:bg-white'>
+                <PaginationLink
+                  className='dark!:text-white'
+                  isActive={currentPage === index + 1}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
                   {index + 1}
                 </PaginationLink>
               </PaginationItem>

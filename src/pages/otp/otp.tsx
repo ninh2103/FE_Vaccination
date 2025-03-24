@@ -65,7 +65,7 @@ export function OTPInput() {
 
       <div className="fixed inset-0 dark:bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
 
-      <form onSubmit={handleSubmit(handleVerify)} className='flex flex-col items-center space-y-4 z-10'>
+      <form onSubmit={handleSubmit(handleVerify)} className='flex flex-col items-center space-y-4 z-10 dark:text-white'>
         <InputOTP maxLength={6} value={otpValue} onChange={(value) => setValue('verificationCode', value)}>
           <InputOTPGroup>
             {[...Array(6)].map((_, index) => (
@@ -76,9 +76,11 @@ export function OTPInput() {
 
         {errors.verificationCode && <p className='text-red-500 text-sm'>{errors.verificationCode.message}</p>}
 
-        <div className='text-lg'>{otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}</div>
+        <div className='text-lg dark:text-white'>
+          {otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}
+        </div>
 
-        <Button type='submit' className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded'>
+        <Button type='submit' className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded'>
           Verify OTP
         </Button>
       </form>

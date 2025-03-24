@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, Tag, Star, AlertCircle, Info, Phone, Building } from 'lucide-react'
+import { path } from '@/core/constants/path'
 
 // Temporarily using the interface from the dashboard/Vaccines page
 // In a real application, this would be imported from a shared model file
@@ -71,6 +72,126 @@ const vaccines: Vaccine[] = [
     sideEffects: 'Mild fever, soreness at injection site',
     storage: '2-8°C',
     status: 'Low Stock'
+  },
+  {
+    id: 3,
+    name: 'Hepatitis B Vaccine',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
+    info: 'Hepatitis B prevention',
+    price: 200000,
+    manufacturer: 'Merck',
+    country: 'USA',
+    type: 'Adult',
+    quantity: 0,
+    expiryDate: '2025-03-15',
+    doseInterval: '30 days',
+    target: 'Adults',
+    dosage: '1ml',
+    administration: 'Intramuscular',
+    contraindications: 'Yeast allergy',
+    sideEffects: 'Muscle pain',
+    storage: '2-8°C',
+    status: 'Out of Stock'
+  },
+  {
+    id: 4,
+    name: 'Tetanus Vaccine',
+    image: 'https://images.unsplash.com/photo-1631815589968-fdb09a223b1e',
+    info: 'Tetanus prevention',
+    price: 150000,
+    manufacturer: 'GSK',
+    country: 'UK',
+    type: 'Adult',
+    quantity: 20,
+    expiryDate: '2025-06-20',
+    doseInterval: 'N/A',
+    target: 'Adults',
+    dosage: '0.5ml',
+    administration: 'Intramuscular',
+    contraindications: 'None',
+    sideEffects: 'Soreness',
+    storage: '2-8°C',
+    status: 'In Stock'
+  },
+  {
+    id: 5,
+    name: 'MMR Vaccine',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
+    info: 'Measles, Mumps, Rubella',
+    price: 400000,
+    manufacturer: 'Merck',
+    country: 'USA',
+    type: 'Children',
+    quantity: 5,
+    expiryDate: '2025-10-05',
+    doseInterval: '28 days',
+    target: 'Children',
+    dosage: '0.5ml',
+    administration: 'Subcutaneous',
+    contraindications: 'Immunodeficiency',
+    sideEffects: 'Rash',
+    storage: '2-8°C',
+    status: 'Low Stock'
+  },
+  {
+    id: 6,
+    name: 'Polio Vaccine',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
+    info: 'Polio prevention',
+    price: 250000,
+    manufacturer: 'Sanofi',
+    country: 'France',
+    type: 'Children',
+    quantity: 12,
+    expiryDate: '2025-07-15',
+    doseInterval: '60 days',
+    target: 'Children',
+    dosage: '0.5ml',
+    administration: 'Oral',
+    contraindications: 'None',
+    sideEffects: 'None',
+    storage: '2-8°C',
+    status: 'In Stock'
+  },
+  {
+    id: 7,
+    name: 'HPV Vaccine',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
+    info: 'Human Papillomavirus',
+    price: 600000,
+    manufacturer: 'Merck',
+    country: 'USA',
+    type: 'Adult',
+    quantity: 3,
+    expiryDate: '2025-11-30',
+    doseInterval: '60 days',
+    target: 'Adults',
+    dosage: '0.5ml',
+    administration: 'Intramuscular',
+    contraindications: 'Allergy',
+    sideEffects: 'Pain',
+    storage: '2-8°C',
+    status: 'Low Stock'
+  },
+  {
+    id: 8,
+    name: 'Rotavirus Vaccine',
+    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
+    info: 'Rotavirus prevention',
+    price: 350000,
+    manufacturer: 'GSK',
+    country: 'UK',
+    type: 'Children',
+    quantity: 0,
+    expiryDate: '2025-08-25',
+    doseInterval: '60 days',
+    target: 'Infants',
+    dosage: '2ml',
+    administration: 'Oral',
+    contraindications: 'Intussusception',
+    sideEffects: 'Diarrhea',
+    storage: '2-8°C',
+    status: 'Out of Stock'
   }
 ]
 
@@ -189,7 +310,11 @@ export default function VaccineDetail() {
                   <span>{vaccine.quantity} doses</span>
                 </div>
                 <div className='mt-4'>
-                  <Button className='w-full'>Book Appointment</Button>
+                  <Link to={`${path.booking}`}>
+                    <Button className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white'>
+                      Book Appointment
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>
