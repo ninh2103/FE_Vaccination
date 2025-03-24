@@ -224,9 +224,11 @@ export default function ListVaccination() {
                       <p className='text-gray-500 text-sm mt-2'>{veccine.description}</p>
                       <div className='flex items-center justify-between mt-4'>
                         <span className='text-gray-900 font-bold text-lg'>{veccine.price}</span>
-                        <Button className=' bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:via-green-600 hover:to-teal-600 text-white py-2 px-4 rounded-full font-bold '>
-                          Booking
-                        </Button>
+                        <Link to={path.booking}>
+                          <Button className=' bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:via-green-600 hover:to-teal-600 text-white py-2 px-4 rounded-full font-bold '>
+                            Booking
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   ))}

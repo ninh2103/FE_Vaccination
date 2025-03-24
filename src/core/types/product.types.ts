@@ -9,6 +9,11 @@ export type Product = {
   srcUrl: string
   gallery?: string[]
   price: number
+  description?: string
+  quantity?: number
+  expirationDate?: string
+  manufacturer?: string
+  supplier?: string
 }
 
 export type Review = {

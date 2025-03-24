@@ -124,7 +124,14 @@ export function FileUploader({
         </div>
       )}
       {error && <p className='text-sm text-destructive'>{error}</p>}
-      <input type='file' ref={fileInputRef} onChange={handleFileChange} accept={accept} className='hidden' />
+      <input
+        type='file'
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept={accept}
+        className='hidden'
+        aria-label='File upload'
+      />
     </div>
   )
 }

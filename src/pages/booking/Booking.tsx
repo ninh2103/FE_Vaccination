@@ -195,7 +195,10 @@ const CheckOutPagePageMain = () => {
                   />
                 </div>
 
-                <Button type='submit' className='w-full bg-blue-600 hover:bg-blue-700 text-white'>
+                <Button
+                  type='submit'
+                  className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
+                >
                   Confirm Booking
                 </Button>
               </form>
