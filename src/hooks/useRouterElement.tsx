@@ -169,6 +169,7 @@ export default function useRoutesElements() {
           </LayoutClient>
         )
       },
+
       {
         path: path.booking,
         element: (

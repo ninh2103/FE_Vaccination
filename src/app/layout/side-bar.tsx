@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   CogIcon,
   UserIcon,
@@ -19,16 +19,12 @@ interface SidebarItem {
   subItems?: { name: string; path: string }[]
   path?: string
 }
+
 interface SidebarProps {
   isCollapsed: boolean
 }
 
-const Sidebar: React.FC<SidebarProps> = () => {
-  // Khởi tạo trạng thái dựa trên giá trị ban đầu của data-sidebar-collapsed
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    const storedValue = document.body.getAttribute('data-sidebar-collapsed')
-    return storedValue === 'true'
-  })
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const [activeItem, setActiveItem] = useState<string | null>('General')
   const [activeSubItem, setActiveSubItem] = useState<string | null>(null)
   const navigate = useNavigate()
@@ -70,18 +66,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
     setActiveSubItem(subItemPath)
     navigate(subItemPath)
   }
-
-  // Lắng nghe sự kiện toggleSidebar từ Topbar
-  useEffect(() => {
-    const handleToggleSidebar = (event: CustomEvent<{ isCollapsed: boolean }>) => {
-      setIsCollapsed(event.detail.isCollapsed)
-    }
-
-    window.addEventListener('toggleSidebar', handleToggleSidebar as EventListener)
-    return () => {
-      window.removeEventListener('toggleSidebar', handleToggleSidebar as EventListener)
-    }
-  }, [])
 
   return (
     <div
