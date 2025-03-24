@@ -1,9 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CalendarIcon, TagIcon } from 'lucide-react'
+import { CalendarIcon } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination'
 
 // Interface for blog post
 interface BlogPost {
@@ -54,12 +63,56 @@ const initialBlogs: BlogPost[] = [
     publishDate: '2024-03-18',
     tags: ['Vaccine', 'Measles', 'Side Effects'],
     image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
+  },
+  {
+    id: 5,
+    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
+    slug: 'tiem-vacxin-soi',
+    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
+    publishDate: '2024-03-18',
+    tags: ['Vaccine', 'Measles', 'Side Effects'],
+    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
+  },
+  {
+    id: 6,
+    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
+    slug: 'tiem-vacxin-soi',
+    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
+    publishDate: '2024-03-18',
+    tags: ['Vaccine', 'Measles', 'Side Effects'],
+    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
+  },
+  {
+    id: 7,
+    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
+    slug: 'tiem-vacxin-soi',
+    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
+    publishDate: '2024-03-18',
+    tags: ['Vaccine', 'Measles', 'Side Effects'],
+    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
   }
 ]
 
 export default function BlogList() {
   const [blogs] = useState<BlogPost[]>(initialBlogs)
   const navigate = useNavigate()
+  const [currentPage, setCurrentPage] = useState(1)
+  const postsPerPage = 6
+
+  // Calculate total pages
+  const totalPages = Math.ceil(blogs.length / postsPerPage)
+
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage
+  const indexOfFirstPost = indexOfLastPost - postsPerPage
+  const currentPosts = blogs.slice(indexOfFirstPost, indexOfLastPost)
+
+  // Reset to page 1 if current page exceeds total pages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages, currentPage])
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return ''
@@ -71,6 +124,44 @@ export default function BlogList() {
     navigate(`/blog/${slug}`)
   }
 
+  // Function to generate page numbers
+  const getPageNumbers = () => {
+    const pageNumbers = []
+
+    if (totalPages <= 5) {
+      // If total pages are 5 or less, show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i)
+      }
+    } else {
+      // Always include first page
+      pageNumbers.push(1)
+
+      if (currentPage > 3) {
+        // Add ellipsis if current page is away from start
+        pageNumbers.push('ellipsis')
+      }
+
+      // Add pages around current page
+      const startPage = Math.max(2, currentPage - 1)
+      const endPage = Math.min(totalPages - 1, currentPage + 1)
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i)
+      }
+
+      if (currentPage < totalPages - 2) {
+        // Add ellipsis if current page is away from end
+        pageNumbers.push('ellipsis')
+      }
+
+      // Always include last page
+      pageNumbers.push(totalPages)
+    }
+
+    return pageNumbers
+  }
+
   return (
     <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
       <div className='text-center mb-12'>
@@ -79,7 +170,7 @@ export default function BlogList() {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-        {blogs.map((blog) => (
+        {currentPosts.map((blog) => (
           <Card
             key={blog.id}
             className='overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer'
@@ -118,6 +209,45 @@ export default function BlogList() {
           </Card>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className='mt-12'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+
+              {getPageNumbers().map((pageNumber, index) => (
+                <PaginationItem key={index}>
+                  {pageNumber === 'ellipsis' ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      isActive={currentPage === pageNumber}
+                      onClick={() => setCurrentPage(Number(pageNumber))}
+                      className='cursor-pointer'
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }
