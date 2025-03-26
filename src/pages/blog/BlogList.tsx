@@ -1,253 +1,174 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Card, CardContent } from '@/components/ui/card'
+import React, { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { CalendarIcon } from 'lucide-react'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
-// Interface for blog post
 interface BlogPost {
-  id: number
+  id: string
   title: string
-  slug: string
-  excerpt: string
-  publishDate: string | null
-  tags: string[]
-  image: string | null
+  tag: {
+    id: string
+    name: string
+  }
+  createdAt: string
 }
 
-// Sample blog data
-const initialBlogs: BlogPost[] = [
-  {
-    id: 1,
-    title: 'HOW LONG DOES IS TAKE TO RECOVER FROM DENUE FEVER?',
-    slug: 'khoi-sot-xuat-huyet-bao-lau-thi-duoc-tam',
-    excerpt: 'How long does it take to recover from dengue fever before you can take a bath? Notes you need to know',
-    publishDate: '2024-03-25',
-    tags: ['Health', 'Fever', 'Medical'],
-    image: 'https://vnvc.vn/wp-content/uploads/2025/02/khoi-sot-xuat-huyet-bao-lau-thi-duoc-tam.jpg'
-  },
-  {
-    id: 2,
-    title: 'HPV – HIGH-RISK SILENT VIRUS AND PREVENTION METHODS',
-    slug: 'hpv-viruss',
-    excerpt: 'HPV – A Silently Dangerous Virus and How to Effectively Prevent It',
-    publishDate: '2024-03-22',
-    tags: ['HPV', 'Virus', 'Prevention'],
-    image: 'https://vnvc.vn/wp-content/uploads/2024/11/vnvc-co-du-vac-xin-hpv.jpg'
-  },
-  {
-    id: 3,
-    title: '10 REASONS YOU SHOULD CHOOSE VAX-BOX TO VACCINATE',
-    slug: 'ly-do-chon-vaxbox',
-    excerpt: 'Vax-Box vaccination and medical service center provides the best care',
-    publishDate: '2024-03-20',
-    tags: ['Vaccination', 'Service', 'Healthcare'],
-    image:
-      'https://bizweb.dktcdn.net/100/524/140/files/464821244-3966396143604819-6230181539781010370-n.jpg?v=1730080483781'
-  },
-  {
-    id: 4,
-    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
-    slug: 'tiem-vacxin-soi',
-    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
-    publishDate: '2024-03-18',
-    tags: ['Vaccine', 'Measles', 'Side Effects'],
-    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
-  },
-  {
-    id: 5,
-    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
-    slug: 'tiem-vacxin-soi',
-    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
-    publishDate: '2024-03-18',
-    tags: ['Vaccine', 'Measles', 'Side Effects'],
-    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
-  },
-  {
-    id: 6,
-    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
-    slug: 'tiem-vacxin-soi',
-    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
-    publishDate: '2024-03-18',
-    tags: ['Vaccine', 'Measles', 'Side Effects'],
-    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
-  },
-  {
-    id: 7,
-    title: 'DOES MEASLES VACCINE CAUSE MORE FEVER?',
-    slug: 'tiem-vacxin-soi',
-    excerpt: 'Measles vaccine: Does measles vaccination have measles?',
-    publishDate: '2024-03-18',
-    tags: ['Vaccine', 'Measles', 'Side Effects'],
-    image: 'https://vnvc.vn/wp-content/uploads/2024/12/kham-sang-loc-truoc-tiem-1.jpg'
-  }
-]
+const ITEMS_PER_PAGE = 10
 
-export default function BlogList() {
-  const [blogs] = useState<BlogPost[]>(initialBlogs)
-  const navigate = useNavigate()
+const BlogList: React.FC = () => {
+  const location = useLocation()
+  const currentPostId = location.pathname.split('/').pop()
   const [currentPage, setCurrentPage] = useState(1)
-  const postsPerPage = 6
+  const [searchQuery, setSearchQuery] = useState('')
 
-  // Calculate total pages
-  const totalPages = Math.ceil(blogs.length / postsPerPage)
-
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage
-  const indexOfFirstPost = indexOfLastPost - postsPerPage
-  const currentPosts = blogs.slice(indexOfFirstPost, indexOfLastPost)
-
-  // Reset to page 1 if current page exceeds total pages
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages)
+  // This would typically come from an API
+  const blogPosts: BlogPost[] = [
+    {
+      id: '1',
+      title: 'Vắc xin COVID-19: Những điều cần biết về các loại vắc xin phổ biến',
+      tag: { id: '101', name: 'COVID-19' },
+      createdAt: '2024-03-20T12:00:00Z'
+    },
+    {
+      id: '2',
+      title: 'Lịch tiêm chủng cho trẻ sơ sinh và trẻ nhỏ',
+      tag: { id: '102', name: 'Pediatrics' },
+      createdAt: '2024-03-19T09:30:00Z'
+    },
+    {
+      id: '3',
+      title: 'Vắc xin cúm mùa: Tại sao nên tiêm phòng hàng năm?',
+      tag: { id: '103', name: 'Flu' },
+      createdAt: '2024-03-18T15:45:00Z'
+    },
+    {
+      id: '4',
+      title: 'Tác dụng phụ sau tiêm vắc xin: Những điều cần lưu ý',
+      tag: { id: '104', name: 'Safety' },
+      createdAt: '2024-03-17T11:20:00Z'
+    },
+    {
+      id: '5',
+      title: 'Vắc xin HPV: Bảo vệ sức khỏe cho thanh thiếu niên',
+      tag: { id: '105', name: 'HPV' },
+      createdAt: '2024-03-16T14:15:00Z'
+    },
+    {
+      id: '6',
+      title: 'Tiêm phòng cho phụ nữ mang thai: Những vắc xin cần thiết',
+      tag: { id: '106', name: 'Pregnancy' },
+      createdAt: '2024-03-15T16:30:00Z'
+    },
+    {
+      id: '7',
+      title: 'Vắc xin viêm gan B: Tầm quan trọng và lịch tiêm phòng',
+      tag: { id: '107', name: 'Hepatitis' },
+      createdAt: '2024-03-14T10:00:00Z'
+    },
+    {
+      id: '8',
+      title: 'Tiêm phòng cho người cao tuổi: Những vắc xin cần thiết',
+      tag: { id: '108', name: 'Elderly' },
+      createdAt: '2024-03-13T13:45:00Z'
+    },
+    {
+      id: '9',
+      title: 'Vắc xin bạch hầu - ho gà - uốn ván: Bảo vệ toàn diện',
+      tag: { id: '109', name: 'DPT' },
+      createdAt: '2024-03-12T09:15:00Z'
+    },
+    {
+      id: '10',
+      title: 'Tiêm phòng trước khi đi du lịch: Hướng dẫn chi tiết',
+      tag: { id: '110', name: 'Travel' },
+      createdAt: '2024-03-11T11:30:00Z'
     }
-  }, [totalPages, currentPage])
+  ]
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const filteredPosts = blogPosts.filter(
+    (post) =>
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const currentPosts = filteredPosts.slice(startIndex, endIndex)
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1))
   }
 
-  const handleBlogClick = (slug: string) => {
-    navigate(`/blog/${slug}`)
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
   }
 
-  // Function to generate page numbers
-  const getPageNumbers = () => {
-    const pageNumbers = []
-
-    if (totalPages <= 5) {
-      // If total pages are 5 or less, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i)
-      }
-    } else {
-      // Always include first page
-      pageNumbers.push(1)
-
-      if (currentPage > 3) {
-        // Add ellipsis if current page is away from start
-        pageNumbers.push('ellipsis')
-      }
-
-      // Add pages around current page
-      const startPage = Math.max(2, currentPage - 1)
-      const endPage = Math.min(totalPages - 1, currentPage + 1)
-
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i)
-      }
-
-      if (currentPage < totalPages - 2) {
-        // Add ellipsis if current page is away from end
-        pageNumbers.push('ellipsis')
-      }
-
-      // Always include last page
-      pageNumbers.push(totalPages)
-    }
-
-    return pageNumbers
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setCurrentPage(1) // Reset to first page when searching
   }
 
   return (
-    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
-      <div className='text-center mb-12'>
-        <h1 className='text-3xl font-bold text-gray-900 sm:text-4xl'>Our Blog</h1>
-        <p className='mt-4 text-lg text-gray-500'>Expert Articles on Vaccination & Health</p>
+    <div className='w-80 border-r h-screen overflow-y-auto flex flex-col scrollbar-hide'>
+      <div className='p-4 sticky top-0 bg-background border-b z-10'>
+        <h1 className='text-xl font-bold mb-4'>Blog Posts</h1>
+        <div className='relative'>
+          <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+          <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+        </div>
       </div>
-
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-        {currentPosts.map((blog) => (
-          <Card
-            key={blog.id}
-            className='overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer'
-            onClick={() => handleBlogClick(blog.slug)}
-          >
-            {blog.image && (
-              <div className='h-48 overflow-hidden'>
-                <img src={blog.image} alt={blog.title} className='w-full h-full object-cover' />
-              </div>
-            )}
-            <CardContent className='p-6'>
-              <div className='flex items-center text-sm text-gray-500 mb-2'>
-                <CalendarIcon className='mr-1 h-4 w-4' />
-                <span>{formatDate(blog.publishDate)}</span>
-              </div>
-              <h2 className='text-xl font-bold mb-2 line-clamp-2'>{blog.title}</h2>
-              <p className='text-gray-600 mb-4 line-clamp-3'>{blog.excerpt}</p>
-              <div className='flex flex-wrap gap-2'>
-                {blog.tags.map((tag, index) => (
-                  <Badge key={index} variant='outline' className='bg-blue-50 text-blue-700 border-blue-200'>
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              <Button
-                variant='link'
-                className='mt-4 p-0'
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleBlogClick(blog.slug)
-                }}
-              >
-                Read more
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+      <div className='flex-1 divide-y divide-border overflow-y-auto scrollbar-hide'>
+        {currentPosts.length === 0 ? (
+          <div className='p-4 text-center text-muted-foreground'>No posts found matching your search.</div>
+        ) : (
+          currentPosts.map((post) => (
+            <Link
+              to={`/blog/${post.id}`}
+              key={post.id}
+              className={cn('block transition-colors hover:bg-accent/50', currentPostId === post.id && 'bg-accent')}
+            >
+              <Card className='border-0 shadow-none hover:shadow-none rounded-none'>
+                <CardHeader className='p-4 pb-2'>
+                  <CardTitle className='text-base line-clamp-2'>{post.title}</CardTitle>
+                </CardHeader>
+                <CardContent className='p-4 pt-0'>
+                  <div className='flex items-center gap-2'>
+                    <Badge variant='default' className='text-xs'>
+                      {post.tag.name}
+                    </Badge>
+                    <span className='text-xs text-muted-foreground'>{format(new Date(post.createdAt), 'MMM d')}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))
+        )}
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className='mt-12'>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                />
-              </PaginationItem>
-
-              {getPageNumbers().map((pageNumber, index) => (
-                <PaginationItem key={index}>
-                  {pageNumber === 'ellipsis' ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink
-                      isActive={currentPage === pageNumber}
-                      onClick={() => setCurrentPage(Number(pageNumber))}
-                      className='cursor-pointer'
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  )}
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+      {filteredPosts.length > 0 && (
+        <div className='p-4 border-t bg-background sticky bottom-0'>
+          <div className='flex items-center justify-between'>
+            <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
+              <ChevronLeft className='h-4 w-4 mr-2' />
+              Previous
+            </Button>
+            <span className='text-sm text-muted-foreground'>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
+              Next
+              <ChevronRight className='h-4 w-4 ml-2' />
+            </Button>
+          </div>
         </div>
       )}
     </div>
   )
 }
+
+export default BlogList

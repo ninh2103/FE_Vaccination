@@ -1,4 +1,3 @@
-import React from 'react'
 import { useLocation, useRoutes } from 'react-router-dom'
 import LayoutClient from '@/app/layout/LayoutClient'
 import LayoutMain from '@/app/layout/LayoutMain'
@@ -15,21 +14,21 @@ import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 
-import Vaccines from '@/pages/dashboard/Vaccines'
-import Posts from '@/pages/dashboard/Posts'
 import Suppliers from '@/pages/dashboard/Suppliers'
 import Manufacturers from '@/pages/dashboard/Manufacturers'
-import Users from '@/pages/dashboard/Users'
-import Payments from '@/pages/dashboard/Payments'
 import History from '@/pages/dashboard/History'
 import Appointments from '@/pages/dashboard/Appointments'
 import Order from '@/pages/dashboard/Order'
 import { OTPInput } from '@/pages/otp/otp'
-import VaccinesPage from '@/pages/dashboard/Vaccines'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
-import BlogList from '@/pages/blog/BlogList'
+import BlogLayout from '@/pages/blog/BlogLayout'
 import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
+import { BlogPage } from '@/pages/dashboard/blogs/Page'
+import UsersPage from '@/pages/dashboard/users/Page'
+import VaccinesPage from '@/pages/dashboard/vaccines/Page'
+import PaymentsPage1 from '@/pages/dashboard/payments/Page'
+
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -54,7 +53,7 @@ export default function useRoutesElements() {
         path: path.admin.vaccines, // "/vaccines"
         element: (
           <LayoutMain>
-            <Vaccines />
+            <VaccinesPage />
           </LayoutMain>
         )
       },
@@ -62,7 +61,7 @@ export default function useRoutesElements() {
         path: path.admin.post, // "/posts"
         element: (
           <LayoutMain>
-            <Posts />
+            <BlogPage />
           </LayoutMain>
         )
       },
@@ -86,7 +85,7 @@ export default function useRoutesElements() {
         path: path.admin.users, // "/Users "
         element: (
           <LayoutMain>
-            <Users />
+            <UsersPage />
           </LayoutMain>
         )
       },
@@ -94,7 +93,7 @@ export default function useRoutesElements() {
         path: path.admin.payments, // "/Payments "
         element: (
           <LayoutMain>
-            <Payments />
+            <PaymentsPage1 />
           </LayoutMain>
         )
       },
@@ -126,26 +125,29 @@ export default function useRoutesElements() {
         path: path.blog,
         element: (
           <LayoutClient>
-            <BlogDetails />
+            <BlogLayout />
           </LayoutClient>
-        )
+        ),
+        children: [
+          {
+            path: ':id',
+            element: <BlogDetails />
+          },
+          {
+            path: '',
+            element: <BlogDetails />
+          }
+        ]
       },
-      {
-        path: path.bloglist,
-        element: (
-          <LayoutClient>
-            <BlogList />
-          </LayoutClient>
-        )
-      },
-      {
-        path: path.admin.vaccines,
-        element: (
-          <LayoutMain>
-            <VaccinesPage />
-          </LayoutMain>
-        )
-      },
+
+      // {
+      //   path: path.admin.vaccines,
+      //   element: (
+      //     <LayoutMain>
+      //       <VaccinesPage />
+      //     </LayoutMain>
+      //   )
+      // },
       {
         path: path.profile,
         element: (
