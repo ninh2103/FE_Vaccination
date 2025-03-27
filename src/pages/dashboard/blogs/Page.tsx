@@ -295,7 +295,7 @@ export const BlogPage: React.FC = () => {
         </div>
       </div>
 
-      <div className='mb-6'>
+      <div className='mb-6 py-6'>
         <div className='relative w-64'>
           <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />

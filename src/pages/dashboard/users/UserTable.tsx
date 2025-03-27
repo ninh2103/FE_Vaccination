@@ -104,7 +104,7 @@ export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onD
                       <TableHead>Registered</TableHead>
                       <TableHead>Last Login</TableHead>
                       <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
+                      <TableHead className='w-[80px]'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

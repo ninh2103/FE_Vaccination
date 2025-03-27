@@ -121,7 +121,7 @@ export function PaymentTable({
                       <TableHead>Method</TableHead>
                       <TableHead>Service</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
+                      <TableHead className='w-[80px]'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

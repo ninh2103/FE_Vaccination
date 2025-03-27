@@ -14,11 +14,7 @@ import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 
-import Suppliers from '@/pages/dashboard/Suppliers'
-import Manufacturers from '@/pages/dashboard/Manufacturers'
 import History from '@/pages/dashboard/History'
-import Appointments from '@/pages/dashboard/Appointments'
-import Order from '@/pages/dashboard/Order'
 import { OTPInput } from '@/pages/otp/otp'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
@@ -28,7 +24,10 @@ import { BlogPage } from '@/pages/dashboard/blogs/Page'
 import UsersPage from '@/pages/dashboard/users/Page'
 import VaccinesPage from '@/pages/dashboard/vaccines/Page'
 import PaymentsPage1 from '@/pages/dashboard/payments/Page'
-
+import SuppliersPage from '@/pages/dashboard/suppliers/page'
+import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
+import OrdersPage from '@/pages/dashboard/orders/Page'
+import AppointmentsPage from '@/pages/dashboard/appointments/Page'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -69,7 +68,7 @@ export default function useRoutesElements() {
         path: path.admin.suppliers, // "/suppliers"
         element: (
           <LayoutMain>
-            <Suppliers />
+            <SuppliersPage />
           </LayoutMain>
         )
       },
@@ -77,7 +76,7 @@ export default function useRoutesElements() {
         path: path.admin.manufacturers, // "/Manufacturers"
         element: (
           <LayoutMain>
-            <Manufacturers />
+            <ManufacturersPage />
           </LayoutMain>
         )
       },
@@ -109,7 +108,7 @@ export default function useRoutesElements() {
         path: path.admin.appointments, // "/Appointments "
         element: (
           <LayoutMain>
-            <Appointments />
+            <AppointmentsPage />
           </LayoutMain>
         )
       },
@@ -117,7 +116,7 @@ export default function useRoutesElements() {
         path: path.admin.order, // "/Order "
         element: (
           <LayoutMain>
-            <Order />
+            <OrdersPage />
           </LayoutMain>
         )
       },
@@ -140,14 +139,6 @@ export default function useRoutesElements() {
         ]
       },
 
-      // {
-      //   path: path.admin.vaccines,
-      //   element: (
-      //     <LayoutMain>
-      //       <VaccinesPage />
-      //     </LayoutMain>
-      //   )
-      // },
       {
         path: path.profile,
         element: (

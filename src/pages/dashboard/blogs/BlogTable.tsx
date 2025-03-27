@@ -1,9 +1,7 @@
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { MoreHorizontal, Eye, Edit, Trash } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Eye, Edit, Trash } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface BlogPost {
