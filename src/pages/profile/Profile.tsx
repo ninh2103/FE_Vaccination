@@ -1,15 +1,91 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { User, Lock, Eye, EyeOff, TicketCheck } from 'lucide-react'
-
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidator/auth.schema'
+import { useChangePasswordMutation } from '@/queries/useAuth'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
+import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
+import { UpdateMeBody, UpdateMeBodyType } from '@/schemaValidator/user.schema'
 export default function Profile() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('0123456789')
   const [showPassword, setShowPassword] = useState(false)
+
+  const changePasswordMutation = useChangePasswordMutation()
+  const updateMeMutation = useUpdateMeQuery()
+  const getMeQuery = useGetMeQuery()
+
+  const form = useForm<ChangePasswordBodyType>({
+    resolver: zodResolver(ChangePasswordBody),
+    defaultValues: {
+      current_password: '',
+      password: '',
+      confirm_password: ''
+    }
+  })
+
+  const formUpdate = useForm<UpdateMeBodyType>({
+    resolver: zodResolver(UpdateMeBody),
+    defaultValues: {
+      name: '',
+      address: '',
+      date_of_birth: '',
+      country: '',
+      phone: ''
+    }
+  })
+
+  useEffect(() => {
+    if (getMeQuery.data) {
+      const { name, phone, address, date_of_birth, country } = getMeQuery.data
+      formUpdate.setValue('name', name || '')
+      formUpdate.setValue('address', address || '')
+      formUpdate.setValue('date_of_birth', date_of_birth || '')
+      formUpdate.setValue('country', country || '')
+      formUpdate.setValue('phone', phone || '')
+    }
+  }, [getMeQuery.data, formUpdate])
+
+  const handleChangePassword = (body: ChangePasswordBodyType) => {
+    if (body.password !== body.confirm_password) {
+      form.setError('confirm_password', {
+        type: 'manual',
+        message: 'Passwords do not match'
+      })
+      return
+    }
+    changePasswordMutation.mutate(body, {
+      onSuccess: () => {
+        toast.success('Change Password Success!')
+        form.reset()
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error
+        })
+      }
+    })
+  }
+
+  const handleUpdateMe = (body: UpdateMeBodyType) => {
+    updateMeMutation.mutate(body, {
+      onSuccess: () => {
+        toast.success('Update Account Success!')
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error
+        })
+      }
+    })
+  }
 
   return (
     <div className='min-h-screen w-full dark:bg-gray-900 p-8'>
@@ -56,8 +132,7 @@ export default function Profile() {
                   </Label>
                   <Input
                     id='name'
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    {...formUpdate.register('name')}
                     className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                   />
                 </div>
@@ -69,14 +144,48 @@ export default function Profile() {
                   <Input
                     id='phone'
                     type='tel'
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    {...formUpdate.register('phone')}
                     placeholder='Số điện thoại'
                     className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                   />
                 </div>
 
+                <div className='space-y-2'>
+                  <Label htmlFor='address' className='dark:text-green-300'>
+                    Address
+                  </Label>
+                  <Input
+                    id='address'
+                    {...formUpdate.register('address')}
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='date_of_birth' className='dark:text-green-300'>
+                    Date of Birth
+                  </Label>
+                  <Input
+                    id='date_of_birth'
+                    type='date'
+                    {...formUpdate.register('date_of_birth')}
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='country' className='dark:text-green-300'>
+                    Country
+                  </Label>
+                  <Input
+                    id='country'
+                    {...formUpdate.register('country')}
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                  />
+                </div>
+
                 <Button
+                  onClick={formUpdate.handleSubmit(handleUpdateMe)}
                   variant={'secondary'}
                   className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
                 >
@@ -102,13 +211,16 @@ export default function Profile() {
                   <div className='relative'>
                     <Input
                       id='current-password'
+                      {...form.register('current_password')}
                       type={showPassword ? 'text' : 'password'}
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                     />
                     <Button
                       variant='ghost'
                       size='sm'
-                      className='absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent'
+                      className={`absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent ${
+                        form.formState.errors.current_password ? 'border-red-500' : ''
+                      }`}
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -118,6 +230,9 @@ export default function Profile() {
                       )}
                     </Button>
                   </div>
+                  {form.formState.errors.current_password && (
+                    <p className='text-red-500 text-sm'>{form.formState.errors.current_password.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -125,10 +240,16 @@ export default function Profile() {
                     New Password
                   </Label>
                   <Input
+                    {...form.register('password')}
                     id='new-password'
                     type='password'
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      form.formState.errors.password ? 'border-red-500' : ''
+                    }`}
                   />
+                  {form.formState.errors.password && (
+                    <p className='text-red-500 text-sm'>{form.formState.errors.password.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -136,13 +257,20 @@ export default function Profile() {
                     Confirm the new password
                   </Label>
                   <Input
+                    {...form.register('confirm_password')}
                     id='confirm-password'
                     type='password'
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      form.formState.errors.confirm_password ? 'border-red-500' : ''
+                    }`}
                   />
+                  {form.formState.errors.confirm_password && (
+                    <p className='text-red-500 text-sm'>{form.formState.errors.confirm_password.message}</p>
+                  )}
                 </div>
 
                 <Button
+                  onClick={form.handleSubmit(handleChangePassword)}
                   variant={'secondary'}
                   className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
                 >

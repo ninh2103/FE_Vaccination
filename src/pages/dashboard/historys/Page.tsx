@@ -6,30 +6,27 @@ import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import {
   Filter,
-  MoreHorizontal,
-  FileText,
   Calendar,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
+  Search,
+  Download,
+  FileText,
   Printer,
   Phone,
   Clock,
   MapPin,
-  User,
-  Search,
-  Download
+  User
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
@@ -40,15 +37,13 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Card, CardContent } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { format } from 'date-fns'
 import { Label } from '@/components/ui/label'
+import { HistorysTable } from './HistorysTable'
 
-// Định nghĩa các interface cho TypeScript
 interface Patient {
   name: string
   avatar: string
@@ -69,225 +64,6 @@ interface Vaccination {
   notes: string
 }
 
-interface Filters {
-  doctor: string
-  location: string
-  doseNumber: string
-  vaccine: string
-  dateRange: {
-    from: string
-    to: string
-  }
-}
-
-// Sample data
-const vaccinationHistory: Vaccination[] = [
-  {
-    id: 1,
-    patient: {
-      name: 'Nguyen Van An',
-      avatar: '/placeholder.svg',
-      initials: 'NA',
-      phone: '0912 345 678',
-      email: 'nguyenvanan@example.com'
-    },
-    vaccine: 'COVID-19 Vaccine',
-    date: '2023-03-01',
-    time: '09:15',
-    doseNumber: 1,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: '120 Hoang Minh Thao',
-    notes: 'No adverse reactions'
-  },
-  {
-    id: 2,
-    patient: {
-      name: 'Tran Thi Binh',
-      avatar: '/placeholder.svg',
-      initials: 'TB',
-      phone: '0987 654 321',
-      email: 'tranthibinh@example.com'
-    },
-    vaccine: 'Influenza Vaccine',
-    date: '2023-03-02',
-    time: '10:30',
-    doseNumber: 1,
-    administeredBy: 'Nurse Nguyen Thi Cuc',
-    location: '120 Hoang Minh Thao',
-    notes: 'Mild pain at injection site'
-  },
-  {
-    id: 3,
-    patient: {
-      name: 'Le Van Cuong',
-      avatar: '/placeholder.svg',
-      initials: 'LC',
-      phone: '0909 123 456',
-      email: 'levancuong@example.com'
-    },
-    vaccine: 'Tetanus Vaccine',
-    date: '2023-03-03',
-    time: '11:45',
-    doseNumber: 1,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: 'Main Clinic',
-    notes: 'Patient has history of mild reaction to tetanus vaccine'
-  },
-  {
-    id: 4,
-    patient: {
-      name: 'Pham Thi Dung',
-      avatar: '/placeholder.svg',
-      initials: 'PD',
-      phone: '0978 234 567',
-      email: 'phamthidung@example.com'
-    },
-    vaccine: 'Hepatitis B Vaccine',
-    date: '2023-03-04',
-    time: '14:00',
-    doseNumber: 2,
-    administeredBy: 'Nurse Nguyen Thi Cuc',
-    location: '120 Hoang Minh Thao',
-    notes: 'Second dose in series of three'
-  },
-  {
-    id: 5,
-    patient: {
-      name: 'Hoang Van Em',
-      avatar: '/placeholder.svg',
-      initials: 'HE',
-      phone: '0932 876 543',
-      email: 'hoangvanem@example.com'
-    },
-    vaccine: 'COVID-19 Vaccine',
-    date: '2023-03-05',
-    time: '15:30',
-    doseNumber: 2,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: 'Main Clinic',
-    notes: 'Completed primary vaccination series'
-  },
-  {
-    id: 6,
-    patient: {
-      name: 'Ngo Thi Phuong',
-      avatar: '/placeholder.svg',
-      initials: 'NP',
-      phone: '0945 345 678',
-      email: 'ngothiphuong@example.com'
-    },
-    vaccine: 'MMR Vaccine',
-    date: '2023-03-06',
-    time: '09:45',
-    doseNumber: 1,
-    administeredBy: 'Nurse Nguyen Thi Cuc',
-    location: '120 Hoang Minh Thao',
-    notes: 'First dose in series of two'
-  },
-  {
-    id: 7,
-    patient: {
-      name: 'Do Van Giang',
-      avatar: '/placeholder.svg',
-      initials: 'DG',
-      phone: '0967 567 890',
-      email: 'dovangiang@example.com'
-    },
-    vaccine: 'Pneumococcal Vaccine',
-    date: '2023-03-07',
-    time: '11:00',
-    doseNumber: 1,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: 'Main Clinic',
-    notes: 'Patient has history of asthma'
-  },
-  {
-    id: 8,
-    patient: {
-      name: 'Ly Thi Huong',
-      avatar: '/placeholder.svg',
-      initials: 'LH',
-      phone: '0912 678 901',
-      email: 'lythihuong@example.com'
-    },
-    vaccine: 'HPV Vaccine',
-    date: '2023-03-08',
-    time: '13:15',
-    doseNumber: 1,
-    administeredBy: 'Nurse Nguyen Thi Cuc',
-    location: '120 Hoang Minh Thao',
-    notes: 'First dose in series of three'
-  },
-  {
-    id: 9,
-    patient: {
-      name: 'Vu Van Khoa',
-      avatar: '/placeholder.svg',
-      initials: 'VK',
-      phone: '0989 789 012',
-      email: 'vuvankhoa@example.com'
-    },
-    vaccine: 'Varicella Vaccine',
-    date: '2023-03-09',
-    time: '14:45',
-    doseNumber: 1,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: 'Main Clinic',
-    notes: 'No history of chickenpox'
-  },
-  {
-    id: 10,
-    patient: {
-      name: 'Mai Thi Lan',
-      avatar: '/placeholder.svg',
-      initials: 'ML',
-      phone: '0956 890 123',
-      email: 'maithilan@example.com'
-    },
-    vaccine: 'COVID-19 Vaccine',
-    date: '2023-03-10',
-    time: '16:00',
-    doseNumber: 3,
-    administeredBy: 'Nurse Nguyen Thi Cuc',
-    location: '120 Hoang Minh Thao',
-    notes: 'Booster dose'
-  },
-  {
-    id: 11,
-    patient: {
-      name: 'Truong Van Minh',
-      avatar: '/placeholder.svg',
-      initials: 'TM',
-      phone: '0923 456 789',
-      email: 'truongvanminh@example.com'
-    },
-    vaccine: 'Hepatitis A Vaccine',
-    date: '2023-03-11',
-    time: '09:30',
-    doseNumber: 1,
-    administeredBy: 'Dr. Pham Thi Hoa',
-    location: '120 Hoang Minh Thao',
-    notes: 'First dose'
-  },
-  {
-    id: 12,
-    patient: {
-      name: 'Phan Thi Nga',
-      avatar: '/placeholder.svg',
-      initials: 'PN',
-      phone: '0934 567 890',
-      email: 'phanthinga@example.com'
-    },
-    vaccine: 'Diphtheria Vaccine',
-    date: '2023-03-12',
-    time: '11:15',
-    doseNumber: 1,
-    administeredBy: 'Dr. Pham Thi Hoa',
-    location: 'Main Clinic',
-    notes: 'Routine vaccination'
-  }
-]
-
 // Constants
 const ROWS_PER_PAGE = 10
 const DOCTORS = ['All Doctors', 'Dr. Tran Van Binh', 'Nurse Nguyen Thi Cuc', 'Dr. Pham Thi Hoa']
@@ -307,7 +83,6 @@ const VACCINES = [
   'Diphtheria Vaccine'
 ]
 
-// Utility functions
 const generateCertificateContent = (vaccination: Vaccination) => `
   <!DOCTYPE html>
   <html>
@@ -403,14 +178,36 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
   doc.save(`vaccination_invoice_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
 }
 
-export default function VaccinationHistoryPage() {
+// Sample data
+const vaccinationHistory: Vaccination[] = [
+  {
+    id: 1,
+    patient: {
+      name: 'Nguyen Van An',
+      avatar: '/placeholder.svg',
+      initials: 'NA',
+      phone: '0912 345 678',
+      email: 'nguyenvanan@example.com'
+    },
+    vaccine: 'COVID-19 Vaccine',
+    date: '2023-03-01',
+    time: '09:15',
+    doseNumber: 1,
+    administeredBy: 'Dr. Tran Van Binh',
+    location: '120 Hoang Minh Thao',
+    notes: 'No adverse reactions'
+  }
+  // ... Add more sample data as needed
+]
+
+export default function HistorysPage1() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [selectedVaccination, setSelectedVaccination] = useState<Vaccination | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [selectedDate] = useState<Date>(new Date()) // Đặt mặc định là ngày hiện tại và không cho phép thay đổi
-  const [filters, setFilters] = useState<Filters>({
+  const [selectedDate] = useState<Date>(new Date())
+  const [filters, setFilters] = useState({
     doctor: 'All Doctors',
     location: 'All Locations',
     doseNumber: 'All Doses',
@@ -538,12 +335,7 @@ export default function VaccinationHistoryPage() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className='w-auto p-0' align='end'>
-              <CalendarComponent
-                mode='single'
-                selected={selectedDate}
-                // Không truyền onSelect để vô hiệu hóa khả năng chọn ngày
-                disabled // Vô hiệu hóa tương tác với lịch
-              />
+              <CalendarComponent mode='single' selected={selectedDate} disabled />
             </PopoverContent>
           </Popover>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
@@ -735,112 +527,60 @@ export default function VaccinationHistoryPage() {
                 No vaccination records found matching the current filters.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='w-[60px]'>No.</TableHead>
-                    <TableHead>Patient</TableHead>
-                    <TableHead>Vaccine</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Dose</TableHead>
-                    <TableHead>Doctor</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead className='w-[80px]'></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedVaccinations.map((vaccination, index) => (
-                    <TableRow
-                      key={vaccination.id}
-                      className='cursor-pointer transition-colors hover:bg-muted/50'
-                      onClick={() => {
-                        setSelectedVaccination(vaccination)
-                        setOpenDetailsDialog(true)
-                      }}
-                    >
-                      <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          <Avatar className='h-8 w-8'>
-                            <AvatarImage src={vaccination.patient.avatar} alt={vaccination.patient.name} />
-                            <AvatarFallback>{vaccination.patient.initials}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className='font-medium'>{vaccination.patient.name}</div>
-                            <div className='text-sm text-muted-foreground flex items-center'>
-                              <Phone className='h-3 w-3 mr-1' />
-                              {vaccination.patient.phone}
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{vaccination.vaccine}</TableCell>
-                      <TableCell>
-                        <div className='flex items-center'>
-                          <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
-                          {format(new Date(vaccination.date), 'MM/dd/yyyy')}
-                        </div>
-                        <div className='text-sm text-muted-foreground flex items-center'>
-                          <Clock className='h-3 w-3 mr-1' />
-                          {vaccination.time}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant='outline'>{vaccination.doseNumber}</Badge>
-                      </TableCell>
-                      <TableCell>{vaccination.administeredBy}</TableCell>
-                      <TableCell>{vaccination.location}</TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon'>
-                              <MoreHorizontal className='h-4 w-4' />
-                              <span className='sr-only'>Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handlePrintCertificate(vaccination)}>
-                              <FileText className='mr-2 h-4 w-4' />
-                              Print Certificate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDownloadInvoice(vaccination)}>
-                              <Printer className='mr-2 h-4 w-4' />
-                              Download Invoice
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <HistorysTable
+                vaccinations={paginatedVaccinations}
+                currentPage={currentPage}
+                rowsPerPage={ROWS_PER_PAGE}
+                onPrintCertificate={handlePrintCertificate}
+                onDownloadInvoice={handleDownloadInvoice}
+                onViewDetails={(vaccination) => {
+                  setSelectedVaccination(vaccination)
+                  setOpenDetailsDialog(true)
+                }}
+              />
             )}
           </CardContent>
         </Card>
 
-        {/* Fixed pagination */}
-        {paginatedVaccinations.length > 0 && (
-          <div className='mb-[2rem] fixed bottom-4 right-4 flex items-center gap-2 bg-white p-2 rounded-md shadow-md'>
+        {totalPages > 1 && (
+          <div className='flex justify-center gap-2 mt-4'>
             <Button
               variant='outline'
-              size='sm'
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className='h-4 w-4' />
+              Previous
             </Button>
-            <span className='text-sm'>
+            <span className='flex items-center px-4'>
               Page {currentPage} of {totalPages}
             </span>
             <Button
               variant='outline'
-              size='sm'
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              <ChevronRight className='h-4 w-4' />
+              Next
+            </Button>
+          </div>
+        )}
+        {totalPages > 1 && (
+          <div className='flex justify-center gap-2 mt-4'>
+            <Button
+              variant='outline'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className='flex items-center px-4'>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant='outline'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
             </Button>
           </div>
         )}

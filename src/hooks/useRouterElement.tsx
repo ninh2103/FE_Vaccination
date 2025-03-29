@@ -14,7 +14,6 @@ import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 
-import History from '@/pages/dashboard/History'
 import { OTPInput } from '@/pages/otp/otp'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
@@ -28,6 +27,7 @@ import SuppliersPage from '@/pages/dashboard/suppliers/page'
 import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
 import OrdersPage from '@/pages/dashboard/orders/Page'
 import AppointmentsPage from '@/pages/dashboard/appointments/Page'
+import HistorysPage1 from '@/pages/dashboard/historys/Page'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -100,7 +100,7 @@ export default function useRoutesElements() {
         path: path.admin.history, // "/History "
         element: (
           <LayoutMain>
-            <History />
+            <HistorysPage1 />
           </LayoutMain>
         )
       },

@@ -1,6 +1,7 @@
 import axiosClient from '@/core/services/axios-client'
 import {
   Account,
+  ChangePassword,
   ForgotPassword,
   Login,
   LoginResponse,
@@ -14,6 +15,7 @@ const API_REGISTER_URL = '/api/auth/register'
 const API_VERIFY_EMAIL_URL = '/api/auth/verify-email'
 const API_FORGOT_PPASSWORD_URL = '/api/auth/forgot-password'
 const API_RESET_PPASSWORD_URL = '/api/auth/reset-password'
+const API_CHANGE_PASSWORD_URL = '/api/auth/change-password'
 
 export const authApi = {
   login(params: Login): Promise<LoginResponse> {
@@ -34,5 +36,8 @@ export const authApi = {
         Authorization: `Bearer ${token}`
       }
     })
+  },
+  changePassword(params: ChangePassword) {
+    return axiosClient.put(API_CHANGE_PASSWORD_URL, params)
   }
 }

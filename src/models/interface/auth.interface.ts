@@ -38,3 +38,8 @@ export interface ResetPassword {
   newPassword?: string
   confirm_password?: string
 }
+export interface ChangePassword {
+  current_password?: string
+  password?: string
+  confirm_password?: string
+}

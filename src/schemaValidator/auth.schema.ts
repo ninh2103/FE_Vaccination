@@ -84,3 +84,36 @@ export const ResetPasswordBody = z.object({
 })
 
 export type ResetPasswordBodyType = z.TypeOf<typeof ResetPasswordBody>
+
+export const ChangePasswordBody = z
+  .object({
+    current_password: z
+      .string()
+      .min(numberConstants.ONE, {
+        message: 'Password is required'
+      })
+      .regex(validator.passwordRegex, {
+        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+      }),
+
+    password: z
+      .string()
+      .min(numberConstants.ONE, {
+        message: 'Password is required'
+      })
+      .regex(validator.passwordRegex, {
+        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+      }),
+
+    confirm_password: z
+      .string()
+      .min(numberConstants.ONE, {
+        message: 'Password is required'
+      })
+      .regex(validator.passwordRegex, {
+        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+      })
+  })
+  .strict()
+
+export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>

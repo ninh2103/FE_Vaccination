@@ -10,6 +10,8 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
+import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
+import { setUserToLS } from '@/core/shared/storage'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -26,7 +28,16 @@ export default function Header() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userEmail] = useState('user@example.com')
+  const getMeQuery = useGetMeQuery()
+  const user = getMeQuery.data
+  if (user) {
+    setUserToLS({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role.name
+    })
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -63,6 +74,11 @@ export default function Header() {
     // Implement sign out logic here
     setIsLoggedIn(false)
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token')
+    setIsLoggedIn(!!token)
+  }, [])
 
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
@@ -109,16 +125,18 @@ export default function Header() {
                       <Avatar className='h-8 w-8'>
                         <AvatarImage src='/avatars/01.png' alt='@user' />
                         <AvatarFallback>
-                          <UserCircle className='h-6 w-6' /> {/* UserCircle is now correctly rendered */}
+                          <UserCircle className='h-6 w-6' />
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className='w-56' align='end' forceMount>
-                    <DropdownMenuItem className='flex items-center'>
-                      <UserCircle className='mr-2 h-4 w-4' />
-                      <span>{userEmail}</span>
-                    </DropdownMenuItem>
+                    <Link to={path.profile}>
+                      <DropdownMenuItem className='flex items-center'>
+                        <UserCircle className='mr-2 h-4 w-4' />
+                        <span>{user?.name}</span>
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
                       <LogOut className='mr-2 h-4 w-4' />
                       <span>Sign out</span>
@@ -173,7 +191,7 @@ export default function Header() {
                     variant='ghost'
                     className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                   >
-                    {userEmail}
+                    {user?.name}
                   </Button>
                   <Button
                     variant='ghost'
