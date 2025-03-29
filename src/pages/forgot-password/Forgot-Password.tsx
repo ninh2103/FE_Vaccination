@@ -28,7 +28,8 @@ export default function ForgotPassword() {
       },
       onError: (error: Error) => {
         handleErrorApi({
-          error
+          error: error,
+          setError: form.setError
         })
       }
     })

@@ -68,7 +68,8 @@ export default function Profile() {
       },
       onError: (error) => {
         handleErrorApi({
-          error: error
+          error: error,
+          setError: form.setError
         })
       }
     })
@@ -81,7 +82,8 @@ export default function Profile() {
       },
       onError: (error) => {
         handleErrorApi({
-          error: error
+          error: error,
+          setError: formUpdate.setError
         })
       }
     })

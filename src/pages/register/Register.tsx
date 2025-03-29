@@ -51,7 +51,8 @@ export default function FormRegister() {
       },
       onError: (error: Error) => {
         handleErrorApi({
-          error
+          error: error,
+          setError: form.setError
         })
       }
     })

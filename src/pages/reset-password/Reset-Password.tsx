@@ -56,7 +56,7 @@ export default function ResetPassword() {
           navigate(path.login)
         },
         onError: (error: Error) => {
-          handleErrorApi({ error })
+          handleErrorApi({ error, setError: form.setError })
         }
       }
     )

@@ -45,7 +45,8 @@ export default function FormLogin() {
       },
       onError: (error: Error) => {
         handleErrorApi({
-          error: error
+          error: error,
+          setError: form.setError
         })
       }
     })

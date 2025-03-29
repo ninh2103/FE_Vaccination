@@ -38,7 +38,7 @@ export function OTPInput() {
         localStorage.removeItem('email')
         navigate(path.login)
       },
-      onError: (error) => handleErrorApi({ error })
+      onError: (error) => handleErrorApi({ error, setError: form.setError })
     })
   }
 
