@@ -14,8 +14,6 @@ import { handleErrorApi } from '@/core/lib/utils'
 import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
 import { UpdateMeBody, UpdateMeBodyType } from '@/schemaValidator/user.schema'
 export default function Profile() {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('0123456789')
   const [showPassword, setShowPassword] = useState(false)
 
   const changePasswordMutation = useChangePasswordMutation()
@@ -68,7 +66,8 @@ export default function Profile() {
       },
       onError: (error) => {
         handleErrorApi({
-          error: error
+          error: error,
+          setError: form.setError
         })
       }
     })
@@ -81,7 +80,8 @@ export default function Profile() {
       },
       onError: (error) => {
         handleErrorApi({
-          error: error
+          error: error,
+          setError: formUpdate.setError
         })
       }
     })

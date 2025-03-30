@@ -1,5 +1,7 @@
 import { authApi } from '@/core/services/auth.service'
+import { userApi } from '@/core/services/user.service'
 import { ResetPassword } from '@/models/interface/auth.interface'
+import { UpdateRoleBodyType } from '@/schemaValidator/user.schema'
 import { useMutation } from '@tanstack/react-query'
 
 export const useLoginMutation = () => {
@@ -30,5 +32,10 @@ export const useResetPasswordMutation = () => {
 export const useChangePasswordMutation = () => {
   return useMutation({
     mutationFn: authApi.changePassword
+  })
+}
+export const useUpdateRoleMutation = () => {
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: UpdateRoleBodyType }) => userApi.updateRole(id, body)
   })
 }

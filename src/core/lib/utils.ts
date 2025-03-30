@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { UseFormSetError } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
+import { Path } from 'react-hook-form'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -16,18 +17,18 @@ interface ApiError extends Error {
   }
 }
 
-export const handleErrorApi = ({
+export const handleErrorApi = <T extends Record<string, unknown>>({
   error,
   setError,
   duration
 }: {
   error: ApiError
-  setError?: UseFormSetError<Record<string, string>>
+  setError: UseFormSetError<T>
   duration?: number
 }) => {
   if (error.response?.data?.errors) {
     error.response.data.errors.forEach(({ field, message }) => {
-      setError?.(field, {
+      setError?.(field as Path<T>, {
         type: 'server',
         message
       })

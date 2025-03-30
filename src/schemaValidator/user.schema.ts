@@ -35,3 +35,18 @@ export const UpdateMeBody = z
   .strict()
 
 export type UpdateMeBodyType = z.TypeOf<typeof UpdateMeBody>
+
+export const UserResponseListSchema = z.object({
+  data: z.array(UserResponseSchema),
+  total: z.number(),
+  currentPage: z.number(),
+  itemsPerPage: z.number()
+})
+
+export type UserResponseListType = z.infer<typeof UserResponseListSchema>
+
+export const UpdateRoleBody = z.object({
+  roleId: z.string({ required_error: 'Role is required' })
+})
+
+export type UpdateRoleBodyType = z.TypeOf<typeof UpdateRoleBody>

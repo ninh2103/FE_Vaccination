@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { SuppliersTable } from './SuppliersTable'
 import { Supplier } from './types'

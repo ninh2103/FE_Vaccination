@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 import * as XLSX from 'xlsx'

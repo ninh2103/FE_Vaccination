@@ -1,7 +1,4 @@
-import type React from 'react'
-import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -11,167 +8,86 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { FileUploader } from '@/components/ui/file-uploader'
-import { toast } from '@/components/ui/use-toast'
+import { useUpdateRoleMutation } from '@/queries/useAuth'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { UpdateRoleBody, UpdateRoleBodyType } from '@/schemaValidator/user.schema'
+import { toast } from 'sonner'
+import { useRoleListQuery } from '@/queries/useRole'
+import { useDetailUserQuery } from '@/queries/useUser'
 import type { User } from './UserTable'
 
 interface UpdateUserDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onUpdateUser: (user: Omit<User, 'id' | 'registeredDate' | 'lastLogin' | 'vaccinations'>) => void
   isLoading: boolean
   selectedUser: User | null
 }
 
-export function UpdateUserDialog({ open, onOpenChange, onUpdateUser, isLoading, selectedUser }: UpdateUserDialogProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    role: 'Patient',
-    status: 'Active'
+export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }: UpdateUserDialogProps) {
+  const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRoleMutation()
+  const { data: roles } = useRoleListQuery()
+  const { data: user } = useDetailUserQuery(selectedUser?.id?.toString() ?? '')
+
+  const form = useForm<UpdateRoleBodyType>({
+    resolver: zodResolver(UpdateRoleBody),
+    defaultValues: {
+      roleId: roles?.data.find((role) => role.name === user?.role.name)?.id ?? ''
+    }
   })
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (selectedUser) {
-      setFormData({
-        name: selectedUser.name,
-        email: selectedUser.email,
-        phone: selectedUser.phone,
-        role: selectedUser.role,
-        status: selectedUser.status
-      })
-      setAvatarPreview(selectedUser.avatar === '/placeholder.svg' ? null : selectedUser.avatar)
-    }
-  }, [selectedUser])
+  const onSubmit = (data: UpdateRoleBodyType) => {
+    if (!selectedUser?.id) return
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleFileUpload = (file: File) => {
-    setAvatarFile(file)
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setAvatarPreview(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.phone) {
-      toast({ title: 'Error', description: 'Please fill in all required fields.', variant: 'destructive' })
-      return
-    }
-
-    onUpdateUser({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      avatar: avatarPreview || '/placeholder.svg',
-      initials: formData.name
-        .split(' ')
-        .map((n) => n[0])
-        .join(''),
-      role: formData.role,
-      status: formData.status
-    })
+    updateRole(
+      { id: selectedUser.id.toString(), body: data },
+      {
+        onSuccess: () => {
+          toast.success('User role has been updated successfully.')
+          onOpenChange(false)
+        }
+      }
+    )
   }
 
   if (!selectedUser) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[550px]'>
+      <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
-          <DialogDescription>Update user information.</DialogDescription>
+          <DialogTitle>Update User Role</DialogTitle>
+          <DialogDescription>Change the role for {selectedUser.name}</DialogDescription>
         </DialogHeader>
-        <div className='grid gap-4 py-4'>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='flex flex-col gap-2'>
-            <Label>Profile Image</Label>
-            <FileUploader onFileUpload={handleFileUpload} currentImage={avatarPreview} accept='image/*' />
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-name'>Full Name</Label>
-              <Input
-                id='edit-name'
-                name='name'
-                placeholder='Enter full name'
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-email'>Email</Label>
-              <Input
-                id='edit-email'
-                name='email'
-                type='email'
-                placeholder='Enter email address'
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-phone'>Phone Number</Label>
-              <Input
-                id='edit-phone'
-                name='phone'
-                placeholder='Enter phone number'
-                value={formData.phone}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-role'>Role</Label>
-              <Select value={formData.role} onValueChange={(value) => handleSelectChange('role', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Select role' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Patient'>Patient</SelectItem>
-                  <SelectItem value='Doctor'>Doctor</SelectItem>
-                  <SelectItem value='Nurse'>Nurse</SelectItem>
-                  <SelectItem value='Admin'>Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label htmlFor='edit-status'>Status</Label>
-            <Select value={formData.status} onValueChange={(value) => handleSelectChange('status', value)}>
+            <Label htmlFor='role'>Role</Label>
+            <Select value={form.watch('roleId')} onValueChange={(value) => form.setValue('roleId', value)}>
               <SelectTrigger>
-                <SelectValue placeholder='Select status' />
+                {roles?.data.find((role) => role.id === form.watch('roleId'))?.name || user?.role.name}
               </SelectTrigger>
+
               <SelectContent>
-                <SelectItem value='Active'>Active</SelectItem>
-                <SelectItem value='Inactive'>Inactive</SelectItem>
+                {roles?.data.map((role) => (
+                  <SelectItem key={role.id} value={role.id}>
+                    {role.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-            {isLoading ? 'Updating...' : 'Update User'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
+              Cancel
+            </Button>
+            <Button type='submit' disabled={isLoading || isUpdatingRole}>
+              {isLoading || isUpdatingRole ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading || isUpdatingRole ? 'Updating...' : 'Update Role'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

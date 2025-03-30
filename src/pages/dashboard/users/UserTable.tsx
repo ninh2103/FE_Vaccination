@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export type User = {
-  id: number
+  id: string
   name: string
   email: string
   phone: string
@@ -18,7 +19,6 @@ export type User = {
   status: string
   registeredDate: string
   lastLogin: string
-  vaccinations: number
 }
 
 interface UserTableProps {
@@ -32,7 +32,14 @@ interface UserTableProps {
 
 const ITEMS_PER_PAGE = 10
 
-export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onDeleteClick }: UserTableProps) {
+export function UserTable({
+  users,
+  currentPage,
+  setCurrentPage,
+  isLoading,
+  onEditClick,
+  onDeleteClick
+}: UserTableProps) {
   const filteredUsers = useMemo(() => {
     return users
   }, [users])
@@ -53,30 +60,131 @@ export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onD
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'Admin':
+      case 'ADMIN':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <ShieldAlert className='h-3.5 w-3.5' />
             Admin
           </Badge>
         )
-      case 'Doctor':
+      case 'DOCTOR':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <ShieldCheck className='h-3.5 w-3.5' />
             Doctor
           </Badge>
         )
-      case 'Nurse':
+      case 'EMPLOYEE':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <Shield className='h-3.5 w-3.5' />
-            Nurse
+            Employee
           </Badge>
         )
       default:
         return <Badge variant='outline'>{role}</Badge>
     }
+  }
+
+  const getFilteredUsers = (tab: string) => {
+    switch (tab) {
+      case 'patients':
+        return filteredUsers.filter((user) => user.role === 'USER')
+      case 'staff':
+        return filteredUsers.filter((user) => ['ADMIN', 'DOCTOR', 'EMPLOYEE'].includes(user.role))
+      default:
+        return filteredUsers
+    }
+  }
+
+  const renderLoadingState = () => (
+    <div className='flex items-center justify-center p-8'>
+      <LoadingSpinner className='h-8 w-8' />
+    </div>
+  )
+
+  const renderTableContent = (tab: string) => {
+    if (isLoading) {
+      return renderLoadingState()
+    }
+
+    const filteredUsers = getFilteredUsers(tab)
+    if (filteredUsers.length === 0) {
+      return <div className='p-4 text-center text-muted-foreground'>No users found.</div>
+    }
+
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className='w-[60px]'>No.</TableHead>
+            <TableHead>{tab === 'patients' ? 'Patient' : tab === 'staff' ? 'Staff Member' : 'User'}</TableHead>
+            <TableHead>Contact</TableHead>
+            {tab !== 'patients' && <TableHead>Role</TableHead>}
+            <TableHead>Status</TableHead>
+            <TableHead>Registered</TableHead>
+            {tab !== 'patients' && <TableHead>Last Login</TableHead>}
+            <TableHead className='w-[80px]'>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredUsers.map((user, index) => (
+            <TableRow key={user.id} className='cursor-pointer hover:bg-muted/50' onClick={() => onEditClick(user)}>
+              <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Avatar className='h-8 w-8'>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.initials}</AvatarFallback>
+                  </Avatar>
+                  <div className='font-medium'>{user.name}</div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex flex-col'>
+                  <div className='flex items-center gap-1 text-sm'>
+                    <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                    {user.email}
+                  </div>
+                  <div className='flex items-center gap-1 text-sm'>
+                    <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                    {user.phone}
+                  </div>
+                </div>
+              </TableCell>
+              {tab !== 'patients' && <TableCell>{getRoleBadge(user.role)}</TableCell>}
+              <TableCell>{getStatusBadge(user.status)}</TableCell>
+              <TableCell>{user.registeredDate}</TableCell>
+              {tab !== 'patients' && <TableCell>{user.lastLogin}</TableCell>}
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEditClick(user)
+                    }}
+                  >
+                    <Edit className='h-4 w-4' />
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDeleteClick(user)
+                    }}
+                  >
+                    <Trash className='h-4 w-4 text-destructive' />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    )
   }
 
   return (
@@ -89,264 +197,23 @@ export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onD
         </TabsList>
         <TabsContent value='all' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No users found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[80px]'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers.map((user, index) => (
-                      <TableRow
-                        key={user.id}
-                        className='cursor-pointer hover:bg-muted/50'
-                        onClick={() => onEditClick(user)}
-                      >
-                        <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Avatar className='h-8 w-8'>
-                              <AvatarImage src={user.avatar} alt={user.name} />
-                              <AvatarFallback>{user.initials}</AvatarFallback>
-                            </Avatar>
-                            <div className='font-medium'>{user.name}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex flex-col'>
-                            <div className='flex items-center gap-1 text-sm'>
-                              <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                              {user.email}
-                            </div>
-                            <div className='flex items-center gap-1 text-sm'>
-                              <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                              {user.phone}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{getRoleBadge(user.role)}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>{user.registeredDate}</TableCell>
-                        <TableCell>{user.lastLogin}</TableCell>
-                        <TableCell>{user.vaccinations}</TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEditClick(user)
-                              }}
-                            >
-                              <Edit className='h-4 w-4' />
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDeleteClick(user)
-                              }}
-                            >
-                              <Trash className='h-4 w-4 text-destructive' />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('all')}</CardContent>
           </Card>
         </TabsContent>
         <TabsContent value='patients' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.filter((u) => u.role === 'Patient').length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No patients found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Patient</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers
-                      .filter((user) => user.role === 'Patient')
-                      .map((user, index) => (
-                        <TableRow
-                          key={user.id}
-                          className='cursor-pointer hover:bg-muted/50'
-                          onClick={() => onEditClick(user)}
-                        >
-                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
-                              </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.vaccinations}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('patients')}</CardContent>
           </Card>
         </TabsContent>
         <TabsContent value='staff' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.filter((u) => ['Doctor', 'Nurse', 'Admin'].includes(u.role)).length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No staff members found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Staff Member</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers
-                      .filter((user) => ['Doctor', 'Nurse', 'Admin'].includes(user.role))
-                      .map((user, index) => (
-                        <TableRow
-                          key={user.id}
-                          className='cursor-pointer hover:bg-muted/50'
-                          onClick={() => onEditClick(user)}
-                        >
-                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
-                              </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getRoleBadge(user.role)}</TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.lastLogin}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('staff')}</CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {!isLoading && totalPages > 1 && (
         <div className='flex justify-center gap-2 mt-4'>
           <Button
             variant='outline'

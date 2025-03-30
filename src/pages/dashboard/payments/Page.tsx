@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'

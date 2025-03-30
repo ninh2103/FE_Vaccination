@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
@@ -7,8 +5,6 @@ import jsPDF from 'jspdf'
 import {
   Filter,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
   Search,
   Download,
