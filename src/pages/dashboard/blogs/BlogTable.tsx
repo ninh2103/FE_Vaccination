@@ -1,44 +1,39 @@
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { Eye, Edit, Trash } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
-interface BlogPost {
-  id: number
+export interface BlogPost {
+  id: string
   title: string
-  slug: string
-  excerpt: string
   content: string
-  author: string
-  category: string
-  tags: string[]
-  status: 'Published' | 'Draft'
-  publishDate: string | null
-  readTime: string
-  featured: boolean
-  image: string | null
+  createdAt: string
+  updatedAt: string
+  userId: string
+  tagId: string
 }
 
 interface BlogTableProps {
   posts: BlogPost[]
   currentPage: number
   rowsPerPage: number
-  onView: (id: number) => void
+  onView: (id: string) => void
   onEdit: (post: BlogPost) => void
-  onDelete: (id: number) => void
+  onDelete: (id: string) => void
+  isLoading: boolean
 }
 
-export function BlogTable({ posts, currentPage, rowsPerPage, onView, onEdit, onDelete }: BlogTableProps) {
+export function BlogTable({ posts, currentPage, rowsPerPage, onView, onEdit, onDelete, isLoading }: BlogTableProps) {
   const startIndex = (currentPage - 1) * rowsPerPage
   const endIndex = startIndex + rowsPerPage
-  const currentPosts = posts.slice(startIndex, endIndex)
+  const paginatedPosts = posts.slice(startIndex, endIndex)
 
-  const getStatusBadge = (status: 'Published' | 'Draft') => {
-    return status === 'Published' ? (
-      <Badge variant='default'>Published</Badge>
-    ) : (
-      <Badge variant='secondary'>Draft</Badge>
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
     )
   }
 
@@ -49,33 +44,19 @@ export function BlogTable({ posts, currentPage, rowsPerPage, onView, onEdit, onD
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Publish Date</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead>Featured</TableHead>
+              <TableHead>Content</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Updated At</TableHead>
               <TableHead className='w-[100px]'>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentPosts.map((post) => (
+            {paginatedPosts.map((post) => (
               <TableRow key={post.id}>
                 <TableCell className='font-medium'>{post.title}</TableCell>
-                <TableCell>{post.category}</TableCell>
-                <TableCell>{post.author}</TableCell>
-                <TableCell>{getStatusBadge(post.status)}</TableCell>
-                <TableCell>{post.publishDate || 'Not published'}</TableCell>
-                <TableCell>
-                  <div className='flex flex-wrap gap-1'>
-                    {post.tags.map((tag) => (
-                      <Badge key={tag} variant='outline'>
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>{post.featured ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{post.content.substring(0, 100)}...</TableCell>
+                <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <div className='flex items-center gap-2'>
                     <Button variant='ghost' size='icon' onClick={() => onView(post.id)}>
