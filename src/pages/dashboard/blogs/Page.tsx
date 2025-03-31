@@ -13,7 +13,6 @@ import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } fr
 import { DialogContent } from '@/components/ui/dialog'
 
 export const BlogPage: React.FC = () => {
-  const { refetch } = useListBlogQuery()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [rowsPerPage] = useState(10)
@@ -23,7 +22,9 @@ export const BlogPage: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
-  const { data: blogs, isLoading: isLoadingBlogs } = useListBlogQuery()
+  const { data: blogs, isLoading: isLoadingBlogs, refetch } = useListBlogQuery()
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
   const { mutate: deleteBlog } = useDeleteBlogMutation()
 
   useEffect(() => {
@@ -110,10 +111,13 @@ export const BlogPage: React.FC = () => {
   }
 
   const handleRefresh = () => {
-    refetch()
-    setCurrentPage(1)
-    setSearchQuery('')
-    toast.success('Data has been refreshed.')
+    setIsRefreshing(true)
+    refetch().finally(() => {
+      setSearchQuery('')
+      setCurrentPage(1)
+      setIsRefreshing(false)
+      toast.success('Data has been refreshed.')
+    })
   }
 
   const filteredPosts = posts.filter(
@@ -136,8 +140,8 @@ export const BlogPage: React.FC = () => {
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
             Export
           </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoadingBlogs}>
-            {isLoadingBlogs ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
             Refresh
           </Button>
           <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>

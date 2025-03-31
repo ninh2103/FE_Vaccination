@@ -28,8 +28,9 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isExporting, setIsExporting] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const { data: usersData, isLoading: isLoadingUsers } = useListUserQuery()
+  const { data: usersData, isLoading: isLoadingUsers, refetch } = useListUserQuery()
   const { mutate: deleteUser } = useDeleteUserQuery()
 
   useEffect(() => {
@@ -73,10 +74,14 @@ export default function UsersPage() {
   }
 
   const handleRefresh = () => {
-    setSearchTerm('')
-    setFilters({ role: [], status: [], registeredDate: '' })
-    setCurrentPage(1)
-    toast.success('Data has been refreshed.')
+    setIsRefreshing(true)
+    refetch().finally(() => {
+      setSearchTerm('')
+      setFilters({ role: [], status: [], registeredDate: '' })
+      setCurrentPage(1)
+      setIsRefreshing(false)
+      toast.success('Data has been refreshed.')
+    })
   }
 
   const handleExport = () => {
@@ -137,8 +142,8 @@ export default function UsersPage() {
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
             Export
           </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoadingUsers}>
-            {isLoadingUsers ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
             Refresh
           </Button>
           <Button size='sm' onClick={() => setOpenAddDialog(true)}>

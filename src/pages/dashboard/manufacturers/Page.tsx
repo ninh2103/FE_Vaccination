@@ -1,17 +1,9 @@
 import { useState, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import { Plus, Filter, Download, ChevronLeft, ChevronRight, RefreshCw, Calendar, AlertCircle, X } from 'lucide-react'
+import { Plus, Download, RefreshCw, X, SearchX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -20,54 +12,28 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ManufacturerTable } from './ManufacturerTable'
 import { AddManufacturer } from './AddManufacturer'
 import { UpdateManufacturer } from './UpdateManufacturer'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-
+import {
+  useListManufacturerQuery,
+  useCreateManufacturerQuery,
+  useUpdateManufacturerQuery,
+  useDeleteManufacturerQuery
+} from '@/queries/useManufacturer'
+import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
 interface Manufacturer {
-  id: number
+  id: string
   name: string
-  logo: string
   country: string
-  address: string
-  phone: string
-  email: string
-  website: string
-  status: 'Active' | 'Inactive'
-  vaccines: string[]
-  contactPerson: string
-  established: string
-  leadTime: string
-  rating: number
+  contactInfo: string
 }
 
-// Initial data
-const initialManufacturers: Manufacturer[] = [
-  {
-    id: 1,
-    name: 'BioNTech',
-    logo: '/placeholder.svg',
-    country: 'Germany',
-    address: 'An der Goldgrube 12, 55131 Mainz, Germany',
-    phone: '+49 6131 9084-0',
-    email: 'info@biontech.de',
-    website: 'https://biontech.de',
-    status: 'Active',
-    vaccines: ['COVID-19 Vaccine'],
-    contactPerson: 'Dr. Ugur Sahin',
-    established: '2008',
-    leadTime: '4-6 days',
-    rating: 4.8
-  }
-  // ... Add more initial manufacturers as needed
-]
-
 export default function ManufacturersPage() {
-  const [manufacturers, setManufacturers] = useState<Manufacturer[]>(initialManufacturers)
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -76,43 +42,24 @@ export default function ManufacturersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
-  const [filters, setFilters] = useState({
-    status: { active: false, inactive: false },
-    establishedFrom: '',
-    establishedTo: ''
-  })
-  const [yearRangeError, setYearRangeError] = useState('')
 
-  // Filtered manufacturers
+  const { data: manufacturersData, isLoading, refetch } = useListManufacturerQuery()
+  const { mutate: createManufacturer } = useCreateManufacturerQuery()
+  const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
+  const { mutate: deleteManufacturer } = useDeleteManufacturerQuery()
+
   const filteredManufacturers = useMemo(() => {
-    setYearRangeError('')
-    const fromYear = filters.establishedFrom ? Number.parseInt(filters.establishedFrom) : null
-    const toYear = filters.establishedTo ? Number.parseInt(filters.establishedTo) : null
+    if (!manufacturersData?.data) return []
 
-    if (fromYear && toYear && fromYear > toYear) {
-      setYearRangeError("The 'From' year cannot be greater than the 'To' year.")
-    }
-
-    return manufacturers.filter((manufacturer) => {
+    return manufacturersData.data.filter((manufacturer) => {
       const matchesSearch =
         manufacturer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        manufacturer.phone.toLowerCase().includes(searchTerm.toLowerCase())
+        manufacturer.contactInfo.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesStatus =
-        (!filters.status.active && !filters.status.inactive) ||
-        (filters.status.active && manufacturer.status === 'Active') ||
-        (filters.status.inactive && manufacturer.status === 'Inactive')
-
-      const establishedYear = manufacturer.established ? Number.parseInt(manufacturer.established) : null
-      const matchesEstablished =
-        (!fromYear || (establishedYear && establishedYear >= fromYear)) &&
-        (!toYear || (establishedYear && establishedYear <= toYear))
-
-      return matchesSearch && matchesStatus && matchesEstablished
+      return matchesSearch
     })
-  }, [manufacturers, searchTerm, filters])
+  }, [manufacturersData?.data, searchTerm])
 
-  // Pagination
   const ROWS_PER_PAGE = 10
   const totalPages = Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)
   const paginatedManufacturers = filteredManufacturers.slice(
@@ -120,7 +67,6 @@ export default function ManufacturersPage() {
     currentPage * ROWS_PER_PAGE
   )
 
-  // Event handlers
   const handleExport = () => {
     setIsExporting(true)
     setTimeout(() => {
@@ -134,27 +80,46 @@ export default function ManufacturersPage() {
     }, 1000)
   }
 
-  const handleAddManufacturer = (newManufacturer: Omit<Manufacturer, 'id'>) => {
-    const manufacturer: Manufacturer = {
-      ...newManufacturer,
-      id: manufacturers.length + 1
-    }
-    setManufacturers([...manufacturers, manufacturer])
-    setOpenAddDialog(false)
-  }
-
-  const handleUpdateManufacturer = (updatedManufacturer: Manufacturer) => {
-    setManufacturers(manufacturers.map((m) => (m.id === updatedManufacturer.id ? updatedManufacturer : m)))
-    setIsEditMode(false)
-    setSelectedManufacturer(null)
+  const handleAddManufacturer = (newManufacturer: ManufacturerBodyType) => {
+    createManufacturer(newManufacturer, {
+      onSuccess: () => {
+        setOpenAddDialog(false)
+        toast.success('Manufacturer added successfully')
+        refetch()
+      }
+    })
   }
 
   const handleDeleteManufacturer = () => {
     if (selectedManufacturer) {
-      setManufacturers(manufacturers.filter((m) => m.id !== selectedManufacturer.id))
+      deleteManufacturer(selectedManufacturer.id, {
+        onSuccess: () => {
+          setOpenDeleteDialog(false)
+          setSelectedManufacturer(null)
+          toast.success('Manufacturer deleted successfully')
+          refetch()
+        },
+        onError: (error) => {
+          handleErrorApi({ error, setError: () => {}, duration: 5000 })
+        }
+      })
     }
-    setOpenDeleteDialog(false)
-    setSelectedManufacturer(null)
+  }
+
+  const handleUpdateManufacturer = (updatedManufacturer: ManufacturerBodyType) => {
+    if (selectedManufacturer) {
+      updateManufacturer(
+        { id: selectedManufacturer.id, body: updatedManufacturer },
+        {
+          onSuccess: () => {
+            setIsEditMode(false)
+            setSelectedManufacturer(null)
+            toast.success('Manufacturer updated successfully')
+            refetch()
+          }
+        }
+      )
+    }
   }
 
   const handleEditManufacturer = (manufacturer: Manufacturer) => {
@@ -164,31 +129,12 @@ export default function ManufacturersPage() {
 
   const handleRefresh = () => {
     setIsRefreshing(true)
-    setTimeout(() => {
-      setManufacturers([...initialManufacturers])
+    refetch().finally(() => {
       setSearchTerm('')
-      setFilters({
-        status: { active: false, inactive: false },
-        establishedFrom: '',
-        establishedTo: ''
-      })
       setCurrentPage(1)
       setIsRefreshing(false)
-    }, 1000)
-  }
-
-  const handleClearFilters = () => {
-    setFilters({
-      status: { active: false, inactive: false },
-      establishedFrom: '',
-      establishedTo: ''
+      toast.success('Data has been refreshed.')
     })
-    setCurrentPage(1)
-  }
-
-  const handleYearChange = (key: 'establishedFrom' | 'establishedTo', value: string) => {
-    const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 4)
-    setFilters((prev) => ({ ...prev, [key]: sanitizedValue }))
   }
 
   return (
@@ -214,12 +160,12 @@ export default function ManufacturersPage() {
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='flex w-full max-w-sm items-center space-x-2'>
             <Input
-              placeholder='Search by name or phone...'
+              placeholder='Search by name or contact info...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -234,104 +180,22 @@ export default function ManufacturersPage() {
               </Button>
             )}
           </div>
-          <div className='flex items-center gap-2'>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='outline' size='sm'>
-                  <Filter className='mr-2 h-4 w-4' />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end' className='w-[300px] p-4'>
-                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
-                <p className='text-sm text-muted-foreground mb-4'>
-                  Filter manufacturers by status and established year range.
-                </p>
-
-                {/* Status Filter */}
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Status</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.active}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, active: checked }
-                      }))
-                    }
-                  >
-                    Active
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.inactive}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, inactive: checked }
-                      }))
-                    }
-                  >
-                    Inactive
-                  </DropdownMenuCheckboxItem>
-                </div>
-
-                {/* Established Year Range Filter */}
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Established Year Range</DropdownMenuLabel>
-                  <div className='grid grid-cols-2 gap-2 mt-2'>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>From</Label>
-                      <div className='flex items-center'>
-                        <Input
-                          placeholder='yyyy'
-                          value={filters.establishedFrom}
-                          onChange={(e) => handleYearChange('establishedFrom', e.target.value)}
-                          className='w-full'
-                          maxLength={4}
-                        />
-                        <Calendar className='ml-2 h-4 w-4 text-muted-foreground' />
-                      </div>
-                    </div>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>To</Label>
-                      <div className='flex items-center'>
-                        <Input
-                          placeholder='yyyy'
-                          value={filters.establishedTo}
-                          onChange={(e) => handleYearChange('establishedTo', e.target.value)}
-                          className='w-full'
-                          maxLength={4}
-                        />
-                        <Calendar className='ml-2 h-4 w-4 text-muted-foreground' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Year Range Error */}
-                {yearRangeError && (
-                  <Alert variant='destructive' className='mb-4'>
-                    <AlertCircle className='h-4 w-4' />
-                    <AlertDescription>{yearRangeError}</AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Clear Filters Button */}
-                <Button variant='outline' size='sm' onClick={handleClearFilters}>
-                  Clear Filters
-                </Button>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </div>
 
         {/* Table */}
         <Card>
           <CardContent className='p-0'>
-            {paginatedManufacturers.length === 0 ? (
-              <div className='p-4 text-center text-muted-foreground'>
-                No manufacturers found matching the current filters.
+            {isLoading ? (
+              <div className='p-8 text-center'>
+                <LoadingSpinner className='mx-auto h-8 w-8' />
+              </div>
+            ) : paginatedManufacturers.length === 0 ? (
+              <div className='flex flex-col items-center justify-center p-8 text-center'>
+                <SearchX className='h-12 w-12 text-muted-foreground mb-4' />
+                <p className='text-lg font-medium text-muted-foreground'>No manufacturers found</p>
+                <p className='text-sm text-muted-foreground mt-2'>
+                  {searchTerm ? 'Try adjusting your search terms' : 'Add a new manufacturer to get started'}
+                </p>
               </div>
             ) : (
               <ManufacturerTable
@@ -340,7 +204,7 @@ export default function ManufacturersPage() {
                 rowsPerPage={ROWS_PER_PAGE}
                 onEdit={handleEditManufacturer}
                 onDelete={(id) => {
-                  setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
+                  setSelectedManufacturer(manufacturersData?.data.find((m) => m.id === id) || null)
                   setOpenDeleteDialog(true)
                 }}
               />
