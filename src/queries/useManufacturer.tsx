@@ -1,11 +1,16 @@
 import manufacturerService from '@/core/services/manufacturer.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
+interface ListManufacturerQuery {
+  page?: number
+  items_per_page?: number
+  search?: string
+}
 
-export const useListManufacturerQuery = () => {
+export const useListManufacturerQuery = (query: ListManufacturerQuery = {}) => {
   return useQuery({
-    queryKey: ['manufacturer-list'],
-    queryFn: () => manufacturerService.list({})
+    queryKey: ['manufacturer-list', query],
+    queryFn: () => manufacturerService.list(query)
   })
 }
 export const useCreateManufacturerQuery = () => {

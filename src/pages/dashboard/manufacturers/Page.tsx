@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import { Plus, Download, RefreshCw, X, SearchX } from 'lucide-react'
@@ -33,6 +33,7 @@ interface Manufacturer {
   contactInfo: string
 }
 
+const ROWS_PER_PAGE = 10
 export default function ManufacturersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
@@ -43,34 +44,25 @@ export default function ManufacturersPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
-  const { data: manufacturersData, isLoading, refetch } = useListManufacturerQuery()
+  const {
+    data: manufacturersData,
+    isLoading,
+    refetch
+  } = useListManufacturerQuery({
+    page: currentPage,
+    items_per_page: ROWS_PER_PAGE,
+    search: searchTerm
+  })
   const { mutate: createManufacturer } = useCreateManufacturerQuery()
   const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
   const { mutate: deleteManufacturer } = useDeleteManufacturerQuery()
 
-  const filteredManufacturers = useMemo(() => {
-    if (!manufacturersData?.data) return []
-
-    return manufacturersData.data.filter((manufacturer) => {
-      const matchesSearch =
-        manufacturer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        manufacturer.contactInfo.toLowerCase().includes(searchTerm.toLowerCase())
-
-      return matchesSearch
-    })
-  }, [manufacturersData?.data, searchTerm])
-
-  const ROWS_PER_PAGE = 10
-  const totalPages = Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)
-  const paginatedManufacturers = filteredManufacturers.slice(
-    (currentPage - 1) * ROWS_PER_PAGE,
-    currentPage * ROWS_PER_PAGE
-  )
+  const manufacturers = manufacturersData?.data || []
 
   const handleExport = () => {
     setIsExporting(true)
     setTimeout(() => {
-      const worksheet = XLSX.utils.json_to_sheet(filteredManufacturers)
+      const worksheet = XLSX.utils.json_to_sheet(manufacturers)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Manufacturers')
       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
@@ -189,7 +181,7 @@ export default function ManufacturersPage() {
               <div className='p-8 text-center'>
                 <LoadingSpinner className='mx-auto h-8 w-8' />
               </div>
-            ) : paginatedManufacturers.length === 0 ? (
+            ) : manufacturers.length === 0 ? (
               <div className='flex flex-col items-center justify-center p-8 text-center'>
                 <SearchX className='h-12 w-12 text-muted-foreground mb-4' />
                 <p className='text-lg font-medium text-muted-foreground'>No manufacturers found</p>
@@ -199,12 +191,12 @@ export default function ManufacturersPage() {
               </div>
             ) : (
               <ManufacturerTable
-                manufacturers={paginatedManufacturers}
+                manufacturers={manufacturers}
                 currentPage={currentPage}
                 rowsPerPage={ROWS_PER_PAGE}
                 onEdit={handleEditManufacturer}
                 onDelete={(id) => {
-                  setSelectedManufacturer(manufacturersData?.data.find((m) => m.id === id) || null)
+                  setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
                   setOpenDeleteDialog(true)
                 }}
               />
@@ -213,22 +205,18 @@ export default function ManufacturersPage() {
         </Card>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className='flex justify-center gap-2 mt-4'>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
+        {manufacturersData?.total && manufacturersData.total > ROWS_PER_PAGE && (
+          <div className='flex justify-center gap-2 py-4'>
+            <Button variant='outline' onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
               Previous
             </Button>
             <span className='flex items-center px-4'>
-              Page {currentPage} of {totalPages}
+              Page {currentPage} of {Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
             </span>
             <Button
               variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage >= Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
             >
               Next
             </Button>

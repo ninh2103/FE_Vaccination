@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Edit, Trash } from 'lucide-react'
+import { Edit, Trash, Home, MapPin, Phone } from 'lucide-react'
 
 export interface Manufacturer {
   id: string
@@ -17,11 +17,18 @@ interface ManufacturerTableProps {
   onDelete: (id: string) => void
 }
 
-export function ManufacturerTable({ manufacturers, onEdit, onDelete }: ManufacturerTableProps) {
+export function ManufacturerTable({
+  manufacturers,
+  currentPage,
+  rowsPerPage,
+  onEdit,
+  onDelete
+}: ManufacturerTableProps) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>No.</TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Country</TableHead>
           <TableHead>Contact Information</TableHead>
@@ -29,11 +36,31 @@ export function ManufacturerTable({ manufacturers, onEdit, onDelete }: Manufactu
         </TableRow>
       </TableHeader>
       <TableBody>
-        {manufacturers.map((manufacturer) => (
-          <TableRow key={manufacturer.id}>
-            <TableCell className='font-medium'>{manufacturer.name}</TableCell>
-            <TableCell>{manufacturer.country}</TableCell>
-            <TableCell>{manufacturer.contactInfo}</TableCell>
+        {manufacturers.map((manufacturer, index) => (
+          <TableRow key={manufacturer.id} className='cursor-pointer hover:bg-muted/50'>
+            <TableCell>{(currentPage - 1) * rowsPerPage + index + 1}</TableCell>
+            <TableCell>
+              <div className='flex items-center gap-3'>
+                <div className='h-10 w-10 rounded-md bg-muted flex items-center justify-center'>
+                  <Home className='h-5 w-5 text-muted-foreground' />
+                </div>
+                <div>
+                  <div className='font-medium'>{manufacturer.name}</div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className='flex items-center gap-1'>
+                <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
+                <span>{manufacturer.country}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className='flex items-center gap-1 text-sm'>
+                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                <span>{manufacturer.contactInfo}</span>
+              </div>
+            </TableCell>
             <TableCell>
               <div className='flex items-center gap-2'>
                 <Button variant='ghost' size='icon' onClick={() => onEdit(manufacturer)}>

@@ -2,10 +2,16 @@ import { blogService } from '@/core/services/blog.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { BlogBodyType } from '@/schemaValidator/blog.schema'
 
-export const useListBlogQuery = () => {
+interface ListBlogQuery {
+  page?: number
+  items_per_page?: number
+  search?: string
+}
+
+export const useListBlogQuery = (query: ListBlogQuery = {}) => {
   return useQuery({
-    queryKey: ['blog-list'],
-    queryFn: () => blogService.getBlogs({})
+    queryKey: ['blog-list', query],
+    queryFn: () => blogService.getBlogs(query)
   })
 }
 
