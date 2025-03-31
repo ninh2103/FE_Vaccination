@@ -16,19 +16,13 @@ export interface BlogPost {
 
 interface BlogTableProps {
   posts: BlogPost[]
-  currentPage: number
-  rowsPerPage: number
   onView: (id: string) => void
   onEdit: (post: BlogPost) => void
   onDelete: (id: string) => void
   isLoading: boolean
 }
 
-export function BlogTable({ posts, currentPage, rowsPerPage, onView, onEdit, onDelete, isLoading }: BlogTableProps) {
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const endIndex = startIndex + rowsPerPage
-  const paginatedPosts = posts.slice(startIndex, endIndex)
-
+export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTableProps) {
   if (isLoading) {
     return (
       <div className='flex items-center justify-center p-8'>
@@ -51,7 +45,7 @@ export function BlogTable({ posts, currentPage, rowsPerPage, onView, onEdit, onD
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedPosts.map((post) => (
+            {posts.map((post) => (
               <TableRow key={post.id}>
                 <TableCell className='font-medium'>{post.title}</TableCell>
                 <TableCell>{post.content.substring(0, 100)}...</TableCell>

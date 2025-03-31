@@ -206,20 +206,46 @@ export default function ManufacturersPage() {
 
         {/* Pagination */}
         {manufacturersData?.total && manufacturersData.total > ROWS_PER_PAGE && (
-          <div className='flex justify-center gap-2 py-4'>
-            <Button variant='outline' onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </Button>
-            <span className='flex items-center px-4'>
-              Page {currentPage} of {Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
-            </span>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage >= Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
-            >
-              Next
-            </Button>
+          <div className='flex items-center justify-between px-2'>
+            <div className='flex-1 text-sm text-muted-foreground'>
+              Showing {(currentPage - 1) * ROWS_PER_PAGE + 1} to{' '}
+              {Math.min(currentPage * ROWS_PER_PAGE, manufacturersData.total)} of {manufacturersData.total} entries
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className='flex items-center gap-1'>
+                {Array.from({ length: Math.ceil(manufacturersData.total / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? 'default' : 'outline'}
+                      size='sm'
+                      onClick={() => setCurrentPage(page)}
+                      className='min-w-[2.5rem]'
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(manufacturersData.total / ROWS_PER_PAGE)))
+                }
+                disabled={currentPage >= Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

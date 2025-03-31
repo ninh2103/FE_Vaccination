@@ -51,6 +51,9 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
 
   // Pagination
   const totalPages = Math.ceil((suppliersData?.total || 0) / ROWS_PER_PAGE)
+  const totalItems = suppliersData?.total ?? 0
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE + 1
+  const endIndex = Math.min(startIndex + ROWS_PER_PAGE - 1, totalItems)
 
   // Event handlers
   const handleExport = () => {
@@ -254,24 +257,41 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Showing {startIndex} to {endIndex} of {totalItems} entries
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
 

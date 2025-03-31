@@ -22,7 +22,15 @@ export const BlogPage: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
-  const { data: blogs, isLoading: isLoadingBlogs, refetch } = useListBlogQuery()
+  const {
+    data: blogs,
+    isLoading: isLoadingBlogs,
+    refetch
+  } = useListBlogQuery({
+    page: currentPage,
+    items_per_page: rowsPerPage,
+    search: searchQuery
+  })
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { mutate: deleteBlog } = useDeleteBlogMutation()
@@ -120,13 +128,10 @@ export const BlogPage: React.FC = () => {
     })
   }
 
-  const filteredPosts = posts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const totalPages = Math.ceil(filteredPosts.length / rowsPerPage)
+  const totalPages = Math.ceil((blogs?.total ?? 0) / rowsPerPage)
+  const totalItems = blogs?.total ?? 0
+  const startIndex = (currentPage - 1) * rowsPerPage + 1
+  const endIndex = Math.min(startIndex + rowsPerPage - 1, totalItems)
 
   return (
     <div className='p-6'>
@@ -158,37 +163,54 @@ export const BlogPage: React.FC = () => {
         </div>
       </div>
 
-      <BlogTable
-        posts={filteredPosts}
-        currentPage={currentPage}
-        rowsPerPage={rowsPerPage}
-        onView={handleViewPost}
-        onEdit={handleEditPost}
-        onDelete={handleDeletePost}
-        isLoading={isLoadingBlogs}
-      />
+      <div className='space-y-4'>
+        <BlogTable
+          posts={posts}
+          onView={handleViewPost}
+          onEdit={handleEditPost}
+          onDelete={handleDeletePost}
+          isLoading={isLoadingBlogs}
+        />
 
-      {totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className='flex items-center justify-between px-2'>
+            <div className='flex-1 text-sm text-muted-foreground'>
+              Showing {startIndex} to {endIndex} of {totalItems} entries
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className='flex items-center gap-1'>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setCurrentPage(page)}
+                    className='min-w-[2.5rem]'
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <AddBlog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSubmit={handleAddPost} />
 
