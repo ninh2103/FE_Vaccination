@@ -100,12 +100,12 @@ export const BlogPage: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
-    setCurrentPage(1) // Reset to first page when searching
+    setCurrentPage(1)
   }
 
   const handleTagChange = (value: string) => {
     setSelectedTag(value)
-    setCurrentPage(1) // Reset to first page when changing tag
+    setCurrentPage(1)
   }
 
   const handleExportExcel = () => {

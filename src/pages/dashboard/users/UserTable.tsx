@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { numberConstants } from '@/configs/consts'
 
 export type User = {
   id: string
@@ -28,9 +29,10 @@ interface UserTableProps {
   isLoading: boolean
   onEditClick: (user: User) => void
   onDeleteClick: (user: User) => void
+  totalItems?: number
 }
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = numberConstants.TEN
 
 export function UserTable({
   users,
@@ -38,14 +40,16 @@ export function UserTable({
   setCurrentPage,
   isLoading,
   onEditClick,
-  onDeleteClick
+  onDeleteClick,
+  totalItems = 0
 }: UserTableProps) {
   const filteredUsers = useMemo(() => {
     return users
   }, [users])
 
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE))
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE))
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -213,25 +217,42 @@ export function UserTable({
       </Tabs>
 
       {/* Pagination */}
-      {!isLoading && totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+      {totalPages > 1 && (
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Showing {startIndex} to {endIndex} of {totalItems} entries
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>

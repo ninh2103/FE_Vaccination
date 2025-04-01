@@ -28,6 +28,7 @@ import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
 import OrdersPage from '@/pages/dashboard/orders/Page'
 import AppointmentsPage from '@/pages/dashboard/appointments/Page'
 import HistorysPage1 from '@/pages/dashboard/historys/Page'
+import ProfilePage from '@/pages/profile-admin/profile'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -138,7 +139,14 @@ export default function useRoutesElements() {
           }
         ]
       },
-
+      {
+        path: path.admin.profile,
+        element: (
+          <LayoutMain>
+            <ProfilePage />
+          </LayoutMain>
+        )
+      },
       {
         path: path.profile,
         element: (

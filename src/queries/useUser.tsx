@@ -1,6 +1,11 @@
 import { userApi } from '@/core/services/user.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
+interface ListUserQuery {
+  page?: number
+  items_per_page?: number
+  search?: string
+}
 export const useGetMeQuery = () => {
   return useQuery({
     queryKey: ['account-profile'],
@@ -12,10 +17,10 @@ export const useUpdateMeQuery = () => {
     mutationFn: userApi.updateMe
   })
 }
-export const useListUserQuery = () => {
+export const useListUserQuery = (query: ListUserQuery = {}) => {
   return useQuery({
-    queryKey: ['user-list'],
-    queryFn: () => userApi.list({})
+    queryKey: ['user-list', query],
+    queryFn: () => userApi.list(query)
   })
 }
 export const useDetailUserQuery = (id: string) => {
@@ -28,5 +33,15 @@ export const useDetailUserQuery = (id: string) => {
 export const useDeleteUserQuery = () => {
   return useMutation({
     mutationFn: userApi.delete
+  })
+}
+export const useCreateUserQuery = () => {
+  return useMutation({
+    mutationFn: userApi.create
+  })
+}
+export const useUploadAvatarQuery = () => {
+  return useMutation({
+    mutationFn: userApi.uploadAvatar
   })
 }

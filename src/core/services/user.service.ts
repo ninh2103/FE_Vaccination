@@ -1,7 +1,9 @@
 import axiosClient from '@/core/services/axios-client'
+import { RegisterBodyType } from '@/schemaValidator/auth.schema'
 import {
   UpdateMeBodyType,
   UpdateRoleBodyType,
+  UploadAvatarBodyType,
   UserResponseListType,
   UserResponseType
 } from '@/schemaValidator/user.schema'
@@ -15,6 +17,8 @@ interface ListUserQuery {
 const API_GET_ME = '/api/user/me'
 const API_UPDATE_ME = '/api/user/me'
 const API_LIST = '/api/user'
+const API_CREATE = '/api/auth/register/admin'
+const API_UPLOAD_AVATAR = '/api/user/upload-avatar'
 
 export const userApi = {
   getMe(): Promise<UserResponseType> {
@@ -34,5 +38,20 @@ export const userApi = {
   },
   delete(id: string): Promise<UserResponseType> {
     return axiosClient.delete(`${API_LIST}/${id}`)
+  },
+  create(body: RegisterBodyType): Promise<UserResponseType> {
+    return axiosClient.post(API_CREATE, body)
+  },
+  uploadAvatar(body: UploadAvatarBodyType): Promise<UserResponseType> {
+    const formData = new FormData()
+    formData.append('file', body.avatar)
+
+    return axiosClient
+      .post<UserResponseType>(API_UPLOAD_AVATAR, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      .then((response) => response.data)
   }
 }

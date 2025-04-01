@@ -50,3 +50,9 @@ export const UpdateRoleBody = z.object({
 })
 
 export type UpdateRoleBodyType = z.TypeOf<typeof UpdateRoleBody>
+
+export const UploadAvatarBody = z.object({
+  avatar: z.instanceof(File, { message: 'Avatar is required' })
+})
+
+export type UploadAvatarBodyType = z.TypeOf<typeof UploadAvatarBody>

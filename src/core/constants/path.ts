@@ -24,6 +24,7 @@ export const path = {
     payments: 'admin/payments',
     history: '/admin/history',
     appointments: '/admin/appointments',
-    order: '/admin/order'
+    order: '/admin/order',
+    profile: '/admin/profile'
   }
 }

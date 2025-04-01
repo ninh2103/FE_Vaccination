@@ -4,21 +4,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { User, Lock, Eye, EyeOff, TicketCheck } from 'lucide-react'
+import { User, Lock, Eye, EyeOff, TicketCheck, Upload } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidator/auth.schema'
 import { useChangePasswordMutation } from '@/queries/useAuth'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
-import { UpdateMeBody, UpdateMeBodyType } from '@/schemaValidator/user.schema'
+import { useGetMeQuery, useUpdateMeQuery, useUploadAvatarQuery } from '@/queries/useUser'
+import { UpdateMeBody, UpdateMeBodyType, UploadAvatarBodyType } from '@/schemaValidator/user.schema'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+
 export default function Profile() {
   const [showPassword, setShowPassword] = useState(false)
 
   const changePasswordMutation = useChangePasswordMutation()
   const updateMeMutation = useUpdateMeQuery()
   const getMeQuery = useGetMeQuery()
+  const uploadAvatarMutation = useUploadAvatarQuery()
 
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
@@ -87,6 +90,20 @@ export default function Profile() {
     })
   }
 
+  const handleUploadAvatar = (body: UploadAvatarBodyType) => {
+    uploadAvatarMutation.mutate(body, {
+      onSuccess: () => {
+        toast.success('Upload Avatar Success!')
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error,
+          setError: formUpdate.setError
+        })
+      }
+    })
+  }
+
   return (
     <div className='min-h-screen w-full dark:bg-gray-900 p-8'>
       <div className='max-w-4xl mx-auto'>
@@ -126,6 +143,45 @@ export default function Profile() {
                 <CardDescription className='text-gray-400'>Edit your personal information here.</CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
+                <div className='flex items-center gap-6'>
+                  <div className='flex gap-2 items-start justify-start'>
+                    <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
+                      <AvatarImage src={getMeQuery.data?.avatar || ''} />
+                      <AvatarFallback className='rounded-none'>{getMeQuery.data?.name || 'Avatar'}</AvatarFallback>
+                    </Avatar>
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          handleUploadAvatar({ avatar: file })
+                        }
+                      }}
+                      className='hidden'
+                    />
+                    <button
+                      className='flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed'
+                      type='button'
+                      onClick={() => {
+                        const input = document.createElement('input')
+                        input.type = 'file'
+                        input.accept = 'image/*'
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0]
+                          if (file) {
+                            handleUploadAvatar({ avatar: file })
+                          }
+                        }
+                        input.click()
+                      }}
+                    >
+                      <Upload className='h-4 w-4 text-muted-foreground' />
+                      <span className='sr-only'>Upload</span>
+                    </button>
+                  </div>
+                </div>
+
                 <div className='space-y-2'>
                   <Label htmlFor='name' className='dark:text-green-300'>
                     Name

@@ -13,25 +13,16 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Vaccine } from '@/pages/dashboard/vaccines/types'
+import { VaccineType } from '@/schemaValidator/vaccination.schema'
 
 interface UpdateVaccineProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  selectedVaccine: Vaccine | null
-  vaccines: Vaccine[]
-  setVaccines: (vaccines: Vaccine[]) => void
+  selectedVaccine: VaccineType | null
 }
 
-export default function UpdateVaccine({
-  open,
-  onOpenChange,
-  selectedVaccine,
-  vaccines,
-  setVaccines
-}: UpdateVaccineProps) {
-  const [editVaccine, setEditVaccine] = useState<Partial<Vaccine>>({})
+export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: UpdateVaccineProps) {
+  const [editVaccine, setEditVaccine] = useState<Partial<VaccineType>>({})
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -40,12 +31,6 @@ export default function UpdateVaccine({
       setEditVaccine(selectedVaccine)
     }
   }, [selectedVaccine])
-
-  const calculateStatus = (quantity: number): 'In Stock' | 'Low Stock' | 'Out of Stock' => {
-    if (quantity > 10) return 'In Stock'
-    if (quantity > 0) return 'Low Stock'
-    return 'Out of Stock'
-  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -63,31 +48,23 @@ export default function UpdateVaccine({
   const handleEditVaccine = () => {
     setIsLoading(true)
     const today = new Date().toISOString().split('T')[0]
-    if (editVaccine.expiryDate && editVaccine.expiryDate <= today) {
-      setErrorMessage('Expiry date must be later than today.')
+    if (editVaccine.expirationDate && editVaccine.expirationDate <= today) {
+      setErrorMessage('Expiration date must be later than today.')
       setIsLoading(false)
       return
     }
-    if (!editVaccine.name || !editVaccine.manufacturer || editVaccine.quantity === undefined) {
-      setErrorMessage('Please fill in all required fields (Name, Manufacturer, Quantity).')
+    if (!editVaccine.vaccineName || !editVaccine.manufacturerId || !editVaccine.supplierId) {
+      setErrorMessage('Please fill in all required fields (Name, Manufacturer, Supplier).')
       setIsLoading(false)
       return
     }
 
-    if (selectedVaccine) {
-      setTimeout(() => {
-        const updatedVaccines = vaccines.map((v) =>
-          v.id === selectedVaccine.id
-            ? { ...v, ...editVaccine, status: calculateStatus(editVaccine.quantity || v.quantity) }
-            : v
-        )
-        setVaccines(updatedVaccines)
-        setEditVaccine({})
-        setErrorMessage('')
-        onOpenChange(false)
-        setIsLoading(false)
-      }, 1000)
-    }
+    // Here you would typically call your API to update the vaccine
+    // For now, we'll just close the dialog
+    setEditVaccine({})
+    setErrorMessage('')
+    onOpenChange(false)
+    setIsLoading(false)
   }
 
   return (
@@ -105,11 +82,11 @@ export default function UpdateVaccine({
           )}
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-name'>Vaccine Name *</Label>
+              <Label htmlFor='edit-vaccineName'>Vaccine Name *</Label>
               <Input
-                id='edit-name'
-                value={editVaccine.name || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, name: e.target.value })}
+                id='edit-vaccineName'
+                value={editVaccine.vaccineName || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, vaccineName: e.target.value })}
                 placeholder='e.g., COVID-19 Vaccine'
               />
             </div>
@@ -124,118 +101,76 @@ export default function UpdateVaccine({
               />
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-manufacturer'>Manufacturer *</Label>
+              <Label htmlFor='edit-manufacturerId'>Manufacturer ID *</Label>
               <Input
-                id='edit-manufacturer'
-                value={editVaccine.manufacturer || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, manufacturer: e.target.value })}
-                placeholder='e.g., BioNTech'
+                id='edit-manufacturerId'
+                value={editVaccine.manufacturerId || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, manufacturerId: e.target.value })}
+                placeholder='Enter manufacturer ID'
               />
             </div>
           </div>
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-country'>Country of Origin</Label>
+              <Label htmlFor='edit-supplierId'>Supplier ID *</Label>
               <Input
-                id='edit-country'
-                value={editVaccine.country || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, country: e.target.value })}
-                placeholder='e.g., Germany'
+                id='edit-supplierId'
+                value={editVaccine.supplierId || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, supplierId: e.target.value })}
+                placeholder='Enter supplier ID'
               />
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-type'>Vaccine Type</Label>
-              <Select
-                value={editVaccine.type || ''}
-                onValueChange={(value) => setEditVaccine({ ...editVaccine, type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Select type' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Adult'>Adult</SelectItem>
-                  <SelectItem value='Children'>Children</SelectItem>
-                  <SelectItem value='Pregnant Women'>Pregnant Women</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor='edit-location'>Location</Label>
+              <Input
+                id='edit-location'
+                value={editVaccine.location || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, location: e.target.value })}
+                placeholder='Enter location'
+              />
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-quantity'>Quantity *</Label>
+              <Label htmlFor='edit-batchNumber'>Batch Number</Label>
               <Input
-                id='edit-quantity'
+                id='edit-batchNumber'
+                value={editVaccine.batchNumber || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, batchNumber: e.target.value })}
+                placeholder='Enter batch number'
+              />
+            </div>
+          </div>
+          <div className='grid grid-cols-3 gap-4'>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='edit-expirationDate'>Expiration Date</Label>
+              <Input
+                id='edit-expirationDate'
+                type='date'
+                value={editVaccine.expirationDate || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, expirationDate: e.target.value })}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='edit-remainingQuantity'>Remaining Quantity</Label>
+              <Input
+                id='edit-remainingQuantity'
                 type='number'
                 min='0'
-                value={editVaccine.quantity || ''}
-                onChange={(e) =>
-                  setEditVaccine({
-                    ...editVaccine,
-                    quantity: Number(e.target.value),
-                    status: calculateStatus(Number(e.target.value))
-                  })
-                }
-                placeholder='e.g., 15'
+                value={editVaccine.remainingQuantity || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, remainingQuantity: Number(e.target.value) })}
+                placeholder='Enter quantity'
                 onKeyDown={(e) => {
                   if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab') e.preventDefault()
                 }}
               />
             </div>
-          </div>
-          <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-expiryDate'>Expiry Date</Label>
+              <Label htmlFor='edit-certificate'>Certificate</Label>
               <Input
-                id='edit-expiryDate'
-                type='date'
-                value={editVaccine.expiryDate || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, expiryDate: e.target.value })}
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-doseInterval'>Dose Interval</Label>
-              <Input
-                id='edit-doseInterval'
-                value={editVaccine.doseInterval || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, doseInterval: e.target.value })}
-                placeholder='e.g., 21 days'
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-target'>Target Group</Label>
-              <Input
-                id='edit-target'
-                value={editVaccine.target || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, target: e.target.value })}
-                placeholder='e.g., People over 12'
-              />
-            </div>
-          </div>
-          <div className='grid grid-cols-3 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-dosage'>Dosage</Label>
-              <Input
-                id='edit-dosage'
-                value={editVaccine.dosage || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, dosage: e.target.value })}
-                placeholder='e.g., 0.3ml'
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-administration'>Administration Route</Label>
-              <Input
-                id='edit-administration'
-                value={editVaccine.administration || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, administration: e.target.value })}
-                placeholder='e.g., Intramuscular'
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-storage'>Storage Conditions</Label>
-              <Input
-                id='edit-storage'
-                value={editVaccine.storage || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, storage: e.target.value })}
-                placeholder='e.g., 2-8°C'
+                id='edit-certificate'
+                value={editVaccine.certificate || ''}
+                onChange={(e) => setEditVaccine({ ...editVaccine, certificate: e.target.value })}
+                placeholder='Enter certificate'
               />
             </div>
           </div>
@@ -264,33 +199,22 @@ export default function UpdateVaccine({
               />
             </div>
           </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-info'>Vaccine Information</Label>
-              <Textarea
-                id='edit-info'
-                value={editVaccine.info || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, info: e.target.value })}
-                placeholder='Enter vaccine information'
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='edit-contraindications'>Contraindications</Label>
-              <Textarea
-                id='edit-contraindications'
-                value={editVaccine.contraindications || ''}
-                onChange={(e) => setEditVaccine({ ...editVaccine, contraindications: e.target.value })}
-                placeholder='e.g., Allergy'
-              />
-            </div>
+          <div className='flex flex-col gap-2'>
+            <Label htmlFor='edit-description'>Description</Label>
+            <Textarea
+              id='edit-description'
+              value={editVaccine.description || ''}
+              onChange={(e) => setEditVaccine({ ...editVaccine, description: e.target.value })}
+              placeholder='Enter vaccine description'
+            />
           </div>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='edit-sideEffects'>Side Effects</Label>
+            <Label htmlFor='edit-sideEffect'>Side Effects</Label>
             <Textarea
-              id='edit-sideEffects'
-              value={editVaccine.sideEffects || ''}
-              onChange={(e) => setEditVaccine({ ...editVaccine, sideEffects: e.target.value })}
-              placeholder='e.g., Pain, fatigue'
+              id='edit-sideEffect'
+              value={editVaccine.sideEffect || ''}
+              onChange={(e) => setEditVaccine({ ...editVaccine, sideEffect: e.target.value })}
+              placeholder='Enter side effects'
             />
           </div>
         </div>

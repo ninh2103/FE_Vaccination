@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { UserCircleIcon } from '@heroicons/react/24/outline'
+import { Link } from 'react-router-dom'
+import { path } from '@/core/constants/path'
 
 // Định nghĩa kiểu cho CustomEvent
 interface TopbarProps {
@@ -112,12 +114,11 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
               className='min-w-[160px] bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1'
               sideOffset={5}
             >
-              <DropdownMenu.Item className='px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'>
-                Profile
-              </DropdownMenu.Item>
-              <DropdownMenu.Item className='px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'>
-                Settings
-              </DropdownMenu.Item>
+              <Link to={path.admin.profile}>
+                <DropdownMenu.Item className='px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'>
+                  Profile
+                </DropdownMenu.Item>
+              </Link>
               <DropdownMenu.Separator className='h-px bg-gray-200 dark:bg-gray-700 my-1' />
               <DropdownMenu.Item className='px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'>
                 Logout

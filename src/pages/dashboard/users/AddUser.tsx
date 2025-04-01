@@ -14,9 +14,9 @@ import { RegisterBody } from '@/schemaValidator/auth.schema'
 import { useForm } from 'react-hook-form'
 import { RegisterBodyType } from '@/schemaValidator/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRegisterMutation } from '@/queries/useAuth'
 import { handleErrorApi } from '@/core/lib/utils'
 import { toast } from 'sonner'
+import { useCreateUserQuery } from '@/queries/useUser'
 
 interface AddUserDialogProps {
   open: boolean
@@ -36,7 +36,7 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
     }
   })
 
-  const registerMutation = useRegisterMutation()
+  const { mutate: createUser, isPending: isCreating } = useCreateUserQuery()
 
   const onSubmit = (data: RegisterBodyType) => {
     if (data.password !== data.confirmPassword) {
@@ -47,7 +47,7 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
       return
     }
 
-    registerMutation.mutate(data, {
+    createUser(data, {
       onSuccess: () => {
         form.reset()
         onOpenChange(false)
@@ -141,9 +141,9 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type='submit' disabled={isLoading || registerMutation.isPending}>
-              {isLoading || registerMutation.isPending ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading || registerMutation.isPending ? 'Saving...' : 'Save User'}
+            <Button type='submit' disabled={isLoading || isCreating}>
+              {isLoading || isCreating ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading || isCreating ? 'Saving...' : 'Save User'}
             </Button>
           </DialogFooter>
         </form>

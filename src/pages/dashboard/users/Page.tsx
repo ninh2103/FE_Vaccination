@@ -18,7 +18,7 @@ import { AddUserDialog } from './AddUser'
 import { UpdateUserDialog } from './UpdateUser'
 import { useDeleteUserQuery, useListUserQuery } from '@/queries/useUser'
 import { toast } from 'sonner'
-
+import { numberConstants } from '@/configs/consts'
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -29,8 +29,17 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isExporting, setIsExporting] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const ITEMS_PER_PAGE = numberConstants.TEN
 
-  const { data: usersData, isLoading: isLoadingUsers, refetch } = useListUserQuery()
+  const {
+    data: usersData,
+    isLoading: isLoadingUsers,
+    refetch
+  } = useListUserQuery({
+    page: currentPage,
+    items_per_page: ITEMS_PER_PAGE,
+    search: searchTerm
+  })
   const { mutate: deleteUser } = useDeleteUserQuery()
 
   useEffect(() => {
@@ -181,6 +190,7 @@ export default function UsersPage() {
         isLoading={isLoadingUsers}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
+        totalItems={usersData?.total || 0}
       />
 
       {/* Add User Dialog */}

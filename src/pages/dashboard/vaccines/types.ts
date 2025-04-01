@@ -1,11 +1,16 @@
 export interface Vaccine {
-  id: number
-  name: string
-  image?: string
-  info: string
+  id: string
+  userId: string
+  vaccineName: string
+  image: string
+  description: string
   price: number
-  manufacturer: string
-  country: string
+  location: string
+  expirationDate: string
+  manufacturerId: string
+  supplierId: string
+  remainingQuantity: number
+  sideEffect: string
   type: string
   quantity: number
   expiryDate: string
@@ -13,8 +18,5 @@ export interface Vaccine {
   target: string
   dosage: string
   administration: string
-  contraindications: string
   sideEffects: string
-  storage: string
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock'
 }
