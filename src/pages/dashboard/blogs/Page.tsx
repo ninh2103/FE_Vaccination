@@ -8,9 +8,11 @@ import { UpdateBlog } from './UpdateBlog'
 import * as XLSX from 'xlsx'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useDeleteBlogMutation, useListBlogQuery } from '@/queries/useBlog'
+import { useListTagQuery } from '@/queries/useTag'
 import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -21,7 +23,9 @@ export const BlogPage: React.FC = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string>('all')
   const [isExporting, setIsExporting] = useState(false)
+  const { data: tags } = useListTagQuery()
   const {
     data: blogs,
     isLoading: isLoadingBlogs,
@@ -29,7 +33,8 @@ export const BlogPage: React.FC = () => {
   } = useListBlogQuery({
     page: currentPage,
     items_per_page: rowsPerPage,
-    search: searchQuery
+    search: searchQuery,
+    tagId: selectedTag === 'all' ? undefined : selectedTag
   })
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -44,7 +49,8 @@ export const BlogPage: React.FC = () => {
         createdAt: blog.createdAt,
         updatedAt: blog.updatedAt,
         userId: blog.userId,
-        tagId: blog.tagId
+        tagId: blog.tagId,
+        tag: blog.tag
       }))
       setPosts(transformedPosts)
     }
@@ -97,6 +103,11 @@ export const BlogPage: React.FC = () => {
     setCurrentPage(1) // Reset to first page when searching
   }
 
+  const handleTagChange = (value: string) => {
+    setSelectedTag(value)
+    setCurrentPage(1) // Reset to first page when changing tag
+  }
+
   const handleExportExcel = () => {
     setIsExporting(true)
     setTimeout(() => {
@@ -122,6 +133,7 @@ export const BlogPage: React.FC = () => {
     setIsRefreshing(true)
     refetch().finally(() => {
       setSearchQuery('')
+      setSelectedTag('all')
       setCurrentPage(1)
       setIsRefreshing(false)
       toast.success('Data has been refreshed.')
@@ -157,9 +169,24 @@ export const BlogPage: React.FC = () => {
       </div>
 
       <div className='mb-6 py-6'>
-        <div className='relative w-64'>
-          <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-          <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+        <div className='flex items-center gap-4'>
+          <div className='relative w-64'>
+            <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+          </div>
+          <Select value={selectedTag} onValueChange={handleTagChange}>
+            <SelectTrigger className='w-[200px]'>
+              <SelectValue placeholder='Filter by tag' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Tags</SelectItem>
+              {tags?.data.map((tag) => (
+                <SelectItem key={tag.id} value={tag.id}>
+                  {tag.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

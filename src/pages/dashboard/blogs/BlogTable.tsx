@@ -12,6 +12,10 @@ export interface BlogPost {
   updatedAt: string
   userId: string
   tagId: string
+  tag: {
+    id: string
+    name: string
+  }
 }
 
 interface BlogTableProps {
@@ -39,6 +43,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Content</TableHead>
+              <TableHead>Tag</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead>Updated At</TableHead>
               <TableHead className='w-[100px]'>Actions</TableHead>
@@ -49,6 +54,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
               <TableRow key={post.id}>
                 <TableCell className='font-medium'>{post.title}</TableCell>
                 <TableCell>{post.content.substring(0, 100)}...</TableCell>
+                <TableCell>{post.tag.name}</TableCell>
                 <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
                 <TableCell>

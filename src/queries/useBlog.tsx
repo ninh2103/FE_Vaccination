@@ -6,6 +6,7 @@ interface ListBlogQuery {
   page?: number
   items_per_page?: number
   search?: string
+  tagId?: string
 }
 
 export const useListBlogQuery = (query: ListBlogQuery = {}) => {
