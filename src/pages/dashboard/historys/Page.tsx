@@ -196,7 +196,7 @@ const vaccinationHistory: Vaccination[] = [
   // ... Add more sample data as needed
 ]
 
-export default function HistorysPage1() {
+export default function HistorysPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [selectedVaccination, setSelectedVaccination] = useState<Vaccination | null>(null)

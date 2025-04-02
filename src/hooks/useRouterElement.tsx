@@ -22,12 +22,12 @@ import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
 import { BlogPage } from '@/pages/dashboard/blogs/Page'
 import UsersPage from '@/pages/dashboard/users/Page'
 import VaccinesPage from '@/pages/dashboard/vaccines/Page'
-import PaymentsPage1 from '@/pages/dashboard/payments/Page'
+import PaymentsPage from '@/pages/dashboard/payments/Page'
 import SuppliersPage from '@/pages/dashboard/suppliers/page'
 import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
 import OrdersPage from '@/pages/dashboard/orders/Page'
 import AppointmentsPage from '@/pages/dashboard/appointments/Page'
-import HistorysPage1 from '@/pages/dashboard/historys/Page'
+import HistorysPage from '@/pages/dashboard/historys/Page'
 import ProfilePage from '@/pages/profile-admin/profile'
 export default function useRoutesElements() {
   const location = useLocation()
@@ -93,7 +93,7 @@ export default function useRoutesElements() {
         path: path.admin.payments, // "/Payments "
         element: (
           <LayoutMain>
-            <PaymentsPage1 />
+            <PaymentsPage />
           </LayoutMain>
         )
       },
@@ -101,7 +101,7 @@ export default function useRoutesElements() {
         path: path.admin.history, // "/History "
         element: (
           <LayoutMain>
-            <HistorysPage1 />
+            <HistorysPage />
           </LayoutMain>
         )
       },

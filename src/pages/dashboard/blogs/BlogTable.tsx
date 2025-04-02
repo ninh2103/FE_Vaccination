@@ -41,6 +41,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>No.</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Content</TableHead>
               <TableHead>Tag</TableHead>
@@ -50,8 +51,9 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
             </TableRow>
           </TableHeader>
           <TableBody>
-            {posts.map((post) => (
+            {posts.map((post, index) => (
               <TableRow key={post.id}>
+                <TableCell className='font-medium'>{index + 1}</TableCell>
                 <TableCell className='font-medium'>{post.title}</TableCell>
                 <TableCell>{post.content.substring(0, 100)}...</TableCell>
                 <TableCell>{post.tag.name}</TableCell>

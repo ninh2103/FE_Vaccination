@@ -80,7 +80,7 @@ const initialPayments: Payment[] = [
   // ... Add more sample payments as needed
 ]
 
-export default function PaymentsPage1() {
+export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>(initialPayments)
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
@@ -129,7 +129,7 @@ export default function PaymentsPage1() {
     if (filteredPayments.length === 0 || currentPage > Math.ceil(filteredPayments.length / 10)) {
       setCurrentPage(1)
     }
-  }, [filteredPayments])
+  }, [filteredPayments, currentPage])
 
   // Format currency
   const formatCurrency = (amount: number) =>
