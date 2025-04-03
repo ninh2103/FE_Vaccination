@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/pagination'
 import { ChevronUp, ChevronDown, Search, Calendar, Tag } from 'lucide-react'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
@@ -26,7 +27,7 @@ export default function ListVaccination() {
   const [filter, setFilter] = useState<'all' | 'In Stock' | 'Low Stock' | 'Out of Stock'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
-  const { data: vaccinationList } = useListVaccinationQuery({
+  const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: currentPage,
     items_per_page: itemsPerPage,
     search: searchTerm
@@ -100,6 +101,18 @@ export default function ListVaccination() {
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredAndSortedVaccines.length / itemsPerPage)
+
+  if (isLoading) {
+    return (
+      <div className='flex-1 h-screen overflow-y-auto scrollbar-hide flex items-center justify-center'>
+        <div className='max-w-4xl mx-auto py-8 px-6'>
+          <div className='flex items-center justify-center text-muted-foreground'>
+            <LoadingSpinner className='mr-2 h-10 w-10' />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='container mx-auto px-4 py-8'>

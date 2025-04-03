@@ -1,6 +1,7 @@
 import bookingService from '@/core/services/booking.service'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { BookingBodyType } from '@/schemaValidator/booking.schema'
+import { useMutation, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { BookingBodyType, BookingResponseType } from '@/schemaValidator/booking.schema'
+import { InfiniteData } from '@tanstack/react-query'
 
 interface ListBookingQuery {
   page?: number
@@ -9,9 +10,21 @@ interface ListBookingQuery {
 }
 
 export const useListBookingQuery = (query: ListBookingQuery = {}) => {
-  return useQuery({
+  return useInfiniteQuery<
+    BookingResponseType,
+    Error,
+    InfiniteData<BookingResponseType>,
+    (string | ListBookingQuery)[],
+    number
+  >({
     queryKey: ['booking-list', query],
-    queryFn: () => bookingService.list(query)
+    queryFn: ({ pageParam = 1 }) => bookingService.list({ ...query, page: pageParam }),
+    getNextPageParam: (lastPage) => {
+      const { currentPage, itemsPerPage, total } = lastPage
+      const totalPages = Math.ceil(total / itemsPerPage)
+      return currentPage < totalPages ? currentPage + 1 : undefined
+    },
+    initialPageParam: 1
   })
 }
 
