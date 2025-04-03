@@ -3,164 +3,158 @@ import { format, addDays } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
-interface Patient {
-  name: string
-  avatar: string
-  initials: string
-  phone: string
-  email: string
-}
-
-interface Order {
-  id: number
-  patient: Patient
-  vaccine: string
-  requestDate: string
-  preferredDate: string
-  preferredTime: string
-  status: string
-  notes: string
-  orderCode?: string
-  stt?: number
-  phone?: string
+interface Booking {
+  id: string
+  vaccinationId: string
+  userId: string
+  vaccinationQuantity: number
+  vaccinationPrice: number
+  totalAmount: number
+  createdAt: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  vaccinationDate: string
+  confirmationTime: string
+  appointmentDate: string
 }
 
 interface AddOrderProps {
-  onAdd: (order: Order) => void
+  onAdd: (booking: Booking) => void
   onCancel: () => void
 }
 
 export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
-  const [newOrder, setNewOrder] = useState({
-    patient: { name: '', phone: '', avatar: '/placeholder.svg', initials: '' },
-    vaccine: '',
-    preferredDate: '',
-    preferredTime: 'Morning',
-    notes: ''
+  const [newBooking, setNewBooking] = useState({
+    vaccinationId: '',
+    userId: '',
+    vaccinationQuantity: 1,
+    vaccinationPrice: 0,
+    appointmentDate: '',
+    vaccinationDate: ''
   })
 
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   const handleSubmit = () => {
-    if (
-      !newOrder.patient.name ||
-      !newOrder.patient.phone ||
-      !newOrder.vaccine ||
-      !newOrder.preferredDate ||
-      !newOrder.preferredTime
-    ) {
+    if (!newBooking.vaccinationId || !newBooking.userId || !newBooking.appointmentDate || !newBooking.vaccinationDate) {
       return
     }
 
     const date = new Date()
-    const order: Order = {
-      id: Math.floor(Math.random() * 1000),
-      patient: {
-        ...newOrder.patient,
-        email: `${newOrder.patient.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-        avatar: '/placeholder.svg',
-        initials: newOrder.patient.name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-      },
-      vaccine: newOrder.vaccine,
-      requestDate: format(date, 'yyyy-MM-dd'),
-      preferredDate: newOrder.preferredDate,
-      preferredTime: newOrder.preferredTime,
-      status: 'Pending',
-      notes: newOrder.notes
+    const booking: Booking = {
+      id: Math.random().toString(36).substring(7),
+      vaccinationId: newBooking.vaccinationId,
+      userId: newBooking.userId,
+      vaccinationQuantity: newBooking.vaccinationQuantity,
+      vaccinationPrice: newBooking.vaccinationPrice,
+      totalAmount: newBooking.vaccinationQuantity * newBooking.vaccinationPrice,
+      createdAt: date.toISOString(),
+      status: 'PENDING',
+      vaccinationDate: newBooking.vaccinationDate,
+      confirmationTime: '',
+      appointmentDate: newBooking.appointmentDate
     }
 
-    onAdd(order)
+    onAdd(booking)
   }
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
       <DialogHeader>
-        <DialogTitle>Add New Order</DialogTitle>
-        <DialogDescription>Create a new booking order.</DialogDescription>
+        <DialogTitle>Add New Booking</DialogTitle>
+        <DialogDescription>Create a new vaccination booking.</DialogDescription>
       </DialogHeader>
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
-            <Label htmlFor='patient-name'>Patient Name</Label>
+            <Label htmlFor='vaccination-id'>Vaccination ID</Label>
             <Input
-              id='patient-name'
-              value={newOrder.patient.name}
+              id='vaccination-id'
+              value={newBooking.vaccinationId}
               onChange={(e) =>
-                setNewOrder((prev) => ({
+                setNewBooking((prev) => ({
                   ...prev,
-                  patient: {
-                    ...prev.patient,
-                    name: e.target.value,
-                    initials: e.target.value
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')
-                  }
+                  vaccinationId: e.target.value
                 }))
               }
             />
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='patient-phone'>Phone Number</Label>
+            <Label htmlFor='user-id'>User ID</Label>
             <Input
-              id='patient-phone'
-              value={newOrder.patient.phone}
+              id='user-id'
+              value={newBooking.userId}
               onChange={(e) =>
-                setNewOrder((prev) => ({
+                setNewBooking((prev) => ({
                   ...prev,
-                  patient: { ...prev.patient, phone: e.target.value }
+                  userId: e.target.value
+                }))
+              }
+            />
+          </div>
+        </div>
+        <div className='grid grid-cols-2 gap-4'>
+          <div className='space-y-2'>
+            <Label htmlFor='quantity'>Quantity</Label>
+            <Input
+              id='quantity'
+              type='number'
+              min={1}
+              value={newBooking.vaccinationQuantity}
+              onChange={(e) =>
+                setNewBooking((prev) => ({
+                  ...prev,
+                  vaccinationQuantity: parseInt(e.target.value)
+                }))
+              }
+            />
+          </div>
+          <div className='space-y-2'>
+            <Label htmlFor='price'>Price</Label>
+            <Input
+              id='price'
+              type='number'
+              min={0}
+              value={newBooking.vaccinationPrice}
+              onChange={(e) =>
+                setNewBooking((prev) => ({
+                  ...prev,
+                  vaccinationPrice: parseInt(e.target.value)
                 }))
               }
             />
           </div>
         </div>
         <div className='space-y-2'>
-          <Label htmlFor='vaccine'>Vaccine</Label>
+          <Label htmlFor='appointment-date'>Appointment Date</Label>
           <Input
-            id='vaccine'
-            value={newOrder.vaccine}
-            onChange={(e) => setNewOrder((prev) => ({ ...prev, vaccine: e.target.value }))}
-          />
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='preferred-date'>Preferred Date</Label>
-          <Input
-            id='preferred-date'
+            id='appointment-date'
             type='date'
             min={tomorrow}
-            value={newOrder.preferredDate}
-            onChange={(e) => setNewOrder((prev) => ({ ...prev, preferredDate: e.target.value }))}
+            value={newBooking.appointmentDate}
+            onChange={(e) =>
+              setNewBooking((prev) => ({
+                ...prev,
+                appointmentDate: e.target.value
+              }))
+            }
           />
           <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
         </div>
         <div className='space-y-2'>
-          <Label htmlFor='preferred-time'>Preferred Time</Label>
-          <Select
-            value={newOrder.preferredTime}
-            onValueChange={(value) => setNewOrder((prev) => ({ ...prev, preferredTime: value }))}
-            disabled={!newOrder.preferredDate}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Select time' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='Morning'>Morning</SelectItem>
-              <SelectItem value='Afternoon'>Afternoon</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='notes'>Notes</Label>
+          <Label htmlFor='vaccination-date'>Vaccination Date</Label>
           <Input
-            id='notes'
-            value={newOrder.notes}
-            onChange={(e) => setNewOrder((prev) => ({ ...prev, notes: e.target.value }))}
+            id='vaccination-date'
+            type='date'
+            min={tomorrow}
+            value={newBooking.vaccinationDate}
+            onChange={(e) =>
+              setNewBooking((prev) => ({
+                ...prev,
+                vaccinationDate: e.target.value
+              }))
+            }
           />
         </div>
       </div>
@@ -168,7 +162,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         <Button variant='outline' onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Create Order</Button>
+        <Button onClick={handleSubmit}>Create Booking</Button>
       </DialogFooter>
     </DialogContent>
   )

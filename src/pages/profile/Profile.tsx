@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Profile() {
   const [showPassword, setShowPassword] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const itemsPerPage = 6
   const navigate = useNavigate()
@@ -28,11 +29,8 @@ export default function Profile() {
   const updateMeMutation = useUpdateMeQuery()
   const getMeQuery = useGetMeQuery()
   const uploadAvatarMutation = useUploadAvatarQuery()
-  const {
-    data: bookingList,
-    fetchNextPage,
-    isFetchingNextPage
-  } = useListBookingQuery({
+  const { data: bookingList, refetch } = useListBookingQuery({
+    page: currentPage,
     items_per_page: itemsPerPage
   })
 
@@ -58,17 +56,15 @@ export default function Profile() {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
-    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !isFetchingNextPage && hasMore) {
-      fetchNextPage()
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !hasMore) {
+      setCurrentPage((prev) => prev + 1)
+      refetch()
     }
   }
 
   useEffect(() => {
-    if (bookingList?.pages) {
-      const lastPage = bookingList.pages[bookingList.pages.length - 1]
-      if (lastPage) {
-        setHasMore(lastPage.currentPage < Math.ceil(lastPage.total / lastPage.itemsPerPage))
-      }
+    if (bookingList) {
+      setHasMore(bookingList.currentPage < Math.ceil(bookingList.total / bookingList.itemsPerPage))
     }
   }, [bookingList])
 
@@ -400,55 +396,48 @@ export default function Profile() {
               </CardHeader>
               <CardContent>
                 <div className='max-h-[600px] overflow-y-auto space-y-4 pr-4' onScroll={handleScroll}>
-                  {bookingList?.pages.map((page) =>
-                    page.data.map((booking) => (
-                      <div
-                        key={booking.id}
-                        className='p-4 rounded-lg border border-gray-700 dark:bg-gray-800 hover:bg-gray-750 transition-colors duration-200'
-                      >
-                        <div className='flex justify-between items-start mb-2'>
-                          <div>
-                            <h3 className='text-lg font-semibold dark:text-green-400'>
-                              Booking #{booking.id.slice(0, 8)}
-                            </h3>
-                            <p className='text-sm text-gray-400'>Created: {formatDate(booking.createdAt)}</p>
-                          </div>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
-                          >
-                            {booking.status}
-                          </span>
+                  {bookingList?.data.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className='p-4 rounded-lg border border-gray-700 dark:bg-gray-800 hover:bg-gray-750 transition-colors duration-200'
+                    >
+                      <div className='flex justify-between items-start mb-2'>
+                        <div>
+                          <h3 className='text-lg font-semibold dark:text-green-400'>
+                            Booking #{booking.id.slice(0, 8)}
+                          </h3>
+                          <p className='text-sm text-gray-400'>Created: {formatDate(booking.createdAt)}</p>
                         </div>
-                        <div className='grid grid-cols-2 gap-4 mt-4'>
-                          <div>
-                            <p className='text-sm text-gray-400'>Appointment Date</p>
-                            <p className='dark:text-white'>{formatDate(booking.appointmentDate)}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm text-gray-400'>Vaccination Date</p>
-                            <p className='dark:text-white'>{formatDate(booking.vaccinationDate)}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm text-gray-400'>Quantity</p>
-                            <p className='dark:text-white'>{booking.vaccinationQuantity} doses</p>
-                          </div>
-                          <div>
-                            <p className='text-sm text-gray-400'>Total Amount</p>
-                            <p className='dark:text-white'>${booking.totalAmount}</p>
-                          </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+                        >
+                          {booking.status}
+                        </span>
+                      </div>
+                      <div className='grid grid-cols-2 gap-4 mt-4'>
+                        <div>
+                          <p className='text-sm text-gray-400'>Appointment Date</p>
+                          <p className='dark:text-white'>{formatDate(booking.appointmentDate)}</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Vaccination Date</p>
+                          <p className='dark:text-white'>{formatDate(booking.vaccinationDate)}</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Quantity</p>
+                          <p className='dark:text-white'>{booking.vaccinationQuantity} doses</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Total Amount</p>
+                          <p className='dark:text-white'>${booking.totalAmount}</p>
                         </div>
                       </div>
-                    ))
-                  )}
-                  {isFetchingNextPage && (
-                    <div className='flex justify-center py-4'>
-                      <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-green-500'></div>
                     </div>
-                  )}
-                  {!hasMore && (bookingList?.pages?.[0]?.data?.length ?? 0) > 0 && (
+                  ))}
+                  {!hasMore && (bookingList?.data?.length ?? 0) > 0 && (
                     <div className='text-center py-4 text-gray-400'>No more bookings to load</div>
                   )}
-                  {(bookingList?.pages?.[0]?.data?.length ?? 0) === 0 && (
+                  {(bookingList?.data?.length ?? 0) === 0 && (
                     <div className='text-center py-8'>
                       <TicketCheck className='w-16 h-16 mx-auto dark:text-green-400 mb-4' />
                       <p className='text-xl font-semibold mb-2 dark:text-green-300'>Booking List Empty</p>

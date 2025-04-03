@@ -18,7 +18,7 @@ const CheckOutPagePageMain = () => {
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const user = getUserFromLocalStorage()
-  const { data: vaccineDetail } = useGetVaccinationByIdQuery(id as string)
+  const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
   const { mutate: createBooking } = useCreateBookingQuery()
   const { data: userDetail } = useDetailUserQuery(user?.id as string)
   const [selectedDate, setSelectedDate] = useState('')
@@ -70,6 +70,7 @@ const CheckOutPagePageMain = () => {
   const handleSubmit = (body: BookingBodyType) => {
     createBooking(body, {
       onSuccess: () => {
+        refetchVaccine()
         toast.success('Booking created successfully')
       },
       onError: (error) => {
