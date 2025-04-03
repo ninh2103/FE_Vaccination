@@ -79,6 +79,7 @@ export default function Profile() {
   const handleUpdateMe = (body: UpdateMeBodyType) => {
     updateMeMutation.mutate(body, {
       onSuccess: () => {
+        getMeQuery.refetch()
         toast.success('Update Account Success!')
       },
       onError: (error) => {
@@ -93,6 +94,7 @@ export default function Profile() {
   const handleUploadAvatar = (body: UploadAvatarBodyType) => {
     uploadAvatarMutation.mutate(body, {
       onSuccess: () => {
+        getMeQuery.refetch()
         toast.success('Upload Avatar Success!')
       },
       onError: (error) => {

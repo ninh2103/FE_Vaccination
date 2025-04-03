@@ -14,203 +14,23 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 import { ChevronUp, ChevronDown, Search, Calendar, Tag } from 'lucide-react'
-
-// Use the same interface from the VaccineDetail page
-interface Vaccine {
-  id: number
-  name: string
-  image?: string
-  info: string
-  price: number
-  manufacturer: string
-  country: string
-  type: string
-  quantity: number
-  expiryDate: string
-  doseInterval: string
-  target: string
-  dosage: string
-  administration: string
-  contraindications: string
-  sideEffects: string
-  storage: string
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock'
-}
-
-// Mock data - in a real app, this would come from an API
-const vaccines: Vaccine[] = [
-  {
-    id: 1,
-    name: 'COVID-19 Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'COVID-19 prevention vaccine that provides protection against COVID-19 and its variants, helping to reduce the spread of the virus.',
-    price: 500000,
-    manufacturer: 'BioNTech',
-    country: 'Germany',
-    type: 'Adult',
-    quantity: 15,
-    expiryDate: '2025-12-31',
-    doseInterval: '21 days',
-    target: 'People over 12',
-    dosage: '0.3ml',
-    administration: 'Intramuscular',
-    contraindications: 'Allergy to vaccine components',
-    sideEffects: 'Pain at injection site, fatigue, headache, muscle pain, chills, joint pain, fever',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 2,
-    name: 'Influenza Vaccine',
-    image: 'https://images.unsplash.com/photo-1625833017043-21a7642b9152',
-    info: 'Annual vaccination to protect against influenza viruses and reduce flu-related complications.',
-    price: 300000,
-    manufacturer: 'Sanofi Pasteur',
-    country: 'France',
-    type: 'Children',
-    quantity: 8,
-    expiryDate: '2025-09-30',
-    doseInterval: 'N/A',
-    target: 'Children from 6 months',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'Egg allergy',
-    sideEffects: 'Mild fever, soreness at injection site',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 3,
-    name: 'Hepatitis B Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Hepatitis B prevention',
-    price: 200000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Adult',
-    quantity: 0,
-    expiryDate: '2025-03-15',
-    doseInterval: '30 days',
-    target: 'Adults',
-    dosage: '1ml',
-    administration: 'Intramuscular',
-    contraindications: 'Yeast allergy',
-    sideEffects: 'Muscle pain',
-    storage: '2-8°C',
-    status: 'Out of Stock'
-  },
-  {
-    id: 4,
-    name: 'Tetanus Vaccine',
-    image: 'https://images.unsplash.com/photo-1631815589968-fdb09a223b1e',
-    info: 'Tetanus prevention',
-    price: 150000,
-    manufacturer: 'GSK',
-    country: 'UK',
-    type: 'Adult',
-    quantity: 20,
-    expiryDate: '2025-06-20',
-    doseInterval: 'N/A',
-    target: 'Adults',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'None',
-    sideEffects: 'Soreness',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 5,
-    name: 'MMR Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Measles, Mumps, Rubella',
-    price: 400000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Children',
-    quantity: 5,
-    expiryDate: '2025-10-05',
-    doseInterval: '28 days',
-    target: 'Children',
-    dosage: '0.5ml',
-    administration: 'Subcutaneous',
-    contraindications: 'Immunodeficiency',
-    sideEffects: 'Rash',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 6,
-    name: 'Polio Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Polio prevention',
-    price: 250000,
-    manufacturer: 'Sanofi',
-    country: 'France',
-    type: 'Children',
-    quantity: 12,
-    expiryDate: '2025-07-15',
-    doseInterval: '60 days',
-    target: 'Children',
-    dosage: '0.5ml',
-    administration: 'Oral',
-    contraindications: 'None',
-    sideEffects: 'None',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 7,
-    name: 'HPV Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Human Papillomavirus',
-    price: 600000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Adult',
-    quantity: 3,
-    expiryDate: '2025-11-30',
-    doseInterval: '60 days',
-    target: 'Adults',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'Allergy',
-    sideEffects: 'Pain',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 8,
-    name: 'Rotavirus Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Rotavirus prevention',
-    price: 350000,
-    manufacturer: 'GSK',
-    country: 'UK',
-    type: 'Children',
-    quantity: 0,
-    expiryDate: '2025-08-25',
-    doseInterval: '60 days',
-    target: 'Infants',
-    dosage: '2ml',
-    administration: 'Oral',
-    contraindications: 'Intussusception',
-    sideEffects: 'Diarrhea',
-    storage: '2-8°C',
-    status: 'Out of Stock'
-  }
-]
+import { useListVaccinationQuery } from '@/queries/useVaccination'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
 
   // State for search, filtering, sorting and pagination
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'price'>('name')
+  const [sortBy, setSortBy] = useState<'vaccineName' | 'price'>('vaccineName')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<'all' | 'In Stock' | 'Low Stock' | 'Out of Stock'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
+  const { data: vaccinationList } = useListVaccinationQuery({
+    page: currentPage,
+    items_per_page: itemsPerPage,
+    search: searchTerm
+  })
 
   // Format currency for displaying price
   const formatCurrency = (amount: number) => {
@@ -218,21 +38,21 @@ export default function ListVaccination() {
   }
 
   // Get status color for badges
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'In Stock':
-        return 'bg-green-100 text-green-800'
-      case 'Low Stock':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'Out of Stock':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
+  const getStatusColor = (quantity: number) => {
+    if (quantity > 10) return 'bg-green-100 text-green-800'
+    if (quantity > 0) return 'bg-yellow-100 text-yellow-800'
+    return 'bg-red-100 text-red-800'
+  }
+
+  // Get status text for badges
+  const getStatusText = (quantity: number) => {
+    if (quantity > 10) return 'In Stock'
+    if (quantity > 0) return 'Low Stock'
+    return 'Out of Stock'
   }
 
   // Toggle sort direction
-  const toggleSort = (field: 'name' | 'price') => {
+  const toggleSort = (field: 'vaccineName' | 'price') => {
     if (sortBy === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -242,29 +62,34 @@ export default function ListVaccination() {
   }
 
   // Navigate to detail page when clicking on a vaccine card
-  const handleCardClick = (id: number) => {
+  const handleCardClick = (id: string) => {
     navigate(`/vaccination/${id}`)
   }
 
   // Filter, sort and paginate vaccines
   const filteredAndSortedVaccines = useMemo(() => {
+    if (!vaccinationList?.data) return []
+
     // First, filter by search term and status
-    let result = vaccines.filter((vaccine) => {
-      const matchesSearch = vaccine.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesFilter = filter === 'all' || vaccine.status === filter
+    let result = vaccinationList.data.filter((vaccine) => {
+      const matchesSearch = vaccine.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
+      const status = getStatusText(vaccine.remainingQuantity)
+      const matchesFilter = filter === 'all' || status === filter
       return matchesSearch && matchesFilter
     })
 
     result = [...result].sort((a, b) => {
-      if (sortBy === 'name') {
-        return sortDirection === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      if (sortBy === 'vaccineName') {
+        return sortDirection === 'asc'
+          ? a.vaccineName.localeCompare(b.vaccineName)
+          : b.vaccineName.localeCompare(a.vaccineName)
       } else {
         return sortDirection === 'asc' ? a.price - b.price : b.price - a.price
       }
     })
 
     return result
-  }, [vaccines, searchTerm, filter, sortBy, sortDirection])
+  }, [vaccinationList?.data, searchTerm, filter, sortBy, sortDirection])
 
   // Get current page items
   const currentVaccines = useMemo(() => {
@@ -311,9 +136,9 @@ export default function ListVaccination() {
 
         {/* Sorting buttons */}
         <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => toggleSort('name')} className='flex-1 dark:text-white'>
+          <Button variant='outline' onClick={() => toggleSort('vaccineName')} className='flex-1 dark:text-white'>
             Name
-            {sortBy === 'name' &&
+            {sortBy === 'vaccineName' &&
               (sortDirection === 'asc' ? (
                 <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
               ) : (
@@ -349,14 +174,16 @@ export default function ListVaccination() {
               <div className='aspect-video relative'>
                 <img
                   src={vaccine.image || 'https://via.placeholder.com/400x225?text=No+Image'}
-                  alt={vaccine.name}
+                  alt={vaccine.vaccineName}
                   className='w-full h-full object-cover'
                 />
-                <Badge className={`absolute top-2 right-2 ${getStatusColor(vaccine.status)}`}>{vaccine.status}</Badge>
+                <Badge className={`absolute top-2 right-2 ${getStatusColor(vaccine.remainingQuantity)}`}>
+                  {getStatusText(vaccine.remainingQuantity)}
+                </Badge>
               </div>
               <CardContent className='p-4'>
-                <h2 className='text-xl font-semibold mb-2'>{vaccine.name}</h2>
-                <p className='text-gray-500 text-sm mb-3 line-clamp-2'>{vaccine.info}</p>
+                <h2 className='text-xl font-semibold mb-2'>{vaccine.vaccineName}</h2>
+                <p className='text-gray-500 text-sm mb-3 line-clamp-2'>{vaccine.description}</p>
 
                 <div className='flex items-center justify-between text-sm mb-2'>
                   <div className='flex items-center'>
@@ -371,7 +198,7 @@ export default function ListVaccination() {
                     <Tag className='mr-1 h-4 w-4' />
                     <span>Quantity:</span>
                   </div>
-                  <span>{vaccine.quantity} doses</span>
+                  <span>{vaccine.remainingQuantity} doses</span>
                 </div>
 
                 <div className='flex items-center justify-between text-sm'>
@@ -379,11 +206,11 @@ export default function ListVaccination() {
                     <Calendar className='mr-1 h-4 w-4' />
                     <span>Expires:</span>
                   </div>
-                  <span>{vaccine.expiryDate}</span>
+                  <span>{new Date(vaccine.expirationDate).toLocaleDateString()}</span>
                 </div>
 
                 <div className='mt-4'>
-                  <span className='text-xs text-gray-500'>Manufacturer: {vaccine.manufacturer}</span>
+                  <span className='text-xs text-gray-500'>Location: {vaccine.location}</span>
                 </div>
               </CardContent>
             </Card>
