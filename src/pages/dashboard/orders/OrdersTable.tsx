@@ -21,7 +21,7 @@ interface Booking {
   vaccinationPrice: number
   totalAmount: number
   createdAt: string
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'SUCCESS' | 'WAITING_PAYMENT'
   vaccinationDate: string
   confirmationTime: string
   appointmentDate: string
@@ -46,8 +46,8 @@ const getStatusBadge = (status: string) => {
           Pending
         </Badge>
       )
-    case 'CANCELLED':
-      return <Badge variant='destructive'>Cancelled</Badge>
+    case 'CANCELED':
+      return <Badge variant='destructive'>Canceled</Badge>
     default:
       return <Badge>{status}</Badge>
   }
@@ -132,7 +132,7 @@ export function OrdersTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation()
-                            onUpdateOrder({ ...booking, status: 'CANCELLED' })
+                            onUpdateOrder({ ...booking, status: 'CANCELED' })
                           }}
                         >
                           <X className='mr-2 h-4 w-4 text-red-500' />

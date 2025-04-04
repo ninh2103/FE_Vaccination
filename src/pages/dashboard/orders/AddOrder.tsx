@@ -13,7 +13,7 @@ interface Booking {
   vaccinationPrice: number
   totalAmount: number
   createdAt: string
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED'
   vaccinationDate: string
   confirmationTime: string
   appointmentDate: string

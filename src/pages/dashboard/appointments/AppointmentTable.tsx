@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { MoreHorizontal, Edit, Trash, Check, X, Calendar, Clock, Phone, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash, Check, X, Calendar, Clock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useUpdateAppointmentMutation } from '@/queries/useAppointment'
+import { toast } from 'sonner'
 
 const ITEMS_PER_PAGE = 10
 
@@ -20,55 +22,88 @@ interface Patient {
   name: string
   avatar: string
   initials: string
-  phone: string
   email: string
 }
 
 interface Appointment {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
   time: string
-  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
   notes: string
 }
 
 interface AppointmentTableProps {
   appointments: Appointment[]
-  onUpdateAppointment: (appointment: Appointment) => void
   onDeleteAppointment: (appointment: Appointment) => void
   onViewDetails: (appointment: Appointment) => void
 }
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'Confirmed':
+    case 'CONFIRMED':
       return <Badge className='bg-green-500 hover:bg-green-600'>Confirmed</Badge>
-    case 'Pending':
+    case 'PENDING':
       return (
         <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
           Pending
         </Badge>
       )
-    case 'Cancelled':
-      return <Badge variant='destructive'>Cancelled</Badge>
-    case 'Completed':
+    case 'CANCELED':
+      return (
+        <Badge variant='destructive' className='bg-red-500 hover:bg-red-600'>
+          Canceled
+        </Badge>
+      )
+    case 'COMPLETED':
       return <Badge className='bg-blue-500 hover:bg-blue-600'>Completed</Badge>
     default:
       return <Badge>{status}</Badge>
   }
 }
 
-export function AppointmentTable({
-  appointments,
-  onUpdateAppointment,
-  onDeleteAppointment,
-  onViewDetails
-}: AppointmentTableProps) {
+export function AppointmentTable({ appointments, onDeleteAppointment, onViewDetails }: AppointmentTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
+  const { mutate: updateAppointment, isPending: isUpdating } = useUpdateAppointmentMutation()
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const handleQuickStatusUpdate = (appointment: Appointment, newStatus: Appointment['status']) => {
+    setUpdatingId(appointment.id)
+    updateAppointment(
+      {
+        id: appointment.id,
+        data: { status: newStatus }
+      },
+      {
+        onSuccess: () => {
+          toast.success(`Appointment ${newStatus === 'CONFIRMED' ? 'confirmed' : 'canceled'} successfully`)
+          // Update the local state without triggering the dialog
+          const updatedAppointment = {
+            ...appointment,
+            status: newStatus
+          }
+          // Replace the appointment in the list
+          const index = appointments.findIndex((a) => a.id === appointment.id)
+          if (index !== -1) {
+            appointments[index] = updatedAppointment
+          }
+          setUpdatingId(null)
+        },
+        onError: () => {
+          toast.error('Failed to update appointment status')
+          setUpdatingId(null)
+        }
+      }
+    )
+  }
+
   const totalPages = Math.max(1, Math.ceil(appointments.length / ITEMS_PER_PAGE))
   const paginatedAppointments = appointments.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, appointments.length)
+  const totalItems = appointments.length
 
   return (
     <div className='grid gap-6'>
@@ -96,10 +131,7 @@ export function AppointmentTable({
                   </Avatar>
                   <div>
                     <div className='font-medium'>{appointment.patient.name}</div>
-                    <div className='text-sm text-muted-foreground flex items-center'>
-                      <Phone className='h-3 w-3 mr-1' />
-                      {appointment.patient.phone}
-                    </div>
+                    <div className='text-sm text-muted-foreground flex items-center'>{appointment.patient.email}</div>
                   </div>
                 </div>
               </TableCell>
@@ -119,25 +151,39 @@ export function AppointmentTable({
               <TableCell>{getStatusBadge(appointment.status)}</TableCell>
               <TableCell>
                 <div className='flex items-center gap-2'>
-                  {appointment.status === 'Pending' && (
+                  {appointment.status === 'PENDING' && (
                     <>
                       <Button
                         variant='outline'
                         size='icon'
                         className='h-8 w-8'
-                        onClick={() => onUpdateAppointment({ ...appointment, status: 'Confirmed' })}
-                        title='Accept'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleQuickStatusUpdate(appointment, 'CONFIRMED')
+                        }}
+                        disabled={isUpdating && updatingId === appointment.id}
                       >
-                        <Check className='h-4 w-4 text-green-500' />
+                        {isUpdating && updatingId === appointment.id ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          <Check className='h-4 w-4 text-green-500' />
+                        )}
                       </Button>
                       <Button
                         variant='outline'
                         size='icon'
                         className='h-8 w-8'
-                        onClick={() => onUpdateAppointment({ ...appointment, status: 'Cancelled' })}
-                        title='Reject'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleQuickStatusUpdate(appointment, 'CANCELED')
+                        }}
+                        disabled={isUpdating && updatingId === appointment.id}
                       >
-                        <X className='h-4 w-4 text-red-500' />
+                        {isUpdating && updatingId === appointment.id ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          <X className='h-4 w-4 text-red-500' />
+                        )}
                       </Button>
                     </>
                   )}
@@ -169,24 +215,41 @@ export function AppointmentTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Showing {startIndex} to {endIndex} of {totalItems} entries
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>

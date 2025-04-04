@@ -8,7 +8,7 @@ export const BookingSchema = z.object({
   vaccinationPrice: z.number().int().positive(),
   totalAmount: z.number().int().positive(),
   createdAt: z.string().datetime(),
-  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']),
+  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELED', 'SUCCESS', 'WAITING_PAYMENT']),
   vaccinationDate: z.string().datetime(),
   confirmationTime: z.string().datetime(),
   appointmentDate: z.string().datetime()
@@ -67,7 +67,7 @@ export const BookingDetailResponseSchema = z.object({
   vaccinationPrice: z.number().int().positive(),
   totalAmount: z.number().int().positive(),
   createdAt: z.string().datetime(),
-  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']),
+  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELED', 'SUCCESS', 'WAITING_PAYMENT']),
   vaccinationDate: z.string().datetime(),
   confirmationTime: z.string().datetime(),
   appointmentDate: z.string().datetime()

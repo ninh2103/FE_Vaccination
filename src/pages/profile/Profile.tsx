@@ -147,7 +147,7 @@ export default function Profile() {
         return 'bg-yellow-500'
       case 'CONFIRMED':
         return 'bg-green-500'
-      case 'CANCELLED':
+      case 'CANCELED':
         return 'bg-red-500'
       default:
         return 'bg-gray-500'

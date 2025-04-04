@@ -11,17 +11,16 @@ interface Patient {
   name: string
   avatar: string
   initials: string
-  phone: string
   email: string
 }
 
 interface Appointment {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
   time: string
-  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
   notes: string
 }
 
@@ -31,19 +30,24 @@ interface AddAppointmentProps {
 }
 
 export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
-  const [newAppointment, setNewAppointment] = useState({
-    patient: { name: '', phone: '', email: '', avatar: '/placeholder.svg', initials: '' },
+  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, 'id'>>({
+    patient: {
+      name: '',
+      avatar: '/placeholder.svg',
+      initials: '',
+      email: ''
+    },
     vaccine: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '',
-    status: 'Pending' as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed',
+    status: 'PENDING',
     notes: ''
   })
 
   const handleSubmit = () => {
     if (
       !newAppointment.patient.name ||
-      !newAppointment.patient.phone ||
+      !newAppointment.patient.email ||
       !newAppointment.vaccine ||
       !newAppointment.date ||
       !newAppointment.time
@@ -51,26 +55,9 @@ export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
       return
     }
 
-    const initials = newAppointment.patient.name
-      .split(' ')
-      .map((name) => name.charAt(0))
-      .join('')
-      .toUpperCase()
-
     const appointment: Appointment = {
-      id: Math.floor(Math.random() * 1000),
-      patient: {
-        ...newAppointment.patient,
-        initials,
-        email:
-          newAppointment.patient.email ||
-          `${newAppointment.patient.name.toLowerCase().replace(/\s+/g, '.')}@example.com`
-      },
-      vaccine: newAppointment.vaccine,
-      date: newAppointment.date,
-      time: newAppointment.time,
-      status: newAppointment.status,
-      notes: newAppointment.notes
+      ...newAppointment,
+      id: Math.random().toString(36).substr(2, 9)
     }
 
     onAdd(appointment)
@@ -105,37 +92,21 @@ export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
             required
           />
         </div>
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='grid gap-2'>
-            <Label htmlFor='patient-phone'>Phone Number</Label>
-            <Input
-              id='patient-phone'
-              value={newAppointment.patient.phone}
-              onChange={(e) =>
-                setNewAppointment({
-                  ...newAppointment,
-                  patient: { ...newAppointment.patient, phone: e.target.value }
-                })
-              }
-              placeholder='Enter phone number'
-              required
-            />
-          </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='patient-email'>Email</Label>
-            <Input
-              id='patient-email'
-              type='email'
-              value={newAppointment.patient.email}
-              onChange={(e) =>
-                setNewAppointment({
-                  ...newAppointment,
-                  patient: { ...newAppointment.patient, email: e.target.value }
-                })
-              }
-              placeholder='Enter email'
-            />
-          </div>
+        <div className='grid gap-2'>
+          <Label htmlFor='patient-email'>Email</Label>
+          <Input
+            id='patient-email'
+            type='email'
+            value={newAppointment.patient.email}
+            onChange={(e) =>
+              setNewAppointment({
+                ...newAppointment,
+                patient: { ...newAppointment.patient, email: e.target.value }
+              })
+            }
+            placeholder='Enter email'
+            required
+          />
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='vaccine'>Vaccine</Label>
@@ -187,7 +158,7 @@ export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
             onValueChange={(value) =>
               setNewAppointment({
                 ...newAppointment,
-                status: value as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+                status: value as 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
               })
             }
           >
@@ -195,10 +166,10 @@ export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
               <SelectValue placeholder='Select status' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='Confirmed'>Confirmed</SelectItem>
-              <SelectItem value='Pending'>Pending</SelectItem>
-              <SelectItem value='Completed'>Completed</SelectItem>
-              <SelectItem value='Cancelled'>Cancelled</SelectItem>
+              <SelectItem value='PENDING'>Pending</SelectItem>
+              <SelectItem value='CONFIRMED'>Confirmed</SelectItem>
+              <SelectItem value='COMPLETED'>Completed</SelectItem>
+              <SelectItem value='CANCELED'>Canceled</SelectItem>
             </SelectContent>
           </Select>
         </div>

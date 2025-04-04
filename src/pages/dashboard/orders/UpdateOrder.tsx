@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useDetailBookingQuery } from '@/queries/useBooking'
 
 interface Booking {
   id: string
@@ -14,7 +14,7 @@ interface Booking {
   vaccinationPrice: number
   totalAmount: number
   createdAt: string
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'SUCCESS' | 'WAITING_PAYMENT'
   vaccinationDate: string
   confirmationTime: string
   appointmentDate: string
@@ -32,11 +32,7 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
   const [date, setDate] = useState(format(appointmentDate, 'yyyy-MM-dd'))
   const [time, setTime] = useState(format(appointmentDate, 'HH:mm'))
 
-  const handleSubmit = () => {
-    // Combine date and time into ISO string
-    const newAppointmentDate = new Date(`${date}T${time}`).toISOString()
-    onUpdate({ ...updatedOrder, appointmentDate: newAppointmentDate })
-  }
+  const { data: bookingDetail } = useDetailBookingQuery(order.id)
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
@@ -49,7 +45,7 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
           <Label htmlFor='status'>Status</Label>
           <Select
             value={updatedOrder.status}
-            onValueChange={(value: 'PENDING' | 'CONFIRMED' | 'CANCELLED') =>
+            onValueChange={(value: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'SUCCESS' | 'WAITING_PAYMENT') =>
               setUpdatedOrder((prev) => ({ ...prev, status: value }))
             }
           >
@@ -59,7 +55,9 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
             <SelectContent>
               <SelectItem value='PENDING'>Pending</SelectItem>
               <SelectItem value='CONFIRMED'>Confirmed</SelectItem>
-              <SelectItem value='CANCELLED'>Cancelled</SelectItem>
+              <SelectItem value='CANCELED'>Canceled</SelectItem>
+              <SelectItem value='SUCCESS'>Success</SelectItem>
+              <SelectItem value='WAITING_PAYMENT'>Waiting Payment</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -74,12 +72,6 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
           </div>
         </div>
       </div>
-      <DialogFooter>
-        <Button variant='outline' onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit}>Update Order</Button>
-      </DialogFooter>
     </DialogContent>
   )
 }

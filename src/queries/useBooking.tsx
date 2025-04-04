@@ -6,7 +6,7 @@ interface ListBookingQuery {
   page?: number
   items_per_page?: number
   search?: string
-  status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  status?: 'PENDING' | 'CONFIRMED' | 'CANCELED'
 }
 
 export const useListBookingQuery = (query: ListBookingQuery = {}) => {
