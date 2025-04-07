@@ -13,16 +13,17 @@ import { toast } from 'sonner'
 import { formatVND, handleErrorApi } from '@/core/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-
+import { useCreatePaymentMutation } from '@/queries/useMomo'
 const CheckOutPagePageMain = () => {
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const user = getUserFromLocalStorage()
+  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedTime, setSelectedTime] = useState('')
   const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
   const { mutate: createBooking } = useCreateBookingQuery()
   const { data: userDetail } = useDetailUserQuery(user?.id as string)
-  const [selectedDate, setSelectedDate] = useState('')
-  const [selectedTime, setSelectedTime] = useState('')
+  const { mutate: createPayment } = useCreatePaymentMutation()
 
   const form = useForm<BookingBodyType>({
     resolver: zodResolver(BookingBodySchema(vaccineDetail?.remainingQuantity || 0)),
@@ -69,9 +70,28 @@ const CheckOutPagePageMain = () => {
 
   const handleSubmit = (body: BookingBodyType) => {
     createBooking(body, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         refetchVaccine()
         toast.success('Booking created successfully')
+
+        // Create payment request
+        createPayment(
+          { bookingId: response.id },
+          {
+            onSuccess: (paymentResponse) => {
+              // Redirect to Momo payment page
+              window.location.href = paymentResponse.paymentUrl.paymentUrl
+            },
+            onError: (error) => {
+              handleErrorApi({
+                error: error,
+                setError: form.setError,
+                duration: 5000
+              })
+              toast.error(error.message || 'Payment failed')
+            }
+          }
+        )
       },
       onError: (error) => {
         handleErrorApi({
