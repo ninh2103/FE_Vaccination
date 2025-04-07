@@ -39,7 +39,7 @@ interface OrdersTableProps {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'CONFIRMED':
-      return <Badge className='bg-green-500 hover:bg-green-600'>Confirmed</Badge>
+      return <Badge className='bg-blue-500 hover:bg-blue-600'>Confirmed</Badge>
     case 'PENDING':
       return (
         <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>

@@ -51,7 +51,10 @@ export const paymentResponseSchema = z.object({
 export type PaymentResponseType = z.infer<typeof paymentResponseSchema>
 
 export const paymentListSchema = z.object({
-  data: z.array(paymentResponseSchema)
+  data: z.array(paymentResponseSchema),
+  total: z.number(),
+  currentPage: z.number(),
+  itemsPerPage: z.number()
 })
 
 export type PaymentListResponseType = z.infer<typeof paymentListSchema>
