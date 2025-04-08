@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
-import { Download, RefreshCw, X, Printer } from 'lucide-react'
+import { Download, RefreshCw, X, Printer, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -326,28 +326,15 @@ export default function PaymentsPage() {
           </h1>
           <p className='text-muted-foreground'>Manage and monitor payments in your system.</p>
         </div>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
-            <Download className='mr-2 h-4 w-4' />
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
-        </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search by order ID or payment ID...'
+              placeholder='Search...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -360,6 +347,20 @@ export default function PaymentsPage() {
                 <X className='h-4 w-4' />
               </Button>
             )}
+          </div>
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
+              <Download className='mr-2 h-4 w-4' />
+              Export
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Refresh
+            </Button>
           </div>
         </div>
 

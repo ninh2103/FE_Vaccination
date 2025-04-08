@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { numberConstants } from '@/configs/consts'
-
+import { convertDateFormat } from '@/core/lib/utils'
 export type User = {
   id: string
   name: string
@@ -158,8 +158,8 @@ export function UserTable({
               </TableCell>
               {tab !== 'patients' && <TableCell>{getRoleBadge(user.role)}</TableCell>}
               <TableCell>{getStatusBadge(user.status)}</TableCell>
-              <TableCell>{user.registeredDate}</TableCell>
-              {tab !== 'patients' && <TableCell>{user.lastLogin}</TableCell>}
+              <TableCell> {convertDateFormat(user.registeredDate)}</TableCell>
+              {tab !== 'patients' && <TableCell> {convertDateFormat(user.lastLogin)}</TableCell>}
               <TableCell>
                 <div className='flex items-center gap-2'>
                   <Button
@@ -180,7 +180,7 @@ export function UserTable({
                       onDeleteClick(user)
                     }}
                   >
-                    <Trash className='h-4 w-4 text-destructive' />
+                    <Trash className='h-4 w-4 text-destructive text-red-500' />
                   </Button>
                 </div>
               </TableCell>

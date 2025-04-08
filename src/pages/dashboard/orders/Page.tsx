@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format, parseISO, isBefore } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Download, RefreshCw, Plus, X, Loader2 } from 'lucide-react'
+import { Download, RefreshCw, Plus, X, Loader2, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -47,8 +47,12 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Booking | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
-  const [filters, setFilters] = useState({
-    dateRange: { from: '', to: '' }
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined
+    to: Date | undefined
+  }>({
+    from: undefined,
+    to: undefined
   })
   const [activeTab, setActiveTab] = useState('all')
 
@@ -74,14 +78,14 @@ export default function OrdersPage() {
         booking.vaccinationId.toLowerCase().includes(searchTerm.toLowerCase())
 
       const bookingDate = parseISO(booking.appointmentDate)
-      const fromDate = filters.dateRange.from ? parseISO(filters.dateRange.from) : null
-      const toDate = filters.dateRange.to ? parseISO(filters.dateRange.to) : null
+      const fromDate = dateRange.from ? parseISO(format(dateRange.from, 'yyyy-MM-dd')) : null
+      const toDate = dateRange.to ? parseISO(format(dateRange.to, 'yyyy-MM-dd')) : null
       const matchesDateRange =
         (!fromDate || !isBefore(bookingDate, fromDate)) && (!toDate || !isBefore(toDate, bookingDate))
 
       return matchesSearch && matchesDateRange
     })
-  }, [bookingsData, searchTerm, filters])
+  }, [bookingsData, searchTerm, dateRange])
 
   const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage))
   const startIndex = (currentPage - 1) * rowsPerPage + 1
@@ -104,8 +108,9 @@ export default function OrdersPage() {
     setTimeout(() => {
       setSearchTerm('')
       setCurrentPage(1)
-      setFilters({
-        dateRange: { from: '', to: '' }
+      setDateRange({
+        from: undefined,
+        to: undefined
       })
       toast.success('Data has been refreshed')
       setIsRefreshing(false)
@@ -161,86 +166,99 @@ export default function OrdersPage() {
     setOpenUpdateDialog(true)
   }, [])
 
+  const handleClearFilters = useCallback(() => {
+    setSearchTerm('')
+    setCurrentPage(1)
+    setDateRange({
+      from: undefined,
+      to: undefined
+    })
+    toast.success('Filters cleared')
+  }, [setSearchTerm, setCurrentPage, setDateRange])
+
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Orders
-        </h1>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
-            {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
-          <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-            <DialogTrigger asChild>
-              <Button size='sm' className='h-9'>
-                <Plus className='mr-2 h-4 w-4' />
-                Add Order
-              </Button>
-            </DialogTrigger>
-            <AddOrder
-              onAdd={() => {
-                setOpenAddDialog(false)
-              }}
-              onCancel={() => setOpenAddDialog(false)}
-            />
-          </Dialog>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Orders
+          </h1>
+          <p className='text-muted-foreground'>Manage and monitor orders in your system.</p>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex-1 flex items-center space-x-2'>
-            <Input
-              placeholder='Search by order ID or vaccination ID...'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-              }}
-              className='w-full'
-              type='search'
-            />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
+        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <div className='flex items-center gap-2'>
+            <div className='relative w-full max-w-sm'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Search...'
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className='pl-8 w-full'
+                type='search'
+              />
+              {searchTerm && (
+                <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
+                  <X className='h-4 w-4' />
+                </Button>
+              )}
+            </div>
+            <div className='flex items-center space-x-2'>
+              <div className='flex items-center space-x-2'>
+                <Input
+                  type='date'
+                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+                <span className='text-muted-foreground'>to</span>
+                <Input
+                  type='date'
+                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+              </div>
+              <div className='flex items-center space-x-2'></div>
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
           </div>
-          <div className='flex items-center gap-2  pl-4'>
-            <Input
-              type='date'
-              value={filters.dateRange.from}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  dateRange: { ...prev.dateRange, from: e.target.value }
-                }))
-              }
-              className='w-[150px]'
-            />
-            <span className='text-muted-foreground'>to</span>
-            <Input
-              type='date'
-              value={filters.dateRange.to}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  dateRange: { ...prev.dateRange, to: e.target.value }
-                }))
-              }
-              className='w-[150px]'
-            />
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+              {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
+              Export
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Refresh
+            </Button>
+            <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+              <DialogTrigger asChild>
+                <Button size='sm' className='h-9'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Add Order
+                </Button>
+              </DialogTrigger>
+              <AddOrder
+                onAdd={() => {
+                  setOpenAddDialog(false)
+                }}
+                onCancel={() => setOpenAddDialog(false)}
+              />
+            </Dialog>
           </div>
         </div>
 

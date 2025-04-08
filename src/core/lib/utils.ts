@@ -47,3 +47,13 @@ export const formatVND = (amount: number) => {
     maximumFractionDigits: 0
   }).format(amount)
 }
+
+export function convertDateFormat(inputDate: string): string {
+  const dateParts = inputDate.split('-')
+  if (dateParts.length !== 3) {
+    throw new Error('Ngày không hợp lệ. Định dạng đúng là YYYY-MM-DD')
+  }
+
+  const [year, month, day] = dateParts
+  return `${day}/${month}/${year}`
+}

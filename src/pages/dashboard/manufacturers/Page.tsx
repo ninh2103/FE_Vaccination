@@ -133,31 +133,20 @@ export default function ManufacturersPage() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Manufacturers
-        </h1>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
-            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
-          </Button>
-          <Button size='sm' onClick={() => setOpenAddDialog(true)}>
-            <Plus className='mr-2 h-4 w-4' />
-            Add Manufacturer
-          </Button>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Manufacturers
+          </h1>
+          <p className='text-muted-foreground'>Manage and monitor manufacturers in your system.</p>
         </div>
       </div>
 
       {/* Search */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
+          <div className='relative w-full max-w-sm'>
             <Input
-              placeholder='Search by name or contact info...'
+              placeholder='Search...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -171,6 +160,20 @@ export default function ManufacturersPage() {
                 <X className='h-4 w-4' />
               </Button>
             )}
+          </div>
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+              {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
+              Export
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+              Refresh
+            </Button>
+            <Button size='sm' onClick={() => setOpenAddDialog(true)}>
+              <Plus className='mr-2 h-4 w-4' />
+              Add Manufacturer
+            </Button>
           </div>
         </div>
 

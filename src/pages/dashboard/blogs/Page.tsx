@@ -149,30 +149,18 @@ export const BlogPage: React.FC = () => {
     <div className='p-6'>
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-3xl font-bold tracking-tight'>Blogs</h1>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Blogs
+          </h1>
           <p className='text-muted-foreground'>Manage and monitor blogs in your system.</p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExportExcel} disabled={isExporting}>
-            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
-          </Button>
-          <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className='mr-2 h-4 w-4' />
-            Add Blog
-          </Button>
         </div>
       </div>
 
-      <div className='mb-6 py-6'>
+      <div className='mb-6 py-6 flex items-center justify-between'>
         <div className='flex items-center gap-4'>
-          <div className='relative w-64'>
+          <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+            <Input placeholder='Search...' value={searchQuery} onChange={handleSearch} className='pl-8' />
           </div>
           <Select value={selectedTag} onValueChange={handleTagChange}>
             <SelectTrigger className='w-[200px]'>
@@ -187,6 +175,20 @@ export const BlogPage: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExportExcel} disabled={isExporting}>
+            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
+            Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+            Refresh
+          </Button>
+          <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            Add Blog
+          </Button>
         </div>
       </div>
 

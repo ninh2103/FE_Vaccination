@@ -67,7 +67,7 @@ export function ManufacturerTable({
                   <Edit className='h-4 w-4' />
                 </Button>
                 <Button variant='ghost' size='icon' onClick={() => onDelete(manufacturer.id)}>
-                  <Trash className='h-4 w-4 text-destructive' />
+                  <Trash className='h-4 w-4 text-destructive text-red-500' />
                 </Button>
               </div>
             </TableCell>

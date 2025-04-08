@@ -143,8 +143,30 @@ export default function UsersPage() {
       {/* Header Section */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div>
-          <h1 className='text-3xl font-bold tracking-tight'>Users</h1>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Users
+          </h1>
           <p className='text-muted-foreground'>Manage and monitor user accounts in your system.</p>
+        </div>
+      </div>
+
+      {/* Search and Filters Section */}
+      <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+        <div className='relative w-full max-w-sm'>
+          <Input
+            placeholder='Search...'
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className='w-full'
+          />
+          {searchTerm && (
+            <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
+              <X className='h-4 w-4' />
+            </Button>
+          )}
         </div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
@@ -159,26 +181,6 @@ export default function UsersPage() {
             <Plus className='mr-2 h-4 w-4' />
             Add User
           </Button>
-        </div>
-      </div>
-
-      {/* Search and Filters Section */}
-      <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-        <div className='flex w-full max-w-sm items-center space-x-2'>
-          <Input
-            placeholder='Search users by name...'
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value)
-              setCurrentPage(1)
-            }}
-            className='w-full'
-          />
-          {searchTerm && (
-            <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-              <X className='h-4 w-4' />
-            </Button>
-          )}
         </div>
       </div>
 

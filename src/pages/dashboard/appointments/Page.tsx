@@ -1,31 +1,20 @@
 import { useState, useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Filter, Download, RefreshCw, Plus, X, Loader2, CalendarIcon } from 'lucide-react'
+import { Download, RefreshCw, X, Loader2, CalendarIcon, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AppointmentTable } from './AppointmentTable'
-import { AddAppointment } from './AddAppointment'
 import { UpdateAppointment } from './UpdateAppointment'
 import {
   useListAppointmentQuery,
@@ -86,24 +75,18 @@ interface Appointment {
 
 export default function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [currentTab, setCurrentTab] = useState('today')
-  const [filters, setFilters] = useState({
-    status: {
-      confirmed: false,
-      pending: false,
-      completed: false,
-      canceled: false
-    },
-    dateRange: {
-      from: '',
-      to: ''
-    }
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined
+    to: Date | undefined
+  }>({
+    from: undefined,
+    to: undefined
   })
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 10
@@ -186,18 +169,6 @@ export default function AppointmentsPage() {
       refetch()
       refetchDaily()
       setSearchTerm('')
-      setFilters({
-        status: {
-          confirmed: false,
-          pending: false,
-          completed: false,
-          canceled: false
-        },
-        dateRange: {
-          from: '',
-          to: ''
-        }
-      })
       toast.success('Data has been refreshed')
       setIsRefreshing(false)
     }, 1000)
@@ -224,181 +195,96 @@ export default function AppointmentsPage() {
     setOpenUpdateDialog(true)
   }, [])
 
-  const handleAddAppointment = useCallback((appointment: Appointment) => {
-    setSelectedAppointment(appointment)
-    setOpenAddDialog(false)
-  }, [])
-
   const handleClearFilters = useCallback(() => {
-    setFilters({
-      status: {
-        confirmed: false,
-        pending: false,
-        completed: false,
-        canceled: false
-      },
-      dateRange: {
-        from: '',
-        to: ''
-      }
+    setDateRange({
+      from: undefined,
+      to: undefined
     })
-  }, [])
+    setSearchTerm('')
+    setCurrentTab('today')
+    setCurrentPage(1)
+    refetch()
+    refetchDaily()
+    toast.success('Filters cleared')
+  }, [refetch, refetchDaily])
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Appointments
-        </h1>
-        <div className='flex items-center gap-2'>
-          <div className='text-sm font-medium text-muted-foreground flex items-center gap-2'>
-            <CalendarIcon className='h-4 w-4' />
-            <span>{format(new Date(), 'dd/MM/yyyy')}</span>
-          </div>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
-            {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
-          <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-            <DialogTrigger asChild>
-              <Button size='sm' className='h-9'>
-                <Plus className='mr-2 h-4 w-4' />
-                Add Appointment
-              </Button>
-            </DialogTrigger>
-            <AddAppointment onAdd={handleAddAppointment} onCancel={() => setOpenAddDialog(false)} />
-          </Dialog>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Appointments
+          </h1>
+          <p className='text-muted-foreground'>Manage and monitor appointments in your system.</p>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
-            <Input
-              placeholder='Search by name, email, vaccine...'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-              }}
-              className='w-full'
-              type='search'
-            />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
+          <div className='flex items-center gap-2'>
+            <div className='relative w-full max-w-sm'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Search...'
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                }}
+                className='w-full'
+                type='search'
+              />
+              {searchTerm && (
+                <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
+                  <X className='h-4 w-4' />
+                </Button>
+              )}
+            </div>
+            <div className='flex items-center space-x-2'>
+              <div className='flex items-center space-x-2'>
+                <Input
+                  type='date'
+                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({
+                      ...prev,
+                      from: new Date(e.target.value)
+                    }))
+                  }
+                  className='w-[150px]'
+                />
+                <span className='text-muted-foreground'>to</span>
+                <Input
+                  type='date'
+                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+              </div>
+              <div className='flex items-center space-x-2'></div>
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
           </div>
           <div className='flex items-center gap-2'>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='outline' size='sm'>
-                  <Filter className='mr-2 h-4 w-4' />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end' className='w-[300px] p-4'>
-                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
-                <p className='text-sm text-muted-foreground mb-4'>Filter appointments by status and date range.</p>
-
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Status</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.confirmed}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, confirmed: checked }
-                      }))
-                    }
-                  >
-                    Confirmed
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.pending}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, pending: checked }
-                      }))
-                    }
-                  >
-                    Pending
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.completed}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, completed: checked }
-                      }))
-                    }
-                  >
-                    Completed
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.canceled}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, canceled: checked }
-                      }))
-                    }
-                  >
-                    Canceled
-                  </DropdownMenuCheckboxItem>
-                </div>
-
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Date Range</DropdownMenuLabel>
-                  <div className='grid grid-cols-2 gap-2 mt-2'>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>From</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.from}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, from: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>To</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.to}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, to: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Button variant='outline' size='sm' onClick={handleClearFilters}>
-                  Clear Filters
-                </Button>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='text-sm font-medium text-muted-foreground flex items-center gap-2'>
+              <CalendarIcon className='h-4 w-4' />
+              <span>{format(new Date(), 'dd/MM/yyyy')}</span>
+            </div>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+              {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
+              Export
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Refresh
+            </Button>
           </div>
         </div>
 

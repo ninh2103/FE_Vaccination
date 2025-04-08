@@ -1,5 +1,18 @@
 import { useState } from 'react'
-import { Edit, Trash, AlertCircle, ChevronLeft, ChevronRight, X, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  Edit,
+  Trash,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Search,
+  Download,
+  RefreshCw
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -8,6 +21,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { VaccineType } from '@/schemaValidator/vaccination.schema'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import * as XLSX from 'xlsx'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog'
 
 interface VaccineTableProps {
   setSelectedVaccine: (vaccine: VaccineType | null) => void
@@ -17,6 +40,9 @@ interface VaccineTableProps {
 export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: VaccineTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [openAddDialog, setOpenAddDialog] = useState(false)
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const ITEMS_PER_PAGE = 10
 
@@ -63,11 +89,30 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
   const { data: vaccines, total } = vaccineData
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
+  const handleExport = () => {
+    setIsExporting(true)
+    setTimeout(() => {
+      const worksheet = XLSX.utils.json_to_sheet(vaccines || [])
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Vaccines')
+      XLSX.writeFile(workbook, `Vaccines_List_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      setIsExporting(false)
+    }, 1500)
+  }
+
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
   return (
     <div className='grid gap-6'>
       {/* Search */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-        <div className='flex w-full max-w-sm items-center space-x-2'>
+        <div className='relative w-full max-w-sm'>
+          <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input
             placeholder='Search vaccines by name...'
             value={searchTerm}
@@ -83,7 +128,38 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
             </Button>
           )}
         </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
+            Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+            Refresh
+          </Button>
+          <Button size='sm' onClick={() => setOpenAddDialog(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            Add Vaccine
+          </Button>
+        </div>
       </div>
+
+      {/* Add Vaccine Dialog */}
+      <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Vaccine</DialogTitle>
+            <DialogDescription>Fill in the details to add a new vaccine to the system.</DialogDescription>
+          </DialogHeader>
+          {/* Add your AddVaccine form component here */}
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button type='submit'>Add Vaccine</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Alert */}
       {vaccines.some((v) => v.remainingQuantity <= 10) && (

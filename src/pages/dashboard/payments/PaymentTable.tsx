@@ -118,7 +118,7 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'>Actions</TableHead>
+                      <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -217,7 +217,7 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
+                      <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -318,7 +318,7 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
+                      <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

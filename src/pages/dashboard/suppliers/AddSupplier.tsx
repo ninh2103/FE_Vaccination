@@ -19,7 +19,7 @@ interface AddSupplierProps {
 export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
   const { mutate: createSupplier, isPending } = useCreateSupplierQuery()
 
-  const form = useForm<Omit<Supplier, 'id'>>({
+  const form = useForm<SupplierBodyType>({
     resolver: zodResolver(SupplierBody),
     defaultValues: {
       name: '',
@@ -30,7 +30,8 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
 
   const handleFormSubmit = (data: SupplierBodyType) => {
     createSupplier(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        onAdd(response)
         onCancel()
         toast.success('Supplier created successfully')
         form.reset()
