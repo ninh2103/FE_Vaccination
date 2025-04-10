@@ -1,5 +1,9 @@
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay } from 'swiper/modules'
 import { Star } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Link } from 'react-router-dom'
+import 'swiper/swiper-bundle.css'
 
 export const testimonials = [
   {
@@ -46,42 +50,59 @@ export const testimonials = [
 
 export default function Testimonials() {
   return (
-    <div className='mx-auto max-w-none px-5 sm:max-w-[90%] sm:px-0 2xl:max-w-8xl'>
-      <h2 className='text-balance text-3xl font-bold xl:text-center'>What Our Customers Are Saying</h2>
-      <div className='pt-6 lg:pt-8'>
-        <div className='relative'>
-          <Carousel>
-            <CarouselContent className='m-0 space-x-4 lg:space-x-6'>
-              {testimonials.map(({ id, name, comment, imageUrl, rating }) => {
-                return (
-                  <CarouselItem key={id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4 h-full'>
-                    <figure className='flex flex-col justify-between rounded-2xl bg-neutral-50 p-8 min-h-[250px]'>
-                      <div>
-                        <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
-                          {[...Array(rating)].map((_, index) => (
-                            <Star key={index} className='size-[15px] text-yellow-500' />
-                          ))}
-                        </div>
-                        <div className='pt-4 flex-grow'>
-                          <blockquote className='text-balance text-[14px] leading-[23px] text-neutral-600 sm:text-[15px] sm:leading-normal md:leading-[26px] lg:text-[16px]'>
-                            “{comment}”
-                          </blockquote>
-                        </div>
-                      </div>
-                      <div className='pt-8'>
-                        <figcaption className='flex items-center gap-2.5'>
-                          <img src={imageUrl} alt={name} className='size-6 shrink-0 rounded-full object-cover' />
-                          <p className='text-[13px] font-medium text-neutral-700 xl:text-[14px]'>{name}</p>
-                        </figcaption>
-                      </div>
-                    </figure>
-                  </CarouselItem>
-                )
-              })}
-            </CarouselContent>
-          </Carousel>
+    <section className='py-12 px-8 w-full relative'>
+      <div className='container mx-auto'>
+      <h2 className='text-3xl font-bold text-center'>What Our Customers Are Saying</h2>
+
+        <div className='relative mb-8'>
+          <div className='absolute top-0 right-0'>
+            <Link to='/all-testimonials'>
+              <Button variant='outline' size='sm'>
+                Show All
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        <Swiper
+          spaceBetween={30}
+          slidesPerView={1}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 }
+          }}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false
+          }}
+          loop={true}
+          modules={[Autoplay]}
+          className='w-full'
+        >
+          {testimonials.map(({ id, name, comment, imageUrl, rating }) => (
+            <SwiperSlide key={id} className='p-4'>
+              <div className='bg-neutral-50 rounded-2xl p-8 min-h-[250px] flex flex-col justify-between h-full'>
+                <div>
+                  <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
+                    {[...Array(rating)].map((_, index) => (
+                      <Star key={index} className='size-[15px] text-yellow-500' />
+                    ))}
+                  </div>
+                  <div className='pt-4 flex-grow'>
+                    <blockquote className='text-[15px] leading-[26px] text-neutral-600'>"{comment}"</blockquote>
+                  </div>
+                </div>
+                <div className='pt-8'>
+                  <div className='flex items-center gap-2.5'>
+                    <img src={imageUrl} alt={name} className='size-6 rounded-full object-cover' />
+                    <p className='text-[14px] font-medium text-neutral-700'>{name}</p>
+                  </div>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
-    </div>
+    </section>
   )
 }

@@ -1,17 +1,71 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ChevronUp } from 'lucide-react'
+import { ChevronUp, X } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { UserCircle, LogOut } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { UserCircle, LogOut, Search } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
+import { useGetMeQuery } from '@/queries/useUser'
 import { setUserToLS } from '@/core/shared/storage'
+import { Card, CardContent } from '@/components/ui/card'
+
+// Dữ liệu giả lập cho vaccine
+const vaccineData = [
+  {
+    id: 1,
+    name: 'Pfizer-BioNTech COVID-19 Vaccine',
+    brand: 'Pfizer',
+    price: 500000,
+    image: '/images/pfizer-vaccine.jpg',
+    category: 'COVID-19'
+  },
+  {
+    id: 2,
+    name: 'Moderna COVID-19 Vaccine',
+    brand: 'Moderna',
+    price: 550000,
+    image: '/images/moderna-vaccine.jpg',
+    category: 'COVID-19'
+  },
+  {
+    id: 3,
+    name: 'AstraZeneca COVID-19 Vaccine',
+    brand: 'AstraZeneca',
+    price: 450000,
+    image: '/images/astrazeneca-vaccine.jpg',
+    category: 'COVID-19'
+  },
+  {
+    id: 4,
+    name: 'Gardasil HPV Vaccine',
+    brand: 'Merck',
+    price: 2000000,
+    image: '/images/gardasil-vaccine.jpg',
+    category: 'HPV'
+  },
+  {
+    id: 5,
+    name: 'Fluarix Influenza Vaccine',
+    brand: 'GSK',
+    price: 300000,
+    image: '/images/fluarix-vaccine.jpg',
+    category: 'Influenza'
+  }
+]
+
+interface Vaccine {
+  id: number
+  name: string
+  brand: string
+  price: number
+  image: string
+  category: string
+}
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -24,20 +78,27 @@ const navItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [, setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Vaccine[]>([])
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  const navigate = useNavigate()
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
-  if (user) {
-    setUserToLS({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name
-    })
-  }
+
+  useEffect(() => {
+    if (user) {
+      setUserToLS({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role.name
+      })
+    }
+  }, [user])
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -46,18 +107,48 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    if (scrollY > 60) {
-      setShowAlert(false)
-    } else {
-      setShowAlert(true)
-    }
-
     if (scrollY > 300) {
       setShowScrollTop(true)
     } else {
       setShowScrollTop(false)
     }
   }, [scrollY])
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token')
+    setIsLoggedIn(!!token)
+  }, [])
+
+  // Xử lý tìm kiếm theo thời gian thực
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const results = vaccineData.filter(
+        (vaccine) =>
+          vaccine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          vaccine.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          vaccine.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setSearchResults(results)
+      setIsSearchOpen(true)
+    } else {
+      setSearchResults([])
+      setIsSearchOpen(false)
+    }
+  }, [searchQuery])
+
+  const handleSearch = (e?: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e && e.key !== 'Enter') return
+    if (searchQuery.trim()) {
+      setIsSearchOpen(false)
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setSearchQuery('')
+    setSearchResults([])
+    setIsSearchOpen(false)
+  }
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId)
@@ -71,26 +162,22 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    // Implement sign out logic here
     setIsLoggedIn(false)
   }
-
-  useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    setIsLoggedIn(!!token)
-  }, [])
 
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
       <header
-        className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-all duration-300 ease-in-out ${scrollY > 0 ? 'shadow-md' : ''}`}
+        className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-all duration-300 ease-in-out ${
+          scrollY > 0 ? 'shadow-md' : ''
+        }`}
       >
         <div className='container mx-auto px-4 py-4'>
           <div className='flex items-center justify-between'>
             <Link to={path.home} className='flex items-center space-x-2'>
               <Icons.Syringe className='h-8 w-8 text-blue-400' />
               <span className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-                VAX-BOX
+                VAX-BOT
               </span>
             </Link>
             <nav className='hidden md:flex space-x-6'>
@@ -105,8 +192,49 @@ export default function Header() {
                 </Button>
               ))}
             </nav>
-            <div className='grid w-1/2 max-w-xs items-center gap-1.5'>
-              <Input type='search' id='search' placeholder='Search' className='w-full text-sm p-2 text-blue-400' />
+            <div className='relative w-1/2 max-w-xs flex items-center gap-2'>
+              <div className='relative flex-1'>
+                <Input
+                  type='search'
+                  id='search'
+                  placeholder='Search for vaccine...'
+                  className='w-full text-sm p-3 pr-10 rounded-full border border-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700 transition-all duration-300 shadow-sm dark:bg-gray-800 dark:text-white placeholder-gray-400'
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearch}
+                />
+              </div>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-teal-500 text-white hover:from-blue-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105'
+                onClick={() => handleSearch()}
+              >
+                <Search className='h-5 w-5' />
+              </Button>
+              {isSearchOpen && searchResults.length > 0 && (
+                <Card className='absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto rounded-lg shadow-lg border border-gray-200 dark:border-gray-700'>
+                  <CardContent className='p-2'>
+                    <div className='flex justify-between items-center mb-2'>
+                      <span className='text-sm font-semibold text-gray-900 dark:text-white'>Kết quả tìm kiếm: </span>
+                    </div>
+                    {searchResults.map((vaccine) => (
+                      <Link
+                        key={vaccine.id}
+                        to={`/search?q=${encodeURIComponent(vaccine.name)}`}
+                        onClick={() => setIsSearchOpen(false)}
+                      >
+                        <div className='flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors'>
+                          <img src={vaccine.image} alt={vaccine.name} className='w-10 h-10 object-contain rounded' />
+                          <div>
+                            <p className='text-sm font-semibold text-gray-900 dark:text-white'>{vaccine.name}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             <div className='hidden md:flex items-center space-x-4'>
@@ -154,7 +282,7 @@ export default function Header() {
                     </Button>
                   </Link>
                   <Link to={path.register}>
-                    <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'>
+                    <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-500 hover:to-teal-600 text-white rounded-full px-4 py-2 shadow-sm transition-all duration-300'>
                       Sign up
                     </Button>
                   </Link>
@@ -212,7 +340,7 @@ export default function Header() {
                     </Button>
                   </Link>
                   <Link to={path.register} className='w-full'>
-                    <Button className='w-full mt-2 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-600 hover:to-blue-600 text-white'>
+                    <Button className='w-full mt-2 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-600 hover:to-blue-600 text-white rounded-full'>
                       Sign up
                     </Button>
                   </Link>
@@ -232,7 +360,6 @@ export default function Header() {
           <ChevronUp className='h-6 w-6' />
         </Button>
       )}
-
       <Chatbox />
     </div>
   )
