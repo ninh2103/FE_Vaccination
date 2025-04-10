@@ -56,15 +56,15 @@ const BlogList: React.FC = () => {
   }
 
   return (
-    <div className='w-80 border-r h-screen overflow-y-auto flex flex-col scrollbar-hide'>
-      <div className='p-4 sticky top-0 bg-background border-b z-10'>
-        <h1 className='text-xl font-bold mb-4'>Blog Posts</h1>
+    <div className='w-80 border-r border-green-500 h-screen overflow-y-auto flex flex-col scrollbar-hide'>
+      <div className='p-4 sticky top-0 dark:bg-gray-900/80  bg-background border-b dark:border-green-500 z-10 '>
+        <h1 className='text-xl font-bold mb-4 dark:text-green-500'>Blog Posts</h1>
         <div className='relative'>
           <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-          <Input placeholder='Search posts...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+          <Input placeholder='Search...' value={searchQuery} onChange={handleSearch} className='pl-8' />
         </div>
       </div>
-      <div className='flex-1 divide-y divide-border overflow-y-auto scrollbar-hide'>
+      <div className='flex-1 divide-y divide-border dark:bg-gray-900/80 dark:divide-green-500 *:dark:* overflow-y-auto scrollbar-hide'>
         {isLoading ? (
           <div className='flex items-center justify-center p-8'>
             <LoadingSpinner className='h-8 w-8' />
@@ -82,13 +82,13 @@ const BlogList: React.FC = () => {
               key={post.id}
               className={cn('block transition-colors hover:bg-accent/50', currentPostId === post.id && 'bg-accent')}
             >
-              <Card className='border-0 shadow-none hover:shadow-none rounded-none'>
+              <Card className='border-0 shadow-none  dark:bg-gray-900/80 hover:shadow-none rounded-none dark:border-green-500'>
                 <CardHeader className='p-4 pb-2'>
                   <CardTitle className='text-base line-clamp-2'>{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent className='p-4 pt-0'>
                   <div className='flex items-center gap-2'>
-                    <Badge variant='default' className='text-xs'>
+                    <Badge variant='default' className='text-xs dark:bg-green-500 dark:text-white'>
                       {post.tag?.name}
                     </Badge>
                     <span className='text-xs text-muted-foreground'>
@@ -102,10 +102,10 @@ const BlogList: React.FC = () => {
         )}
       </div>
       {!isLoading && !error && blogPosts.length > 0 && (
-        <div className='p-4 border-t bg-background sticky bottom-0'>
-          <div className='flex items-center justify-between'>
+        <div className='p-4 border-t dark:bg-gray-900/80 bg-background border-t-green-500 sticky bottom-0'>
+          <div className='flex items-center justify-between dark:text-green-500'>
             <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
-              <ChevronLeft className='h-4 w-4 mr-2' />
+              <ChevronLeft className='h-4 w-4 mr-2 dark:text-green-500 dark:hover:text-green-500' />
               Previous
             </Button>
             <span className='text-sm text-muted-foreground'>
@@ -113,7 +113,7 @@ const BlogList: React.FC = () => {
             </span>
             <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
               Next
-              <ChevronRight className='h-4 w-4 ml-2' />
+              <ChevronRight className='h-4 w-4 ml-2 dark:text-green-500 dark:hover:text-green-500' />
             </Button>
           </div>
         </div>

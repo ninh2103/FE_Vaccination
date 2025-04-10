@@ -10,7 +10,7 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
+import { useGetMeQuery } from '@/queries/useUser'
 import { setUserToLS } from '@/core/shared/storage'
 
 const navItems = [
@@ -18,8 +18,8 @@ const navItems = [
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' },
-  { name: 'Blog', href: '#blog' }
+  { name: 'Blog', href: '#blog' },
+  { name: 'Contact', href: '#contact' }
 ]
 
 export default function Header() {

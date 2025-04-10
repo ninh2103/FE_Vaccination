@@ -38,9 +38,9 @@ const BlogDetails: React.FC = () => {
   }
 
   return (
-    <div className='flex-1 h-screen overflow-y-auto scrollbar-hide'>
+    <div className='flex-1 h-screen dark:bg-gray-900/80 overflow-y-auto scrollbar-hide'>
       <div className='max-w-4xl mx-auto py-8 px-6'>
-        <Card className='shadow-lg'>
+        <Card className='shadow-lg dark:bg-gray-900/80'>
           <CardContent className='p-8'>
             <div className='mb-8'>
               <h1 className='text-4xl font-bold mb-6 leading-tight'>{blogPost.title}</h1>

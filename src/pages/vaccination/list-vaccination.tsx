@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -19,9 +19,12 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   // State for search, filtering, sorting and pagination
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const [sortBy, setSortBy] = useState<'vaccineName' | 'price'>('vaccineName')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<'all' | 'In Stock' | 'Low Stock' | 'Out of Stock'>('all')
@@ -30,8 +33,21 @@ export default function ListVaccination() {
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: currentPage,
     items_per_page: itemsPerPage,
-    search: searchTerm
+    search: debouncedSearch
   })
+
+  useEffect(() => {
+    setIsSearching(true)
+    const delayInputTimeoutId = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setIsSearching(false)
+      // Maintain focus after debounce
+      if (searchInputRef.current) {
+        searchInputRef.current.focus()
+      }
+    }, 500)
+    return () => clearTimeout(delayInputTimeoutId)
+  }, [searchTerm])
 
   // Format currency for displaying price
   const formatCurrency = (amount: number) => {
@@ -65,6 +81,10 @@ export default function ListVaccination() {
   // Navigate to detail page when clicking on a vaccine card
   const handleCardClick = (id: string) => {
     navigate(`/vaccination/${id}`)
+  }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
   // Filter, sort and paginate vaccines
@@ -120,16 +140,30 @@ export default function ListVaccination() {
 
       {/* Search and Filter Section */}
       <div className='grid gap-4 mb-6 md:grid-cols-3'>
-        {/* Search input */}
-        <div className='relative'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
-          <Input
-            placeholder='Search vaccines...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-10'
-          />
-        </div>
+        {isLoading ? (
+          <div className='flex items-center justify-center p-8'>
+            <LoadingSpinner className='h-8 w-8' />
+          </div>
+        ) : (
+          <>
+            {/* Search input */}
+            <div className='relative w-full'>
+              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
+              <Input
+                ref={searchInputRef}
+                placeholder='Search vaccines...'
+                value={searchTerm}
+                onChange={handleSearch}
+                className='pl-10 pr-3 w-full'
+              />
+              {isSearching && (
+                <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
+                  <LoadingSpinner className='h-4 w-4' />
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Filter dropdown */}
         <Select
@@ -149,7 +183,11 @@ export default function ListVaccination() {
 
         {/* Sorting buttons */}
         <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => toggleSort('vaccineName')} className='flex-1 dark:text-white'>
+          <Button
+            variant='outline'
+            onClick={() => toggleSort('vaccineName')}
+            className='flex-1 dark:text-white dark:bg-gray-900'
+          >
             Name
             {sortBy === 'vaccineName' &&
               (sortDirection === 'asc' ? (
@@ -158,7 +196,11 @@ export default function ListVaccination() {
                 <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
               ))}
           </Button>
-          <Button variant='outline' onClick={() => toggleSort('price')} className='flex-1 dark:text-white'>
+          <Button
+            variant='outline'
+            onClick={() => toggleSort('price')}
+            className='flex-1 dark:text-white dark:bg-gray-900'
+          >
             Price
             {sortBy === 'price' &&
               (sortDirection === 'asc' ? (
@@ -177,11 +219,11 @@ export default function ListVaccination() {
 
       {/* Vaccines grid */}
       {currentVaccines.length > 0 ? (
-        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 '>
           {currentVaccines.map((vaccine) => (
             <Card
               key={vaccine.id}
-              className='overflow-hidden cursor-pointer hover:shadow-lg transition-shadow'
+              className='overflow-hidden cursor-pointer hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-green-500'
               onClick={() => handleCardClick(vaccine.id)}
             >
               <div className='aspect-video relative'>
@@ -196,7 +238,7 @@ export default function ListVaccination() {
               </div>
               <CardContent className='p-4'>
                 <h2 className='text-xl font-semibold mb-2'>{vaccine.vaccineName}</h2>
-                <p className='text-gray-500 text-sm mb-3 line-clamp-2'>{vaccine.description}</p>
+                <p className='dark:text-white text-sm mb-3 line-clamp-2'>{vaccine.description}</p>
 
                 <div className='flex items-center justify-between text-sm mb-2'>
                   <div className='flex items-center'>
@@ -223,7 +265,7 @@ export default function ListVaccination() {
                 </div>
 
                 <div className='mt-4'>
-                  <span className='text-xs text-gray-500'>Location: {vaccine.location}</span>
+                  <span className='text-xs dark:text-white'>Location: {vaccine.location}</span>
                 </div>
               </CardContent>
             </Card>
