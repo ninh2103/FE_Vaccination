@@ -1,6 +1,6 @@
 import bookingService from '@/core/services/booking.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { BookingBodyType } from '@/schemaValidator/booking.schema'
+import { BookingBodyType, BookingConfirmBodyType } from '@/schemaValidator/booking.schema'
 
 interface ListBookingQuery {
   page?: number
@@ -26,5 +26,11 @@ export const useDetailBookingQuery = (id: string) => {
   return useQuery({
     queryKey: ['booking-detail', id],
     queryFn: () => bookingService.detail(id)
+  })
+}
+
+export const useConfirmBookingQuery = () => {
+  return useMutation({
+    mutationFn: (body: BookingConfirmBodyType) => bookingService.confirmBooking(body)
   })
 }

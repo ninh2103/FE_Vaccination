@@ -1,7 +1,14 @@
 import axiosClient from '@/core/services/axios-client'
-import { BookingBodyType, BookingDetailResponseType, BookingResponseType } from '@/schemaValidator/booking.schema'
+import {
+  BookingBodyType,
+  BookingConfirmBodyType,
+  BookingConfirmResponseType,
+  BookingDetailResponseType,
+  BookingResponseType
+} from '@/schemaValidator/booking.schema'
 
 const API_BOOKING_URL = '/api/bookings'
+const API_BOOKING_CONFIRM_URL = '/api/bookings/confirm'
 
 interface ListBookingQuery {
   page?: number
@@ -18,6 +25,9 @@ const bookingService = {
   },
   detail(id: string): Promise<BookingDetailResponseType> {
     return axiosClient.get(`${API_BOOKING_URL}/${id}`)
+  },
+  confirmBooking(body: BookingConfirmBodyType): Promise<BookingConfirmResponseType> {
+    return axiosClient.post(`${API_BOOKING_CONFIRM_URL}`, body)
   }
 }
 

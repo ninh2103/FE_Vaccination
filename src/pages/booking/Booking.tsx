@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
 import { useGetVaccinationByIdQuery } from '@/queries/useVaccination'
 import { useSearchParams } from 'react-router-dom'
-import { useCreateBookingQuery } from '@/queries/useBooking'
+import { useConfirmBookingQuery, useCreateBookingQuery } from '@/queries/useBooking'
 import { getUserFromLocalStorage } from '@/core/shared/storage'
 import { useDetailUserQuery } from '@/queries/useUser'
 import { BookingBodySchema, BookingBodyType } from '@/schemaValidator/booking.schema'
@@ -14,17 +14,21 @@ import { formatVND, handleErrorApi } from '@/core/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Banknote, Coins, CreditCard, HandCoins } from 'lucide-react'
+
 const CheckOutPagePageMain = () => {
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const user = getUserFromLocalStorage()
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'MOMO' | 'CASH'>('MOMO')
   const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
   const { mutate: createBooking } = useCreateBookingQuery()
   const { data: userDetail } = useDetailUserQuery(user?.id as string)
   const { mutate: createPayment } = useCreatePaymentMutation()
-
+  const { mutate: confirmBooking } = useConfirmBookingQuery()
   const form = useForm<BookingBodyType>({
     resolver: zodResolver(BookingBodySchema(vaccineDetail?.remainingQuantity || 0)),
     defaultValues: {
@@ -74,24 +78,41 @@ const CheckOutPagePageMain = () => {
         refetchVaccine()
         toast.success('Booking created successfully')
 
-        // Create payment request
-        createPayment(
-          { bookingId: response.id },
-          {
-            onSuccess: (paymentResponse) => {
-              // Redirect to Momo payment page
-              window.location.href = paymentResponse.paymentUrl.paymentUrl
-            },
-            onError: (error) => {
-              handleErrorApi({
-                error: error,
-                setError: form.setError,
-                duration: 5000
-              })
-              toast.error(error.message || 'Payment failed')
+        if (paymentMethod === 'MOMO') {
+          createPayment(
+            { bookingId: response.id },
+            {
+              onSuccess: (paymentResponse) => {
+                window.location.href = paymentResponse.paymentUrl.paymentUrl
+              },
+              onError: (error) => {
+                handleErrorApi({
+                  error: error,
+                  setError: form.setError,
+                  duration: 5000
+                })
+                toast.error(error.message || 'Payment failed')
+              }
             }
-          }
-        )
+          )
+        } else {
+          confirmBooking(
+            { bookingId: response.id },
+            {
+              onSuccess: (data) => {
+                toast.success(data.message)
+              },
+              onError: (error) => {
+                handleErrorApi({
+                  error: error,
+                  setError: form.setError,
+                  duration: 5000
+                })
+                toast.error(error.message || 'Booking confirmation failed')
+              }
+            }
+          )
+        }
       },
       onError: (error) => {
         handleErrorApi({
@@ -109,7 +130,7 @@ const CheckOutPagePageMain = () => {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
         {/* Main Form Section */}
         <div className='lg:col-span-2'>
-          <Card className='dark:bg-gray-900'>
+          <Card className='dark:bg-gray-900 h-full'>
             <CardContent className='p-6 space-y-6'>
               <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Booking Information</h2>
               <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
@@ -163,6 +184,47 @@ const CheckOutPagePageMain = () => {
                   )}
                 </div>
 
+                <div className='space-y-4 '>
+                  <div className='pt-4 flex items-center space-x-2 border-t border-green-500 dark:border-green-700'>
+                    <Banknote className='w-6 h-6 text-gray-900 dark:text-white' />
+                    <Label className='text-gray-900 dark:text-white text-lg font-bold'>Payment Method</Label>
+                  </div>
+                  <RadioGroup
+                    defaultValue='MOMO'
+                    value={paymentMethod}
+                    onValueChange={(value: 'MOMO' | 'CASH') => setPaymentMethod(value)}
+                    className='flex flex-col space-y-2'
+                  >
+                    <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
+                      <div className='flex items-center space-x-2'>
+                        <CreditCard className='w-6 h-6 text-gray-900 dark:text-white' />
+                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='momo'>
+                          Momo Payment
+                        </Label>
+                      </div>
+                      <RadioGroupItem
+                        className='w-6 h-6 border-green-500 dark:border-green-700 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-700 rounded-full [&>span]:hidden'
+                        value='MOMO'
+                        id='momo'
+                      />
+                    </div>
+
+                    <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
+                      <div className='flex items-center space-x-2'>
+                        <HandCoins className='w-6 h-6 text-gray-900 dark:text-white' />
+                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='cash'>
+                          Cash Payment
+                        </Label>
+                      </div>
+                      <RadioGroupItem
+                        className='w-6 h-6 border-green-500 dark:border-green-700 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-700 rounded-full [&>span]:hidden'
+                        value='CASH'
+                        id='cash'
+                      />
+                    </div>
+                  </RadioGroup>
+                </div>
+
                 <Button
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
@@ -176,7 +238,7 @@ const CheckOutPagePageMain = () => {
 
         {/* Sidebar Section */}
         <div className='lg:col-span-1'>
-          <Card className='dark:bg-gray-900 sticky top-8'>
+          <Card className='dark:bg-gray-900 sticky top-8 h-full'>
             <CardContent className='p-6 space-y-6'>
               <div className='flex flex-col space-y-4'>
                 <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Booking Summary</h3>

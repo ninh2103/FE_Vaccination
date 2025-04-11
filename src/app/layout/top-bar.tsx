@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { SunIcon, MoonIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { UserCircleIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { useLogoutMutation } from '@/queries/useAuth'
