@@ -104,3 +104,9 @@ export const ChangePasswordBody = z
   .strict()
 
 export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>
+
+export const LogoutBody = z.object({
+  refresh_token: z.string().min(1, 'Refresh token is required')
+})
+
+export type LogoutBodyType = z.TypeOf<typeof LogoutBody>

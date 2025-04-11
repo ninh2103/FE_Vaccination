@@ -30,6 +30,10 @@ export const removeAccessTokenFromLS = () => {
   localStorage.removeItem('access_token')
 }
 
+export const removeRefreshTokenFromLS = () => {
+  localStorage.removeItem('refresh_token')
+}
+
 export const setUserToLS = (user: { id: string; name: string; email: string; role: string }) => {
   localStorage.setItem('user', JSON.stringify(user))
 }

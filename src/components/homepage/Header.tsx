@@ -11,7 +11,13 @@ import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
 import { useGetMeQuery } from '@/queries/useUser'
-import { setUserToLS } from '@/core/shared/storage'
+import {
+  setUserToLS,
+  removeAccessTokenFromLS,
+  removeRefreshTokenFromLS,
+  getRefreshTokenFromLS
+} from '@/core/shared/storage'
+import { useLogoutMutation } from '@/queries/useAuth'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -38,6 +44,7 @@ export default function Header() {
       role: user.role.name
     })
   }
+  const logoutMutation = useLogoutMutation()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -71,8 +78,13 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    // Implement sign out logic here
-    setIsLoggedIn(false)
+    const refreshToken = getRefreshTokenFromLS()
+    if (refreshToken) {
+      logoutMutation.mutate({ params: { refresh_token: refreshToken } })
+      removeAccessTokenFromLS()
+      removeRefreshTokenFromLS()
+      setIsLoggedIn(false)
+    }
   }
 
   useEffect(() => {
@@ -137,10 +149,12 @@ export default function Header() {
                         <span>{user?.name}</span>
                       </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
-                      <LogOut className='mr-2 h-4 w-4' />
-                      <span>Sign out</span>
-                    </DropdownMenuItem>
+                    <Link to={path.login}>
+                      <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
+                        <LogOut className='mr-2 h-4 w-4' />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </Link>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (

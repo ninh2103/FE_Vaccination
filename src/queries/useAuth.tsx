@@ -1,6 +1,7 @@
 import { authApi } from '@/core/services/auth.service'
 import { userApi } from '@/core/services/user.service'
 import { ResetPassword } from '@/models/interface/auth.interface'
+import { LogoutBodyType } from '@/schemaValidator/auth.schema'
 import { UpdateRoleBodyType } from '@/schemaValidator/user.schema'
 import { useMutation } from '@tanstack/react-query'
 
@@ -37,5 +38,10 @@ export const useChangePasswordMutation = () => {
 export const useUpdateRoleMutation = () => {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateRoleBodyType }) => userApi.updateRole(id, body)
+  })
+}
+export const useLogoutMutation = () => {
+  return useMutation({
+    mutationFn: ({ params }: { params: LogoutBodyType }) => authApi.logout(params)
   })
 }
