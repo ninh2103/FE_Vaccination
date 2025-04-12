@@ -45,3 +45,9 @@ export const useUploadAvatarQuery = () => {
     mutationFn: userApi.uploadAvatar
   })
 }
+export const useCountUserQuery = () => {
+  return useQuery({
+    queryKey: ['user-count'],
+    queryFn: userApi.count
+  })
+}

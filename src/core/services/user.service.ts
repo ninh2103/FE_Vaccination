@@ -1,6 +1,7 @@
 import axiosClient from '@/core/services/axios-client'
 import { RegisterBodyType } from '@/schemaValidator/auth.schema'
 import {
+  CountUserResponseType,
   UpdateMeBodyType,
   UpdateRoleBodyType,
   UploadAvatarBodyType,
@@ -19,6 +20,7 @@ const API_UPDATE_ME = '/api/user/me'
 const API_LIST = '/api/user'
 const API_CREATE = '/api/auth/register/admin'
 const API_UPLOAD_AVATAR = '/api/user/upload-avatar'
+const API_COUNT = '/api/user/count-user'
 
 export const userApi = {
   getMe(): Promise<UserResponseType> {
@@ -53,5 +55,8 @@ export const userApi = {
         }
       })
       .then((response) => response.data)
+  },
+  count(): Promise<CountUserResponseType> {
+    return axiosClient.get(API_COUNT)
   }
 }

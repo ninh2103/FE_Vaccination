@@ -1,12 +1,15 @@
 import axiosClient from '@/core/services/axios-client'
 import {
   VaccineCreateBodyType,
+  VaccineInventoryResponseType,
   VaccineResponseType,
   VaccineType,
   VaccineUpdateBodyType
 } from '@/schemaValidator/vaccination.schema'
 
 const API_VACCINATION = '/api/vaccinations'
+const API_INVENTORY = '/api/inventory/total'
+
 interface ListVaccinationQuery {
   page?: number
   items_per_page?: number
@@ -28,5 +31,8 @@ export const vaccinationService = {
   },
   detail(id: string): Promise<VaccineType> {
     return axiosClient.get(`${API_VACCINATION}/${id}`)
+  },
+  inventory(): Promise<VaccineInventoryResponseType> {
+    return axiosClient.get(`${API_INVENTORY}`)
   }
 }

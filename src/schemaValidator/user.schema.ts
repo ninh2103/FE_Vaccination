@@ -56,3 +56,11 @@ export const UploadAvatarBody = z.object({
 })
 
 export type UploadAvatarBodyType = z.TypeOf<typeof UploadAvatarBody>
+
+export const CountUserResponse = z.object({
+  data: z.object({
+    total: z.number()
+  })
+})
+
+export type CountUserResponseType = z.TypeOf<typeof CountUserResponse>

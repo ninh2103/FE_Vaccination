@@ -59,3 +59,15 @@ const VaccineUpdateBodySchema = z.object({
 })
 
 export type VaccineUpdateBodyType = z.infer<typeof VaccineUpdateBodySchema>
+
+const VaccineInventoryResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      vaccinationId: z.string().uuid(),
+      nameVaccine: z.string(),
+      totalQuantity: z.number()
+    })
+  )
+})
+
+export type VaccineInventoryResponseType = z.infer<typeof VaccineInventoryResponseSchema>
