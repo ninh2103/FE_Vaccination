@@ -13,7 +13,7 @@ import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
-
+import DoctorInfomation from '@/pages/doctor/DoctorInformation'
 import { OTPInput } from '@/pages/otp/otp'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
@@ -40,12 +40,12 @@ export default function useRoutesElements() {
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
       { path: path.otp, element: <OTPInput /> },
-
+      { path: path.doctor_information, element: <DoctorInfomation /> },
       {
         path: path.admin.dashboard, // Giả định là "/admin/dashboard"
         element: (
           <LayoutMain>
-            <General /> {/* Thay Dashboard bằng General */}
+            <General />
           </LayoutMain>
         )
       },
