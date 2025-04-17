@@ -19,8 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { VaccineType } from '@/schemaValidator/vaccination.schema'
-import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { useDeleteVaccinationQuery, useListVaccinationQuery } from '@/queries/useVaccination'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import * as XLSX from 'xlsx'
 import {
@@ -31,30 +30,42 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog'
+import AddVaccine from './AddVaccine'
+import { VaccineType } from '@/schemaValidator/vaccination.schema'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
 
 interface VaccineTableProps {
-  setSelectedVaccine: (vaccine: VaccineType | null) => void
   setOpenEditDialog: (open: boolean) => void
+  setSelectedVaccine: (vaccine: VaccineType | null) => void
 }
 
-export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: VaccineTableProps) {
+export default function VaccineTable({
+  setOpenEditDialog,
+  setSelectedVaccine: setParentSelectedVaccine
+}: VaccineTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [localSelectedVaccine, setLocalSelectedVaccine] = useState<VaccineType | null>(null)
   const ITEMS_PER_PAGE = 10
 
   const {
     data: vaccineData,
     isLoading,
-    isError
+    isError,
+    refetch
   } = useListVaccinationQuery({
     page: currentPage,
     items_per_page: ITEMS_PER_PAGE,
     search: searchTerm
   })
+
+  const { mutate: deleteVaccine, isPending: isDeletingVaccine } = useDeleteVaccinationQuery()
 
   const toggleDescription = (vaccineId: string) => {
     setExpandedDescriptions((prev) => {
@@ -102,9 +113,35 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
 
   const handleRefresh = () => {
     setIsRefreshing(true)
+    refetch()
+    toast.success('Vaccines refreshed successfully')
     setTimeout(() => {
       setIsRefreshing(false)
     }, 1000)
+  }
+
+  const handleDelete = (vaccineId: string) => {
+    const vaccine = vaccines.find((v) => v.id === vaccineId)
+    setLocalSelectedVaccine(vaccine || null)
+    setOpenDeleteDialog(true)
+  }
+
+  const handleDeleteVaccine = () => {
+    if (localSelectedVaccine) {
+      deleteVaccine(localSelectedVaccine.id, {
+        onSuccess: () => {
+          setOpenDeleteDialog(false)
+          setLocalSelectedVaccine(null)
+          setParentSelectedVaccine(null)
+          refetch()
+          toast.success('Vaccine deleted successfully')
+        },
+        onError: (error) => {
+          handleErrorApi({ error, setError: () => {}, duration: 3000 })
+        }
+      })
+    }
+    setOpenDeleteDialog(false)
   }
 
   return (
@@ -151,13 +188,7 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
             <DialogTitle>Add New Vaccine</DialogTitle>
             <DialogDescription>Fill in the details to add a new vaccine to the system.</DialogDescription>
           </DialogHeader>
-          {/* Add your AddVaccine form component here */}
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setOpenAddDialog(false)}>
-              Cancel
-            </Button>
-            <Button type='submit'>Add Vaccine</Button>
-          </DialogFooter>
+          <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
         </DialogContent>
       </Dialog>
 
@@ -191,7 +222,7 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
                   <TableHead>Quantity</TableHead>
                   <TableHead>Expiry Date</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className='w-[80px]'></TableHead>
+                  <TableHead className='w-[80px]'>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -200,7 +231,8 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
                     key={vaccine.id}
                     className='cursor-pointer hover:bg-muted/50'
                     onClick={() => {
-                      setSelectedVaccine(vaccine)
+                      setLocalSelectedVaccine(vaccine)
+                      setParentSelectedVaccine(vaccine)
                       setOpenEditDialog(true)
                     }}
                   >
@@ -258,7 +290,8 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
                           size='icon'
                           onClick={(e) => {
                             e.stopPropagation()
-                            setSelectedVaccine(vaccine)
+                            setLocalSelectedVaccine(vaccine)
+                            setParentSelectedVaccine(vaccine)
                             setOpenEditDialog(true)
                           }}
                         >
@@ -269,10 +302,10 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
                           size='icon'
                           onClick={(e) => {
                             e.stopPropagation()
-                            setSelectedVaccine(vaccine)
+                            handleDelete(vaccine.id)
                           }}
                         >
-                          <Trash className='h-4 w-4 text-destructive' />
+                          <Trash className='h-4 w-4 text-destructive text-red-500' />
                         </Button>
                       </div>
                     </TableCell>
@@ -315,6 +348,31 @@ export default function VaccineTable({ setSelectedVaccine, setOpenEditDialog }: 
           </div>
         </div>
       )}
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Delete Vaccine</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this vaccine? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='py-4'>
+            {localSelectedVaccine && (
+              <p className='text-sm font-medium'>
+                You are about to delete: <span className='font-bold'>{localSelectedVaccine.vaccineName}</span>
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button disabled={isDeletingVaccine} variant='destructive' onClick={handleDeleteVaccine}>
+              {isDeletingVaccine ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

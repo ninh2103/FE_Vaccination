@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Banknote, Coins, CreditCard, HandCoins } from 'lucide-react'
+import { Banknote, CreditCard, HandCoins } from 'lucide-react'
 
 const CheckOutPagePageMain = () => {
   const [searchParams] = useSearchParams()

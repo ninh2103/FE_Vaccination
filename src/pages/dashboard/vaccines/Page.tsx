@@ -23,7 +23,7 @@ export default function VaccinesPage() {
 
       <VaccineTable setSelectedVaccine={setSelectedVaccine} setOpenEditDialog={setOpenEditDialog} />
 
-      <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} setSelectedVaccine={setSelectedVaccine} />
+      <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
 
       <UpdateVaccine open={openEditDialog} onOpenChange={setOpenEditDialog} selectedVaccine={selectedVaccine} />
     </div>

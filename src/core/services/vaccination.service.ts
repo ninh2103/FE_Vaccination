@@ -4,11 +4,14 @@ import {
   VaccineInventoryResponseType,
   VaccineResponseType,
   VaccineType,
-  VaccineUpdateBodyType
+  VaccineUpdateBodyType,
+  VaccineUploadImageBodyType,
+  VaccineUploadImageResponseType
 } from '@/schemaValidator/vaccination.schema'
 
 const API_VACCINATION = '/api/vaccinations'
 const API_INVENTORY = '/api/inventory/total'
+const UPLOAD_IMAGE_VACCINATION = '/api/vaccinations/vaccine-image'
 
 interface ListVaccinationQuery {
   page?: number
@@ -34,5 +37,12 @@ export const vaccinationService = {
   },
   inventory(): Promise<VaccineInventoryResponseType> {
     return axiosClient.get(`${API_INVENTORY}`)
+  },
+  uploadImage(formData: FormData): Promise<VaccineUploadImageResponseType> {
+    return axiosClient.post(UPLOAD_IMAGE_VACCINATION, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }

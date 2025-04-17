@@ -47,3 +47,9 @@ export const useInventoryVaccinationQuery = () => {
     queryFn: () => vaccinationService.inventory()
   })
 }
+
+export const useUploadImageVaccinationQuery = () => {
+  return useMutation({
+    mutationFn: (formData: FormData) => vaccinationService.uploadImage(formData)
+  })
+}

@@ -29,6 +29,7 @@ import OrdersPage from '@/pages/dashboard/orders/Page'
 import AppointmentsPage from '@/pages/dashboard/appointments/Page'
 import HistorysPage from '@/pages/dashboard/historys/Page'
 import ProfilePage from '@/pages/profile-admin/profile'
+import { CategoryPage } from '@/pages/dashboard/Category/Page'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -46,6 +47,14 @@ export default function useRoutesElements() {
         element: (
           <LayoutMain>
             <General /> {/* Thay Dashboard bằng General */}
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.category, // "/Manufacturers"
+        element: (
+          <LayoutMain>
+            <CategoryPage />
           </LayoutMain>
         )
       },

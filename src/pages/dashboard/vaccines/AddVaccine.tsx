@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   Dialog,
@@ -13,53 +12,73 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { VaccineType } from '@/schemaValidator/vaccination.schema'
+import { VaccineCreateBodySchema, VaccineCreateBodyType, VaccineType } from '@/schemaValidator/vaccination.schema'
+import { useCreateVaccinationQuery, useUploadImageVaccinationQuery } from '@/queries/useVaccination'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
+import { useListCategoryQuery } from '@/queries/useCategory'
+import { useListManufacturerQuery } from '@/queries/useManufacturer'
+import { useListSupplierQuery } from '@/queries/useSupplier'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Upload } from 'lucide-react'
+import { format } from 'date-fns'
 interface AddVaccineProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  setSelectedVaccine: (vaccine: VaccineType | null) => void
 }
 
-export default function AddVaccine({ open, onOpenChange, setSelectedVaccine }: AddVaccineProps) {
-  const [newVaccine, setNewVaccine] = useState<Partial<VaccineType>>({})
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
+  const [file, setFile] = useState<File | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    const file = 'dataTransfer' in e ? e.dataTransfer.files[0] : e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const imageData = reader.result as string
-        setNewVaccine((prev) => ({ ...prev, image: imageData }))
+  const { mutate: createVaccination, isPending: isCreating } = useCreateVaccinationQuery()
+  const { mutateAsync: uploadImage } = useUploadImageVaccinationQuery()
+  const { data: categoryVaccinationData } = useListCategoryQuery()
+  const { data: manufacturerData } = useListManufacturerQuery()
+  const { data: supplierData } = useListSupplierQuery()
+
+  const form = useForm<VaccineCreateBodyType>({
+    resolver: zodResolver(VaccineCreateBodySchema),
+    defaultValues: {
+      vaccineName: '',
+      image: '',
+      description: '',
+      price: undefined,
+      location: '',
+      expirationDate: undefined,
+      manufacturerId: '',
+      supplierId: '',
+      categoryVaccinationId: ''
+    }
+  })
+  const onSubmit = async (values: VaccineCreateBodyType) => {
+    let body = values
+    try {
+      if (file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const uploadResult = await uploadImage(formData)
+        const imageUrl = uploadResult.imageUrl
+        body = {
+          ...values,
+          image: imageUrl
+        }
       }
-      reader.readAsDataURL(file)
+      await createVaccination(body)
+      toast.success('Vaccine created successfully')
+      onOpenChange(false)
+      form.reset()
+    } catch (error) {
+      handleErrorApi({
+        error: error as any,
+        setError: form.setError,
+        duration: 3000
+      })
     }
   }
-
-  const handleAddVaccine = () => {
-    setIsLoading(true)
-    const today = new Date().toISOString().split('T')[0]
-    if (newVaccine.expirationDate && newVaccine.expirationDate <= today) {
-      setErrorMessage('Expiration date must be later than today.')
-      setIsLoading(false)
-      return
-    }
-    if (!newVaccine.vaccineName || !newVaccine.manufacturerId || !newVaccine.supplierId) {
-      setErrorMessage('Please fill in all required fields (Name, Manufacturer, Supplier).')
-      setIsLoading(false)
-      return
-    }
-
-    // Here you would typically call your API to create the vaccine
-    // For now, we'll just close the dialog
-    setNewVaccine({})
-    setErrorMessage('')
-    onOpenChange(false)
-    setIsLoading(false)
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
@@ -67,112 +86,210 @@ export default function AddVaccine({ open, onOpenChange, setSelectedVaccine }: A
           <DialogTitle>Add New Vaccine</DialogTitle>
           <DialogDescription>Enter the details for the new vaccine below.</DialogDescription>
         </DialogHeader>
-        <div className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
-          {errorMessage && (
-            <Alert variant='destructive'>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          )}
+        <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
               <Label htmlFor='vaccineName'>Vaccine Name *</Label>
               <Input
                 id='vaccineName'
-                value={newVaccine.vaccineName || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, vaccineName: e.target.value })}
+                {...form.register('vaccineName')}
                 placeholder='e.g., COVID-19 Vaccine'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.vaccineName ? 'border-red-500' : ''
+                }`}
               />
+              {form.formState.errors.vaccineName && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.vaccineName.message}</p>
+              )}
             </div>
             <div className='flex flex-col gap-2'>
               <Label htmlFor='price'>Price (VND)</Label>
               <Input
                 id='price'
                 type='number'
-                value={newVaccine.price || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, price: Number(e.target.value) })}
+                {...form.register('price', { valueAsNumber: true })}
                 placeholder='e.g., 500000'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.price ? 'border-red-500' : ''
+                }`}
               />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='manufacturerId'>Manufacturer ID *</Label>
-              <Input
-                id='manufacturerId'
-                value={newVaccine.manufacturerId || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, manufacturerId: e.target.value })}
-                placeholder='Enter manufacturer ID'
-              />
-            </div>
-          </div>
-          <div className='grid grid-cols-3 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='supplierId'>Supplier ID *</Label>
-              <Input
-                id='supplierId'
-                value={newVaccine.supplierId || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, supplierId: e.target.value })}
-                placeholder='Enter supplier ID'
-              />
+              {form.formState.errors.price && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.price.message}</p>
+              )}
             </div>
             <div className='flex flex-col gap-2'>
               <Label htmlFor='location'>Location</Label>
               <Input
                 id='location'
-                value={newVaccine.location || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, location: e.target.value })}
+                {...form.register('location')}
                 placeholder='Enter location'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.location ? 'border-red-500' : ''
+                }`}
               />
+              {form.formState.errors.location && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.location.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='categoryVaccinationId'>Category Vaccine</Label>
+              <Select
+                value={form.watch('categoryVaccinationId')}
+                onValueChange={(value) => form.setValue('categoryVaccinationId', value)}
+              >
+                <SelectTrigger
+                  className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                    form.formState.errors.categoryVaccinationId ? 'border-red-500' : ''
+                  }`}
+                >
+                  {categoryVaccinationData?.data.find((category) => category.id === form.watch('categoryVaccinationId'))
+                    ?.name || 'Select Category Vaccination'}
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryVaccinationData?.data.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.categoryVaccinationId && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.categoryVaccinationId.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='manufacturerId'>Manufacturer Vaccine</Label>
+              <Select
+                value={form.watch('manufacturerId')}
+                onValueChange={(value) => form.setValue('manufacturerId', value)}
+              >
+                <SelectTrigger
+                  className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                    form.formState.errors.manufacturerId ? 'border-red-500' : ''
+                  }`}
+                >
+                  {manufacturerData?.data.find((manufacturer) => manufacturer.id === form.watch('manufacturerId'))
+                    ?.name || 'Select Manufacturer'}
+                </SelectTrigger>
+                <SelectContent>
+                  {manufacturerData?.data.map((manufacturer) => (
+                    <SelectItem key={manufacturer.id} value={manufacturer.id}>
+                      {manufacturer.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.manufacturerId && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.manufacturerId.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='supplierId'>Supplier Vaccine</Label>
+              <Select value={form.watch('supplierId')} onValueChange={(value) => form.setValue('supplierId', value)}>
+                <SelectTrigger
+                  className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                    form.formState.errors.supplierId ? 'border-red-500' : ''
+                  }`}
+                >
+                  {supplierData?.data.find((supplier) => supplier.id === form.watch('supplierId'))?.name ||
+                    'Select Supplier'}
+                </SelectTrigger>
+                <SelectContent>
+                  {supplierData?.data.map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.supplierId && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.supplierId.message}</p>
+              )}
             </div>
           </div>
           <div className='grid grid-cols-3 gap-4'>
-            <div className='flex flex-col gap-2'>
+            <div className='space-y-2'>
               <Label htmlFor='expirationDate'>Expiration Date</Label>
               <Input
                 id='expirationDate'
                 type='date'
-                value={newVaccine.expirationDate || ''}
-                onChange={(e) => setNewVaccine({ ...newVaccine, expirationDate: e.target.value })}
-                min={new Date().toISOString().split('T')[0]}
+                value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
+                onChange={(e) => form.setValue('expirationDate', new Date(e.target.value))}
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.expirationDate ? 'border-red-500' : ''
+                }`}
               />
+              {form.formState.errors.expirationDate && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.expirationDate.message}</p>
+              )}
             </div>
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label>Product Image</Label>
-            <div
-              className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer hover:border-gray-400'
-              onDrop={handleImageChange}
-              onDragOver={(e) => e.preventDefault()}
+
+          <div className='flex gap-2 items-start justify-start'>
+            <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
+              <AvatarImage src={previewImage || ''} />
+              <AvatarFallback className='rounded-none'>{previewImage || 'Image'}</AvatarFallback>
+            </Avatar>
+            <Input
+              type='file'
+              accept='image/*'
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setFile(file)
+                  setPreviewImage(URL.createObjectURL(file))
+                  form.setValue('image', 'uploaded', { shouldValidate: true })
+                }
+              }}
+              className='hidden'
+            />
+            <button
+              className='flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed'
+              type='button'
               onClick={() => {
-                const input = document.getElementById('image-input') as HTMLInputElement | null
-                input?.click()
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) {
+                    setFile(file)
+                    setPreviewImage(URL.createObjectURL(file))
+                    form.setValue('image', 'uploaded', { shouldValidate: true })
+                  }
+                }
+                input.click()
               }}
             >
-              {newVaccine.image ? (
-                <img src={newVaccine.image} alt='Vaccine' className='max-h-32 mx-auto rounded-md' />
-              ) : (
-                <p className='text-muted-foreground'>Drag and drop an image or click to upload</p>
-              )}
-              <Input id='image-input' type='file' accept='image/*' className='hidden' onChange={handleImageChange} />
-            </div>
+              <Upload className='h-4 w-4 text-muted-foreground' />
+              <span className='sr-only'>Upload</span>
+            </button>
           </div>
+          {form.formState.errors.image && <p className='text-red-500 text-sm'>{form.formState.errors.image.message}</p>}
           <div className='flex flex-col gap-2'>
             <Label htmlFor='description'>Description</Label>
             <Textarea
               id='description'
-              value={newVaccine.description || ''}
-              onChange={(e) => setNewVaccine({ ...newVaccine, description: e.target.value })}
+              {...form.register('description')}
               placeholder='Enter vaccine description'
+              className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                form.formState.errors.description ? 'border-red-500' : ''
+              }`}
             />
+            {form.formState.errors.description && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.description.message}</p>
+            )}
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={handleAddVaccine} disabled={isLoading}>
-            {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-            {isLoading ? 'Saving...' : 'Save Vaccine'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isCreating}>
+              Cancel
+            </Button>
+            <Button type='submit' disabled={isCreating}>
+              {isCreating ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isCreating ? 'Saving...' : 'Save Vaccine'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
