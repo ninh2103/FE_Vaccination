@@ -10,6 +10,7 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
+import Messenger from '@/pages/chatbox/Messenger/Messenger'
 import { useGetMeQuery } from '@/queries/useUser'
 import {
   setUserToLS,
@@ -246,8 +247,11 @@ export default function Header() {
           <ChevronUp className='h-6 w-6' />
         </Button>
       )}
-
+      <div className="fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50">
+      <Messenger />
       <Chatbox />
+      </div>
     </div>
+    
   )
 }
