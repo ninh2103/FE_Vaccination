@@ -31,6 +31,12 @@ interface Payment {
   updatedAt: string
   status: 'PENDING' | 'COMPLETED' | 'FAILED'
   paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD'
+  user: {
+    id: string
+    name: string
+    email: string
+    phone: string
+  }
 }
 
 interface Filters {
@@ -217,7 +223,7 @@ export default function PaymentsPage() {
     pdf.setFont('helvetica', 'normal')
     pdf.text('Thank you for your payment!', pageWidth / 2, y, { align: 'center' })
     y += 5
-    pdf.text(`Contact: ${payment.userId}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Contact: ${payment.user.phone}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`VAXBOT © ${new Date().getFullYear()}`, pageWidth / 2, y, { align: 'center' })
 
@@ -235,7 +241,7 @@ export default function PaymentsPage() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Print Receipt - ${payment.orderId}</title>
+        <title>Print Receipt - ${payment.orderId.slice(0, 8)}</title>
         <style>
           @media print {
             body { margin: 0; padding: 20mm; font-family: Arial, sans-serif; }
@@ -296,7 +302,6 @@ export default function PaymentsPage() {
           </div>
           <div class="footer">
             <p>Thank you for your payment!</p>
-            <p>Contact: ${payment.userId}</p>
             <p>VAXBOT © ${new Date().getFullYear()}</p>
           </div>
         </div>
@@ -338,15 +343,10 @@ export default function PaymentsPage() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
               }}
               className='w-full'
+              type='search'
             />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
@@ -452,15 +452,10 @@ export default function PaymentsPage() {
                     <p>#{selectedPayment.id.slice(0, 8)}</p>
                   </div>
                   <div>
-                    <h4 className='mr-16 text-sm font-medium text-muted-foreground'>User ID</h4>
-                    <p>#{selectedPayment.userId.slice(0, 8)}</p>
+                    <h4 className='text-sm font-medium text-muted-foreground '>User</h4>
+                    <p>{selectedPayment.user.name}</p>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <h4 className='text-sm font-medium text-muted-foreground'>Contact Information</h4>
-                <p className='text-sm'>#{selectedPayment.userId.slice(0, 8)}</p>
               </div>
             </div>
           )}

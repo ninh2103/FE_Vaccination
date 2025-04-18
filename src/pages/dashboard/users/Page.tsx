@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Download, RefreshCw, X } from 'lucide-react'
+import { Plus, Download, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -153,20 +153,16 @@ export default function UsersPage() {
       {/* Search and Filters Section */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div className='relative w-full max-w-sm'>
+          <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input
             placeholder='Search...'
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value)
-              setCurrentPage(1)
             }}
             className='w-full'
+            type='search'
           />
-          {searchTerm && (
-            <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-              <X className='h-4 w-4' />
-            </Button>
-          )}
         </div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>

@@ -18,6 +18,8 @@ import { toast } from 'sonner'
 import { useRoleListQuery } from '@/queries/useRole'
 import { useDetailUserQuery } from '@/queries/useUser'
 import type { User } from './UserTable'
+import { cn } from '@/core/lib/utils'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 
 interface UpdateUserDialogProps {
   open: boolean
@@ -37,6 +39,7 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
       roleId: roles?.data.find((role) => role.name === user?.role.name)?.id ?? ''
     }
   })
+  const userRole = getUserFromLocalStorage()
 
   const onSubmit = (data: UpdateRoleBodyType) => {
     if (!selectedUser?.id) return
@@ -82,11 +85,19 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type='submit' disabled={isLoading || isUpdatingRole}>
+
+            <Button
+              type='submit'
+              disabled={isLoading || isUpdatingRole || userRole?.role !== 'ADMIN'}
+              className={cn(userRole?.role !== 'ADMIN' ? 'opacity-50 cursor-not-allowed' : '')}
+            >
               {isLoading || isUpdatingRole ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoading || isUpdatingRole ? 'Updating...' : 'Update Role'}
             </Button>
           </DialogFooter>
+          <p className='text-sm text-muted-foreground text-red-500'>
+            {userRole?.role !== 'ADMIN' ? '* Bạn không đủ quyền để cập nhật' : ''}
+          </p>
         </form>
       </DialogContent>
     </Dialog>

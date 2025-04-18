@@ -137,10 +137,18 @@ export const CategoryPage: React.FC = () => {
       </div>
 
       <div className='mb-6 py-6 flex items-center justify-between'>
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-4 w-full'>
           <div className='relative w-full max-w-sm'>
-            <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input placeholder='Search...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Search...'
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+              }}
+              className='w-full'
+              type='search'
+            />
           </div>
         </div>
         <div className='flex items-center gap-2'>

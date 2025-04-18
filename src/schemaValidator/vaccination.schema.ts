@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export const CategoryVaccinationSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string()
+})
+
 export const VaccineSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid().nullable(),
@@ -20,6 +25,7 @@ export const VaccineSchema = z.object({
   manufacturerId: z.string().uuid().nullable(),
   supplierId: z.string().uuid(),
   categoryVaccinationId: z.string().uuid(),
+  CategoryVaccination: CategoryVaccinationSchema,
   sideEffect: z.string().nullable()
 })
 

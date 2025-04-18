@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import { Plus, Download, Edit, Trash, Truck, MapPin, Phone, RefreshCw, X } from 'lucide-react'
+import { Plus, Download, Edit, Trash, Truck, MapPin, Phone, RefreshCw, X, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -113,20 +113,18 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       {/* Search Bar */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div className='relative w-full max-w-sm'>
-          <Input
-            placeholder='Search ...'
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value)
-              setCurrentPage(1)
-            }}
-            className='w-full'
-          />
-          {searchTerm && (
-            <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-              <X className='h-4 w-4' />
-            </Button>
-          )}
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Search...'
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+              }}
+              className='w-full'
+              type='search'
+            />
+          </div>
         </div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>

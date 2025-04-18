@@ -235,11 +235,6 @@ export default function AppointmentsPage() {
                 className='w-full'
                 type='search'
               />
-              {searchTerm && (
-                <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                  <X className='h-4 w-4' />
-                </Button>
-              )}
             </div>
             <div className='flex items-center space-x-2'>
               <div className='flex items-center space-x-2'>

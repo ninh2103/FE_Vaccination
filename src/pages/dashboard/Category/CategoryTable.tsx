@@ -30,39 +30,45 @@ export function CategoryTable({ categories, onView, onEdit, onDelete, isLoading 
   return (
     <Card>
       <CardContent className='p-0'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>No.</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className='w-[100px]'>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((category, index) => (
-              <TableRow key={category.id}>
-                <TableCell className='font-medium'>{index + 1}</TableCell>
-                <TableCell className='font-medium'>{category.name}</TableCell>
-                <TableCell>{category.description.substring(0, 100)}...</TableCell>
-
-                <TableCell>
-                  <div className='flex items-center gap-2'>
-                    <Button variant='ghost' size='icon' onClick={() => onView(category.id)}>
-                      <Eye className='h-4 w-4' />
-                    </Button>
-                    <Button variant='ghost' size='icon' onClick={() => onEdit(category)}>
-                      <Edit className='h-4 w-4' />
-                    </Button>
-                    <Button variant='ghost' size='icon' onClick={() => onDelete(category.id)}>
-                      <Trash className='h-4 w-4 text-destructive text-red-500' />
-                    </Button>
-                  </div>
-                </TableCell>
+        {isLoading ? (
+          <div className='p-4 text-center text-muted-foreground'>Loading categories...</div>
+        ) : categories.length === 0 ? (
+          <div className='p-4 text-center text-muted-foreground'>No categories found.</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>No.</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className='w-[100px]'>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {categories.map((category, index) => (
+                <TableRow key={category.id}>
+                  <TableCell className='font-medium'>{index + 1}</TableCell>
+                  <TableCell className='font-medium'>{category.name}</TableCell>
+                  <TableCell>{category.description.substring(0, 100)}...</TableCell>
+
+                  <TableCell>
+                    <div className='flex items-center gap-2'>
+                      <Button variant='ghost' size='icon' onClick={() => onView(category.id)}>
+                        <Eye className='h-4 w-4' />
+                      </Button>
+                      <Button variant='ghost' size='icon' onClick={() => onEdit(category)}>
+                        <Edit className='h-4 w-4' />
+                      </Button>
+                      <Button variant='ghost' size='icon' onClick={() => onDelete(category.id)}>
+                        <Trash className='h-4 w-4 text-destructive text-red-500' />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )

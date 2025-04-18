@@ -1,14 +1,146 @@
-import { useState } from 'react'
-
+import { useState, useEffect, useMemo } from 'react'
+import { AlertCircle, Plus, Search, Download, RefreshCw } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useDeleteVaccinationQuery, useListVaccinationQuery } from '@/queries/useVaccination'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import * as XLSX from 'xlsx'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog'
+import { Select, SelectValue, SelectTrigger, SelectItem, SelectContent } from '@/components/ui/select'
+import { useListCategoryQuery } from '@/queries/useCategory'
 import { VaccineType } from '@/schemaValidator/vaccination.schema'
-import VaccineTable from '@/pages/dashboard/vaccines/VaccineTable'
-import AddVaccine from '@/pages/dashboard/vaccines/AddVaccine'
-import UpdateVaccine from '@/pages/dashboard/vaccines/UpdateVaccine'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
+import VaccineTable from './VaccineTable'
+import AddVaccine from './AddVaccine'
+import UpdateVaccine from './UpdateVaccine'
 
 export default function VaccinesPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineType | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const ITEMS_PER_PAGE = 4
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const {
+    data: vaccineData,
+    isLoading,
+    refetch
+  } = useListVaccinationQuery({
+    page: currentPage,
+    items_per_page: ITEMS_PER_PAGE,
+    search: debouncedSearchTerm
+  })
+
+  const { mutate: deleteVaccine, isPending: isDeletingVaccine } = useDeleteVaccinationQuery()
+  const { data: categories } = useListCategoryQuery()
+
+  // Filter vaccines by category on the frontend
+  const filteredVaccines = useMemo(() => {
+    if (!vaccineData?.data) return []
+
+    return vaccineData.data.filter((vaccine) => {
+      if (selectedCategory === 'all') return true
+      return vaccine.CategoryVaccination.id === selectedCategory
+    })
+  }, [vaccineData?.data, selectedCategory])
+
+  // Get current page items
+  const currentPageVaccines = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    const end = start + ITEMS_PER_PAGE
+    return filteredVaccines.slice(start, end)
+  }, [filteredVaccines, currentPage, ITEMS_PER_PAGE])
+
+  const total = filteredVaccines.length
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
+  const totalItems = total
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
+
+  const toggleDescription = (vaccineId: string) => {
+    setExpandedDescriptions((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(vaccineId)) {
+        newSet.delete(vaccineId)
+      } else {
+        newSet.add(vaccineId)
+      }
+      return newSet
+    })
+  }
+
+  const handleExport = () => {
+    setIsExporting(true)
+    setTimeout(() => {
+      const worksheet = XLSX.utils.json_to_sheet(vaccineData?.data || [])
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Vaccines')
+      XLSX.writeFile(workbook, `Vaccines_List_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      setIsExporting(false)
+    }, 1500)
+  }
+
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    refetch()
+    toast.success('Vaccines refreshed successfully')
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
+  const handleDelete = (vaccineId: string) => {
+    const vaccine = vaccineData?.data.find((v) => v.id === vaccineId)
+    setSelectedVaccine(vaccine || null)
+    setOpenDeleteDialog(true)
+  }
+
+  const handleDeleteVaccine = () => {
+    if (selectedVaccine) {
+      deleteVaccine(selectedVaccine.id, {
+        onSuccess: () => {
+          setOpenDeleteDialog(false)
+          setSelectedVaccine(null)
+          refetch()
+          toast.success('Vaccine deleted successfully')
+        },
+        onError: (error) => {
+          handleErrorApi({ error, setError: () => {}, duration: 3000 })
+        }
+      })
+    }
+    setOpenDeleteDialog(false)
+  }
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value)
+    setCurrentPage(1)
+  }
+
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and Action Buttons */}
@@ -21,11 +153,156 @@ export default function VaccinesPage() {
         </div>
       </div>
 
-      <VaccineTable setSelectedVaccine={setSelectedVaccine} setOpenEditDialog={setOpenEditDialog} />
+      {/* Search and Filters */}
+      <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+        <div className='flex items-center gap-4'>
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Search...'
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+              }}
+              className='w-full'
+              type='search'
+            />
+          </div>
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+            <SelectTrigger className='w-[200px]'>
+              <SelectValue placeholder='Filter by category' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Categories</SelectItem>
+              {categories?.data.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
+            Export
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+            Refresh
+          </Button>
+          <Button size='sm' onClick={() => setOpenAddDialog(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            Add Vaccine
+          </Button>
+        </div>
+      </div>
 
-      <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
+      {/* Stock Alert */}
+      {filteredVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
+        <Alert variant='destructive' className='bg-red-50 border-red-200'>
+          <AlertCircle className='h-4 w-4' />
+          <AlertTitle>Stock Alert</AlertTitle>
+          <AlertDescription>
+            Some vaccines are low in stock or out of stock. Review inventory and consider restocking.
+          </AlertDescription>
+        </Alert>
+      )}
 
+      {/* Vaccine Table */}
+      <VaccineTable
+        vaccines={currentPageVaccines}
+        currentPage={currentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+        expandedDescriptions={expandedDescriptions}
+        onToggleDescription={toggleDescription}
+        onEdit={(vaccine) => {
+          setSelectedVaccine(vaccine)
+          setOpenEditDialog(true)
+        }}
+        onDelete={handleDelete}
+      />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Showing {startIndex} to {endIndex} of {totalItems} entries
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Vaccine Dialog */}
+      <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Vaccine</DialogTitle>
+            <DialogDescription>Fill in the details to add a new vaccine to the system.</DialogDescription>
+          </DialogHeader>
+          <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Vaccine Dialog */}
       <UpdateVaccine open={openEditDialog} onOpenChange={setOpenEditDialog} selectedVaccine={selectedVaccine} />
+
+      {/* Delete Vaccine Dialog */}
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Delete Vaccine</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this vaccine? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedVaccine && (
+              <p className='text-sm font-medium'>
+                You are about to delete: <span className='font-bold'>{selectedVaccine.vaccineName}</span>
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button disabled={isDeletingVaccine} variant='destructive' onClick={handleDeleteVaccine}>
+              {isDeletingVaccine ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -26,6 +26,12 @@ interface Payment {
   updatedAt: string
   status: 'PENDING' | 'COMPLETED' | 'FAILED'
   paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD'
+  user: {
+    id: string
+    name: string
+    email: string
+    phone: string
+  }
 }
 
 interface PaymentTableProps {
@@ -112,8 +118,8 @@ export function PaymentTable({
                   <TableHeader>
                     <TableRow>
                       <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Order ID</TableHead>
                       <TableHead>Payment ID</TableHead>
+                      <TableHead>User</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
@@ -129,8 +135,8 @@ export function PaymentTable({
                         onClick={() => onViewDetails(payment)}
                       >
                         <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                        <TableCell className='font-medium'>#{payment.orderId.slice(0, 8)}</TableCell>
-                        <TableCell>#{payment.id.slice(0, 8)}</TableCell>
+                        <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
+                        <TableCell>{payment.user.name}</TableCell>
                         <TableCell>{formatCurrency(payment.amount)}</TableCell>
                         <TableCell>
                           <div className='flex items-center'>

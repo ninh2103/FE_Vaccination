@@ -38,44 +38,50 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
   return (
     <Card>
       <CardContent className='p-0'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>No.</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Content</TableHead>
-              <TableHead>Tag</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
-              <TableHead className='w-[100px]'>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {posts.map((post, index) => (
-              <TableRow key={post.id}>
-                <TableCell className='font-medium'>{index + 1}</TableCell>
-                <TableCell className='font-medium'>{post.title}</TableCell>
-                <TableCell>{post.content.substring(0, 100)}...</TableCell>
-                <TableCell>{post.tag.name}</TableCell>
-                <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <div className='flex items-center gap-2'>
-                    <Button variant='ghost' size='icon' onClick={() => onView(post.id)}>
-                      <Eye className='h-4 w-4' />
-                    </Button>
-                    <Button variant='ghost' size='icon' onClick={() => onEdit(post)}>
-                      <Edit className='h-4 w-4' />
-                    </Button>
-                    <Button variant='ghost' size='icon' onClick={() => onDelete(post.id)}>
-                      <Trash className='h-4 w-4 text-destructive text-red-500' />
-                    </Button>
-                  </div>
-                </TableCell>
+        {isLoading ? (
+          <div className='p-4 text-center text-muted-foreground'>Loading blogs...</div>
+        ) : posts.length === 0 ? (
+          <div className='p-4 text-center text-muted-foreground'>No blogs found.</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>No.</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Content</TableHead>
+                <TableHead>Tag</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
+                <TableHead className='w-[100px]'>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {posts.map((post, index) => (
+                <TableRow key={post.id}>
+                  <TableCell className='font-medium'>{index + 1}</TableCell>
+                  <TableCell className='font-medium'>{post.title}</TableCell>
+                  <TableCell>{post.content.substring(0, 100)}...</TableCell>
+                  <TableCell>{post.tag.name}</TableCell>
+                  <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className='flex items-center gap-2'>
+                      <Button variant='ghost' size='icon' onClick={() => onView(post.id)}>
+                        <Eye className='h-4 w-4' />
+                      </Button>
+                      <Button variant='ghost' size='icon' onClick={() => onEdit(post)}>
+                        <Edit className='h-4 w-4' />
+                      </Button>
+                      <Button variant='ghost' size='icon' onClick={() => onDelete(post.id)}>
+                        <Trash className='h-4 w-4 text-destructive text-red-500' />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )

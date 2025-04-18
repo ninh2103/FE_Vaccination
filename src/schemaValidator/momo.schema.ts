@@ -44,6 +44,13 @@ export const paymentResponseSchema = z.object({
   status: z.enum(['PENDING', 'COMPLETED', 'FAILED']).optional(),
   appointmentDate: z.string().datetime().nullable(),
   orderId: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    address: z.string()
+  }),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime()
 })

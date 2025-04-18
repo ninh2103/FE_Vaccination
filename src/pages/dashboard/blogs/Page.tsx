@@ -33,8 +33,7 @@ export const BlogPage: React.FC = () => {
   } = useListBlogQuery({
     page: currentPage,
     items_per_page: rowsPerPage,
-    search: searchQuery,
-    tagId: selectedTag === 'all' ? undefined : selectedTag
+    search: searchQuery
   })
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -42,7 +41,7 @@ export const BlogPage: React.FC = () => {
 
   useEffect(() => {
     if (blogs?.data) {
-      const transformedPosts = blogs.data.map((blog) => ({
+      let filteredPosts = blogs.data.map((blog) => ({
         id: blog.id,
         title: blog.title,
         content: blog.content,
@@ -52,9 +51,15 @@ export const BlogPage: React.FC = () => {
         tagId: blog.tagId,
         tag: blog.tag
       }))
-      setPosts(transformedPosts)
+
+      // Apply tag filter if a specific tag is selected
+      if (selectedTag !== 'all') {
+        filteredPosts = filteredPosts.filter((post) => post.tagId === selectedTag)
+      }
+
+      setPosts(filteredPosts)
     }
-  }, [blogs])
+  }, [blogs, selectedTag])
 
   const handleAddPost = (newPost: Omit<BlogPost, 'id'>) => {
     const post: BlogPost = {
@@ -159,8 +164,16 @@ export const BlogPage: React.FC = () => {
       <div className='mb-6 py-6 flex items-center justify-between'>
         <div className='flex items-center gap-4'>
           <div className='relative w-full max-w-sm'>
-            <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input placeholder='Search...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Search...'
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+              }}
+              className='w-full'
+              type='search'
+            />
           </div>
           <Select value={selectedTag} onValueChange={handleTagChange}>
             <SelectTrigger className='w-[200px]'>

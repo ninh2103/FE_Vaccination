@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import { Plus, Download, RefreshCw, X, SearchX } from 'lucide-react'
+import { Plus, Download, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -33,7 +33,7 @@ interface Manufacturer {
   contactInfo: string
 }
 
-const ROWS_PER_PAGE = 10
+const ROWS_PER_PAGE = 3
 export default function ManufacturersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
@@ -145,21 +145,16 @@ export default function ManufacturersPage() {
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
               placeholder='Search...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
               }}
               className='w-full'
               type='search'
             />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
@@ -178,32 +173,20 @@ export default function ManufacturersPage() {
         </div>
 
         {/* Table */}
+
         <Card>
           <CardContent className='p-0'>
-            {isLoading ? (
-              <div className='p-8 text-center'>
-                <LoadingSpinner className='mx-auto h-8 w-8' />
-              </div>
-            ) : manufacturers.length === 0 ? (
-              <div className='flex flex-col items-center justify-center p-8 text-center'>
-                <SearchX className='h-12 w-12 text-muted-foreground mb-4' />
-                <p className='text-lg font-medium text-muted-foreground'>No manufacturers found</p>
-                <p className='text-sm text-muted-foreground mt-2'>
-                  {searchTerm ? 'Try adjusting your search terms' : 'Add a new manufacturer to get started'}
-                </p>
-              </div>
-            ) : (
-              <ManufacturerTable
-                manufacturers={manufacturers}
-                currentPage={currentPage}
-                rowsPerPage={ROWS_PER_PAGE}
-                onEdit={handleEditManufacturer}
-                onDelete={(id) => {
-                  setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
-                  setOpenDeleteDialog(true)
-                }}
-              />
-            )}
+            <ManufacturerTable
+              isLoading={isLoading}
+              manufacturers={manufacturers}
+              currentPage={currentPage}
+              rowsPerPage={ROWS_PER_PAGE}
+              onEdit={handleEditManufacturer}
+              onDelete={(id) => {
+                setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
+                setOpenDeleteDialog(true)
+              }}
+            />
           </CardContent>
         </Card>
 
