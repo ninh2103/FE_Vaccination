@@ -9,7 +9,7 @@ import {
   ResetPassword,
   VerifyEmail
 } from '@/models/interface/auth.interface'
-import { LogoutBodyType } from '@/schemaValidator/auth.schema'
+import { LogoutBodyType, RefreshTokenBodyType } from '@/schemaValidator/auth.schema'
 
 const API_LOGIN_URL = '/api/auth/login'
 const API_REGISTER_URL = '/api/auth/register'
@@ -18,6 +18,7 @@ const API_FORGOT_PPASSWORD_URL = '/api/auth/forgot-password'
 const API_RESET_PPASSWORD_URL = '/api/auth/reset-password'
 const API_CHANGE_PASSWORD_URL = '/api/auth/change-password'
 const API_LOGOUT_URL = '/api/auth/logout'
+const API_REFRESH_TOKEN_URL = '/api/auth/refresh-token'
 
 export const authApi = {
   login(params: Login): Promise<LoginResponse> {
@@ -44,5 +45,8 @@ export const authApi = {
   },
   logout(params: LogoutBodyType) {
     return axiosClient.post(API_LOGOUT_URL, params)
+  },
+  refreshToken(params: RefreshTokenBodyType) {
+    return axiosClient.post(API_REFRESH_TOKEN_URL, params)
   }
 }

@@ -33,7 +33,7 @@ interface Manufacturer {
   contactInfo: string
 }
 
-const ROWS_PER_PAGE = 3
+const ROWS_PER_PAGE = 10
 export default function ManufacturersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)

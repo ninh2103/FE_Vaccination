@@ -37,7 +37,7 @@ export default function FormRegister() {
     if (body.password !== body.confirmPassword) {
       form.setError('confirmPassword', {
         type: 'manual',
-        message: 'Passwords do not match'
+        message: 'Mật khẩu không khớp'
       })
       return
     }
@@ -45,7 +45,7 @@ export default function FormRegister() {
     registerMutation.mutate(body, {
       onSuccess: () => {
         form.reset()
-        toast.success('Register success !')
+        toast.success('Vào email lấy mã OTP xác thực tài khoản !')
         localStorage.setItem('email', body.email)
         navigate('/verify-email')
       },

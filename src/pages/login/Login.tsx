@@ -13,9 +13,9 @@ import { useLoginMutation } from '@/queries/useAuth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginBody, LoginBodyType } from '@/schemaValidator/auth.schema'
 import { setAccessTokenToLS, setRefreshTokenToLS } from '@/core/shared/storage'
-import { handleErrorApi } from '@/core/lib/utils'
 import { toast } from 'sonner'
 import { LoginResponse } from '@/models/interface/auth.interface'
+import { handleErrorApi } from '@/core/lib/utils'
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = useState(false)

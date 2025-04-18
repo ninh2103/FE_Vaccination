@@ -34,7 +34,7 @@ export function OTPInput() {
   const handleVerify = (body: VerifyEmailBodyType) => {
     verifyEmailMutation.mutate(body, {
       onSuccess: () => {
-        toast.success('Verify success!')
+        toast.success('Xác thực tài khoản thành công ! Vui lòng đăng nhập để tiếp tục sử dụng dịch vụ.')
         localStorage.removeItem('email')
         navigate(path.login)
       },
@@ -77,11 +77,11 @@ export function OTPInput() {
         {errors.verificationCode && <p className='text-red-500 text-sm'>{errors.verificationCode.message}</p>}
 
         <div className='text-lg dark:text-white'>
-          {otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}
+          {otpValue === '' ? 'Nhập mã OTP đã gửi vào email.' : `Bạn đã nhập: ${otpValue}`}
         </div>
 
         <Button type='submit' className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded'>
-          Verify OTP
+          Xác thực OTP
         </Button>
       </form>
     </div>
