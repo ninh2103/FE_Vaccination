@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -124,7 +122,7 @@ export default function Chatbox() {
   }, [messages, displayText])
 
   return (
-    <div className='fixed bottom-4 right-4 z-50'>
+    <div className=' bottom-4 right-4 z-50'>
       <AnimatePresence mode='wait'>
         {isOpen ? (
           <motion.div

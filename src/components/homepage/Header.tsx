@@ -10,16 +10,23 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
-import { setUserToLS } from '@/core/shared/storage'
+import Messenger from '@/pages/chatbox/Messenger/Messenger'
+import { useGetMeQuery } from '@/queries/useUser'
+import {
+  setUserToLS,
+  removeAccessTokenFromLS,
+  removeRefreshTokenFromLS,
+  getRefreshTokenFromLS
+} from '@/core/shared/storage'
+import { useLogoutMutation } from '@/queries/useAuth'
 
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' },
-  { name: 'Blog', href: '#blog' }
+  { name: 'Blog', href: '#blog' },
+  { name: 'Contact', href: '#contact' }
 ]
 
 export default function Header() {
@@ -38,6 +45,7 @@ export default function Header() {
       role: user.role.name
     })
   }
+  const logoutMutation = useLogoutMutation()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -71,8 +79,13 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    // Implement sign out logic here
-    setIsLoggedIn(false)
+    const refreshToken = getRefreshTokenFromLS()
+    if (refreshToken) {
+      logoutMutation.mutate({ params: { refresh_token: refreshToken } })
+      removeAccessTokenFromLS()
+      removeRefreshTokenFromLS()
+      setIsLoggedIn(false)
+    }
   }
 
   useEffect(() => {
@@ -137,10 +150,12 @@ export default function Header() {
                         <span>{user?.name}</span>
                       </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
-                      <LogOut className='mr-2 h-4 w-4' />
-                      <span>Sign out</span>
-                    </DropdownMenuItem>
+                    <Link to={path.login}>
+                      <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
+                        <LogOut className='mr-2 h-4 w-4' />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </Link>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -232,8 +247,11 @@ export default function Header() {
           <ChevronUp className='h-6 w-6' />
         </Button>
       )}
-
+      <div className="fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50">
+      <Messenger />
       <Chatbox />
+      </div>
     </div>
+    
   )
 }

@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { MdOutlineEmojiTransportation } from 'react-icons/md'
 import { TbBrandBooking } from 'react-icons/tb'
 import { IoCartOutline } from 'react-icons/io5'
+import { ShieldPlus } from 'lucide-react'
 
 interface SidebarItem {
   name: string
@@ -31,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
 
   const sidebarItems: SidebarItem[] = [
     { name: 'General', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
+    { name: 'Category', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
     { name: 'Vaccines', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
     { name: 'Users', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
     { name: 'Appointment Orders', icon: <TbBrandBooking className='h-5 w-5' />, path: '/admin/order' },

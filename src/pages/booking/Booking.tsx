@@ -2,34 +2,127 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useEffect, useState } from 'react'
+import { useGetVaccinationByIdQuery } from '@/queries/useVaccination'
+import { useSearchParams } from 'react-router-dom'
+import { useConfirmBookingQuery, useCreateBookingQuery } from '@/queries/useBooking'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
+import { useDetailUserQuery } from '@/queries/useUser'
+import { BookingBodySchema, BookingBodyType } from '@/schemaValidator/booking.schema'
+import { toast } from 'sonner'
+import { formatVND, handleErrorApi } from '@/core/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { useState } from 'react'
+import { Banknote, CreditCard, HandCoins } from 'lucide-react'
 
 const CheckOutPagePageMain = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    dateOfBirth: '',
-    gender: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    insurance: '',
-    medicalHistory: ''
+  const [searchParams] = useSearchParams()
+  const id = searchParams.get('id')
+  const user = getUserFromLocalStorage()
+  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedTime, setSelectedTime] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'MOMO' | 'CASH'>('MOMO')
+  const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
+  const { mutate: createBooking } = useCreateBookingQuery()
+  const { data: userDetail } = useDetailUserQuery(user?.id as string)
+  const { mutate: createPayment } = useCreatePaymentMutation()
+  const { mutate: confirmBooking } = useConfirmBookingQuery()
+  const form = useForm<BookingBodyType>({
+    resolver: zodResolver(BookingBodySchema(vaccineDetail?.remainingQuantity || 0)),
+    defaultValues: {
+      appointmentDate: '',
+      vaccinationQuantity: 1,
+      vaccinationId: id as string
+    }
   })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  useEffect(() => {
+    if (userDetail) {
+      const today = new Date()
+      setSelectedDate(today.toISOString().split('T')[0])
+      setSelectedTime('08:00')
+    }
+  }, [userDetail])
+
+  useEffect(() => {
+    if (selectedDate && selectedTime) {
+      // Create a proper ISO 8601 datetime string
+      const [hours, minutes] = selectedTime.split(':')
+      const date = new Date(selectedDate)
+      date.setHours(parseInt(hours, 10))
+      date.setMinutes(parseInt(minutes, 10))
+      date.setSeconds(0)
+      date.setMilliseconds(0)
+
+      const isoDateTime = date.toISOString()
+      form.setValue('appointmentDate', isoDateTime)
+    }
+  }, [selectedDate, selectedTime, form])
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = e.target.value.split(':')
+    const minutesNum = parseInt(minutes, 10)
+
+    // Round to nearest 30 minutes
+    const roundedMinutes = Math.round(minutesNum / 30) * 30
+    const newTime = `${hours.padStart(2, '0')}:${roundedMinutes.toString().padStart(2, '0')}`
+
+    setSelectedTime(newTime)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (body: BookingBodyType) => {
+    createBooking(body, {
+      onSuccess: (response) => {
+        refetchVaccine()
+        toast.success('Booking created successfully')
+
+        if (paymentMethod === 'MOMO') {
+          createPayment(
+            { bookingId: response.id },
+            {
+              onSuccess: (paymentResponse) => {
+                window.location.href = paymentResponse.paymentUrl.paymentUrl
+              },
+              onError: (error) => {
+                handleErrorApi({
+                  error: error,
+                  setError: form.setError,
+                  duration: 5000
+                })
+                toast.error(error.message || 'Payment failed')
+              }
+            }
+          )
+        } else {
+          confirmBooking(
+            { bookingId: response.id },
+            {
+              onSuccess: (data) => {
+                toast.success(data.message)
+              },
+              onError: (error) => {
+                handleErrorApi({
+                  error: error,
+                  setError: form.setError,
+                  duration: 5000
+                })
+                toast.error(error.message || 'Booking confirmation failed')
+              }
+            }
+          )
+        }
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error,
+          setError: form.setError,
+          duration: 5000
+        })
+        toast.error(error.message || 'Booking failed')
+      }
+    })
   }
 
   return (
@@ -37,162 +130,99 @@ const CheckOutPagePageMain = () => {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
         {/* Main Form Section */}
         <div className='lg:col-span-2'>
-          <Card className='dark:bg-gray-900'>
+          <Card className='dark:bg-gray-900 h-full'>
             <CardContent className='p-6 space-y-6'>
-              <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Personal Information</h2>
-              <form onSubmit={handleSubmit} className='space-y-6'>
+              <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Booking Information</h2>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <Label htmlFor='firstName'>First Name</Label>
+                    <Label htmlFor='appointmentDate'>Appointment Date</Label>
                     <Input
-                      id='firstName'
-                      name='firstName'
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='lastName'>Last Name</Label>
-                    <Input
-                      id='lastName'
-                      name='lastName'
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                </div>
-
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='email'>Email</Label>
-                    <Input
-                      id='email'
-                      name='email'
-                      type='email'
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='phone'>Phone Number</Label>
-                    <Input
-                      id='phone'
-                      name='phone'
-                      type='tel'
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                </div>
-
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='dateOfBirth'>Date of Birth</Label>
-                    <Input
-                      id='dateOfBirth'
-                      name='dateOfBirth'
+                      id='appointmentDate'
                       type='date'
-                      value={formData.dateOfBirth}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.appointmentDate ? 'border-red-500' : ''
+                      }`}
                     />
                   </div>
                   <div className='space-y-2'>
-                    <Label>Gender</Label>
-                    <RadioGroup
-                      name='gender'
-                      value={formData.gender}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, gender: value }))}
-                      className='flex gap-4'
-                    >
-                      <div className='flex items-center space-x-2'>
-                        <RadioGroupItem value='male' id='male' />
-                        <Label htmlFor='male'>Male</Label>
-                      </div>
-                      <div className='flex items-center space-x-2'>
-                        <RadioGroupItem value='female' id='female' />
-                        <Label htmlFor='female'>Female</Label>
-                      </div>
-                    </RadioGroup>
+                    <Label htmlFor='appointmentTime'>Appointment Time</Label>
+                    <Input
+                      id='appointmentTime'
+                      type='time'
+                      value={selectedTime}
+                      onChange={handleTimeChange}
+                      step='1800'
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.appointmentDate ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <p className='text-sm text-gray-500 dark:text-gray-400'>
+                      Available times: 8:00 AM - 5:00 PM (30-minute intervals)
+                    </p>
                   </div>
                 </div>
+                {form.formState.errors.appointmentDate && (
+                  <p className='text-sm text-red-500'>{form.formState.errors.appointmentDate.message}</p>
+                )}
 
                 <div className='space-y-2'>
-                  <Label htmlFor='address'>Address</Label>
+                  <Label htmlFor='vaccinationQuantity'>Number of Doses</Label>
                   <Input
-                    id='address'
-                    name='address'
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className='dark:bg-gray-800 dark:border-gray-700'
+                    id='vaccinationQuantity'
+                    type='number'
+                    {...form.register('vaccinationQuantity', { valueAsNumber: true })}
+                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      form.formState.errors.vaccinationQuantity ? 'border-red-500' : ''
+                    }`}
                   />
+                  {form.formState.errors.vaccinationQuantity && (
+                    <p className='text-sm text-red-500'>{form.formState.errors.vaccinationQuantity.message}</p>
+                  )}
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='city'>City</Label>
-                    <Input
-                      id='city'
-                      name='city'
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
+                <div className='space-y-4 '>
+                  <div className='pt-4 flex items-center space-x-2 border-t border-green-500 dark:border-green-700'>
+                    <Banknote className='w-6 h-6 text-gray-900 dark:text-white' />
+                    <Label className='text-gray-900 dark:text-white text-lg font-bold'>Payment Method</Label>
                   </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='state'>State</Label>
-                    <Input
-                      id='state'
-                      name='state'
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='zipCode'>ZIP Code</Label>
-                    <Input
-                      id='zipCode'
-                      name='zipCode'
-                      value={formData.zipCode}
-                      onChange={handleInputChange}
-                      className='dark:bg-gray-800 dark:border-gray-700'
-                    />
-                  </div>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='insurance'>Insurance Provider</Label>
-                  <Select
-                    value={formData.insurance}
-                    onValueChange={(value) => setFormData((prev) => ({ ...prev, insurance: value }))}
+                  <RadioGroup
+                    defaultValue='MOMO'
+                    value={paymentMethod}
+                    onValueChange={(value: 'MOMO' | 'CASH') => setPaymentMethod(value)}
+                    className='flex flex-col space-y-2'
                   >
-                    <SelectTrigger className='dark:bg-gray-800 dark:border-gray-700'>
-                      <SelectValue placeholder='Select insurance provider' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='bluecross'>Blue Cross Blue Shield</SelectItem>
-                      <SelectItem value='aetna'>Aetna</SelectItem>
-                      <SelectItem value='united'>United Healthcare</SelectItem>
-                      <SelectItem value='cigna'>Cigna</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
+                      <div className='flex items-center space-x-2'>
+                        <CreditCard className='w-6 h-6 text-gray-900 dark:text-white' />
+                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='momo'>
+                          Momo Payment
+                        </Label>
+                      </div>
+                      <RadioGroupItem
+                        className='w-6 h-6 border-green-500 dark:border-green-700 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-700 rounded-full [&>span]:hidden'
+                        value='MOMO'
+                        id='momo'
+                      />
+                    </div>
 
-                <div className='space-y-2'>
-                  <Label htmlFor='medicalHistory'>Medical History</Label>
-                  <Textarea
-                    id='medicalHistory'
-                    name='medicalHistory'
-                    value={formData.medicalHistory}
-                    onChange={handleInputChange}
-                    placeholder='Please list any relevant medical conditions or allergies'
-                    className='dark:bg-gray-800 dark:border-gray-700'
-                  />
+                    <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
+                      <div className='flex items-center space-x-2'>
+                        <HandCoins className='w-6 h-6 text-gray-900 dark:text-white' />
+                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='cash'>
+                          Cash Payment
+                        </Label>
+                      </div>
+                      <RadioGroupItem
+                        className='w-6 h-6 border-green-500 dark:border-green-700 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-700 rounded-full [&>span]:hidden'
+                        value='CASH'
+                        id='cash'
+                      />
+                    </div>
+                  </RadioGroup>
                 </div>
 
                 <Button
@@ -208,28 +238,37 @@ const CheckOutPagePageMain = () => {
 
         {/* Sidebar Section */}
         <div className='lg:col-span-1'>
-          <Card className='dark:bg-gray-900 sticky top-8'>
+          <Card className='dark:bg-gray-900 sticky top-8 h-full'>
             <CardContent className='p-6 space-y-6'>
               <div className='flex flex-col space-y-4'>
                 <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Booking Summary</h3>
                 <div className='rounded-lg overflow-hidden'>
                   <img
-                    alt='Tuberculosis Vaccine'
+                    alt={vaccineDetail?.vaccineName}
                     className='w-full h-48 object-cover'
-                    src='https://images.unsplash.com/photo-1618015359417-89be02e0089f'
+                    src={vaccineDetail?.image}
                   />
                 </div>
                 <div className='space-y-2'>
-                  <h4 className='font-semibold text-gray-900 dark:text-white'>Tuberculosis Vaccine</h4>
+                  <h4 className='font-semibold text-gray-900 dark:text-white'>{vaccineDetail?.vaccineName}</h4>
+                  <p className='text-sm text-gray-600 dark:text-gray-300'>{vaccineDetail?.description}</p>
+                  <p className='text-sm text-gray-600 dark:text-gray-300'>Location: {vaccineDetail?.location}</p>
                   <p className='text-sm text-gray-600 dark:text-gray-300'>
-                    This vaccine is designed to provide effective protection against targeted diseases. Developed with
-                    advanced medical research, it ensures safety, efficacy, and long-lasting immunity.
+                    Available Quantity: {vaccineDetail?.remainingQuantity}
                   </p>
                 </div>
                 <div className='border-t border-gray-200 dark:border-gray-700 pt-4'>
                   <div className='flex justify-between items-center'>
+                    <span className='text-gray-600 dark:text-gray-300'>Price per Dose</span>
+                    <span className='text-xl font-semibold text-gray-900 dark:text-white'>
+                      {formatVND(vaccineDetail?.price || 0)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between items-center mt-2'>
                     <span className='text-gray-600 dark:text-gray-300'>Total Amount</span>
-                    <span className='text-xl font-semibold text-gray-900 dark:text-white'>$29.99</span>
+                    <span className='text-xl font-semibold text-gray-900 dark:text-white'>
+                      {formatVND(vaccineDetail?.price || 0 * (form.watch('vaccinationQuantity') || 1))}
+                    </span>
                   </div>
                 </div>
               </div>

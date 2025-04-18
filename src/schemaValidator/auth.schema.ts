@@ -21,34 +21,21 @@ export type LoginBodyType = z.TypeOf<typeof LoginBody>
 import { numberConstants } from '@/configs/consts'
 import { validator } from '@/core/helpers/validator'
 
-export const RegisterBody = z.object({
-  name: z.string().min(numberConstants.TWO, {
-    message: 'Name is valid.'
-  }),
-  email: z.string().min(numberConstants.TWO, {
-    message: 'Email is valid.'
-  }),
-  password: z
-    .string()
-    .min(numberConstants.ONE, {
-      message: 'Password is required'
-    })
-    .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
-    }),
-  confirmPassword: z
-    .string()
-    .min(numberConstants.ONE, {
-      message: 'Password is required'
-    })
-    .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
-    }),
-  phone: z.string().min(numberConstants.TEN, {
-    message: 'Phone number must be at least 10 characters.'
+export const RegisterBody = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string(),
+    phone: z.string().min(1, 'Phone number is required'),
+    role: z.enum(['USER', 'ADMIN', 'DOCTOR', 'EMPLOYEE']).optional()
   })
-})
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword']
+  })
+
+export type RegisterBodyType = z.infer<typeof RegisterBody>
 
 export const VerifyEmailBody = z.object({
   email: z.string().email('Email không hợp lệ').optional(),
@@ -117,3 +104,9 @@ export const ChangePasswordBody = z
   .strict()
 
 export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>
+
+export const LogoutBody = z.object({
+  refresh_token: z.string().min(1, 'Refresh token is required')
+})
+
+export type LogoutBodyType = z.TypeOf<typeof LogoutBody>

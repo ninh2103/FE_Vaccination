@@ -4,23 +4,35 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { User, Lock, Eye, EyeOff, TicketCheck } from 'lucide-react'
+import { User, Lock, Eye, EyeOff, TicketCheck, Upload } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidator/auth.schema'
 import { useChangePasswordMutation } from '@/queries/useAuth'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
-import { UpdateMeBody, UpdateMeBodyType } from '@/schemaValidator/user.schema'
+import { useGetMeQuery, useUpdateMeQuery, useUploadAvatarQuery } from '@/queries/useUser'
+import { UpdateMeBody, UpdateMeBodyType, UploadAvatarBodyType } from '@/schemaValidator/user.schema'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { useListBookingQuery } from '@/queries/useBooking'
+import { path } from '@/core/constants/path'
+import { useNavigate } from 'react-router-dom'
+
 export default function Profile() {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('0123456789')
   const [showPassword, setShowPassword] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const itemsPerPage = 6
+  const navigate = useNavigate()
 
   const changePasswordMutation = useChangePasswordMutation()
   const updateMeMutation = useUpdateMeQuery()
   const getMeQuery = useGetMeQuery()
+  const uploadAvatarMutation = useUploadAvatarQuery()
+  const { data: bookingList, refetch } = useListBookingQuery({
+    page: currentPage,
+    items_per_page: itemsPerPage
+  })
 
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
@@ -41,6 +53,20 @@ export default function Profile() {
       phone: ''
     }
   })
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !hasMore) {
+      setCurrentPage((prev) => prev + 1)
+      refetch()
+    }
+  }
+
+  useEffect(() => {
+    if (bookingList) {
+      setHasMore(bookingList.currentPage < Math.ceil(bookingList.total / bookingList.itemsPerPage))
+    }
+  }, [bookingList])
 
   useEffect(() => {
     if (getMeQuery.data) {
@@ -78,6 +104,7 @@ export default function Profile() {
   const handleUpdateMe = (body: UpdateMeBodyType) => {
     updateMeMutation.mutate(body, {
       onSuccess: () => {
+        getMeQuery.refetch()
         toast.success('Update Account Success!')
       },
       onError: (error) => {
@@ -87,6 +114,44 @@ export default function Profile() {
         })
       }
     })
+  }
+
+  const handleUploadAvatar = (body: UploadAvatarBodyType) => {
+    uploadAvatarMutation.mutate(body, {
+      onSuccess: () => {
+        getMeQuery.refetch()
+        toast.success('Upload Avatar Success!')
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error,
+          setError: formUpdate.setError
+        })
+      }
+    })
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-yellow-500'
+      case 'CONFIRMED':
+        return 'bg-green-500'
+      case 'CANCELED':
+        return 'bg-red-500'
+      default:
+        return 'bg-gray-500'
+    }
   }
 
   return (
@@ -128,6 +193,45 @@ export default function Profile() {
                 <CardDescription className='text-gray-400'>Edit your personal information here.</CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
+                <div className='flex items-center gap-6'>
+                  <div className='flex gap-2 items-start justify-start'>
+                    <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
+                      <AvatarImage src={getMeQuery.data?.avatar || ''} />
+                      <AvatarFallback className='rounded-none'>{getMeQuery.data?.name || 'Avatar'}</AvatarFallback>
+                    </Avatar>
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          handleUploadAvatar({ avatar: file })
+                        }
+                      }}
+                      className='hidden'
+                    />
+                    <button
+                      className='flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed'
+                      type='button'
+                      onClick={() => {
+                        const input = document.createElement('input')
+                        input.type = 'file'
+                        input.accept = 'image/*'
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0]
+                          if (file) {
+                            handleUploadAvatar({ avatar: file })
+                          }
+                        }
+                        input.click()
+                      }}
+                    >
+                      <Upload className='h-4 w-4 text-muted-foreground' />
+                      <span className='sr-only'>Upload</span>
+                    </button>
+                  </div>
+                </div>
+
                 <div className='space-y-2'>
                   <Label htmlFor='name' className='dark:text-green-300'>
                     Name
@@ -286,19 +390,67 @@ export default function Profile() {
             <Card className='dark:bg-gray-900 border-gray-700 shadow-xl'>
               <CardHeader>
                 <CardTitle className='text-2xl dark:text-green-400'>Your Booked Lists</CardTitle>
-                <CardDescription className='text-gray-400'>View and manage.</CardDescription>
+                <CardDescription className='dark:text-gray-400'>
+                  View and manage your vaccination appointments.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className='text-center py-8'>
-                  <TicketCheck className='w-16 h-16 mx-auto dark:text-green-400 mb-4' />
-                  <p className='text-xl font-semibold mb-2 dark:text-green-300'>Boked List Empty</p>
-                  <p className='text-gray-400 mb-4'>You haven't added any products to your booked lists.</p>
-                  <Button
-                    variant={'outline'}
-                    className='dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
-                  >
-                    Continue booking
-                  </Button>
+                <div className='max-h-[600px] overflow-y-auto space-y-4 pr-4' onScroll={handleScroll}>
+                  {bookingList?.data.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className='p-4 rounded-lg border border-gray-700 dark:bg-gray-800 hover:bg-gray-750 transition-colors duration-200'
+                    >
+                      <div className='flex justify-between items-start mb-2'>
+                        <div>
+                          <h3 className='text-lg font-semibold dark:text-green-400'>
+                            Booking #{booking.id.slice(0, 8)}
+                          </h3>
+                          <p className='text-sm text-gray-400'>Created: {formatDate(booking.createdAt)}</p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+                        >
+                          {booking.status}
+                        </span>
+                      </div>
+                      <div className='grid grid-cols-2 gap-4 mt-4'>
+                        <div>
+                          <p className='text-sm text-gray-400'>Appointment Date</p>
+                          <p className='dark:text-white'>{formatDate(booking.appointmentDate)}</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Vaccination Date</p>
+                          <p className='dark:text-white'>{formatDate(booking.vaccinationDate)}</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Quantity</p>
+                          <p className='dark:text-white'>{booking.vaccinationQuantity} doses</p>
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-400'>Total Amount</p>
+                          <p className='dark:text-white'>${booking.totalAmount}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {!hasMore && (bookingList?.data?.length ?? 0) > 0 && (
+                    <div className='text-center py-4 text-gray-400'>No more bookings to load</div>
+                  )}
+                  {(bookingList?.data?.length ?? 0) === 0 && (
+                    <div className='text-center py-8'>
+                      <TicketCheck className='w-16 h-16 mx-auto dark:text-green-400 mb-4' />
+                      <p className='text-xl font-semibold mb-2 dark:text-green-300'>Booking List Empty</p>
+                      <p className='text-gray-400 mb-4'>You haven't made any vaccination appointments yet.</p>
+                      <Button
+                        onClick={() => navigate(path.list)}
+                        variant={'outline'}
+                        className='dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
+                      >
+                        Book a vaccination
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,3 @@
-'use client'
-
 import { format } from 'date-fns'
 import { MoreHorizontal, FileText, Calendar, Phone, Clock, Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -24,7 +22,7 @@ interface Patient {
 }
 
 interface Vaccination {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
@@ -33,6 +31,7 @@ interface Vaccination {
   administeredBy: string
   location: string
   notes: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
 }
 
 interface HistorysTableProps {
@@ -42,6 +41,15 @@ interface HistorysTableProps {
   onPrintCertificate: (vaccination: Vaccination) => void
   onDownloadInvoice: (vaccination: Vaccination) => void
   onViewDetails: (vaccination: Vaccination) => void
+}
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'COMPLETED':
+      return <Badge className='bg-green-500 hover:bg-green-600'>Completed</Badge>
+
+    default:
+      return <Badge>{status}</Badge>
+  }
 }
 
 export function HistorysTable({
@@ -61,9 +69,9 @@ export function HistorysTable({
           <TableHead>Vaccine</TableHead>
           <TableHead>Date</TableHead>
           <TableHead>Dose</TableHead>
-          <TableHead>Doctor</TableHead>
           <TableHead>Location</TableHead>
-          <TableHead className='w-[80px]'></TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead className='w-[80px]'>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -103,8 +111,8 @@ export function HistorysTable({
             <TableCell>
               <Badge variant='outline'>{vaccination.doseNumber}</Badge>
             </TableCell>
-            <TableCell>{vaccination.administeredBy}</TableCell>
             <TableCell>{vaccination.location}</TableCell>
+            <TableCell>{getStatusBadge(vaccination.status)}</TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

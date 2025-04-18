@@ -39,3 +39,21 @@ export const handleErrorApi = <T extends Record<string, unknown>>({
     toast.error('Đã xảy ra lỗi! Vui lòng thử lại sau.', { duration: duration ?? 5000 })
   }
 }
+export const formatVND = (amount: number) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount)
+}
+
+export function convertDateFormat(inputDate: string): string {
+  const dateParts = inputDate.split('-')
+  if (dateParts.length !== 3) {
+    throw new Error('Ngày không hợp lệ. Định dạng đúng là YYYY-MM-DD')
+  }
+
+  const [year, month, day] = dateParts
+  return `${day}/${month}/${year}`
+}

@@ -1,14 +1,9 @@
-'use client'
-
 import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import {
-  Filter,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
   Search,
   Download,
@@ -17,18 +12,13 @@ import {
   Phone,
   Clock,
   MapPin,
-  User
+  User,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -37,12 +27,11 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+
 import { format } from 'date-fns'
-import { Label } from '@/components/ui/label'
 import { HistorysTable } from './HistorysTable'
+import { useListAppointmentQuery } from '@/queries/useAppointment'
+import { toast } from 'sonner'
 
 interface Patient {
   name: string
@@ -53,7 +42,7 @@ interface Patient {
 }
 
 interface Vaccination {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
@@ -62,26 +51,11 @@ interface Vaccination {
   administeredBy: string
   location: string
   notes: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
 }
 
 // Constants
 const ROWS_PER_PAGE = 10
-const DOCTORS = ['All Doctors', 'Dr. Tran Van Binh', 'Nurse Nguyen Thi Cuc', 'Dr. Pham Thi Hoa']
-const LOCATIONS = ['All Locations', '120 Hoang Minh Thao', 'Main Clinic']
-const DOSE_NUMBERS = ['All Doses', '1', '2', '3']
-const VACCINES = [
-  'All Vaccines',
-  'COVID-19 Vaccine',
-  'Influenza Vaccine',
-  'Hepatitis B Vaccine',
-  'Tetanus Vaccine',
-  'MMR Vaccine',
-  'HPV Vaccine',
-  'Pneumococcal Vaccine',
-  'Varicella Vaccine',
-  'Hepatitis A Vaccine',
-  'Diphtheria Vaccine'
-]
 
 const generateCertificateContent = (vaccination: Vaccination) => `
   <!DOCTYPE html>
@@ -179,63 +153,69 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
 }
 
 // Sample data
-const vaccinationHistory: Vaccination[] = [
-  {
-    id: 1,
-    patient: {
-      name: 'Nguyen Van An',
-      avatar: '/placeholder.svg',
-      initials: 'NA',
-      phone: '0912 345 678',
-      email: 'nguyenvanan@example.com'
-    },
-    vaccine: 'COVID-19 Vaccine',
-    date: '2023-03-01',
-    time: '09:15',
-    doseNumber: 1,
-    administeredBy: 'Dr. Tran Van Binh',
-    location: '120 Hoang Minh Thao',
-    notes: 'No adverse reactions'
-  }
-  // ... Add more sample data as needed
-]
 
-export default function HistorysPage1() {
+export default function HistorysPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [selectedVaccination, setSelectedVaccination] = useState<Vaccination | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [selectedDate] = useState<Date>(new Date())
-  const [filters, setFilters] = useState({
-    doctor: 'All Doctors',
-    location: 'All Locations',
-    doseNumber: 'All Doses',
-    vaccine: 'All Vaccines',
-    dateRange: { from: '', to: '' }
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined
+    to: Date | undefined
+  }>({
+    from: undefined,
+    to: undefined
+  })
+
+  const {
+    data: apiResponse,
+    refetch,
+    isLoading
+  } = useListAppointmentQuery({
+    items_per_page: 100,
+    page: 1,
+    search: searchTerm
   })
 
   // Filter vaccinations based on search and filters
   const filteredVaccinations = useMemo(() => {
-    return vaccinationHistory.filter((vaccination) => {
-      const matchesSearch =
-        vaccination.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vaccination.patient.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vaccination.vaccine.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vaccination.administeredBy.toLowerCase().includes(searchTerm.toLowerCase())
+    if (!apiResponse?.data) return []
 
-      const matchesDoctor = filters.doctor === 'All Doctors' || vaccination.administeredBy === filters.doctor
-      const matchesLocation = filters.location === 'All Locations' || vaccination.location === filters.location
-      const matchesDose = filters.doseNumber === 'All Doses' || vaccination.doseNumber.toString() === filters.doseNumber
-      const matchesVaccine = filters.vaccine === 'All Vaccines' || vaccination.vaccine === filters.vaccine
-      const vaccinationDate = new Date(vaccination.date)
-      const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null
-      const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null
-      const matchesDateRange = (!fromDate || vaccinationDate >= fromDate) && (!toDate || vaccinationDate <= toDate)
+    return apiResponse.data
+      .filter((appointment) => {
+        const appointmentDate = new Date(appointment.appointmentDate)
+        const isCompleted = appointment.status === 'COMPLETED'
+        const isInDateRange =
+          (!dateRange.from || appointmentDate >= dateRange.from) && (!dateRange.to || appointmentDate <= dateRange.to)
 
-      return matchesSearch && matchesDoctor && matchesLocation && matchesDose && matchesVaccine && matchesDateRange
-    })
-  }, [searchTerm, filters])
+        return isCompleted && isInDateRange
+      })
+      .map((appointment) => {
+        const appointmentDate = new Date(appointment.appointmentDate)
+        return {
+          id: appointment.id,
+          patient: {
+            name: appointment.user.name,
+            avatar: appointment.user.avatar || '/placeholder.svg',
+            initials: appointment.user.name
+              .split(' ')
+              .map((n: string) => n[0])
+              .join(''),
+            phone: appointment.user.email,
+            email: appointment.user.email
+          },
+          vaccine: appointment.vaccination.vaccineName,
+          date: format(appointmentDate, 'yyyy-MM-dd'),
+          time: format(appointmentDate, 'HH:mm'),
+          doseNumber: 1,
+          administeredBy: appointment.user.name,
+          location: appointment.vaccination.location,
+          notes: appointment.vaccination.description,
+          status: appointment.status
+        }
+      })
+  }, [apiResponse, dateRange])
 
   // Pagination
   const totalPages = Math.ceil(filteredVaccinations.length / ROWS_PER_PAGE)
@@ -243,6 +223,9 @@ export default function HistorysPage1() {
     (currentPage - 1) * ROWS_PER_PAGE,
     currentPage * ROWS_PER_PAGE
   )
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE + 1
+  const endIndex = startIndex + paginatedVaccinations.length - 1
+  const totalItems = filteredVaccinations.length
 
   // Reset to page 1 if current page exceeds total pages
   useEffect(() => {
@@ -256,28 +239,20 @@ export default function HistorysPage1() {
     setIsRefreshing(true)
     setTimeout(() => {
       setSearchTerm('')
-      setFilters({
-        doctor: 'All Doctors',
-        location: 'All Locations',
-        doseNumber: 'All Doses',
-        vaccine: 'All Vaccines',
-        dateRange: { from: '', to: '' }
-      })
+      setDateRange({ from: undefined, to: undefined })
       setCurrentPage(1)
+      refetch()
+      toast.success('Refreshed successfully')
       setIsRefreshing(false)
     }, 1000)
   }
 
   // Handle clear filters
   const handleClearFilters = () => {
-    setFilters({
-      doctor: 'All Doctors',
-      location: 'All Locations',
-      doseNumber: 'All Doses',
-      vaccine: 'All Vaccines',
-      dateRange: { from: '', to: '' }
-    })
+    setDateRange({ from: undefined, to: undefined })
     setCurrentPage(1)
+    refetch()
+    toast.success('Filters cleared successfully')
   }
 
   // Handle export to Excel
@@ -323,206 +298,77 @@ export default function HistorysPage1() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Vaccination History
-        </h1>
-        <div className='flex items-center gap-2'>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant='outline' size='sm' className='h-9 gap-1' disabled>
-                <Calendar className='h-4 w-4' />
-                <span>{format(selectedDate, 'MM/dd/yyyy')}</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className='w-auto p-0' align='end'>
-              <CalendarComponent mode='single' selected={selectedDate} disabled />
-            </PopoverContent>
-          </Popover>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
-            <Download className='mr-2 h-4 w-4' />
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Vaccination History
+          </h1>
+          <p className='text-muted-foreground'>Manage and monitor vaccination history in your system.</p>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='relative w-full max-w-sm'>
-            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input
-              placeholder='Search by name, phone, vaccine...'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setCurrentPage(1)
-              }}
-              className='pl-8 w-full'
-              type='search'
-            />
+          <div className='flex items-center gap-2'>
+            <div className='relative w-full max-w-sm'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Search...'
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className='pl-8 w-full'
+                type='search'
+              />
+            </div>
+            <div className='flex items-center space-x-2'>
+              <div className='flex items-center space-x-2'>
+                <Input
+                  type='date'
+                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+                <span className='text-muted-foreground'>to</span>
+                <Input
+                  type='date'
+                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+              </div>
+              <div className='flex items-center space-x-2'></div>
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
           </div>
           <div className='flex items-center gap-2'>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='outline' size='sm'>
-                  <Filter className='mr-2 h-4 w-4' />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end' className='w-[300px] p-4'>
-                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
-                <p className='text-sm text-muted-foreground mb-4'>
-                  Filter vaccination history by doctor, location, dose number, vaccine type, and date range.
-                </p>
-
-                {/* Doctor filter */}
-                <div className='mb-4'>
-                  <Label className='text-sm font-medium'>Doctor</Label>
-                  <Select
-                    value={filters.doctor}
-                    onValueChange={(value) => {
-                      setFilters((prev) => ({ ...prev, doctor: value }))
-                      setCurrentPage(1)
-                    }}
-                  >
-                    <SelectTrigger className='mt-2'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DOCTORS.map((doctor) => (
-                        <SelectItem key={doctor} value={doctor}>
-                          {doctor}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Location filter */}
-                <div className='mb-4'>
-                  <Label className='text-sm font-medium'>Location</Label>
-                  <Select
-                    value={filters.location}
-                    onValueChange={(value) => {
-                      setFilters((prev) => ({ ...prev, location: value }))
-                      setCurrentPage(1)
-                    }}
-                  >
-                    <SelectTrigger className='mt-2'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LOCATIONS.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Dose number filter */}
-                <div className='mb-4'>
-                  <Label className='text-sm font-medium'>Dose Number</Label>
-                  <Select
-                    value={filters.doseNumber}
-                    onValueChange={(value) => {
-                      setFilters((prev) => ({ ...prev, doseNumber: value }))
-                      setCurrentPage(1)
-                    }}
-                  >
-                    <SelectTrigger className='mt-2'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DOSE_NUMBERS.map((dose) => (
-                        <SelectItem key={dose} value={dose}>
-                          {dose}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Vaccine type filter */}
-                <div className='mb-4'>
-                  <Label className='text-sm font-medium'>Vaccine Type</Label>
-                  <Select
-                    value={filters.vaccine}
-                    onValueChange={(value) => {
-                      setFilters((prev) => ({ ...prev, vaccine: value }))
-                      setCurrentPage(1)
-                    }}
-                  >
-                    <SelectTrigger className='mt-2'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {VACCINES.map((vaccine) => (
-                        <SelectItem key={vaccine} value={vaccine}>
-                          {vaccine}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Date range filter */}
-                <div className='mb-4'>
-                  <Label className='text-sm font-medium'>Date Range</Label>
-                  <div className='grid grid-cols-2 gap-2 mt-2'>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>From</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.from}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, from: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>To</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.to}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, to: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Clear filters button */}
-                <Button variant='outline' size='sm' onClick={handleClearFilters}>
-                  Clear Filters
-                </Button>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
+              <Download className='mr-2 h-4 w-4' />
+              Export
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Refresh
+            </Button>
           </div>
         </div>
 
         {/* Vaccination history table */}
         <Card>
           <CardContent className='p-0'>
-            {paginatedVaccinations.length === 0 ? (
+            {isLoading ? (
+              <div className='p-8 flex justify-center items-center'>
+                <Loader2 className='h-6 w-6 animate-spin' />
+              </div>
+            ) : paginatedVaccinations.length === 0 ? (
               <div className='p-4 text-center text-muted-foreground'>
                 No vaccination records found matching the current filters.
               </div>
@@ -542,46 +388,43 @@ export default function HistorysPage1() {
           </CardContent>
         </Card>
 
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className='flex justify-center gap-2 mt-4'>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span className='flex items-center px-4'>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-        {totalPages > 1 && (
-          <div className='flex justify-center gap-2 mt-4'>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span className='flex items-center px-4'>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
+          <div className='flex items-center justify-between px-2'>
+            <div className='flex-1 text-sm text-muted-foreground'>
+              Showing {startIndex} to {endIndex} of {totalItems} entries
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className='flex items-center gap-1'>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setCurrentPage(page)}
+                    className='min-w-[2.5rem]'
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

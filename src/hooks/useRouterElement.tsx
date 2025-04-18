@@ -10,7 +10,7 @@ import Register from '@/pages/register/Register'
 import BlogDetails from '@/pages/blog/BlogDetails'
 import Profile from '@/pages/profile/Profile'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
-import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
+import ServiceIntro from '@/pages/introduce/SiteIntroduction'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 
@@ -22,12 +22,14 @@ import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
 import { BlogPage } from '@/pages/dashboard/blogs/Page'
 import UsersPage from '@/pages/dashboard/users/Page'
 import VaccinesPage from '@/pages/dashboard/vaccines/Page'
-import PaymentsPage1 from '@/pages/dashboard/payments/Page'
+import PaymentsPage from '@/pages/dashboard/payments/Page'
 import SuppliersPage from '@/pages/dashboard/suppliers/page'
 import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
 import OrdersPage from '@/pages/dashboard/orders/Page'
 import AppointmentsPage from '@/pages/dashboard/appointments/Page'
-import HistorysPage1 from '@/pages/dashboard/historys/Page'
+import HistorysPage from '@/pages/dashboard/historys/Page'
+import ProfilePage from '@/pages/profile-admin/profile'
+import { CategoryPage } from '@/pages/dashboard/Category/Page'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -45,6 +47,14 @@ export default function useRoutesElements() {
         element: (
           <LayoutMain>
             <General /> {/* Thay Dashboard bằng General */}
+          </LayoutMain>
+        )
+      },
+      {
+        path: path.admin.category, // "/Manufacturers"
+        element: (
+          <LayoutMain>
+            <CategoryPage />
           </LayoutMain>
         )
       },
@@ -92,7 +102,7 @@ export default function useRoutesElements() {
         path: path.admin.payments, // "/Payments "
         element: (
           <LayoutMain>
-            <PaymentsPage1 />
+            <PaymentsPage />
           </LayoutMain>
         )
       },
@@ -100,7 +110,7 @@ export default function useRoutesElements() {
         path: path.admin.history, // "/History "
         element: (
           <LayoutMain>
-            <HistorysPage1 />
+            <HistorysPage />
           </LayoutMain>
         )
       },
@@ -138,7 +148,14 @@ export default function useRoutesElements() {
           }
         ]
       },
-
+      {
+        path: path.admin.profile,
+        element: (
+          <LayoutMain>
+            <ProfilePage />
+          </LayoutMain>
+        )
+      },
       {
         path: path.profile,
         element: (
