@@ -1,8 +1,10 @@
 import React from 'react'
-
+import Header from '@/components/homepage/Header'
+import Footer from '@/components/homepage/Footer'
 const ServiceIntro: React.FC = () => {
   return (
     <div className='min-h-screen '>
+      <Header />
       <header className='relative top-0 left-0 w-full bg-white p-20 z-10 rounded-lg shadow-lg'>
         <div
           className='absolute rounded-lg shadow-lg  inset-0 w-full h-full bg-cover bg-center'
@@ -312,6 +314,7 @@ const ServiceIntro: React.FC = () => {
           </ul>
         </section>
       </main>
+      <Footer />
     </div>
   )
 }

@@ -1,40 +1,41 @@
-import { useLocation, useRoutes } from 'react-router-dom';
-import LayoutClient from '@/app/layout/LayoutClient';
-import LayoutMain from '@/app/layout/LayoutMain';
-import { path } from '@/core/constants/path';
-import PageNotFound from '@/pages/404/PageNotFound';
-import General from '@/pages/dashboard/General';
-import HomePage from '@/pages/home/HomePage';
-import Login from '@/pages/login/Login';
-import Register from '@/pages/register/Register';
-import BlogDetails from '@/pages/blog/BlogDetails';
-import Profile from '@/pages/profile/Profile';
-import VaccinePrices from '@/pages/pricelist/PricelistDetails';
-import ServiceIntro from '@/pages/introduce/ServiceIntroduce';
-import ResetPassword from '@/pages/reset-password/Reset-Password';
-import ForgotPassword from '@/pages/forgot-password/Forgot-Password';
-import { OTPInput } from '@/pages/otp/otp';
-import ListVaccination from '@/pages/vaccination/list-vaccination';
-import CheckOutPagePageMain from '@/pages/booking/Booking';
-import BlogLayout from '@/pages/blog/BlogLayout';
-import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail';
-import { BlogPage } from '@/pages/dashboard/blogs/Page';
-import UsersPage from '@/pages/dashboard/users/Page';
-import VaccinesPage from '@/pages/dashboard/vaccines/Page';
-import PaymentsPage from '@/pages/dashboard/payments/Page';
-import SuppliersPage from '@/pages/dashboard/suppliers/page';
-import ManufacturersPage from '@/pages/dashboard/manufacturers/Page';
-import OrdersPage from '@/pages/dashboard/orders/Page';
-import AppointmentsPage from '@/pages/dashboard/appointments/Page';
-import HistorysPage from '@/pages/dashboard/historys/Page';
-import ProfilePage from '@/pages/profile-admin/profile';
-import SearchResults from '@/pages/searchresults/SearchResults';
+import { useLocation, useRoutes } from 'react-router-dom'
+import LayoutClient from '@/app/layout/LayoutClient'
+import LayoutMain from '@/app/layout/LayoutMain'
+import { path } from '@/core/constants/path'
+import PageNotFound from '@/pages/404/PageNotFound'
+import General from '@/pages/dashboard/General'
+import HomePage from '@/pages/home/HomePage'
+import Login from '@/pages/login/Login'
+import Register from '@/pages/register/Register'
+import BlogDetails from '@/pages/blog/BlogDetails'
+import Profile from '@/pages/profile/Profile'
+import VaccinePrices from '@/pages/pricelist/PricelistDetails'
+import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
+import ResetPassword from '@/pages/reset-password/Reset-Password'
+import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
+import { OTPInput } from '@/pages/otp/otp'
+import ListVaccination from '@/pages/vaccination/list-vaccination'
+import CheckOutPagePageMain from '@/pages/booking/Booking'
+import BlogLayout from '@/pages/blog/BlogLayout'
+import VaccineDetail from '@/pages/vaccineDetail/Vaccine-Detail'
+import { BlogPage } from '@/pages/dashboard/blogs/Page'
+import UsersPage from '@/pages/dashboard/users/Page'
+import VaccinesPage from '@/pages/dashboard/vaccines/Page'
+import PaymentsPage from '@/pages/dashboard/payments/Page'
+import SuppliersPage from '@/pages/dashboard/suppliers/page'
+import ManufacturersPage from '@/pages/dashboard/manufacturers/Page'
+import OrdersPage from '@/pages/dashboard/orders/Page'
+import AppointmentsPage from '@/pages/dashboard/appointments/Page'
+import HistorysPage from '@/pages/dashboard/historys/Page'
+import ProfilePage from '@/pages/profile-admin/profile'
+import SearchResults from '@/pages/searchresults/SearchResults'
+import ServiceDetail from '@/pages/serviceDetail/Service'
 
 export default function useRoutesElements() {
-  const location = useLocation();
+  const location = useLocation()
 
   // Tính toán giá trị path trước nếu cần giá trị mặc định
-  const searchPath = path.search ?? '/search';
+  const searchPath = path.search ?? '/search'
 
   const routeElements = useRoutes(
     [
@@ -44,6 +45,7 @@ export default function useRoutesElements() {
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
       { path: path.otp, element: <OTPInput /> },
+      { path: path.serviceDetail, element: <ServiceDetail /> },
 
       // Thêm route cho SearchResults
       {
@@ -52,7 +54,7 @@ export default function useRoutesElements() {
           <LayoutClient>
             <SearchResults />
           </LayoutClient>
-        ),
+        )
       },
 
       {
@@ -61,7 +63,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <General />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.vaccines,
@@ -69,7 +71,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <VaccinesPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.post,
@@ -77,7 +79,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <BlogPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.suppliers,
@@ -85,7 +87,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <SuppliersPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.manufacturers,
@@ -93,7 +95,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <ManufacturersPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.users,
@@ -101,7 +103,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <UsersPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.payments,
@@ -109,7 +111,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <PaymentsPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.history,
@@ -117,7 +119,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <HistorysPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.appointments,
@@ -125,7 +127,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <AppointmentsPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.admin.order,
@@ -133,7 +135,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <OrdersPage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.blog,
@@ -145,13 +147,13 @@ export default function useRoutesElements() {
         children: [
           {
             path: ':id',
-            element: <BlogDetails />,
+            element: <BlogDetails />
           },
           {
             path: '',
-            element: <BlogDetails />,
-          },
-        ],
+            element: <BlogDetails />
+          }
+        ]
       },
       {
         path: path.admin.profile,
@@ -159,7 +161,7 @@ export default function useRoutesElements() {
           <LayoutMain>
             <ProfilePage />
           </LayoutMain>
-        ),
+        )
       },
       {
         path: path.profile,
@@ -167,7 +169,7 @@ export default function useRoutesElements() {
           <LayoutClient>
             <Profile />
           </LayoutClient>
-        ),
+        )
       },
       {
         path: path.pricelist,
@@ -175,7 +177,7 @@ export default function useRoutesElements() {
           <LayoutClient>
             <VaccinePrices />
           </LayoutClient>
-        ),
+        )
       },
       {
         path: path.list,
@@ -183,7 +185,7 @@ export default function useRoutesElements() {
           <LayoutClient>
             <ListVaccination />
           </LayoutClient>
-        ),
+        )
       },
       {
         path: path.detail,
@@ -191,7 +193,7 @@ export default function useRoutesElements() {
           <LayoutClient>
             <VaccineDetail />
           </LayoutClient>
-        ),
+        )
       },
       {
         path: path.booking,
@@ -199,16 +201,16 @@ export default function useRoutesElements() {
           <LayoutClient>
             <CheckOutPagePageMain />
           </LayoutClient>
-        ),
+        )
       },
       {
         path: path.introduce,
-        element: <ServiceIntro />,
+        element: <ServiceIntro />
       },
-      { path: '*', element: <PageNotFound /> },
+      { path: '*', element: <PageNotFound /> }
     ],
     location
-  );
+  )
 
-  return <div className='w-full'>{routeElements}</div>;
+  return <div className='w-full'>{routeElements}</div>
 }
