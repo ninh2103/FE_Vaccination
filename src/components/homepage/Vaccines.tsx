@@ -43,13 +43,12 @@ export function Vaccines() {
   return (
     <section className='py-28 px-8 w-full relative'>
       <div className='container mx-auto'>
-      <h2 className='   relative mb-10 text-center text-3xl font-bold dark:text-white'>Vaccination Information</h2>
-          <p className='mx-auto w-full px-4 dark:text-white lg:w-6/12'>
-            Stay protected with the latest vaccines available. Here are some essential vaccinations to ensure your health
-            and well-being.
-          </p>
+        <h2 className='   relative mb-10 text-center text-3xl font-bold dark:text-white'>Vaccination Information</h2>
+        <p className='mx-auto w-full px-4 dark:text-white lg:w-6/12'>
+          Stay protected with the latest vaccines available. Here are some essential vaccinations to ensure your health
+          and well-being.
+        </p>
         <div className='relative mb-10 text-center'>
-          
           <div className='absolute top-0 right-0'>
             <Link to={path.list}>
               <Button variant='outline' size='sm'>
@@ -76,11 +75,7 @@ export function Vaccines() {
                 <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center relative'>
                   <Card className='shadow-none w-full'>
                     <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
-                      <img
-                        src={vaccine.img}
-                        alt={vaccine.title}
-                        className='h-full w-full object-cover rounded-lg'
-                      />
+                      <img src={vaccine.img} alt={vaccine.title} className='h-full w-full object-cover rounded-lg' />
                     </CardHeader>
                     <CardContent className='p-0'>
                       <h5 className='mb-2 text-lg font-semibold dark:text-white'>{vaccine.title}</h5>

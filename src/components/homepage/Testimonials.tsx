@@ -1,108 +1,56 @@
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay } from 'swiper/modules'
-import { Star } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Link } from 'react-router-dom'
-import 'swiper/swiper-bundle.css'
+import { Baby, User, CalendarCheck, Star } from 'lucide-react'
 
-export const testimonials = [
+export const vaccinationServices = [
   {
-    id: 't01',
-    name: 'Sarah J.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
-    comment:
-      "Absolutely seamless experience! Booking was quick, and the car was in perfect condition. I'll definitely use this service again.",
-    rating: 5
+    icon: Baby,
+    name: 'Child Vaccination',
+    description: 'Safe and effective immunization programs for children of all ages.'
   },
   {
-    id: 't02',
-    name: 'Mark T.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
-    comment:
-      'Great selection of vehicles and very affordable rates. The customer service team was incredibly helpful when .',
-    rating: 5
+    icon: User,
+    name: 'Adult Vaccination',
+    description: 'Comprehensive vaccination services tailored for adults.'
   },
   {
-    id: 't03',
-    name: 'James L.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
-    comment:
-      'The navigation tools were a lifesaver! They made it so easy to explore the city without getting lost. Highly recommended!',
-    rating: 5
+    icon: CalendarCheck,
+    name: 'On-Demand Vaccination',
+    description: 'Flexible vaccination options based on your specific needs.'
   },
   {
-    id: 't04',
-    name: 'Alex P.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
-    comment:
-      'Fantastic service! The car was clean, well-maintained, and the pickup process was a breeze. I’ll be using this service for all my future trips.',
-    rating: 5
-  },
-  {
-    id: 't05',
-    name: 'David S.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6',
-    comment:
-      'Great value for money! The booking process was quick, and the customer support was responsive. Overall, a very positive experience.',
-    rating: 5
+    icon: Star,
+    name: 'VIP Vaccination',
+    description: 'Premium vaccination services with exclusive care and priority.'
   }
 ]
 
-export default function Testimonials() {
+export default function VaccinationServices() {
   return (
-    <section className='py-12 px-8 w-full relative'>
-      <div className='container mx-auto'>
-      <h2 className='text-3xl font-bold text-center'>What Our Customers Are Saying</h2>
-
-        <div className='relative mb-8'>
-          <div className='absolute top-0 right-0'>
-            <Link to='/all-testimonials'>
-              <Button variant='outline' size='sm'>
-                Show All
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        <Swiper
-          spaceBetween={30}
-          slidesPerView={1}
-          breakpoints={{
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 }
-          }}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false
-          }}
-          loop={true}
-          modules={[Autoplay]}
-          className='w-full'
-        >
-          {testimonials.map(({ id, name, comment, imageUrl, rating }) => (
-            <SwiperSlide key={id} className='p-4'>
-              <div className='bg-neutral-50 rounded-2xl p-8 min-h-[250px] flex flex-col justify-between h-full'>
-                <div>
-                  <div className='flex items-center' aria-label={`Rating: ${rating} out of 5`}>
-                    {[...Array(rating)].map((_, index) => (
-                      <Star key={index} className='size-[15px] text-yellow-500' />
-                    ))}
-                  </div>
-                  <div className='pt-4 flex-grow'>
-                    <blockquote className='text-[15px] leading-[26px] text-neutral-600'>"{comment}"</blockquote>
-                  </div>
-                </div>
-                <div className='pt-8'>
-                  <div className='flex items-center gap-2.5'>
-                    <img src={imageUrl} alt={name} className='size-6 rounded-full object-cover' />
-                    <p className='text-[14px] font-medium text-neutral-700'>{name}</p>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+    <div className='container mx-auto py-16 bg-gray-50 dark:bg-gray-900'>
+      <div className='text-center'>
+        <h2 className='text-3xl font-bold text-gray-900 dark:text-white'>
+          Explore Our Vaccination Services
+        </h2>
+        <p className='text-gray-500 dark:text-gray-400'>
+          Discover a range of immunization options tailored to your needs.
+        </p>
       </div>
-    </section>
+      <div className='mt-12 grid grid-cols-1 gap-12 md:grid-cols-2 xl:grid-cols-4'>
+        {vaccinationServices.map(({ icon: Icon, name, description }) => (
+          <div
+            key={name}
+            className='bg-white rounded-xl shadow-xl p-6 text-center border border-gray-200 dark:bg-gray-800 dark:border-gray-700 transition duration-300 hover:shadow-xl hover:-translate-y-2 transform'
+          >
+            <div className='flex justify-center mb-4'>
+              <Icon
+                className='w-16 h-16 text-blue-500 dark:text-blue-400 transition duration-300 hover:scale-105'
+                strokeWidth={1.5}
+              />
+            </div>
+            <h3 className='mt-4 text-xl font-bold text-gray-900 dark:text-white'>{name}</h3>
+            <p className='text-base text-gray-600 dark:text-gray-300'>{description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

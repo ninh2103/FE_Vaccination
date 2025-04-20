@@ -1,322 +1,410 @@
 import React from 'react'
 import Header from '@/components/homepage/Header'
 import Footer from '@/components/homepage/Footer'
-const ServiceIntro: React.FC = () => {
+
+const AboutUS = () => {
   return (
-    <div className='min-h-screen '>
+    <div className='min-h-screen bg-white font-sans'>
       <Header />
-      <header className='relative top-0 left-0 w-full bg-white p-20 z-10 rounded-lg shadow-lg'>
-        <div
-          className='absolute rounded-lg shadow-lg  inset-0 w-full h-full bg-cover bg-center'
-          style={{
-            backgroundImage:
-              'url("https://img4.thuthuatphanmem.vn/uploads/2020/07/05/hinh-anh-background-ve-cong-nghe-dep_035955098.jpg")',
-            backgroundPosition: 'center',
-            filter: 'blur(2px)',
-            backgroundSize: 'cover',
-            opacity: '1'
-          }}
-        ></div>
-        <div className='flex items-center space-x-12 relative z-20'>
-          <h1 className='text-3xl font-extrabold text-white tracking-wider group text-gradient'>
-            <span className='relative z-10'>Giới Thiệu</span>
-          </h1>
+      <header className='max-w-7xl mt-[7rem] relative bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white py-16 flex flex-col justify-center items-center mx-auto rounded-3xl'>
+        <div className='absolute inset-0 bg-blue-900 opacity-10'></div>
+        <div className='max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center relative z-10'>
+          <div className='md:w-1/2 text-center md:text-left'>
+            <h1 className='text-5xl md:text-6xl font-extrabold leading-tight mb-4 bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white bg-clip-text'>
+              VaxBot Vaccination Center
+            </h1>
+            <p className='text-lg md:text-xl mb-6'>
+              Providing top-tier vaccination services with advanced technology and a dedicated team of experts.
+            </p>
+            <a
+              href='/vaccination/list'
+              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition duration-300'
+            >
+              Book Now
+            </a>
+          </div>
+          <div className='md:w-1/2 mt-8 md:mt-0'>
+            <img
+              src='https://lamgiangclinic.com/wp-content/uploads/2024/01/doi-ngu-bac-si.jpg'
+              alt='Hero Image - Vaccination Center'
+              className='w-full h-auto rounded-lg shadow-lg'
+            />
+          </div>
         </div>
       </header>
 
-      <main className='flex flex-col items-center justify-center bg-gray-50 pt-0 pb-10 px-10'>
-        {/* Hệ thống hàng trăm trung tâm tiêm chủng */}
-        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4 mt-6 text-center italic'>
-            In the context, the world is burdened by complex epidemics, directly and deeply affecting human life.
-            Vaccines and vaccinations are the most effective preventive measures to reduce the rate of disease and
-            mortality due to infectious diseases in humanity. In 2020, when the covid-19 epidemic is complicating
-            globally, Vax-box was born as an inevitable trend of development, with the goal of contributing to repelling
-            and eliminating the epidemic at the present time, as well as improving the quality of life for Vietnamese
-            people in the future.
-          </p>
-          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text  text-center'>
-            VAX-BOX VACCINATION SYSTEM: SAFE, REPUTABLE, QUALITY
-          </h2>
+      {/* Introduction Section */}
+      <section className='py-16 bg-white shadow-lg'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='text-center mb-12'>
+            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+              About VaxBot
+            </h2>
+            <p className='text-lg text-gray-600 max-w-3xl mx-auto mt-4'>
+              VaxBot Vaccination Center was established with a mission to protect community health through comprehensive
+              vaccination services. We pride ourselves on being pioneers in delivering specialized vaccination
+              solutions, combining cutting-edge technology with an experienced team.
+            </p>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-12 items-center'>
+            <div>
+              <img
+                src='https://bvxuyena.com.vn/wp-content/uploads/2016/01/tiem-ngua-02-1024x734.jpg'
+                alt='About Us - Medical Team'
+                className='w-full h-auto rounded-lg shadow-lg'
+              />
+            </div>
+            <div>
+              <h3 className='text-3xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+                Our Mission
+              </h3>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                We are committed to providing safe and effective vaccination services to prevent diseases and promote
+                community health. Every client at VaxBot receives personalized care with tailored vaccination schedules.
+              </p>
+              <ul className='space-y-3'>
+                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                  <svg
+                    className='w-6 h-6 text-teal-500 mr-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7' />
+                  </svg>
+                  Leading team of vaccination experts.
+                </li>
+                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                  <svg
+                    className='w-6 h-6 text-teal-500 mr-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7' />
+                  </svg>
+                  Advanced vaccination technology.
+                </li>
+                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                  <svg
+                    className='w-6 h-6 text-teal-500 mr-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7' />
+                  </svg>
+                  Dedicated customer care services.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <img
-            src='https://image.anninhthudo.vn/1200x630/Uploaded/2024/xpcwvoxb/2023_05_14/img-2454-1966-719.jpeg'
-            alt='Trung tâm tiêm chủng'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
+      {/* Benefits Section */}
+      <section className='py-16 bg-white'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='text-center mb-16'>
+            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+              Why Choose VaxBot?
+            </h2>
+            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              We take pride in delivering high-quality services with dedication and professionalism.
+            </p>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
+            <div className='p-6 text-center'>
+              <div className='text-teal-500 mb-4'>
+                <svg
+                  className='w-12 h-12 mx-auto'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M17 20h5v-2a4 4 0 00-4-4h-2a4 4 0 00-4 4v2h5z'
+                  />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M12 12a4 4 0 100-8 4 4 0 000 8z'
+                  />
+                </svg>
+              </div>
+              <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Top Experts
+              </h4>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Our team consists of vaccination specialists with over 20 years of experience.
+              </p>
+            </div>
+            <div className='p-6 text-center'>
+              <div className='text-teal-500 mb-4'>
+                <svg
+                  className='w-12 h-12 mx-auto'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7' />
+                </svg>
+              </div>
+              <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Certified Vaccines
+              </h4>
+              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                We use vaccines from globally trusted brands.
+              </p>
+            </div>
+            <div className='p-6 text-center'>
+              <div className='text-teal-500 mb-4'>
+                <svg
+                  className='w-12 h-12 mx-auto'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M8 7V3m8 4V3m-6 8h12M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z'
+                  />
+                </svg>
+              </div>
+              <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Flexible Booking
+              </h4>
+              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Online booking support 24/7, fast and convenient.
+              </p>
+            </div>
+            <div className='p-6 text-center'>
+              <div className='text-teal-500 mb-4'>
+                <svg
+                  className='w-12 h-12 mx-auto'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+                  />
+                </svg>
+              </div>
+              <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Long-Term Monitoring
+              </h4>
+              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Regular health monitoring programs with dedicated care.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <p className='text-lg text-gray-700 leading-relaxed mb-4 mt-6'>
-            As a leading unit in the vaccination service industry in Vietnam. The Vax-box vaccination system has made
-            continuous efforts and achieved many outstanding achievements in vaccination activities, disease prevention,
-            and has received the trust and love of tens of millions of people across the country for using its services.
-            Vax-box has been honored for many consecutive years as the number 1 company in the top 10 prestigious
-            Vietnamese pharmaceutical companies (2023, 2024), in the distribution and trading of pharmaceuticals,
-            medical equipment, and has been honored to receive a Certificate of Merit from the Prime Minister for its
-            outstanding contributions to disease prevention. After nearly 10 years of accompanying the country's
-            preventive medicine system to overcome all difficulties, rapidly promoting the development of the system to
-            all regions of the country, especially remote areas, increasing access opportunities and vaccination rates
-            in the community, Vax-box now has hundreds of vaccination centers across the country, striving to increase
-            vaccination coverage rates to protect the health of children and adults with more than 11 million doses of
-            various vaccines, preventing more than 40 dangerous infectious diseases. Particularly noteworthy is the
-            effort to promote communication and education of the community about the role of vaccination for older
-            children, adults, the elderly, people with underlying diseases, chronic diseases of the Vax-box vaccination
-            system. Up to now, the rate of people aged 18 and over receiving all types of vaccines has reached over 40%
-            of the total number of customers, contributing significantly to the care and protection of the health of
-            workers and the elderly in the community.
-          </p>
-        </section>
-
-        {/* Quy trình tiêm chủng đạt chuẩn */}
-        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
-          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            Standard Vaccination Process
-          </h2>
-          <p className='text-lg text-gray-700 leading-relaxed mb-6 text-left'>
-            VAX-BOX Vaccination Center applies a standardized vaccination process, strictly adhering to medical
-            regulations, and is a suitable choice for all subjects. People will be able to fully perform the important
-            steps in the vaccination process, including:
-          </p>
-
-          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            1. Pre-Vaccination Screening
-          </h3>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Before vaccination, the doctor will perform a screening examination to assess the health status of the
-            person being vaccinated. This helps determine the ability to receive the vaccine, prevent unwanted risks and
-            choose the most suitable vaccine. The doctor will also carefully advise on the benefits and side effects
-            that may occur after vaccination.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Pre-vaccination screening is an essential medical process that assesses general health status and identifies
-            any risks that may affect the effectiveness or safety of a vaccine. It involves collecting detailed medical
-            information, performing a physical examination, and performing necessary tests to ensure that there are no
-            contraindications to vaccination.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            In addition to assessing health status, screening also allows the doctor to discuss the benefits and risks
-            of vaccination with the patient. This includes providing information about the vaccine's ingredients, its
-            ability to prevent disease, and recommendations for follow-up care after vaccination.
-          </p>
-
-          <img
-            src='https://cdn.thuvienphapluat.vn/uploads/tintuc/2023/03/29/kham-sang-loc-truoc-tiem-chung.jpg'
-            alt='Khám sàng lọc trước tiêm'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>* Pre-vaccination screening* </p>
-
-          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            2. Implementing the Vaccination Process to Meet Safety Standards
-          </h3>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Before administering the injection, medical staff will carefully check the vaccine, syringe and medical
-            equipment to ensure quality and safety. For children, parents will be carefully reviewed for the type of
-            vaccine before administering the injection to ensure the correct schedule and type as recommended by the
-            doctor. Medical staff will perform the injection with the correct technique to minimize the risk of
-            complications.
-          </p>
-
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Vaccination safety is not simply a matter of performing the injection technique correctly, but also includes
-            a system of factors ensuring everything from vaccine storage to post-injection monitoring. When performed
-            correctly, vaccination will provide the highest protection and minimize unwanted reactions. On the contrary,
-            if safety principles are not followed, it can lead to many serious consequences, affecting the health of the
-            vaccinated person, reducing public confidence in vaccination activities.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            The safe vaccination process is a series of steps carried out systematically, requiring meticulousness and
-            strict adherence to aseptic principles..
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            First, health care workers must perform thorough hand hygiene according to the World Health Organization's
-            6-step procedure. This can be done with soap and water or an alcohol-based hand sanitizer. Health care
-            workers must then wear sterile gloves to ensure that they do not contaminate the instruments and injection
-            site.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Vaccine preparation requires extreme caution. Medical staff need to carefully check the information on the
-            vaccine vial such as the vaccine name, expiry date, and batch number. It is especially important to check
-            the VVM (Vaccine VialMonitor) -the temperature indicator on the vaccine vial to ensure that the vaccine has
-            not been damaged by temperature. In the case of freeze-dried vaccines, reconstitution must be carried out in
-            accordance with the manufacturer's instructions on the type of solvent, volume, and reconstitution
-            technique.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            The injection site must be selected appropriately according to the type of vaccine and the age of the person
-            being vaccinated. For children under 12 months of age, the injection site is usually the anterior outer
-            thigh. For older children and adults, the injection can be in the deltoid muscle of the arm. The skin at the
-            injection site must be disinfected with 70-degree alcohol or iodine alcohol, in a spiral from the inside out
-            and allowed to dry naturally for 30 seconds.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Injection technique is a key factor in the procedure. For intramuscular injection, the needle must be
-            inserted into the muscle at a 90-degree angle, after checking that there is no blood reflux into the
-            syringe. The injection speed must be moderate, not too fast, to avoid pain and unwanted reactions. For
-            subcutaneous injection, the injection angle is 45 degrees and the needle depth must be appropriate for each
-            subject. After completing the injection, the medical staff must quickly and firmly withdraw the needle,
-            while gently pressing the injection site with a sterile dry cotton pad. Do not massage the injection site as
-            this may increase the risk of local reactions. All used vaccination materials must be collected and disposed
-            of in accordance with regulations on hazardous medical waste.
-          </p>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            The final step in the process is to record all information about the injection in the vaccination record.
-            The information to be recorded includes the type of vaccine administered, dose, injection site, vaccine lot
-            number and time of administration. This accurate recording is not only for monitoring and management
-            purposes but is also important in case of post-vaccination reactions that need to be investigated.
-          </p>
-          <img
-            src='https://bcp.cdnchinhphu.vn/Uploaded/tranthithom/2021_12_08/tiem.jpg'
-            alt='Tiêm chủng an toàn'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>
-            *Rapid implementation of vaccination campaign *
-          </p>
-
-          <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            3. Health Monitoring After Vaccination
-          </h3>
-          <p className='text-lg text-gray-700 mb-4 text-left'>
-            Post-vaccination monitoring is an essential part of ensuring vaccination safety. The vaccinated person needs
-            to be monitored for at least 30 minutes at the vaccination facility to detect and promptly handle any
-            reactions that may occur. The vaccination facility must have adequate equipment, emergency medicines and
-            medical staff trained in handling post-vaccination reactions. The vaccinated person also needs to be
-            instructed on the signs to watch for and how to handle them at home in the 24-48 hours after vaccination.
-          </p>
-          <img
-            src='https://hongngochospital.vn/wp-content/uploads/2021/08/dich-vu-theo-doi-sau-tiem-hong-ngoc.jpg'
-            alt='Theo dõi sức khỏe sau tiêm'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>
-            * Doctors deploy post-vaccination health care and monitoring services*
-          </p>
-        </section>
-        {/* Vắc xin chính hãng */}
-        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
-          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            Always have full range of genuine, new generation vaccines, including those that are often scarce for
-            children and adults.
-          </h2>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            The Vax-box vaccination center system has more than 50 types of vaccines to prevent more than 40 dangerous
-            infectious diseases for adults, including new generation vaccines and vaccines that are often scarce on the
-            market.
-          </p>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            With its prestige and many years of experience in implementing vaccination, Vax-box has become an official,
-            comprehensive and important strategic partner with major vaccine companies in the world such as
-            Glaxosmithkline - Belgium (GSK), Sanofi Pasteur (France), Pfizer (USA), Merck Sharp and Dohme (USA),
-            AstraZeneca (UK), Sanofi (France), Abbott (Netherlands), Takeda (Japan) ... Therefore, Vax-box has the right
-            to directly negotiate and import all types of vaccines for children and adults, helping people have full
-            access to new generation vaccines, scarce vaccines and safe and reasonably priced vaccination services,
-            contributing to increasing the vaccination rate, protecting the health of adults and the future of children.
-          </p>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            In particular, Vax-box is a vaccination unit in Vietnam with new generation vaccines from the world's
-            leading manufacturers such as: Bexsero (Italy) to prevent meningitis and pneumonia caused by group B
-            meningococcus, Gardasil 9 (USA) to prevent cervical cancer for men and women aged 9-45, Imojev to prevent
-            Japanese encephalitis, Prevenar 13 (Belgium) to prevent diseases caused by pneumococcus, Menactra (USA) to
-            prevent meningitis and pneumonia caused by ACYW meningococcus, Boostrix (Belgium) to prevent diphtheria -
-            whooping cough - tetanus...
-          </p>
-
-          <img
-            src='https://namphuthai.vn/wp-content/uploads/2021/08/image_2021-08-14_001250.png'
-            alt='Vaccine chính hãng'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>
-            * Standard vaccine storage system, ensuring storage and preservation of vaccines in optimal conditions from
-            2-8 degrees Celsius.\*
-          </p>
-        </section>
-
-        {/* Đội ngũ bác sĩ, y tế chuyên nghiệp */}
-        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-5xl'>
-          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-            Professional Medical Team During Vaccination Procedure
-          </h2>
-
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            The Vax-box vaccination center system is a vaccination unit in Vietnam that implements a closed 8-step safe
-            vaccination process, ensuring that all vaccination steps are performed correctly and are strictly controlled
-            to ensure maximum safety.
-          </p>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            The team of doctors, nurses and medical staff are experienced and well-trained in the field of vaccination.
-          </p>
-          <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            Always ready to support and answer all questions and concerns of customers about vaccines and
-            post-vaccination reactions.
-          </p>
-
-          <img
-            src='https://lamgiangclinic.com/wp-content/uploads/2024/01/doi-ngu-bac-si.jpg'
-            alt='Đội ngũ bác sĩ'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>
-            * Our team of doctors and medical staff are committed to providing peace of mind and dedicated care to
-            customers throughout the vaccination process.*
-          </p>
-
-          <img
-            src='https://bvxuyena.com.vn/wp-content/uploads/2016/01/tiem-ngua-02-1024x734.jpg' // Replace with the URL of the image you want to use
-            alt='Đội ngũ bác sĩ'
-            className='w-full h-auto mt-6 rounded-lg shadow-lg'
-          />
-          <p className='text-sm italic text-gray-700 text-center mt-4'>
-            * A team of nurses proficient in pain-relieving injections, gentle, creating a comfortable feeling for
-            customers*
-          </p>
-        </section>
-
-        {/* Why choose Vax-box section */}
-        <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-6xl mx-auto'>
-          <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-center mb-8'>
-            Why choose VAX-BOX Vaccination Center?
-          </h2>
-
-          <ul className='list-none grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6'>
-            {[
-              {
-                title: 'Customers are relatives',
-                img: 'https://www.tiemchungmorong.vn/sites/default/files/a7_5447_2.jpg'
-              },
-              {
-                title: 'Reasonable price',
-                img: 'https://toplist.vn/images/800px/gia-ca-hop-ly-182029.jpg'
-              },
-              {
-                title: 'Quality vaccines, properly preserved',
-                img: 'https://www.docosan.com/blog/wp-content/uploads/2022/06/gia-vacxin-6-trong-1-3.jpg'
-              },
-              {
-                title: 'Experienced team of doctors and nurses',
-                img: 'https://nhakhoavietmy.com.vn/wp-content/uploads/2023/07/Doi-ngu-bac-sy-.jpeg'
-              }
-            ].map((item, index) => (
-              <li
-                key={index}
-                className='flex flex-col items-center text-center bg-gray-50 rounded-xl p-6 shadow-md transition-shadow'
-              >
+      {/* Testimonials Section */}
+      <section className='py-16 bg-white'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='text-center mb-16'>
+            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+              What Our Clients Say
+            </h2>
+            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              Client satisfaction drives us to continuously improve and innovate.
+            </p>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            <div className='bg-white p-8 rounded-xl shadow-lg'>
+              <div className='flex items-center mb-4'>
                 <img
-                  src={item.img}
-                  alt={item.title}
-                  className='w-24 h-24 object-cover rounded-full mb-4 border-2 border-blue-500'
+                  src='https://chothuestudio.com/wp-content/uploads/2024/07/TCA_3837.jpg'
+                  alt='User 1'
+                  className='w-12 h-12 rounded-full mr-4'
                 />
-                <h3 className='text-xl font-semibold text-transparent bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 bg-clip-text cursor-pointer transition-colors duration-300'>
-                  {index + 1}. {item.title}
-                </h3>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </main>
+                <div>
+                  <h4 className='text-lg font-semibold text-gray-800'>Nguyen Van An</h4>
+                  <p className='text-gray-500'>Client</p>
+                </div>
+              </div>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                "I'm very satisfied with VaxBot's services. The doctors are attentive, and the vaccination process is
+                quick and safe."
+              </p>
+            </div>
+            <div className='bg-white p-8 rounded-xl shadow-lg'>
+              <div className='flex items-center mb-4'>
+                <img
+                  src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYPuR7dCLass9HDnvg3kDRB4ia3iab4Cy5JA&s'
+                  alt='User 2'
+                  className='w-12 h-12 rounded-full mr-4'
+                />
+                <div>
+                  <h4 className='text-lg font-semibold text-gray-800'>Tran Thi Bich</h4>
+                  <p className='text-gray-500'>Client</p>
+                </div>
+              </div>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                "Flexible scheduling and easy online booking. I feel more confident about my health after joining the
+                vaccination program."
+              </p>
+            </div>
+            <div className='bg-white p-8 rounded-xl shadow-lg'>
+              <div className='flex items-center mb-4'>
+                <img
+                  src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0P9u9rorGjwptFOwgGye1i8xdcyUKbC1cwUCTSUl0mVsC0SwdrqxtE_uIvVIOxhP6Dl4&usqp=CAU'
+                  alt='User 3'
+                  className='w-12 h-12 rounded-full mr-4'
+                />
+                <div>
+                  <h4 className='text-lg font-semibold text-gray-800'>Le Minh Chau</h4>
+                  <p className='text-gray-500'>Client</p>
+                </div>
+              </div>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                "High-quality vaccines and enthusiastic consultations. I'll continue using VaxBot's services."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className='py-16 bg-white shadow-lg'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='text-center mb-16'>
+            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+              Frequently Asked Questions
+            </h2>
+            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              Below are common questions our clients ask us.
+            </p>
+          </div>
+          <div className='space-y-6'>
+            <div className='bg-white p-6 rounded-xl shadow-md'>
+              <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                What should I prepare before vaccination?
+              </h4>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Bring identification documents, medical records (if any), and inform the doctor about your current
+                health condition.
+              </p>
+            </div>
+            <div className='bg-white p-6 rounded-xl shadow-md'>
+              <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Is vaccination at VaxBot safe?
+              </h4>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Absolutely safe! We use internationally certified vaccines and follow strict vaccination protocols.
+              </p>
+            </div>
+            <div className='bg-white p-6 rounded-xl shadow-md'>
+              <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                Can I book for my entire family?
+              </h4>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Yes, we offer family vaccination packages with discounted rates and flexible scheduling.
+              </p>
+            </div>
+            <div className='bg-white p-6 rounded-xl shadow-md'>
+              <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
+                What should I do after vaccination?
+              </h4>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                Rest, stay hydrated, and monitor for any post-vaccination reactions. Contact us immediately if you
+                notice anything unusual.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section
+        id='booking'
+        className='max-w-7xl bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 py-16 text-white flex flex-col justify-center items-center mx-auto px-4 text-center rounded-3xl'
+      >
+        <div className='max-w-7xl mx-auto px-4 text-center'>
+          <h2 className='text-4xl md:text-5xl font-bold text-white mb-6'>Protect Your Health Today!</h2>
+          <p className='text-lg mb-8 max-w-2xl mx-auto'>
+            Book your vaccination appointment now to receive special offers and ensure long-term health.
+          </p>
+          <a
+            href='/vaccination/list'
+            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-white text-teal-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition duration-300'
+          >
+            Book Now
+          </a>
+        </div>
+      </section>
+
+      {/* Contact and Map Section */}
+      <section className='py-16 bg-white'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='text-center mb-16'>
+            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+              Contact VaxBot
+            </h2>
+            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              Visit our center or contact us for prompt support.
+            </p>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-12'>
+            {/* Contact Info */}
+            <div className='flex flex-col justify-center'>
+              <h3 className='text-2xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+                Center Information
+              </h3>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <strong>Address:</strong> 120 Hoang Minh Thao, Hoa Khanh Nam, Lien Chieu, Da Nang
+              </p>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <strong>Phone:</strong> 1900.1900
+              </p>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <strong>Email:</strong> contact@vaxbot.com
+              </p>
+              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <strong>Working Hours:</strong> Monday - Saturday, 8:00 AM - 5:00 PM
+              </p>
+            </div>
+            {/* Google Maps */}
+            <div>
+              <h3 className='text-2xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
+                Map
+              </h3>
+              <iframe
+                src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.311996577007!2d108.15752167582252!3d16.049291584627337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31421938d61a3ce5%3A0x29d80f3ebbdcb44a!2zxJDhuqFpIEjhu41jIER1eSBUw6JuIEjDsmEgS2jDoW5oIE5hbQ!5e0!3m2!1svi!2s!4v1745053887238!5m2!1svi!2s'
+                width='100%'
+                height='400'
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading='lazy'
+                referrerPolicy='no-referrer-when-downgrade'
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   )
 }
 
-export default ServiceIntro
+export default AboutUS

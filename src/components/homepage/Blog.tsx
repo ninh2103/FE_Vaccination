@@ -36,8 +36,7 @@ const Blog = () => {
     {
       title: 'HOW LONG DOES IS TAKE TO RECOVER FROM DENUE FEVER.... ?',
       date: '10 25',
-      description:
-        'How long does it take to recover from dengue fever ....',
+      description: 'How long does it take to recover from dengue fever ....',
       image: 'https://vnvc.vn/wp-content/uploads/2025/02/het-sot-xuat-huyet-bao-lau-thi-duoc-tam.jpg',
       link: '/blog/khoi-sot-xuat-huyet-bao-lau-thi-duoc-tam'
     },
@@ -68,9 +67,8 @@ const Blog = () => {
   return (
     <section className='py-12 px-8 w-full relative'>
       <div className='container mx-auto'>
-      <h2 className='text-3xl font-bold text-center'>Expert Articles on Vaccination & Health</h2>
+        <h2 className='text-3xl font-bold text-center'>Expert Articles on Vaccination & Health</h2>
         <div className='relative mb-8'>
-          
           <div className='absolute top-0 right-0'>
             <Link to='/blog'>
               <Button variant='outline' size='sm'>

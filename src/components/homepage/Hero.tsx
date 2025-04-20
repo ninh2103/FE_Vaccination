@@ -45,7 +45,7 @@ export default function Hero() {
             diseases with safe and effective vaccines recommended by experts.
           </p>
           <div className='flex flex-col sm:flex-row gap-4'>
-            <Link to={path.home}>
+            <Link to={path.list}>
               <Button
                 size='lg'
                 className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
@@ -53,7 +53,7 @@ export default function Hero() {
                 Book Appointment
               </Button>
             </Link>
-            <Link to={path.home}>
+            <Link to={path.contact}>
               <Button
                 size='lg'
                 className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'

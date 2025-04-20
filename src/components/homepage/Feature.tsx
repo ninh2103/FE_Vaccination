@@ -3,7 +3,8 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/core/lib/utils'
 import { FingerprintIcon } from 'lucide-react'
-
+import { path } from '@/core/constants/path'
+import { Link } from 'react-router-dom'
 const featuresData = [
   {
     color: 'bg-blue-500',
@@ -49,7 +50,13 @@ export default function Feature() {
             Vaccines protect you and your loved ones from serious diseases. Stay safe and contribute to a healthier
             future. Get vaccinated today!
           </p>
-          <Button>Learn More</Button>
+          <div>
+            <Link to={path.list}>
+              <Button size='lg' className=' text-white'>
+                Book Appointment
+              </Button>
+            </Link>
+          </div>
         </div>
         <div className='mx-auto mt-24 flex w-full justify-center px-4 md:w-4/12 lg:mt-0'>
           <Card className='shadow-lg border rounded-lg'>

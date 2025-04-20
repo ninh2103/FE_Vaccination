@@ -74,10 +74,19 @@ export default function Footer() {
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4 dark:text-white'>Contact Us</h4>
-            <p className='dark:text-gray-400 mb-2'>Health Street</p>
-            <p className='dark:text-gray-400 mb-2'>Wellness City</p>
-            <p className='dark:text-gray-400'>support@vaccinecare.com</p>
+            <h4 className='font-semibold mb-4 dark:text-white'>
+              <strong>Contact Us</strong>
+            </h4>
+            <p className='dark:text-gray-400 mb-2'>
+              <strong>Phone:</strong> 1900.1900
+            </p>
+            <p className='dark:text-gray-400 mb-2'>
+              <strong>Address:</strong> 120 Hoang Minh Thao, Hoa Khanh Nam, Lien Chieu, Da Nang
+            </p>
+            <p className='dark:text-gray-400'>
+              {' '}
+              <strong>Email:</strong> contact@vaxbot.com
+            </p>
           </div>
         </div>
         <div className='border-t border-gray-800 pt-8 mt-8 text-center'>
@@ -92,7 +101,7 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} VaccineCare. All rights reserved.</p>
+          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} <strong>VaxBot. </strong> All rights reserved.</p>
         </div>
       </div>
     </footer>

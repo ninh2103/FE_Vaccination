@@ -15,7 +15,7 @@ export const path = {
   booking: '/booking',
   searchresult: '/searchresult',
   serviceDetail: '/service-detail',
-
+  contact: '/contact',
   admin: {
     dashboard: '/admin/dashboard',
     vaccines: '/admin/vaccines',

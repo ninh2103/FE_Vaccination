@@ -68,12 +68,12 @@ interface Vaccine {
 }
 
 const navItems = [
-  { name: 'Home', href: '#home' },
-  { name: 'Features', href: '#features' },
-  { name: 'Vaccines', href: '#vaccines' },
-  { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' },
-  { name: 'Blog', href: '#blog' }
+  { name: 'Home', href: path.home, type: 'route' },
+  { name: 'About US', href: '/introduce', type: 'route' },
+  { name: 'Services', href: '/service-detail', type: 'route' },
+  { name: 'Vaccines', href: '#vaccines', type: 'section' },
+  { name: 'Features', href: '#features', type: 'section' },
+  { name: 'Blog', href: '#blog', type: 'section' }
 ]
 
 export default function Header() {
@@ -119,7 +119,6 @@ export default function Header() {
     setIsLoggedIn(!!token)
   }, [])
 
-  // Xử lý tìm kiếm theo thời gian thực
   useEffect(() => {
     if (searchQuery.trim()) {
       const results = vaccineData.filter(
@@ -181,16 +180,27 @@ export default function Header() {
               </span>
             </Link>
             <nav className='hidden md:flex space-x-6'>
-              {navItems.map((item, index) => (
-                <Button
-                  key={index}
-                  variant='ghost'
-                  className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                  onClick={() => scrollToSection(item.name.toLowerCase())}
-                >
-                  {item.name}
-                </Button>
-              ))}
+              {navItems.map((item, index) =>
+                item.type === 'route' ? (
+                  <Link key={index} to={item.href}>
+                    <Button
+                      variant='ghost'
+                      className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
+                    >
+                      {item.name}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={index}
+                    variant='ghost'
+                    className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
+                    onClick={() => scrollToSection(item.name.toLowerCase())}
+                  >
+                    {item.name}
+                  </Button>
+                )
+              )}
             </nav>
             <div className='relative w-1/2 max-w-xs flex items-center gap-2'>
               <div className='relative flex-1'>
@@ -203,6 +213,16 @@ export default function Header() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
                 />
+                {searchQuery && (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    onClick={handleClearSearch}
+                  >
+                    <X className='h-4 w-4' />
+                  </Button>
+                )}
               </div>
               <Button
                 variant='ghost'
@@ -300,19 +320,31 @@ export default function Header() {
           </div>
           {isMenuOpen && (
             <div className='mt-4 md:hidden transition-all duration-300 ease-in-out'>
-              {navItems.map((item, index) => (
-                <Button
-                  key={index}
-                  variant='ghost'
-                  className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
-                  onClick={() => {
-                    scrollToSection(item.name.toLowerCase())
-                    setIsMenuOpen(false)
-                  }}
-                >
-                  {item.name}
-                </Button>
-              ))}
+              {navItems.map((item, index) =>
+                item.type === 'route' ? (
+                  <Link key={index} to={item.href}>
+                    <Button
+                      variant='ghost'
+                      className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={index}
+                    variant='ghost'
+                    className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
+                    onClick={() => {
+                      scrollToSection(item.name.toLowerCase())
+                      setIsMenuOpen(false)
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                )
+              )}
               {isLoggedIn ? (
                 <>
                   <Button

@@ -14,7 +14,8 @@ const vaccineData = [
     name: 'Pfizer-BioNTech COVID-19 Vaccine',
     brand: 'Pfizer',
     price: 500000,
-    image: 'https://static.biospace.com/dims4/default/d02ca1d/2147483647/strip/true/crop/622x350+1+0/resize/1440x810!/quality/90/?url=https%3A%2F%2Fk1-prod-biospace.s3.us-east-2.amazonaws.com%2Fbrightspot%2Flegacy%2FBioSpace-Assets%2F6CC12F27-836B-43C9-8F96-D50F30957738.jpg',
+    image:
+      'https://static.biospace.com/dims4/default/d02ca1d/2147483647/strip/true/crop/622x350+1+0/resize/1440x810!/quality/90/?url=https%3A%2F%2Fk1-prod-biospace.s3.us-east-2.amazonaws.com%2Fbrightspot%2Flegacy%2FBioSpace-Assets%2F6CC12F27-836B-43C9-8F96-D50F30957738.jpg',
     category: 'COVID-19',
     disease: 'COVID-19'
   },
