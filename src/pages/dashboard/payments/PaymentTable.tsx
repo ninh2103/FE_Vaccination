@@ -318,16 +318,16 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>
                             <div className='flex items-center gap-2'>
-                            <Button
-                                  variant='ghost'
-                                  size='icon'
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDelete(payment.id)
-                                  }}
-                                >
-                                  <Trash className='h-4 w-4 text-destructive text-red-500' />
-                                </Button>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onDelete(payment.id)
+                                }}
+                              >
+                                <Trash className='h-4 w-4 text-destructive text-red-500' />
+                              </Button>
                             </div>
                           </TableCell>
                           <TableCell>
