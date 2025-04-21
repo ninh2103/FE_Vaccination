@@ -15,14 +15,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { useDetailPaymentQuery, useUpdateStatusPaymentMutation } from '@/queries/useMomo'
 import { cn } from '@/core/lib/utils'
-import { PaymentResponseType, updateStatusPaymentBodySchema, UpdateStatusPaymentBodyType } from '@/schemaValidator/momo.schema'
+import {
+  PaymentResponseType,
+  updateStatusPaymentBodySchema,
+  UpdateStatusPaymentBodyType
+} from '@/schemaValidator/momo.schema'
 
 interface UpdatePaymentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   isLoading: boolean
   selectedPayment: PaymentResponseType | null
-
 }
 
 export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPayment }: UpdatePaymentDialogProps) {
@@ -62,10 +65,11 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='status'>Status</Label>
-            <Select value={form.watch('status')} onValueChange={(value) => form.setValue('status', value as 'PENDING' | 'COMPLETED' | 'FAILED')}>
-              <SelectTrigger>
-                {payment?.status}
-              </SelectTrigger>
+            <Select
+              value={form.watch('status')}
+              onValueChange={(value) => form.setValue('status', value as 'PENDING' | 'COMPLETED' | 'FAILED')}
+            >
+              <SelectTrigger>{payment?.status}</SelectTrigger>
               <SelectContent className='cursor-pointer'>
                 <SelectItem value='PENDING'>PENDING</SelectItem>
                 <SelectItem value='COMPLETED'>COMPLETED</SelectItem>
@@ -78,11 +82,7 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
               Cancel
             </Button>
 
-            <Button
-              type='submit'
-              disabled={isLoading}
-              className={cn(isLoading ? 'opacity-50 cursor-not-allowed' : '')}
-            >
+            <Button type='submit' disabled={isLoading} className={cn(isLoading ? 'opacity-50 cursor-not-allowed' : '')}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoading ? 'Updating...' : 'Update Status'}
             </Button>

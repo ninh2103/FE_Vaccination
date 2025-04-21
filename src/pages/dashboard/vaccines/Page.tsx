@@ -60,15 +60,6 @@ export default function VaccinesPage() {
   const filteredVaccines = useMemo(() => {
     if (!vaccineData?.data) return []
 
-    console.log('Filtering Debug:', {
-      allVaccines: vaccineData.data,
-      selectedCategory,
-      filteredResult: vaccineData.data.filter((vaccine) => {
-        if (selectedCategory === 'all') return true
-        return vaccine.CategoryVaccination.id === selectedCategory
-      })
-    })
-
     return vaccineData.data.filter((vaccine) => {
       if (selectedCategory === 'all') return true
       return vaccine.CategoryVaccination.id === selectedCategory
@@ -79,14 +70,6 @@ export default function VaccinesPage() {
   const currentPageVaccines = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
     const end = start + ITEMS_PER_PAGE
-    console.log('Pagination Debug:', {
-      start,
-      end,
-      currentPage,
-      ITEMS_PER_PAGE,
-      filteredVaccinesLength: filteredVaccines.length,
-      currentPageItems: filteredVaccines.slice(start, end)
-    })
     return filteredVaccines.slice(start, end)
   }, [filteredVaccines, currentPage, ITEMS_PER_PAGE])
 
@@ -97,17 +80,6 @@ export default function VaccinesPage() {
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
 
   // Debug logging
-  console.log('Pagination Debug:', {
-    total,
-    totalPages,
-    totalItems,
-    startIndex,
-    endIndex,
-    filteredVaccinesLength: filteredVaccines.length,
-    vaccineDataLength: vaccineData?.data?.length,
-    currentPage,
-    ITEMS_PER_PAGE
-  })
 
   const toggleDescription = (vaccineId: string) => {
     setExpandedDescriptions((prev) => {

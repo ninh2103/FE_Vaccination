@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { format } from 'date-fns' 
+import { format } from 'date-fns'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Payment {
@@ -157,16 +157,24 @@ export function PaymentTable({
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
                         <TableCell>
                           <div className='flex items-center gap-2'>
-                            <Button variant='ghost' size='icon' onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(payment);
-                            }}>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEdit(payment)
+                              }}
+                            >
                               <Edit className='h-4 w-4' />
                             </Button>
-                            <Button variant='ghost' size='icon' onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(payment.id);
-                            }}>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onDelete(payment.id)
+                              }}
+                            >
                               <Trash className='h-4 w-4 text-destructive text-red-500' />
                             </Button>
                             <DropdownMenu>
@@ -272,16 +280,24 @@ export function PaymentTable({
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
                             <div className='flex items-center gap-2'>
-                              <Button variant='ghost' size='icon' onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(payment);
-                              }}>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onEdit(payment)
+                                }}
+                              >
                                 <Edit className='h-4 w-4' />
                               </Button>
-                              <Button variant='ghost' size='icon' onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(payment.id);
-                              }}>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onDelete(payment.id)
+                                }}
+                              >
                                 <Trash className='h-4 w-4 text-destructive text-red-500' />
                               </Button>
                               <DropdownMenu>
@@ -369,7 +385,7 @@ export function PaymentTable({
                           onClick={() => onViewDetails(payment)}
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                            <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
+                          <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
@@ -387,16 +403,24 @@ export function PaymentTable({
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
                             <div className='flex items-center gap-2'>
-                              <Button variant='ghost' size='icon' onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(payment);
-                              }}>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onEdit(payment)
+                                }}
+                              >
                                 <Edit className='h-4 w-4' />
                               </Button>
-                              <Button variant='ghost' size='icon' onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(payment.id);
-                              }}>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onDelete(payment.id)
+                                }}
+                              >
                                 <Trash className='h-4 w-4 text-destructive text-red-500' />
                               </Button>
                               <DropdownMenu>

@@ -46,12 +46,7 @@ const getStatusBadge = (status: string) => {
   }
 }
 
-export function OrdersTable({
-  onDeleteOrder,
-  currentPage,
-  itemsPerPage,
-  bookings
-}: OrdersTableProps) {
+export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings }: OrdersTableProps) {
   return (
     <div className='grid gap-6'>
       <Table>

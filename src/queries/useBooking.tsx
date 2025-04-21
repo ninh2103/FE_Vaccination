@@ -46,5 +46,3 @@ export const useDeleteBookingQuery = () => {
     mutationFn: (id: string) => bookingService.deleteBooking(id)
   })
 }
-
-

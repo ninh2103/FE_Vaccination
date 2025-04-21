@@ -31,7 +31,6 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
   const [date, setDate] = useState(format(appointmentDate, 'yyyy-MM-dd'))
   const [time, setTime] = useState(format(appointmentDate, 'HH:mm'))
 
-
   return (
     <DialogContent className='sm:max-w-[550px]'>
       <DialogHeader>

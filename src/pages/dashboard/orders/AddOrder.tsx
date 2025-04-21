@@ -53,11 +53,12 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
   }))
 
   const { data: categoryDetail } = useGetCategoryByIdQuery(selectedCategoryId)
-  const vaccineOptions = categoryDetail?.vaccines?.map((vaccine) => ({
-    label: vaccine.vaccineName,
-    value: vaccine.id,
-    remainingQuantity: vaccine.remainingQuantity
-  })) || []
+  const vaccineOptions =
+    categoryDetail?.vaccines?.map((vaccine) => ({
+      label: vaccine.vaccineName,
+      value: vaccine.id,
+      remainingQuantity: vaccine.remainingQuantity
+    })) || []
 
   const { mutate: createBookingAdmin } = useCreateBookingAdminQuery()
 
@@ -105,7 +106,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
   const handleVaccineChange = (value: string) => {
     setSelectedVaccineId(value)
-    const selected = vaccineOptions.find(v => v.value === value)
+    const selected = vaccineOptions.find((v) => v.value === value)
     setSelectedVaccine(selected)
     form.setValue('vaccinationId', value)
   }
@@ -135,9 +136,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         <div className='flex flex-col gap-2'>
           <Label htmlFor='categoryId'>Category</Label>
           <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
-            <SelectTrigger
-              className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}
-            >
+            <SelectTrigger className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}>
               {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Select Category'}
             </SelectTrigger>
             <SelectContent>
@@ -163,12 +162,9 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               </SelectTrigger>
               <SelectContent>
                 {vaccineOptions?.map((option) => (
-                  <SelectItem 
-                    key={option.value} 
-                    value={option.value}
-                    disabled={option.remainingQuantity === 0}
-                  >
-                    {option.label} {option.remainingQuantity === 0 ? '(Out of Stock)' : `(${option.remainingQuantity} available)`}
+                  <SelectItem key={option.value} value={option.value} disabled={option.remainingQuantity === 0}>
+                    {option.label}{' '}
+                    {option.remainingQuantity === 0 ? '(Out of Stock)' : `(${option.remainingQuantity} available)`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -218,9 +214,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               <p className='text-red-500 text-sm'>{form.formState.errors.vaccinationQuantity.message}</p>
             )}
             {selectedVaccine && (
-              <p className='text-xs text-muted-foreground'>
-                Available: {selectedVaccine.remainingQuantity} doses
-              </p>
+              <p className='text-xs text-muted-foreground'>Available: {selectedVaccine.remainingQuantity} doses</p>
             )}
           </div>
 
@@ -230,31 +224,18 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               id='appointment-date'
               type='date'
               min={tomorrow}
-              value={
-                form.watch('appointmentDate')
-                  ? format(form.watch('appointmentDate'), 'yyyy-MM-dd')
-                  : ''
-              }
+              value={form.watch('appointmentDate') ? format(form.watch('appointmentDate'), 'yyyy-MM-dd') : ''}
               onChange={(e) => {
                 const [year, month, day] = e.target.value.split('-').map(Number)
                 const now = new Date()
-                const combinedDate = new Date(
-                  year,
-                  month - 1,
-                  day,
-                  now.getHours(),
-                  now.getMinutes(),
-                  now.getSeconds()
-                )
+                const combinedDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds())
                 form.setValue('appointmentDate', combinedDate)
               }}
             />
             {form.formState.errors.appointmentDate && (
               <p className='text-red-500 text-sm'>{form.formState.errors.appointmentDate.message}</p>
             )}
-            <p className='text-xs text-muted-foreground'>
-              Only future dates are allowed for booking.
-            </p>
+            <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
           </div>
         </div>
       </div>
@@ -262,7 +243,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         <Button variant='outline' onClick={onCancel}>
           Cancel
         </Button>
-        <Button 
+        <Button
           onClick={form.handleSubmit(handleSubmit)}
           disabled={!selectedVaccineId || selectedVaccine?.remainingQuantity === 0}
         >
