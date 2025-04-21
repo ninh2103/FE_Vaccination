@@ -25,7 +25,7 @@ interface Payment {
   createdAt: string
   updatedAt: string
   status: 'PENDING' | 'COMPLETED' | 'FAILED'
-  paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD'
+  paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD' | 'CASH'
   user: {
     id: string
     name: string
@@ -128,6 +128,8 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead className='w-[80px]'></TableHead>
+                      <TableHead className='w-[80px]'></TableHead>
                       <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -156,7 +158,7 @@ export function PaymentTable({
                         </TableCell>
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
                         <TableCell>
-                          <div className='flex items-center gap-2'>
+                          {payment.paymentMethod === 'CASH' && (
                             <Button
                               variant='ghost'
                               size='icon'
@@ -167,16 +169,22 @@ export function PaymentTable({
                             >
                               <Edit className='h-4 w-4' />
                             </Button>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDelete(payment.id)
-                              }}
-                            >
-                              <Trash className='h-4 w-4 text-destructive text-red-500' />
-                            </Button>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onDelete(payment.id)
+                            }}
+                          >
+                            <Trash className='h-4 w-4 text-destructive text-red-500' />
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <div className='flex items-center gap-2'>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
@@ -249,6 +257,8 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead className='w-[80px]'>Edit</TableHead>
+                      <TableHead className='w-[80px]'>Delete</TableHead>
                       <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -279,27 +289,49 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
+                            {/* <div className='flex items-center gap-2'>
+                              {payment.paymentMethod === 'CASH' ? (
+                                <>
+                                  <Button
+                                    variant='ghost'
+                                    size='icon'
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onEdit(payment)
+                                    }}
+                                  >
+                                    <Edit className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    variant='ghost'
+                                    size='icon'
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onDelete(payment.id)
+                                    }}
+                                  >
+                                    <Trash className='h-4 w-4 text-destructive text-red-500' />
+                                  </Button>
+                                </>
+                              ) : (
+                              ) */}
+                          </TableCell>
+                          <TableCell>
                             <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEdit(payment)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDelete(payment.id)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive text-red-500' />
-                              </Button>
+                            <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDelete(payment.id)
+                                  }}
+                                >
+                                  <Trash className='h-4 w-4 text-destructive text-red-500' />
+                                </Button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
@@ -372,6 +404,8 @@ export function PaymentTable({
                       <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead className='w-[80px]'>Edit</TableHead>
+                      <TableHead className='w-[80px]'>Delete</TableHead>
                       <TableHead className='w-[80px]'>Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -402,7 +436,7 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
-                            <div className='flex items-center gap-2'>
+                            {payment.paymentMethod === 'CASH' && (
                               <Button
                                 variant='ghost'
                                 size='icon'
@@ -413,16 +447,22 @@ export function PaymentTable({
                               >
                                 <Edit className='h-4 w-4' />
                               </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDelete(payment.id)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive text-red-500' />
-                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onDelete(payment.id)
+                              }}
+                            >
+                              <Trash className='h-4 w-4 text-destructive text-red-500' />
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>

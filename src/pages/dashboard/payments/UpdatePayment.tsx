@@ -46,7 +46,7 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
       { id: selectedPayment.id, body: data },
       {
         onSuccess: () => {
-          toast.success('User role has been updated successfully.')
+          toast.success(`Payment has been updated successfully.`)
           onOpenChange(false)
         }
       }

@@ -40,7 +40,7 @@ export const paymentResponseSchema = z.object({
   bookingId: z.string().nullable(),
   userId: z.string(),
   amount: z.number(),
-  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER']),
+  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER', 'CASH']),
   status: z.enum(['PENDING', 'COMPLETED', 'FAILED']),
   appointmentDate: z.string().datetime().nullable(),
   orderId: z.string(),
@@ -72,7 +72,7 @@ export const paymentHistorySchema = z.object({
   totalAmount: z.number(),
   createdAt: z.string().datetime(),
   status: z.enum(['COMPLETED', 'PENDING', 'FAILED']).optional(),
-  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER']).optional()
+  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER', 'CASH']).optional()
 })
 
 export const paymentHistoryResponseSchema = z.object({
