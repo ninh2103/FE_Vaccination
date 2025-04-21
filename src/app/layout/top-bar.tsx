@@ -27,10 +27,10 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
   const user = getMeQuery.data
   if (user) {
     setUserToLS({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name
+      id: user?.id,
+      name: user?.name,
+      email: user?.email,
+      role: user?.role.name
     })
   }
 

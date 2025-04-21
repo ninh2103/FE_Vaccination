@@ -4,6 +4,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useListUserQuery } from '@/queries/useUser'
+import { useCreateBookingAdminQuery } from '@/queries/useBooking'
+import { BookingCreateBodySchema, BookingCreateBodyType } from '@/schemaValidator/booking.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
+import { Select, SelectItem, SelectContent, SelectTrigger } from '@/components/ui/select'
+import { useGetCategoryByIdQuery, useListCategoryQuery } from '@/queries/useCategory'
 
 interface Booking {
   id: string
@@ -25,39 +34,96 @@ interface AddOrderProps {
 }
 
 export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
-  const [newBooking, setNewBooking] = useState({
-    vaccinationId: '',
-    userId: '',
-    vaccinationQuantity: 1,
-    vaccinationPrice: 0,
-    appointmentDate: '',
-    vaccinationDate: ''
+  const [selectedCategoryId, setSelectedCategoryId] = useState('')
+  const [selectedVaccineId, setSelectedVaccineId] = useState('')
+  const [selectedVaccine, setSelectedVaccine] = useState<any>(null)
+
+  const { data: users } = useListUserQuery({})
+  const userOptions = users?.data
+    .filter((user) => user.role.name === 'USER')
+    .map((user) => ({
+      label: user.name,
+      value: user.id
+    }))
+
+  const { data: categories } = useListCategoryQuery()
+  const categoryOptions = categories?.data.map((category) => ({
+    label: category.name,
+    value: category.id
+  }))
+
+  const { data: categoryDetail } = useGetCategoryByIdQuery(selectedCategoryId)
+  const vaccineOptions = categoryDetail?.vaccines?.map((vaccine) => ({
+    label: vaccine.vaccineName,
+    value: vaccine.id,
+    remainingQuantity: vaccine.remainingQuantity
+  })) || []
+
+  const { mutate: createBookingAdmin } = useCreateBookingAdminQuery()
+
+  const form = useForm<BookingCreateBodyType>({
+    resolver: zodResolver(BookingCreateBodySchema),
+    defaultValues: {
+      vaccinationId: '',
+      userId: '',
+      vaccinationQuantity: 1,
+      appointmentDate: new Date()
+    }
   })
 
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
-
-  const handleSubmit = () => {
-    if (!newBooking.vaccinationId || !newBooking.userId || !newBooking.appointmentDate || !newBooking.vaccinationDate) {
+  const handleSubmit = (data: BookingCreateBodyType) => {
+    if (selectedVaccine?.remainingQuantity === 0) {
+      toast.error('This vaccine is out of stock')
       return
     }
-
-    const date = new Date()
-    const booking: Booking = {
-      id: Math.random().toString(36).substring(7),
-      vaccinationId: newBooking.vaccinationId,
-      userId: newBooking.userId,
-      vaccinationQuantity: newBooking.vaccinationQuantity,
-      vaccinationPrice: newBooking.vaccinationPrice,
-      totalAmount: newBooking.vaccinationQuantity * newBooking.vaccinationPrice,
-      createdAt: date.toISOString(),
-      status: 'PENDING',
-      vaccinationDate: newBooking.vaccinationDate,
-      confirmationTime: '',
-      appointmentDate: newBooking.appointmentDate
+    if (data.vaccinationQuantity > selectedVaccine?.remainingQuantity) {
+      toast.error(`Maximum available quantity is ${selectedVaccine?.remainingQuantity}`)
+      return
     }
-
-    onAdd(booking)
+    createBookingAdmin(data, {
+      onSuccess: () => {
+        toast.success('Booking created successfully')
+        form.reset()
+        onAdd(data as unknown as Booking)
+        onCancel()
+      },
+      onError: (error) => {
+        handleErrorApi({
+          error: error,
+          setError: form.setError
+        })
+      }
+    })
   }
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategoryId(value)
+    setSelectedVaccineId('')
+    setSelectedVaccine(null)
+    form.setValue('vaccinationId', '')
+  }
+
+  const handleVaccineChange = (value: string) => {
+    setSelectedVaccineId(value)
+    const selected = vaccineOptions.find(v => v.value === value)
+    setSelectedVaccine(selected)
+    form.setValue('vaccinationId', value)
+  }
+
+  const handleQuantityChange = (value: string) => {
+    const quantity = parseInt(value)
+    if (selectedVaccine?.remainingQuantity === 0) {
+      toast.error('This vaccine is out of stock')
+      return
+    }
+    if (quantity > selectedVaccine?.remainingQuantity) {
+      toast.error(`Maximum available quantity is ${selectedVaccine?.remainingQuantity}`)
+      return
+    }
+    form.setValue('vaccinationQuantity', quantity)
+  }
+
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
@@ -66,34 +132,76 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         <DialogDescription>Create a new vaccination booking.</DialogDescription>
       </DialogHeader>
       <div className='grid gap-4 py-4'>
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='vaccination-id'>Vaccination ID</Label>
-            <Input
-              id='vaccination-id'
-              value={newBooking.vaccinationId}
-              onChange={(e) =>
-                setNewBooking((prev) => ({
-                  ...prev,
-                  vaccinationId: e.target.value
-                }))
-              }
-            />
-          </div>
-          <div className='space-y-2'>
-            <Label htmlFor='user-id'>User ID</Label>
-            <Input
-              id='user-id'
-              value={newBooking.userId}
-              onChange={(e) =>
-                setNewBooking((prev) => ({
-                  ...prev,
-                  userId: e.target.value
-                }))
-              }
-            />
-          </div>
+        <div className='flex flex-col gap-2'>
+          <Label htmlFor='categoryId'>Category</Label>
+          <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
+            <SelectTrigger
+              className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}
+            >
+              {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Select Category'}
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        {selectedCategoryId && (
+          <div className='flex flex-col gap-2'>
+            <Label htmlFor='vaccinationId'>Vaccine</Label>
+            <Select value={selectedVaccineId} onValueChange={handleVaccineChange}>
+              <SelectTrigger
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.vaccinationId ? 'border-red-500' : ''
+                }`}
+              >
+                {vaccineOptions?.find((option) => option.value === selectedVaccineId)?.label || 'Select Vaccine'}
+              </SelectTrigger>
+              <SelectContent>
+                {vaccineOptions?.map((option) => (
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    disabled={option.remainingQuantity === 0}
+                  >
+                    {option.label} {option.remainingQuantity === 0 ? '(Out of Stock)' : `(${option.remainingQuantity} available)`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.vaccinationId && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.vaccinationId.message}</p>
+            )}
+          </div>
+        )}
+
+        <div className='flex flex-col gap-2'>
+          <Label htmlFor='userId'>User</Label>
+          <Select value={form.watch('userId')} onValueChange={(value) => form.setValue('userId', value)}>
+            <SelectTrigger
+              className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                form.formState.errors.userId ? 'border-red-500' : ''
+              }`}
+            >
+              {userOptions?.find((option) => option.value === form.watch('userId'))?.label || 'Select User'}
+            </SelectTrigger>
+            <SelectContent>
+              {userOptions?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {form.formState.errors.userId && (
+            <p className='text-red-500 text-sm'>{form.formState.errors.userId.message}</p>
+          )}
+        </div>
+
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
             <Label htmlFor='quantity'>Quantity</Label>
@@ -101,68 +209,65 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               id='quantity'
               type='number'
               min={1}
-              value={newBooking.vaccinationQuantity}
-              onChange={(e) =>
-                setNewBooking((prev) => ({
-                  ...prev,
-                  vaccinationQuantity: parseInt(e.target.value)
-                }))
-              }
+              max={selectedVaccine?.remainingQuantity}
+              value={form.watch('vaccinationQuantity')}
+              onChange={(e) => handleQuantityChange(e.target.value)}
+              disabled={!selectedVaccineId || selectedVaccine?.remainingQuantity === 0}
             />
+            {form.formState.errors.vaccinationQuantity && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.vaccinationQuantity.message}</p>
+            )}
+            {selectedVaccine && (
+              <p className='text-xs text-muted-foreground'>
+                Available: {selectedVaccine.remainingQuantity} doses
+              </p>
+            )}
           </div>
+
           <div className='space-y-2'>
-            <Label htmlFor='price'>Price</Label>
+            <Label htmlFor='appointment-date'>Appointment Date</Label>
             <Input
-              id='price'
-              type='number'
-              min={0}
-              value={newBooking.vaccinationPrice}
-              onChange={(e) =>
-                setNewBooking((prev) => ({
-                  ...prev,
-                  vaccinationPrice: parseInt(e.target.value)
-                }))
+              id='appointment-date'
+              type='date'
+              min={tomorrow}
+              value={
+                form.watch('appointmentDate')
+                  ? format(form.watch('appointmentDate'), 'yyyy-MM-dd')
+                  : ''
               }
+              onChange={(e) => {
+                const [year, month, day] = e.target.value.split('-').map(Number)
+                const now = new Date()
+                const combinedDate = new Date(
+                  year,
+                  month - 1,
+                  day,
+                  now.getHours(),
+                  now.getMinutes(),
+                  now.getSeconds()
+                )
+                form.setValue('appointmentDate', combinedDate)
+              }}
             />
+            {form.formState.errors.appointmentDate && (
+              <p className='text-red-500 text-sm'>{form.formState.errors.appointmentDate.message}</p>
+            )}
+            <p className='text-xs text-muted-foreground'>
+              Only future dates are allowed for booking.
+            </p>
           </div>
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='appointment-date'>Appointment Date</Label>
-          <Input
-            id='appointment-date'
-            type='date'
-            min={tomorrow}
-            value={newBooking.appointmentDate}
-            onChange={(e) =>
-              setNewBooking((prev) => ({
-                ...prev,
-                appointmentDate: e.target.value
-              }))
-            }
-          />
-          <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='vaccination-date'>Vaccination Date</Label>
-          <Input
-            id='vaccination-date'
-            type='date'
-            min={tomorrow}
-            value={newBooking.vaccinationDate}
-            onChange={(e) =>
-              setNewBooking((prev) => ({
-                ...prev,
-                vaccinationDate: e.target.value
-              }))
-            }
-          />
         </div>
       </div>
       <DialogFooter>
         <Button variant='outline' onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Create Booking</Button>
+        <Button 
+          onClick={form.handleSubmit(handleSubmit)}
+          disabled={!selectedVaccineId || selectedVaccine?.remainingQuantity === 0}
+        >
+          Create Booking
+        </Button>
       </DialogFooter>
     </DialogContent>
   )

@@ -40,8 +40,8 @@ export const paymentResponseSchema = z.object({
   bookingId: z.string().nullable(),
   userId: z.string(),
   amount: z.number(),
-  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER']).optional(),
-  status: z.enum(['PENDING', 'COMPLETED', 'FAILED']).optional(),
+  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER']),
+  status: z.enum(['PENDING', 'COMPLETED', 'FAILED']),
   appointmentDate: z.string().datetime().nullable(),
   orderId: z.string(),
   user: z.object({
@@ -89,3 +89,9 @@ export const checkPaymentStatusResponseSchema = z.object({
 })
 
 export type CheckPaymentStatusResponseType = z.infer<typeof checkPaymentStatusResponseSchema>
+
+export const updateStatusPaymentBodySchema = z.object({
+  status: z.enum(['COMPLETED', 'PENDING', 'FAILED'])
+})
+
+export type UpdateStatusPaymentBodyType = z.infer<typeof updateStatusPaymentBodySchema>

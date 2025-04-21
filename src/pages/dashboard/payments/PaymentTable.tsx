@@ -1,4 +1,4 @@
-import { MoreHorizontal, Receipt, QrCode, DollarSign, Calendar, Printer, Download } from 'lucide-react'
+import { MoreHorizontal, Receipt, QrCode, DollarSign, Calendar, Printer, Download, Trash, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { format } from 'date-fns'
+import { format } from 'date-fns' 
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Payment {
@@ -41,6 +41,8 @@ interface PaymentTableProps {
   onViewDetails: (payment: Payment) => void
   onDownloadReceipt: (payment: Payment) => void
   onPrintReceipt: (payment: Payment) => void
+  onEdit: (payment: Payment) => void
+  onDelete: (paymentId: string) => void
   isLoading?: boolean
   total?: number
   itemsPerPage?: number
@@ -53,6 +55,8 @@ export function PaymentTable({
   onViewDetails,
   onDownloadReceipt,
   onPrintReceipt,
+  onEdit,
+  onDelete,
   isLoading = false,
   total = 0,
   itemsPerPage = 10
@@ -152,45 +156,59 @@ export function PaymentTable({
                         </TableCell>
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
-                                <MoreHorizontal className='h-4 w-4' />
-                                <span className='sr-only'>Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end'>
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onViewDetails(payment)
-                                }}
-                              >
-                                <Receipt className='mr-2 h-4 w-4' />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDownloadReceipt(payment)
-                                }}
-                              >
-                                <Download className='mr-2 h-4 w-4' />
-                                Download Receipt
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onPrintReceipt(payment)
-                                }}
-                              >
-                                <Printer className='mr-2 h-4 w-4' />
-                                Print Receipt
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className='flex items-center gap-2'>
+                            <Button variant='ghost' size='icon' onClick={(e) => {
+                              e.stopPropagation();
+                              onEdit(payment);
+                            }}>
+                              <Edit className='h-4 w-4' />
+                            </Button>
+                            <Button variant='ghost' size='icon' onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete(payment.id);
+                            }}>
+                              <Trash className='h-4 w-4 text-destructive text-red-500' />
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                  <MoreHorizontal className='h-4 w-4' />
+                                  <span className='sr-only'>Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onViewDetails(payment)
+                                  }}
+                                >
+                                  <Receipt className='mr-2 h-4 w-4' />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDownloadReceipt(payment)
+                                  }}
+                                >
+                                  <Download className='mr-2 h-4 w-4' />
+                                  Download Receipt
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onPrintReceipt(payment)
+                                  }}
+                                >
+                                  <Printer className='mr-2 h-4 w-4' />
+                                  Print Receipt
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -236,7 +254,7 @@ export function PaymentTable({
                           onClick={() => onViewDetails(payment)}
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                          <TableCell className='font-medium'>#{payment.orderId.slice(0, 8)}</TableCell>
+                          <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
@@ -253,45 +271,59 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
-                                  <MoreHorizontal className='h-4 w-4' />
-                                  <span className='sr-only'>Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align='end'>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onViewDetails(payment)
-                                  }}
-                                >
-                                  <Receipt className='mr-2 h-4 w-4' />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDownloadReceipt(payment)
-                                  }}
-                                >
-                                  <Download className='mr-2 h-4 w-4' />
-                                  Download Receipt
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onPrintReceipt(payment)
-                                  }}
-                                >
-                                  <Printer className='mr-2 h-4 w-4' />
-                                  Print Receipt
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <div className='flex items-center gap-2'>
+                              <Button variant='ghost' size='icon' onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(payment);
+                              }}>
+                                <Edit className='h-4 w-4' />
+                              </Button>
+                              <Button variant='ghost' size='icon' onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(payment.id);
+                              }}>
+                                <Trash className='h-4 w-4 text-destructive text-red-500' />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                    <MoreHorizontal className='h-4 w-4' />
+                                    <span className='sr-only'>Open menu</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onViewDetails(payment)
+                                    }}
+                                  >
+                                    <Receipt className='mr-2 h-4 w-4' />
+                                    View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onDownloadReceipt(payment)
+                                    }}
+                                  >
+                                    <Download className='mr-2 h-4 w-4' />
+                                    Download Receipt
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onPrintReceipt(payment)
+                                    }}
+                                  >
+                                    <Printer className='mr-2 h-4 w-4' />
+                                    Print Receipt
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -337,7 +369,7 @@ export function PaymentTable({
                           onClick={() => onViewDetails(payment)}
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                          <TableCell className='font-medium'>#{payment.orderId.slice(0, 8)}</TableCell>
+                            <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>#{payment.id.slice(0, 8)}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
@@ -354,45 +386,59 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
-                                  <MoreHorizontal className='h-4 w-4' />
-                                  <span className='sr-only'>Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align='end'>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onViewDetails(payment)
-                                  }}
-                                >
-                                  <Receipt className='mr-2 h-4 w-4' />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDownloadReceipt(payment)
-                                  }}
-                                >
-                                  <Download className='mr-2 h-4 w-4' />
-                                  Download Receipt
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onPrintReceipt(payment)
-                                  }}
-                                >
-                                  <Printer className='mr-2 h-4 w-4' />
-                                  Print Receipt
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <div className='flex items-center gap-2'>
+                              <Button variant='ghost' size='icon' onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(payment);
+                              }}>
+                                <Edit className='h-4 w-4' />
+                              </Button>
+                              <Button variant='ghost' size='icon' onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(payment.id);
+                              }}>
+                                <Trash className='h-4 w-4 text-destructive text-red-500' />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
+                                    <MoreHorizontal className='h-4 w-4' />
+                                    <span className='sr-only'>Open menu</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onViewDetails(payment)
+                                    }}
+                                  >
+                                    <Receipt className='mr-2 h-4 w-4' />
+                                    View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onDownloadReceipt(payment)
+                                    }}
+                                  >
+                                    <Download className='mr-2 h-4 w-4' />
+                                    Download Receipt
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onPrintReceipt(payment)
+                                    }}
+                                  >
+                                    <Printer className='mr-2 h-4 w-4' />
+                                    Print Receipt
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

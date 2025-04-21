@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { VaccineType } from '@/schemaValidator/vaccination.schema'
 import { cn } from '@/core/lib/utils'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface VaccineTableProps {
   vaccines: VaccineType[]
@@ -112,7 +111,7 @@ export default function VaccineTable({
                   <TableCell>{new Date(vaccine.expirationDate).toLocaleDateString()}</TableCell>
                   <TableCell>{getStatusBadge(vaccine.remainingQuantity)}</TableCell>
                   <TableCell>
-                    <div className='flex items-center gap-2'>
+                    <div className='flex items-center gap-2 '>
                       <Button
                         variant='ghost'
                         size='icon'

@@ -30,6 +30,7 @@ import AppointmentsPage from '@/pages/dashboard/appointments/Page'
 import HistorysPage from '@/pages/dashboard/historys/Page'
 import ProfilePage from '@/pages/profile-admin/profile'
 import { CategoryPage } from '@/pages/dashboard/Category/Page'
+import ResendVerifyEmail from '@/pages/resendEmail/resend-verify-email'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -40,6 +41,7 @@ export default function useRoutesElements() {
       { path: path.register, element: <Register /> },
       { path: path.resetPassword, element: <ResetPassword /> },
       { path: path.forgotPassword, element: <ForgotPassword /> },
+      { path: path.reSendVerifyEmail, element: <ResendVerifyEmail /> },
       { path: path.otp, element: <OTPInput /> },
 
       {

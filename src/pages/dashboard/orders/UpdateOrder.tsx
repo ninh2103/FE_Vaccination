@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { useDetailBookingQuery } from '@/queries/useBooking'
 
 interface Booking {
   id: string
@@ -32,7 +31,6 @@ export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
   const [date, setDate] = useState(format(appointmentDate, 'yyyy-MM-dd'))
   const [time, setTime] = useState(format(appointmentDate, 'HH:mm'))
 
-  const { data: bookingDetail } = useDetailBookingQuery(order.id)
 
   return (
     <DialogContent className='sm:max-w-[550px]'>

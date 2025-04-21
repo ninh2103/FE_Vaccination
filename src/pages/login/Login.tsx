@@ -160,9 +160,14 @@ export default function FormLogin() {
               Sign up
             </Link>
           </div>
-          <Link to={path.forgotPassword} className='text-sm text-center text-green-400 hover:text-green-300'>
-            Forgot your password?
-          </Link>
+          <div className='flex flex-col gap-2 justify-center'>
+            <Link to={path.forgotPassword} className='text-sm text-center text-green-400 hover:text-green-300'>
+              Forgot your password ?
+            </Link>
+            <Link to={path.reSendVerifyEmail} className='text-sm text-center text-green-400 hover:text-green-300'>
+              Resend verify email !
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </div>

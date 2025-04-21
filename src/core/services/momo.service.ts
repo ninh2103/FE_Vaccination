@@ -6,7 +6,8 @@ import {
   PaymentResponseType,
   PaymentHistoryResponseType,
   CheckPaymentStatusResponseType,
-  PaymentListResponseType
+  PaymentListResponseType,
+  UpdateStatusPaymentBodyType
 } from '@/schemaValidator/momo.schema'
 
 const API_MOMO_URL = '/api/momo/payment'
@@ -46,6 +47,12 @@ const momoService = {
   },
   checkPaymentStatus(query: CheckPaymentStatusQuery) {
     return axiosClient.get(`${API_MOMO_STATUS_URL}`, { params: query })
+  },
+  deletePayment(id: string) {
+    return axiosClient.delete(`${API_MOMO_URL}/${id}`)
+  },
+  updateStatusPayment(id: string, body: UpdateStatusPaymentBodyType) {
+    return axiosClient.put(`${API_MOMO_URL}/${id}`, body)
   }
 }
 

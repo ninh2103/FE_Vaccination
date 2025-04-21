@@ -1,16 +1,9 @@
 import { format, parseISO } from 'date-fns'
-import { MoreHorizontal, Edit, Trash, Check, X, Calendar, Clock } from 'lucide-react'
+import { Trash, Calendar, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+
 import { formatVND } from '@/core/lib/utils'
 
 interface Booking {
@@ -54,9 +47,7 @@ const getStatusBadge = (status: string) => {
 }
 
 export function OrdersTable({
-  onUpdateOrder,
   onDeleteOrder,
-  onViewDetails,
   currentPage,
   itemsPerPage,
   bookings
@@ -74,7 +65,7 @@ export function OrdersTable({
             <TableHead>Date</TableHead>
             <TableHead>Time</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className='w-[80px]'></TableHead>
+            <TableHead className='w-[80px]'>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,58 +90,11 @@ export function OrdersTable({
               </TableCell>
               <TableCell>{getStatusBadge(booking.status)}</TableCell>
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
-                      <MoreHorizontal className='h-4 w-4' />
-                      <span className='sr-only'>Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onViewDetails(booking)
-                      }}
-                    >
-                      <Edit className='mr-2 h-4 w-4' />
-                      Details
-                    </DropdownMenuItem>
-                    {booking.status === 'PENDING' && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onUpdateOrder({ ...booking, status: 'CONFIRMED' })
-                          }}
-                        >
-                          <Check className='mr-2 h-4 w-4 text-green-500' />
-                          Confirm
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onUpdateOrder({ ...booking, status: 'CANCELED' })
-                          }}
-                        >
-                          <X className='mr-2 h-4 w-4 text-red-500' />
-                          Cancel
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDeleteOrder(booking)
-                      }}
-                    >
-                      <Trash className='mr-2 h-4 w-4' />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className='flex items-center gap-2'>
+                  <Button variant='ghost' size='icon' onClick={() => onDeleteOrder(booking)}>
+                    <Trash className='h-4 w-4 text-destructive text-red-500' />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

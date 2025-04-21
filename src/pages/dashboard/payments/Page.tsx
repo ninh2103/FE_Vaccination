@@ -16,28 +16,13 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { PaymentTable } from './PaymentTable'
+import { UpdatePaymentDialog } from './UpdatePayment'
 import { format } from 'date-fns'
-import { useListPaymentQuery } from '@/queries/useMomo'
+import { useDeletePaymentMutation, useListPaymentQuery } from '@/queries/useMomo'
 import { toast } from 'sonner'
+import { PaymentResponseType } from '@/schemaValidator/momo.schema'
 
-interface Payment {
-  id: string
-  orderId: string
-  amount: number
-  userId: string
-  bookingId: string | null
-  appointmentDate: string | null
-  createdAt: string
-  updatedAt: string
-  status: 'PENDING' | 'COMPLETED' | 'FAILED'
-  paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD'
-  user: {
-    id: string
-    name: string
-    email: string
-    phone: string
-  }
-}
+type Payment = PaymentResponseType
 
 interface Filters {
   status: {
@@ -61,6 +46,7 @@ interface Filters {
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -79,6 +65,8 @@ export default function PaymentsPage() {
     search: searchTerm
   })
 
+  const { mutate: deletePayment } = useDeletePaymentMutation()
+
   // Handle pagination state
   useEffect(() => {
     if (paymentsData?.data?.length === 0 && currentPage > 1) {
@@ -90,7 +78,7 @@ export default function PaymentsPage() {
     return (
       paymentsData?.data?.filter((payment) => {
         const matchesSearch =
-          payment.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
           payment.id.toLowerCase().includes(searchTerm.toLowerCase())
 
         const noStatusFilter =
@@ -125,7 +113,7 @@ export default function PaymentsPage() {
   const handleExport = () => {
     const exportData = filteredPayments.map((payment, index) => ({
       'No.': index + 1,
-      'Order ID': payment.orderId,
+      'Order ID': payment.id,
       'Payment ID': payment.id,
       Amount: formatCurrency(payment.amount),
       Date: payment.createdAt,
@@ -178,7 +166,7 @@ export default function PaymentsPage() {
 
     pdf.setFontSize(12)
     pdf.setFont('helvetica', 'normal')
-    pdf.text(`Receipt #${payment.orderId}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Receipt #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
     y += 10
@@ -241,7 +229,7 @@ export default function PaymentsPage() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Print Receipt - ${payment.orderId.slice(0, 8)}</title>
+        <title>Print Receipt - ${payment.id.slice(0, 8)}</title>
         <style>
           @media print {
             body { margin: 0; padding: 20mm; font-family: Arial, sans-serif; }
@@ -281,7 +269,7 @@ export default function PaymentsPage() {
         <div class="receipt">
           <div class="header">
             <h2>VAXBOT Vaccine Joint Stock Company</h2>
-            <p>Receipt #${payment.orderId}</p>
+            <p>Receipt #${payment.id}</p>
             <p>Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}</p>
           </div>
           <div class="details">
@@ -318,9 +306,16 @@ export default function PaymentsPage() {
   const handleDownloadReceipt = (payment: Payment | null) => {
     if (!payment) return
     const pdf = generatePDF(payment)
-    pdf.save(`receipt_${payment.orderId}.pdf`)
+    pdf.save(`receipt_${payment.id}.pdf`)
   }
 
+  const handleDeletePayment = (paymentId: string) => {
+    deletePayment(paymentId, {
+      onSuccess: () => {
+        toast.success('Payment deleted successfully')
+      }
+    })
+  }
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
@@ -379,11 +374,16 @@ export default function PaymentsPage() {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           onViewDetails={(payment) => {
-            setSelectedPayment(payment)
+            setSelectedPayment(payment as Payment)
             setOpenDetailsDialog(true)
           }}
-          onDownloadReceipt={handleDownloadReceipt}
-          onPrintReceipt={handlePrintReceipt}
+          onDownloadReceipt={(payment) => handleDownloadReceipt(payment as Payment)}
+          onPrintReceipt={(payment) => handlePrintReceipt(payment as Payment)}
+          onEdit={(payment) => {
+            setSelectedPayment(payment as Payment)
+            setOpenUpdateDialog(true)
+          }}
+          onDelete={handleDeletePayment}
           isLoading={isLoading}
           total={paymentsData?.total || 0}
           itemsPerPage={paymentsData?.itemsPerPage || 10}
@@ -427,7 +427,7 @@ export default function PaymentsPage() {
                 <div className='flex justify-between'>
                   <div>
                     <h4 className='text-sm font-medium text-muted-foreground'>Order ID</h4>
-                    <p className='font-medium'>#{selectedPayment.orderId.slice(0, 8)}</p>
+                    <p className='font-medium'>#{selectedPayment.id.slice(0, 8)}</p>
                   </div>
                   <div>
                     <h4 className='text-sm font-medium text-muted-foreground'>Amount</h4>
@@ -474,6 +474,14 @@ export default function PaymentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Update Payment Dialog */}
+      <UpdatePaymentDialog
+        open={openUpdateDialog}
+        onOpenChange={setOpenUpdateDialog}
+        isLoading={isLoading}
+        selectedPayment={selectedPayment}
+      />
     </div>
   )
 }

@@ -15,6 +15,7 @@ const API_LOGIN_URL = '/api/auth/login'
 const API_REGISTER_URL = '/api/auth/register'
 const API_VERIFY_EMAIL_URL = '/api/auth/verify-email'
 const API_FORGOT_PPASSWORD_URL = '/api/auth/forgot-password'
+const API_RESEND_VERIFICATION_EMAIL_URL = '/api/auth/resend-verification-email'
 const API_RESET_PPASSWORD_URL = '/api/auth/reset-password'
 const API_CHANGE_PASSWORD_URL = '/api/auth/change-password'
 const API_LOGOUT_URL = '/api/auth/logout'
@@ -32,6 +33,9 @@ export const authApi = {
   },
   forgotPassword(params: ForgotPassword) {
     return axiosClient.post(API_FORGOT_PPASSWORD_URL, params)
+  },
+  resendVerificationEmail(params: ForgotPassword) {
+    return axiosClient.post(API_RESEND_VERIFICATION_EMAIL_URL, params)
   },
   resetPassword(params: ResetPassword, token: string) {
     return axiosClient.put(API_RESET_PPASSWORD_URL, params, {

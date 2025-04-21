@@ -45,3 +45,8 @@ export const useLogoutMutation = () => {
     mutationFn: ({ params }: { params: LogoutBodyType }) => authApi.logout(params)
   })
 }
+export const useResendVerificationEmailMutation = () => {
+  return useMutation({
+    mutationFn: authApi.resendVerificationEmail
+  })
+}

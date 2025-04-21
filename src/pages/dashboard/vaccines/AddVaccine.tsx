@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { VaccineCreateBodySchema, VaccineCreateBodyType, VaccineType } from '@/schemaValidator/vaccination.schema'
+import { VaccineCreateBodySchema, VaccineCreateBodyType } from '@/schemaValidator/vaccination.schema'
 import { useCreateVaccinationQuery, useUploadImageVaccinationQuery } from '@/queries/useVaccination'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'

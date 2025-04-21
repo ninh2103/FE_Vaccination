@@ -113,3 +113,15 @@ export const BookingConfirmResponseSchema = z.object({
 })
 
 export type BookingConfirmResponseType = z.infer<typeof BookingConfirmResponseSchema>
+
+export const BookingCreateBodySchema = z.object({
+  vaccinationId: z.string().uuid(),
+  appointmentDate: z.coerce.date({
+    required_error: 'Appointment date is required',
+    invalid_type_error: 'Appointment date must be a valid date'
+  }),
+  vaccinationQuantity: z.number().int().positive(),
+  userId: z.string().uuid()
+})
+
+export type BookingCreateBodyType = z.infer<typeof BookingCreateBodySchema>

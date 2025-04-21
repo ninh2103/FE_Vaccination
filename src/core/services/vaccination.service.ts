@@ -5,7 +5,6 @@ import {
   VaccineResponseType,
   VaccineType,
   VaccineUpdateBodyType,
-  VaccineUploadImageBodyType,
   VaccineUploadImageResponseType
 } from '@/schemaValidator/vaccination.schema'
 

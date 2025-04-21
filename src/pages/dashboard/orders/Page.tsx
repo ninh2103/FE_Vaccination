@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { OrdersTable } from './OrdersTable'
 import { AddOrder } from './AddOrder'
 import { UpdateOrder } from './UpdateOrder'
-import { useListBookingQuery } from '@/queries/useBooking'
+import { useDeleteBookingQuery, useListBookingQuery } from '@/queries/useBooking'
 import { toast } from 'sonner'
 
 interface Booking {
@@ -62,6 +62,8 @@ export default function OrdersPage() {
     search: searchTerm,
     status: activeTab === 'confirmed' ? 'CONFIRMED' : activeTab === 'pending' ? 'PENDING' : undefined
   })
+
+  const { mutate: deleteBooking } = useDeleteBookingQuery()
 
   const bookingsData = useMemo(() => bookingData?.data || [], [bookingData])
 
@@ -159,6 +161,14 @@ export default function OrdersPage() {
     if (!selectedOrder) return
     toast.success('Order has been deleted successfully')
     setOpenDeleteDialog(false)
+    deleteBooking(selectedOrder.id, {
+      onSuccess: () => {
+        toast.success('Order has been deleted successfully')
+      },
+      onError: () => {
+        toast.error('Failed to delete order')
+      }
+    })
   }, [selectedOrder])
 
   const handleViewDetails = useCallback((order: Booking) => {

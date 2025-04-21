@@ -1,6 +1,6 @@
 import momoService from '@/core/services/momo.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CreatePaymentBodyType, HandlePaymentIPNBodyType } from '@/schemaValidator/momo.schema'
+import { CreatePaymentBodyType, HandlePaymentIPNBodyType, UpdateStatusPaymentBodyType } from '@/schemaValidator/momo.schema'
 
 interface CheckPaymentStatusQuery {
   orderId: string
@@ -58,3 +58,17 @@ export const useListPaymentQuery = (query: ListPaymentQuery) => {
     queryFn: () => momoService.listPayment(query)
   })
 }
+
+export const useUpdateStatusPaymentMutation = () => {
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string, body: UpdateStatusPaymentBodyType }) => momoService.updateStatusPayment(id, body)
+  })
+}
+
+export const useDeletePaymentMutation = () => {
+  return useMutation({
+    mutationFn: (id: string) => momoService.deletePayment(id)
+  })
+}
+
+
