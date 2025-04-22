@@ -44,7 +44,7 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
       {
         onSuccess: () => {
           onUpdate({ ...supplier, ...data })
-          toast.success('Supplier updated successfully')
+          toast.success('Nhà cung cấp đã được cập nhật thành công')
         },
         onError: (error) => {
           handleErrorApi({ error, setError: form.setError, duration: 3000 })
@@ -56,33 +56,42 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
       <DialogHeader>
-        <DialogTitle>Update Supplier</DialogTitle>
-        <DialogDescription>Update the supplier details in the system.</DialogDescription>
+        <DialogTitle>Cập nhật nhà cung cấp</DialogTitle>
+        <DialogDescription>Cập nhật thông tin nhà cung cấp trong hệ thống.</DialogDescription>
       </DialogHeader>
 
       <div className='space-y-4'>
         <div className='space-y-2'>
-          <Label htmlFor='name'>Name</Label>
-          <Input id='name' {...form.register('name')} placeholder='Enter supplier name' />
+          <Label htmlFor='name'>Tên nhà cung cấp *</Label>
+          <Input id='name' {...form.register('name')} placeholder='Nhập tên nhà cung cấp' className={form.formState.errors.name ? 'border-red-500' : ''} />
+          {form.formState.errors.name && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.name.message}</p>
+          )}
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='address'>Address</Label>
-          <Textarea id='address' {...form.register('address')} placeholder='Enter supplier address' />
+          <Label htmlFor='address'>Địa chỉ *</Label>
+          <Textarea id='address' {...form.register('address')} placeholder='Nhập địa chỉ nhà cung cấp' className={form.formState.errors.address ? 'border-red-500' : ''} />
+          {form.formState.errors.address && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.address.message}</p>
+          )}
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='contactInfo'>Contact Info</Label>
-          <Input id='contactInfo' {...form.register('contactInfo')} placeholder='Enter contact information' required />
+          <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
+          <Input id='contactInfo' {...form.register('contactInfo')} placeholder='Nhập thông tin liên hệ' className={form.formState.errors.contactInfo ? 'border-red-500' : ''} />
+          {form.formState.errors.contactInfo && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.contactInfo.message}</p>
+          )}
         </div>
       </div>
 
       <DialogFooter>
         <Button type='button' variant='outline' onClick={onCancel}>
-          Cancel
+          Hủy bỏ
         </Button>
         <Button type='submit' disabled={isPending}>
-          {isPending ? 'Updating...' : 'Update Supplier'}
+          {isPending ? 'Đang cập nhật...' : 'Cập nhật nhà cung cấp'}
         </Button>
       </DialogFooter>
     </form>

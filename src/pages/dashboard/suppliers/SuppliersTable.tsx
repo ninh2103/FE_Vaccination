@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import { Plus, Download, Edit, Trash, Truck, MapPin, Phone, RefreshCw, X, Search } from 'lucide-react'
+import { Plus, Download, Edit, Trash, Truck, MapPin, Phone, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -72,7 +72,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
           refetch()
           setOpenDeleteDialog(false)
           setSelectedSupplier(null)
-          toast.success('Supplier deleted successfully')
+          toast.success('Nhà cung cấp đã được xóa thành công')
         },
         onError: (error) => {
           handleErrorApi({ error, setError: () => {}, duration: 3000 })
@@ -95,7 +95,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       setSearchTerm('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Suppliers refreshed successfully')
+      toast.success('Nhà cung cấp đã được cập nhật thành công')
     })
   }
 
@@ -104,9 +104,9 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Suppliers
+            Nhà cung cấp
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor suppliers in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi nhà cung cấp trong hệ thống.</p>
         </div>
       </div>
 
@@ -116,7 +116,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -129,7 +129,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
             <Download className='mr-2 h-4 w-4' />
-            Export
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? (
@@ -137,13 +137,13 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
             ) : (
               <RefreshCw className='mr-2 h-4 w-4' />
             )}
-            Refresh
+            Cập nhật
           </Button>
           <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
             <DialogTrigger asChild>
               <Button size='sm' className='h-9'>
                 <Plus className='mr-2 h-4 w-4' />
-                Add Supplier
+                Thêm nhà cung cấp
               </Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[550px]'>
@@ -182,20 +182,20 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       <Card>
         <CardContent className='p-0'>
           {isLoadingSuppliers ? (
-            <div className='p-4 text-center text-muted-foreground'>Loading suppliers...</div>
+            <div className='p-4 text-center text-muted-foreground'>Đang tải dữ liệu...</div>
           ) : suppliersData?.data.length === 0 ? (
             <div className='p-4 text-center text-muted-foreground'>
-              No suppliers found matching the current filters.
+              Không tìm thấy nhà cung cấp phù hợp với các bộ lọc hiện tại.
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>No.</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Contact Information</TableHead>
-                  <TableHead className='w-[80px]'>Actions</TableHead>
+                  <TableHead>STT</TableHead>
+                    <TableHead>Tên nhà cung cấp</TableHead>
+                  <TableHead>Địa chỉ</TableHead>
+                  <TableHead>Thông tin liên hệ</TableHead>
+                  <TableHead className='w-[80px]'>Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -259,7 +259,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       {totalPages > 1 && (
         <div className='flex items-center justify-between px-2'>
           <div className='flex-1 text-sm text-muted-foreground'>
-            Showing {startIndex} to {endIndex} of {totalItems} entries
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} mục
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -268,7 +268,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              Trang trước
             </Button>
             <div className='flex items-center gap-1'>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -289,7 +289,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              Next
+              Trang tiếp
             </Button>
           </div>
         </div>
@@ -299,24 +299,24 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete Supplier</DialogTitle>
+            <DialogTitle>Xóa nhà cung cấp</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this supplier? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa nhà cung cấp này không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
             {selectedSupplier && (
               <p className='text-sm font-medium'>
-                You are about to delete: <span className='font-bold'>{selectedSupplier.name}</span>
+                Bạn đang xóa: <span className='font-bold'>{selectedSupplier.name}</span>
               </p>
             )}
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button disabled={isDeletingSupplier} variant='destructive' onClick={handleDeleteSupplier}>
-              {isDeletingSupplier ? 'Deleting...' : 'Delete'}
+              {isDeletingSupplier ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

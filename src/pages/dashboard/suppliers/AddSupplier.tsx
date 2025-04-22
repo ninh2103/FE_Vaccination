@@ -33,7 +33,7 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
       onSuccess: (response) => {
         onAdd(response)
         onCancel()
-        toast.success('Supplier created successfully')
+        toast.success('Nhà cung cấp đã được tạo thành công')
         form.reset()
       },
       onError: (error) => {
@@ -45,55 +45,57 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
       <DialogHeader>
-        <DialogTitle>Add New Supplier</DialogTitle>
-        <DialogDescription>Fill in the details to add a new supplier to the system.</DialogDescription>
+        <DialogTitle>Thêm nhà cung cấp mới</DialogTitle>
+        <DialogDescription>Điền thông tin để thêm một nhà cung cấp mới vào hệ thống.</DialogDescription>
       </DialogHeader>
 
       <div className='space-y-4'>
         <div className='space-y-2'>
-          <Label htmlFor='name'>Name</Label>
+          <Label htmlFor='name'>Tên nhà cung cấp *</Label>
           <Input
             id='name'
             {...form.register('name')}
-            placeholder='Enter supplier name'
+            placeholder='Nhập tên nhà cung cấp'
             className={form.formState.errors.name ? 'border-red-500' : ''}
           />
-          {form.formState.errors.name && <p className='text-red-500 text-sm'>{form.formState.errors.name.message}</p>}
-        </div>
-
-        <div className='space-y-2'>
-          <Label htmlFor='address'>Address</Label>
-          <Textarea
-            id='address'
-            {...form.register('address')}
-            placeholder='Enter supplier address'
-            className={form.formState.errors.address ? 'border-red-500' : ''}
-          />
-          {form.formState.errors.address && (
-            <p className='text-red-500 text-sm'>{form.formState.errors.address.message}</p>
+          {form.formState.errors.name && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.name.message}</p>
           )}
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='contactInfo'>Contact Info</Label>
+          <Label htmlFor='address'>Địa chỉ *</Label>
+          <Textarea
+            id='address'
+            {...form.register('address')}
+            placeholder='Nhập địa chỉ nhà cung cấp'
+            className={form.formState.errors.address ? 'border-red-500' : ''}
+          />
+          {form.formState.errors.address && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.address.message}</p>
+          )}
+        </div>
+
+        <div className='space-y-2'>
+          <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
           <Input
             id='contactInfo'
             {...form.register('contactInfo')}
-            placeholder='Enter contact information'
+            placeholder='Nhập thông tin liên hệ'
             className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
           />
           {form.formState.errors.contactInfo && (
-            <p className='text-red-500 text-sm'>{form.formState.errors.contactInfo.message}</p>
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.contactInfo.message}</p>
           )}
         </div>
       </div>
 
       <DialogFooter>
         <Button type='button' variant='outline' onClick={onCancel}>
-          Cancel
+          Hủy bỏ
         </Button>
         <Button type='submit' disabled={isPending}>
-          {isPending ? 'Adding...' : 'Add Supplier'}
+          {isPending ? 'Đang thêm...' : 'Thêm nhà cung cấp'}
         </Button>
       </DialogFooter>
     </form>

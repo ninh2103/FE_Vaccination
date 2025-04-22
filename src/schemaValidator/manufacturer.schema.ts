@@ -32,7 +32,9 @@ export const ManufacturerBody = z.object({
     .refine((value) => value.trim().length > 0, {
       message: 'Quốc gia không được chỉ chứa khoảng trắng'
     }),
-  contactInfo: z.string().min(1, 'Thông tin liên hệ là bắt buộc')
+  contactInfo: z.string().min(1, 'Thông tin liên hệ là bắt buộc').refine((value) => value.trim().length > 0, {
+    message: 'Thông tin liên hệ không được chỉ chứa khoảng trắng'
+  })
 })
 
 export type ManufacturerBodyType = z.infer<typeof ManufacturerBody>
