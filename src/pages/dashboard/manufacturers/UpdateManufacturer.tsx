@@ -80,7 +80,11 @@ export const UpdateManufacturer = ({
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='name'>Tên nhà sản xuất *</Label>
-            <Input id='name' {...form.register('name')} className={form.formState.errors.name ? 'border-red-500' : ''} />
+            <Input
+              id='name'
+              {...form.register('name')}
+              className={form.formState.errors.name ? 'border-red-500' : ''}
+            />
             {form.formState.errors.name && (
               <p className='text-sm text-destructive text-red-500'>{form.formState.errors.name.message}</p>
             )}
