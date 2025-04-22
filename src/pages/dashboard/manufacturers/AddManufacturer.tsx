@@ -51,12 +51,12 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Add Manufacturer</DialogTitle>
-          <DialogDescription>Add a new manufacturer below.</DialogDescription>
+          <DialogTitle>Thêm nhà sản xuất</DialogTitle>
+          <DialogDescription>Thêm mới một nhà sản xuất dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='name'>Name</Label>
+            <Label htmlFor='name'>Tên nhà sản xuất *</Label>
             <Input
               id='name'
               {...form.register('name')}
@@ -65,7 +65,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='country'>Country</Label>
+            <Label htmlFor='country'>Quốc gia *</Label>
             <Input
               id='country'
               {...form.register('country')}
@@ -76,7 +76,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='contactInfo'>Contact Info</Label>
+            <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
             <Input
               id='contactInfo'
               {...form.register('contactInfo')}
@@ -88,7 +88,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
           </div>
           <DialogFooter>
             <Button type='submit' disabled={isPending}>
-              {isPending ? <Loader2 className='animate-spin' /> : 'Add'}
+              {isPending ? <Loader2 className='animate-spin' /> : 'Thêm'}
             </Button>
           </DialogFooter>
         </form>

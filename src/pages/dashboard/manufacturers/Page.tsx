@@ -76,7 +76,7 @@ export default function ManufacturersPage() {
     createManufacturer(newManufacturer, {
       onSuccess: () => {
         setOpenAddDialog(false)
-        toast.success('Manufacturer added successfully')
+        toast.success('Nhà sản xuất đã được thêm thành công')
         refetch()
       }
     })
@@ -88,7 +88,7 @@ export default function ManufacturersPage() {
         onSuccess: () => {
           setOpenDeleteDialog(false)
           setSelectedManufacturer(null)
-          toast.success('Manufacturer deleted successfully')
+          toast.success('Nhà sản xuất đã được xóa thành công')
           refetch()
         },
         onError: (error) => {
@@ -106,7 +106,7 @@ export default function ManufacturersPage() {
           onSuccess: () => {
             setIsEditMode(false)
             setSelectedManufacturer(null)
-            toast.success('Manufacturer updated successfully')
+            toast.success('Nhà sản xuất đã được cập nhật thành công')
             refetch()
           }
         }
@@ -125,7 +125,7 @@ export default function ManufacturersPage() {
       setSearchTerm('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Data has been refreshed.')
+      toast.success('Dữ liệu đã được cập nhật.')
     })
   }
 
@@ -135,9 +135,9 @@ export default function ManufacturersPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Manufacturers
+            Nhà sản xuất
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor manufacturers in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi nhà sản xuất trong hệ thống của bạn.</p>
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function ManufacturersPage() {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -159,15 +159,15 @@ export default function ManufacturersPage() {
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
               {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-              Export
+              Xuất dữ liệu
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-              Refresh
+              Cập nhật
             </Button>
             <Button size='sm' onClick={() => setOpenAddDialog(true)}>
               <Plus className='mr-2 h-4 w-4' />
-              Add Manufacturer
+              Thêm nhà sản xuất
             </Button>
           </div>
         </div>
@@ -194,8 +194,8 @@ export default function ManufacturersPage() {
         {manufacturersData?.total && manufacturersData.total > ROWS_PER_PAGE && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Showing {(currentPage - 1) * ROWS_PER_PAGE + 1} to{' '}
-              {Math.min(currentPage * ROWS_PER_PAGE, manufacturersData.total)} of {manufacturersData.total} entries
+              Hiển thị từ {(currentPage - 1) * ROWS_PER_PAGE + 1} đến{' '}
+              {Math.min(currentPage * ROWS_PER_PAGE, manufacturersData.total)} của {manufacturersData.total} bản ghi
             </div>
             <div className='flex items-center space-x-2'>
               <Button
@@ -204,7 +204,7 @@ export default function ManufacturersPage() {
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Previous
+                Trang trước
               </Button>
               <div className='flex items-center gap-1'>
                 {Array.from({ length: Math.ceil(manufacturersData.total / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
@@ -229,7 +229,7 @@ export default function ManufacturersPage() {
                 }
                 disabled={currentPage >= Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
               >
-                Next
+                Trang tiếp
               </Button>
             </div>
           </div>
@@ -254,24 +254,24 @@ export default function ManufacturersPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete Manufacturer</DialogTitle>
+            <DialogTitle>Xóa nhà sản xuất</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this manufacturer? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa nhà sản xuất này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
             {selectedManufacturer && (
               <p className='text-sm font-medium'>
-                You are about to delete: <span className='font-bold'>{selectedManufacturer.name}</span>
+                Bạn đang xóa: <span className='font-bold'>{selectedManufacturer.name}</span>
               </p>
             )}
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleDeleteManufacturer}>
-              Delete
+              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>

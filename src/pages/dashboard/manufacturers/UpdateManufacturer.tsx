@@ -74,33 +74,37 @@ export const UpdateManufacturer = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Update Manufacturer</DialogTitle>
-          <DialogDescription>Update the manufacturer details below.</DialogDescription>
+          <DialogTitle>Cập nhật nhà sản xuất</DialogTitle>
+          <DialogDescription>Cập nhật thông tin nhà sản xuất dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='name'>Name</Label>
-            <Input id='name' {...form.register('name')} />
+            <Label htmlFor='name'>Tên nhà sản xuất *</Label>
+            <Input id='name' {...form.register('name')} className={form.formState.errors.name ? 'border-red-500' : ''} />
             {form.formState.errors.name && (
-              <p className='text-sm text-destructive'>{form.formState.errors.name.message}</p>
+              <p className='text-sm text-destructive text-red-500'>{form.formState.errors.name.message}</p>
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='country'>Country</Label>
-            <Input id='country' {...form.register('country')} />
+            <Label htmlFor='country'>Quốc gia *</Label>
+            <Input
+              id='country'
+              {...form.register('country')}
+              className={form.formState.errors.country ? 'border-red-500' : ''}
+            />
             {form.formState.errors.country && (
-              <p className='text-sm text-destructive'>{form.formState.errors.country.message}</p>
+              <p className='text-sm text-destructive text-red-500'>{form.formState.errors.country.message}</p>
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='contactInfo'>Contact Info</Label>
+            <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
             <Input id='contactInfo' {...form.register('contactInfo')} />
             {form.formState.errors.contactInfo && (
-              <p className='text-sm text-destructive'>{form.formState.errors.contactInfo.message}</p>
+              <p className='text-sm text-destructive text-red-500'>{form.formState.errors.contactInfo.message}</p>
             )}
           </div>
           <DialogFooter>
-            <Button type='submit'>Update</Button>
+            <Button type='submit'>Cập nhật</Button>
           </DialogFooter>
         </form>
       </DialogContent>

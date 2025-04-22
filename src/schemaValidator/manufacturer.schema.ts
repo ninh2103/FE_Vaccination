@@ -18,9 +18,21 @@ const ManufacturerResponseSchema = z.object({
 export type ManufacturerResponseType = z.infer<typeof ManufacturerResponseSchema>
 
 export const ManufacturerBody = z.object({
-  name: z.string().min(1, 'Name is required'),
-  country: z.string().min(1, 'Country is required'),
-  contactInfo: z.string().min(1, 'Contact info is required')
+  name: z
+    .string()
+    .min(1, 'Tên không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên không được chỉ chứa khoảng trắng'
+    }),
+  country: z
+    .string()
+    .min(1, 'Quốc gia không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Quốc gia chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Quốc gia không được chỉ chứa khoảng trắng'
+    }),
+  contactInfo: z.string().min(1, 'Thông tin liên hệ là bắt buộc')
 })
 
 export type ManufacturerBodyType = z.infer<typeof ManufacturerBody>

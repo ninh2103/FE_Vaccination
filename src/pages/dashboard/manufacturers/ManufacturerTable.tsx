@@ -29,18 +29,18 @@ export function ManufacturerTable({
   return (
     <div>
       {isLoading ? (
-        <div className='p-4 text-center text-muted-foreground'>Loading manufacturers...</div>
+        <div className='p-4 text-center text-muted-foreground'>Đang tải dữ liệu...</div>
       ) : manufacturers.length === 0 ? (
-        <div className='p-4 text-center text-muted-foreground'>No manufacturers found.</div>
+        <div className='p-4 text-center text-muted-foreground'>Không tìm thấy nhà sản xuất.</div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>No.</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>Contact Information</TableHead>
-              <TableHead className='w-[100px]'>Actions</TableHead>
+              <TableHead>STT</TableHead>
+              <TableHead>Tên nhà sản xuất</TableHead>
+              <TableHead>Quốc gia</TableHead>
+              <TableHead>Thông tin liên hệ</TableHead>
+              <TableHead className='w-[100px]'>Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
