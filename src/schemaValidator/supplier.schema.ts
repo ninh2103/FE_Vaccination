@@ -33,7 +33,10 @@ export const SupplierBody = z.object({
     .refine((value) => value.trim().length > 0, {
       message: 'Địa chỉ không được chỉ chứa khoảng trắng'
     }),
-  contactInfo: z.string().min(1, 'Thông tin liên hệ không được để trống').refine((value) => value.trim().length > 0, {
+  contactInfo: z
+    .string()
+    .min(1, 'Thông tin liên hệ không được để trống')
+    .refine((value) => value.trim().length > 0, {
       message: 'Thông tin liên hệ không được chỉ chứa khoảng trắng'
     })
 })

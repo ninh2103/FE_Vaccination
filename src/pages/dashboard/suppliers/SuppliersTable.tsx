@@ -192,7 +192,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>STT</TableHead>
-                    <TableHead>Tên nhà cung cấp</TableHead>
+                  <TableHead>Tên nhà cung cấp</TableHead>
                   <TableHead>Địa chỉ</TableHead>
                   <TableHead>Thông tin liên hệ</TableHead>
                   <TableHead className='w-[80px]'>Hành động</TableHead>

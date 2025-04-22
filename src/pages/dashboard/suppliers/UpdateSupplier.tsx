@@ -63,7 +63,12 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
       <div className='space-y-4'>
         <div className='space-y-2'>
           <Label htmlFor='name'>Tên nhà cung cấp *</Label>
-          <Input id='name' {...form.register('name')} placeholder='Nhập tên nhà cung cấp' className={form.formState.errors.name ? 'border-red-500' : ''} />
+          <Input
+            id='name'
+            {...form.register('name')}
+            placeholder='Nhập tên nhà cung cấp'
+            className={form.formState.errors.name ? 'border-red-500' : ''}
+          />
           {form.formState.errors.name && (
             <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.name.message}</p>
           )}
@@ -71,7 +76,12 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
 
         <div className='space-y-2'>
           <Label htmlFor='address'>Địa chỉ *</Label>
-          <Textarea id='address' {...form.register('address')} placeholder='Nhập địa chỉ nhà cung cấp' className={form.formState.errors.address ? 'border-red-500' : ''} />
+          <Textarea
+            id='address'
+            {...form.register('address')}
+            placeholder='Nhập địa chỉ nhà cung cấp'
+            className={form.formState.errors.address ? 'border-red-500' : ''}
+          />
           {form.formState.errors.address && (
             <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.address.message}</p>
           )}
@@ -79,7 +89,12 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
 
         <div className='space-y-2'>
           <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
-          <Input id='contactInfo' {...form.register('contactInfo')} placeholder='Nhập thông tin liên hệ' className={form.formState.errors.contactInfo ? 'border-red-500' : ''} />
+          <Input
+            id='contactInfo'
+            {...form.register('contactInfo')}
+            placeholder='Nhập thông tin liên hệ'
+            className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
+          />
           {form.formState.errors.contactInfo && (
             <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.contactInfo.message}</p>
           )}
