@@ -112,7 +112,7 @@ export default function UsersPage() {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Users')
       XLSX.writeFile(workbook, `users_export_${new Date().toISOString().split('T')[0]}.xlsx`)
       setIsExporting(false)
-        toast.success('Dữ liệu người dùng đã được xuất ra Excel thành công.')
+      toast.success('Dữ liệu người dùng đã được xuất ra Excel thành công.')
     }, 1500)
   }
 
