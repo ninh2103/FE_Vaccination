@@ -54,12 +54,22 @@ export function AddCategory({ open, onOpenChange }: AddCategoryProps) {
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
             <Label htmlFor='name'>Tên danh mục *</Label>
-            <Input id='name' {...form.register('name')} placeholder='Nhập tên danh mục' className={form.formState.errors.name ? 'border-red-500' : ''} />
+            <Input
+              id='name'
+              {...form.register('name')}
+              placeholder='Nhập tên danh mục'
+              className={form.formState.errors.name ? 'border-red-500' : ''}
+            />
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='grid gap-2'>
             <Label htmlFor='description'>Mô tả danh mục *</Label>
-            <Textarea id='description' {...form.register('description')} placeholder='Nhập mô tả danh mục' className={form.formState.errors.description ? 'border-red-500' : ''} />
+            <Textarea
+              id='description'
+              {...form.register('description')}
+              placeholder='Nhập mô tả danh mục'
+              className={form.formState.errors.description ? 'border-red-500' : ''}
+            />
             {form.formState.errors.description && (
               <p className='text-sm text-red-500'>{form.formState.errors.description.message}</p>
             )}

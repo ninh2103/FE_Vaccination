@@ -3,15 +3,18 @@ import { VaccineSchema } from './vaccination.schema'
 
 export const CategoryBodySchema = z.object({
   name: z
-  .string()
-  .min(1, 'Tên không được để trống')
-  .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
-  .refine((value) => value.trim().length > 0, {
-    message: 'Tên không được chỉ chứa khoảng trắng'
-  }),
-  description: z.string().min(1, 'Mô tả không được để trống').refine((value) => value.trim().length > 0, {
-    message: 'Mô tả không được chỉ chứa khoảng trắng'
-  }),
+    .string()
+    .min(1, 'Tên không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên không được chỉ chứa khoảng trắng'
+    }),
+  description: z
+    .string()
+    .min(1, 'Mô tả không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Mô tả không được chỉ chứa khoảng trắng'
+    })
 })
 
 export type CategoryBodyType = z.infer<typeof CategoryBodySchema>
@@ -34,15 +37,18 @@ export type CategoryResListType = z.infer<typeof CategoryResListSchema>
 
 export const UpdateCategoryBodySchema = z.object({
   name: z
-  .string()
-  .min(1, 'Tên không được để trống')
-  .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
-  .refine((value) => value.trim().length > 0, {
-    message: 'Tên không được chỉ chứa khoảng trắng'
-  }),
-  description: z.string().min(1, 'Mô tả không được để trống').refine((value) => value.trim().length > 0, {
-    message: 'Mô tả không được chỉ chứa khoảng trắng'
-  }),
+    .string()
+    .min(1, 'Tên không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên không được chỉ chứa khoảng trắng'
+    }),
+  description: z
+    .string()
+    .min(1, 'Mô tả không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Mô tả không được chỉ chứa khoảng trắng'
+    })
 })
 
 export type UpdateCategoryBodyType = z.infer<typeof UpdateCategoryBodySchema>
