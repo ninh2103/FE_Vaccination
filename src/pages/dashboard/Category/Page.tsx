@@ -70,7 +70,7 @@ export const CategoryPage: React.FC = () => {
         setCategories(categories.filter((category) => category.id !== selectedCategory.id))
         setOpenDeleteDialog(false)
         setSelectedCategory(null)
-        toast.success('Category has been deleted successfully.')
+        toast.success('Danh mục đã được xóa thành công.')
       }
     })
   }
@@ -106,7 +106,7 @@ export const CategoryPage: React.FC = () => {
       XLSX.utils.book_append_sheet(wb, ws, 'Categories')
       XLSX.writeFile(wb, 'categories.xlsx')
       setIsExporting(false)
-      toast.success('Categories have been exported to Excel successfully.')
+      toast.success('Danh mục đã được xuất ra Excel thành công.')
     }, 1000)
   }
 
@@ -116,7 +116,7 @@ export const CategoryPage: React.FC = () => {
       setSearchQuery('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Data has been refreshed.')
+      toast.success('Dữ liệu đã được cập nhật thành công.')
     })
   }
 
@@ -130,9 +130,9 @@ export const CategoryPage: React.FC = () => {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Categories
+            Danh mục
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor categories in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi danh mục trong hệ thống.</p>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export const CategoryPage: React.FC = () => {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -154,15 +154,15 @@ export const CategoryPage: React.FC = () => {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExportExcel} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
+            Cập nhật
           </Button>
           <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Add Category
+            Thêm danh mục
           </Button>
         </div>
       </div>
@@ -179,7 +179,7 @@ export const CategoryPage: React.FC = () => {
         {totalPages > 1 && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Showing {startIndex} to {endIndex} of {totalItems} entries
+              Hiển thị {startIndex} đến {endIndex} của {totalItems} mục
             </div>
             <div className='flex items-center space-x-2'>
               <Button
@@ -188,7 +188,7 @@ export const CategoryPage: React.FC = () => {
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Previous
+                Trang trước
               </Button>
               <div className='flex items-center gap-1'>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -209,7 +209,7 @@ export const CategoryPage: React.FC = () => {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                Trang tiếp
               </Button>
             </div>
           </div>
@@ -223,9 +223,9 @@ export const CategoryPage: React.FC = () => {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete Category</DialogTitle>
+            <DialogTitle>Xóa danh mục</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this category? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
@@ -240,11 +240,11 @@ export const CategoryPage: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoadingCategories}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleConfirmDelete} disabled={isLoadingCategories}>
               {isLoadingCategories ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoadingCategories ? 'Deleting...' : 'Delete'}
+              {isLoadingCategories ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

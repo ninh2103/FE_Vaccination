@@ -36,7 +36,6 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
     }
   })
 
-  // Update form values when category data is loaded
   useEffect(() => {
     if (category) {
       form.reset({
@@ -52,7 +51,7 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
       id: category.id,
       body: data
     })
-    toast.success('Category updated successfully')
+    toast.success('Danh mục đã được cập nhật thành công')
     onOpenChange(false)
   }
 
@@ -60,18 +59,18 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Update Category</DialogTitle>
-          <DialogDescription>Update the category by modifying the form below.</DialogDescription>
+          <DialogTitle>Cập nhật danh mục</DialogTitle>
+          <DialogDescription>Cập nhật danh mục bằng cách sửa đổi form dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
-            <Label htmlFor='name'>Name</Label>
-            <Input id='name' {...form.register('name')} placeholder='Enter category name' />
+            <Label htmlFor='name'>Tên danh mục *</Label>
+            <Input id='name' {...form.register('name')} placeholder='Nhập tên danh mục' className={form.formState.errors.name ? 'border-red-500' : ''} />
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='description'>Description</Label>
-            <Textarea id='description' {...form.register('description')} placeholder='Enter category description' />
+            <Label htmlFor='description'>Mô tả danh mục *</Label>
+            <Textarea id='description' {...form.register('description')} placeholder='Nhập mô tả danh mục' className={form.formState.errors.description ? 'border-red-500' : ''} />
             {form.formState.errors.description && (
               <p className='text-sm text-red-500'>{form.formState.errors.description.message}</p>
             )}
@@ -79,10 +78,10 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
 
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button disabled={form.formState.isSubmitting} type='submit'>
-              {form.formState.isSubmitting ? 'Updating...' : 'Update Category'}
+              {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật danh mục'}
             </Button>
           </DialogFooter>
         </form>

@@ -31,17 +31,17 @@ export function CategoryTable({ categories, onView, onEdit, onDelete, isLoading 
     <Card>
       <CardContent className='p-0'>
         {isLoading ? (
-          <div className='p-4 text-center text-muted-foreground'>Loading categories...</div>
+          <div className='p-4 text-center text-muted-foreground'>Đang tải danh mục...</div>
         ) : categories.length === 0 ? (
-          <div className='p-4 text-center text-muted-foreground'>No categories found.</div>
+          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy danh mục.</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>No.</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className='w-[100px]'>Actions</TableHead>
+                <TableHead>STT</TableHead>
+                <TableHead>Tên</TableHead>
+                <TableHead>Mô tả</TableHead>
+                <TableHead className='w-[100px]'>Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
