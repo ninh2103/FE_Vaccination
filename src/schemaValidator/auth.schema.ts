@@ -20,15 +20,33 @@ export type LoginBodyType = z.TypeOf<typeof LoginBody>
 
 export const RegisterBody = z
   .object({
-    name: z.string().min(1, 'Tên là bắt buộc'),
-    email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
+    name: z
+    .string()
+    .min(1, 'Tên không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên không được chỉ chứa khoảng trắng'
+    }),
+    email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ').refine((value) => value.trim().length > 0, {
+      message: 'Email không được chỉ chứa khoảng trắng'
+    }),
     password: z.string().min(6, 'Mật khẩu là bắt buộc').regex(validator.passwordRegex, {
       message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
+    }).refine((value) => value.trim().length > 0, {
+      message: 'Mật khẩu không được chỉ chứa khoảng trắng'
     }),
     confirmPassword: z.string().min(1, 'Mật khẩu là bắt buộc').regex(validator.passwordRegex, {
-      message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
+      })
+      .refine((value) => value.trim().length > 0, {
+        message: 'Mật khẩu không được chỉ chứa khoảng trắng'
+      }),
+    phone: z
+      .string()
+      .min(1, 'Số điện thoại là bắt buộc')
+      .refine((value) => value.trim().length > 0, {
+      message: 'Số điện thoại không được chỉ chứa khoảng trắng'
     }),
-    phone: z.string().min(1, 'Số điện thoại là bắt buộc'),
     role: z.enum(['USER', 'ADMIN', 'DOCTOR', 'EMPLOYEE']).optional()
   })
   .refine((data) => data.password === data.confirmPassword, {

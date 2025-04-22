@@ -42,7 +42,7 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
     if (data.password !== data.confirmPassword) {
       form.setError('confirmPassword', {
         type: 'manual',
-        message: 'Passwords do not match'
+        message: 'Mật khẩu không khớp'
       })
       return
     }
@@ -51,7 +51,7 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
       onSuccess: () => {
         form.reset()
         onOpenChange(false)
-        toast.success('User has been added successfully.')
+        toast.success('Người dùng đã được thêm thành công.')
       },
       onError: (error: Error) => {
         handleErrorApi({
@@ -66,17 +66,17 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[550px]'>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
-          <DialogDescription>Enter the details of the new user to add to the system.</DialogDescription>
+          <DialogTitle>Thêm người dùng mới</DialogTitle>
+          <DialogDescription>Nhập thông tin của người dùng mới để thêm vào hệ thống.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='grid grid-cols-2 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='name'>Full Name</Label>
+              <Label htmlFor='name'>Họ và tên *</Label>
               <Input
                 id='name'
                 {...form.register('name')}
-                placeholder='Enter full name'
+                placeholder='Nhập họ và tên'
                 className={form.formState.errors.name ? 'border-red-500' : ''}
               />
               {form.formState.errors.name && (
@@ -84,12 +84,12 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='email'>Email</Label>
+              <Label htmlFor='email'>Email *</Label>
               <Input
                 id='email'
                 type='email'
                 {...form.register('email')}
-                placeholder='Enter email address'
+                placeholder='Nhập địa chỉ email'
                 className={form.formState.errors.email ? 'border-red-500' : ''}
               />
               {form.formState.errors.email && (
@@ -98,11 +98,11 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
             </div>
           </div>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='phone'>Phone Number</Label>
+            <Label htmlFor='phone'>Số điện thoại *</Label>
             <Input
               id='phone'
               {...form.register('phone')}
-              placeholder='Enter phone number'
+              placeholder='Nhập số điện thoại'
               className={form.formState.errors.phone ? 'border-red-500' : ''}
             />
             {form.formState.errors.phone && (
@@ -111,12 +111,12 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
           </div>
           <div className='grid grid-cols-2 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='password'>Password</Label>
+              <Label htmlFor='password'>Mật khẩu *</Label>
               <Input
                 id='password'
                 type='password'
                 {...form.register('password')}
-                placeholder='Enter password'
+                placeholder='Nhập mật khẩu'
                 className={form.formState.errors.password ? 'border-red-500' : ''}
               />
               {form.formState.errors.password && (
@@ -124,12 +124,12 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='confirmPassword'>Confirm Password</Label>
+              <Label htmlFor='confirmPassword'>Xác nhận mật khẩu *</Label>
               <Input
                 id='confirmPassword'
                 type='password'
                 {...form.register('confirmPassword')}
-                placeholder='Confirm password'
+                placeholder='Xác nhận mật khẩu'
                 className={form.formState.errors.confirmPassword ? 'border-red-500' : ''}
               />
               {form.formState.errors.confirmPassword && (
@@ -139,11 +139,11 @@ export function AddUserDialog({ open, onOpenChange, isLoading }: AddUserDialogPr
           </div>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button type='submit' disabled={isLoading || isCreating}>
               {isLoading || isCreating ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading || isCreating ? 'Saving...' : 'Save User'}
+              {isLoading || isCreating ? 'Đang lưu...' : 'Lưu người dùng'}
             </Button>
           </DialogFooter>
         </form>

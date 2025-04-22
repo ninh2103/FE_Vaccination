@@ -114,7 +114,7 @@ export function UserTable({
 
     const filteredUsers = getFilteredUsers(tab)
     if (filteredUsers.length === 0) {
-      return <div className='p-4 text-center text-muted-foreground'>No users found.</div>
+      return <div className='p-4 text-center text-muted-foreground'>Không tìm thấy người dùng.</div>
     }
 
     return (
@@ -122,13 +122,13 @@ export function UserTable({
         <TableHeader>
           <TableRow>
             <TableHead className='w-[60px]'>No.</TableHead>
-            <TableHead>{tab === 'patients' ? 'Patient' : tab === 'staff' ? 'Staff Member' : 'User'}</TableHead>
-            <TableHead>Contact</TableHead>
-            {tab !== 'patients' && <TableHead>Role</TableHead>}
-            <TableHead>Status</TableHead>
-            <TableHead>Registered</TableHead>
-            {tab !== 'patients' && <TableHead>Last Login</TableHead>}
-            <TableHead className='w-[80px]'>Actions</TableHead>
+            <TableHead>{tab === 'patients' ? 'Bệnh nhân' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
+            <TableHead>Liên hệ</TableHead>
+            {tab !== 'patients' && <TableHead>Vai trò</TableHead>}
+            <TableHead>Trạng thái</TableHead>
+            <TableHead>Ngày đăng ký</TableHead>
+            {tab !== 'patients' && <TableHead>Lần đăng nhập cuối</TableHead>}
+            <TableHead className='w-[80px]'>Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -195,9 +195,9 @@ export function UserTable({
     <div className='grid gap-6'>
       <Tabs defaultValue='all' className='w-full'>
         <TabsList className='grid w-full max-w-md grid-cols-3'>
-          <TabsTrigger value='all'>All Users</TabsTrigger>
-          <TabsTrigger value='patients'>Patients</TabsTrigger>
-          <TabsTrigger value='staff'>Staff</TabsTrigger>
+          <TabsTrigger value='all'>Tất cả người dùng</TabsTrigger>
+          <TabsTrigger value='patients'>Bệnh nhân</TabsTrigger>
+          <TabsTrigger value='staff'>Nhân viên</TabsTrigger>
         </TabsList>
         <TabsContent value='all' className='mt-4'>
           <Card>
@@ -220,7 +220,7 @@ export function UserTable({
       {totalPages > 1 && (
         <div className='flex items-center justify-between px-2'>
           <div className='flex-1 text-sm text-muted-foreground'>
-            Showing {startIndex} to {endIndex} of {totalItems} entries
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} bản ghi
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -229,7 +229,7 @@ export function UserTable({
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              Trang trước
             </Button>
             <div className='flex items-center gap-1'>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -250,7 +250,7 @@ export function UserTable({
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              Next
+              Trang tiếp
             </Button>
           </div>
         </div>

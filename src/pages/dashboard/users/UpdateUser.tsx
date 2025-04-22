@@ -48,7 +48,7 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
       { id: selectedUser.id.toString(), body: data },
       {
         onSuccess: () => {
-          toast.success('User role has been updated successfully.')
+          toast.success('Vai trò người dùng đã được cập nhật thành công.')
           onOpenChange(false)
         }
       }
@@ -61,12 +61,12 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Update User Role</DialogTitle>
-          <DialogDescription>Change the role for {selectedUser.name}</DialogDescription>
+          <DialogTitle>Cập nhật vai trò người dùng</DialogTitle>
+          <DialogDescription>Thay đổi vai trò cho {selectedUser.name}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='role'>Role</Label>
+            <Label htmlFor='role'>Vai trò</Label>
             <Select value={form.watch('roleId')} onValueChange={(value) => form.setValue('roleId', value)}>
               <SelectTrigger>
                 {roles?.data.find((role) => role.id === form.watch('roleId'))?.name || user?.role.name}
@@ -83,7 +83,7 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
           </div>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Cancel
+              Hủy bỏ
             </Button>
 
             <Button
@@ -92,7 +92,7 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
               className={cn(userRole?.role !== 'ADMIN' ? 'opacity-50 cursor-not-allowed' : '')}
             >
               {isLoading || isUpdatingRole ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading || isUpdatingRole ? 'Updating...' : 'Update Role'}
+              {isLoading || isUpdatingRole ? 'Đang cập nhật...' : 'Cập nhật vai trò'}
             </Button>
           </DialogFooter>
           <p className='text-sm text-muted-foreground text-red-500'>

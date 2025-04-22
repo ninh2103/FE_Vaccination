@@ -77,7 +77,7 @@ export default function UsersPage() {
         setUsers(users.filter((user) => user.id !== selectedUser.id))
         setOpenDeleteDialog(false)
         setSelectedUser(null)
-        toast.success('User has been deleted successfully.')
+        toast.success('Người dùng đã được xóa thành công.')
       }
     })
   }
@@ -89,7 +89,7 @@ export default function UsersPage() {
       setFilters({ role: [], status: [], registeredDate: '' })
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Data has been refreshed.')
+      toast.success('Dữ liệu đã được cập nhật.')
     })
   }
 
@@ -104,15 +104,15 @@ export default function UsersPage() {
         Phone: user.phone,
         Role: user.role,
         Status: user.status,
-        'Registered Date': user.registeredDate,
-        'Last Login': user.lastLogin
+        'Ngày đăng ký': user.registeredDate,
+        'Lần đăng nhập cuối': user.lastLogin
       }))
       const worksheet = XLSX.utils.json_to_sheet(data)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Users')
       XLSX.writeFile(workbook, `users_export_${new Date().toISOString().split('T')[0]}.xlsx`)
       setIsExporting(false)
-      toast.success('Users data has been exported to Excel successfully.')
+        toast.success('Dữ liệu người dùng đã được xuất ra Excel thành công.')
     }, 1500)
   }
 
@@ -144,9 +144,9 @@ export default function UsersPage() {
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Users
+            Người dùng
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor user accounts in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi tài khoản người dùng trong hệ thống.</p>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function UsersPage() {
         <div className='relative w-full max-w-sm'>
           <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input
-            placeholder='Search...'
+            placeholder='Tìm kiếm...'
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value)
@@ -167,15 +167,15 @@ export default function UsersPage() {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
+            Cập nhật
           </Button>
           <Button size='sm' onClick={() => setOpenAddDialog(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Add User
+            Thêm người dùng
           </Button>
         </div>
       </div>
@@ -206,9 +206,9 @@ export default function UsersPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Xóa người dùng</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this user? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
@@ -227,11 +227,11 @@ export default function UsersPage() {
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoadingUsers}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleDeleteUser} disabled={isLoadingUsers}>
               {isLoadingUsers ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoadingUsers ? 'Deleting...' : 'Delete'}
+              {isLoadingUsers ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>
