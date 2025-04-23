@@ -1,4 +1,4 @@
-import { Edit, Trash, ChevronDown, ChevronUp } from 'lucide-react'
+import { Edit, Trash, ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -27,38 +27,41 @@ export default function VaccineTable({
 }: VaccineTableProps) {
   const getStatusBadge = (quantity: number) => {
     if (quantity <= 0) {
-      return <Badge className='bg-red-500 hover:bg-red-600 text-white'>Out</Badge>
+      return <Badge className='bg-red-500 hover:bg-red-600 text-white'>Hết hàng</Badge>
     } else if (quantity < 10) {
-      return <Badge className='bg-yellow-500 hover:bg-yellow-600 text-white'>Low</Badge>
+      return <Badge className='bg-yellow-500 hover:bg-yellow-600 text-white'>Tồn kho</Badge>
     } else {
-      return <Badge className='bg-green-500 hover:bg-green-600 text-white'>High</Badge>
+      return <Badge className='bg-green-500 hover:bg-green-600 text-white'>Còn hàng</Badge>
     }
   }
+
+  // Sort vaccines by createdAt date in descending order (newest first)
+  const sortedVaccines = [...vaccines].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
   return (
     <Card>
       <CardContent className='p-0'>
-        {vaccines.length === 0 ? (
-          <div className='p-4 text-center text-muted-foreground'>No vaccines found.</div>
+        {sortedVaccines.length === 0 ? (
+          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy vaccine.</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-[60px]'>No.</TableHead>
-                <TableHead>Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price (VND)</TableHead>
-                <TableHead>Batch Number</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className='w-[80px]'>Action</TableHead>
+                <TableHead className='w-[60px]'>STT</TableHead>
+                <TableHead>Ảnh</TableHead>
+                <TableHead>Tên vaccine</TableHead>
+                <TableHead>Mô tả</TableHead>
+                <TableHead>Danh mục</TableHead>
+                <TableHead>Giá (VND)</TableHead>
+                <TableHead>Số lô</TableHead>
+                <TableHead>Số lượng</TableHead>
+                <TableHead>Ngày hạn sử dụng</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead className='w-[80px]'>Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {vaccines.map((vaccine, index) => (
+              {sortedVaccines.map((vaccine, index) => (
                 <TableRow key={vaccine.id} className='cursor-pointer hover:bg-muted/50' onClick={() => onEdit(vaccine)}>
                   <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                   <TableCell>
@@ -70,7 +73,7 @@ export default function VaccineTable({
                       />
                     ) : (
                       <div className='w-12 h-12 bg-muted rounded-md flex items-center justify-center'>
-                        <span className='text-xs text-muted-foreground'>No image</span>
+                        <span className='text-xs text-muted-foreground'>Không có ảnh</span>
                       </div>
                     )}
                   </TableCell>
@@ -105,7 +108,7 @@ export default function VaccineTable({
                     </div>
                   </TableCell>
                   <TableCell>{vaccine.CategoryVaccination.name || 'N/A'}</TableCell>
-                  <TableCell>{vaccine.price.toLocaleString()}</TableCell>
+                  <TableCell>{vaccine.price.toLocaleString()}đ</TableCell>
                   <TableCell>{vaccine.batchNumber}</TableCell>
                   <TableCell>{vaccine.remainingQuantity}</TableCell>
                   <TableCell>{new Date(vaccine.expirationDate).toLocaleDateString()}</TableCell>

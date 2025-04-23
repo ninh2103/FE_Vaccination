@@ -35,7 +35,7 @@ export default function VaccinesPage() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineType | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const ITEMS_PER_PAGE = 4
+  const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -107,7 +107,7 @@ export default function VaccinesPage() {
   const handleRefresh = () => {
     setIsRefreshing(true)
     refetch()
-    toast.success('Vaccines refreshed successfully')
+    toast.success('Dữ liệu đã được cập nhật')
     setTimeout(() => {
       setIsRefreshing(false)
     }, 1000)
@@ -126,7 +126,7 @@ export default function VaccinesPage() {
           setOpenDeleteDialog(false)
           setSelectedVaccine(null)
           refetch()
-          toast.success('Vaccine deleted successfully')
+          toast.success('Vaccine đã được xóa thành công')
         },
         onError: (error) => {
           handleErrorApi({ error, setError: () => {}, duration: 3000 })
@@ -149,7 +149,7 @@ export default function VaccinesPage() {
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
             Vaccines
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor vaccines in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi vaccine trong hệ thống.</p>
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function VaccinesPage() {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -170,10 +170,10 @@ export default function VaccinesPage() {
           </div>
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Filter by category' />
+              <SelectValue placeholder='Lọc theo danh mục' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>All Categories</SelectItem>
+              <SelectItem value='all'>Tất cả danh mục</SelectItem>
               {categories?.data.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
@@ -185,15 +185,15 @@ export default function VaccinesPage() {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
+            Cập nhật
           </Button>
           <Button size='sm' onClick={() => setOpenAddDialog(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Add Vaccine
+            Thêm vaccine
           </Button>
         </div>
       </div>
@@ -202,9 +202,9 @@ export default function VaccinesPage() {
       {filteredVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
         <Alert variant='destructive' className='bg-red-50 border-red-200'>
           <AlertCircle className='h-4 w-4' />
-          <AlertTitle>Stock Alert</AlertTitle>
+          <AlertTitle>Cảnh báo tồn kho</AlertTitle>
           <AlertDescription>
-            Some vaccines are low in stock or out of stock. Review inventory and consider restocking.
+            Một số vaccine đã hết hàng hoặc tồn kho thấp. Kiểm tra kho hàng và xem xét cung cấp lại.
           </AlertDescription>
         </Alert>
       )}
@@ -226,7 +226,7 @@ export default function VaccinesPage() {
       {/* Pagination */}
       <div className='flex items-center justify-between px-2'>
         <div className='flex-1 text-sm text-muted-foreground'>
-          Showing {startIndex} to {endIndex} of {totalItems} entries
+          Hiển thị {startIndex} đến {endIndex} của {totalItems} bản ghi
         </div>
         <div className='flex items-center space-x-2'>
           <Button
@@ -235,7 +235,7 @@ export default function VaccinesPage() {
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
           >
-            Previous
+            Trang trước
           </Button>
           <div className='flex items-center gap-1'>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -256,7 +256,7 @@ export default function VaccinesPage() {
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
           >
-            Next
+            Trang tiếp
           </Button>
         </div>
       </div>
@@ -265,8 +265,8 @@ export default function VaccinesPage() {
       <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Vaccine</DialogTitle>
-            <DialogDescription>Fill in the details to add a new vaccine to the system.</DialogDescription>
+            <DialogTitle>Thêm vaccine mới</DialogTitle>
+            <DialogDescription>Điền thông tin để thêm vaccine mới vào hệ thống.</DialogDescription>
           </DialogHeader>
           <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
         </DialogContent>
@@ -279,24 +279,24 @@ export default function VaccinesPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete Vaccine</DialogTitle>
+            <DialogTitle>Xóa vaccine</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this vaccine? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa vaccine này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
             {selectedVaccine && (
               <p className='text-sm font-medium'>
-                You are about to delete: <span className='font-bold'>{selectedVaccine.vaccineName}</span>
+                Bạn đang xóa: <span className='font-bold'>{selectedVaccine.vaccineName}</span>
               </p>
             )}
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button disabled={isDeletingVaccine} variant='destructive' onClick={handleDeleteVaccine}>
-              {isDeletingVaccine ? 'Deleting...' : 'Delete'}
+              {isDeletingVaccine ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

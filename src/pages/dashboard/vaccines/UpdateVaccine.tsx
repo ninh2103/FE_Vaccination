@@ -13,7 +13,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { VaccineType, VaccineUpdateBodySchema, VaccineUpdateBodyType } from '@/schemaValidator/vaccination.schema'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import {
   useUpdateVaccinationQuery,
   useUploadImageVaccinationQuery,
@@ -51,14 +51,13 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
     defaultValues: {
       vaccineName: vaccineData?.vaccineName,
       description: vaccineData?.description,
-      price: vaccineData?.price,
+      price: vaccineData?.price ?? 0,
       image: vaccineData?.image,
       manufacturerId: vaccineData?.manufacturerId ?? undefined,
       supplierId: vaccineData?.supplierId ?? undefined,
-      location: vaccineData?.location ?? undefined,
       batchNumber: vaccineData?.batchNumber ?? undefined,
       certificate: vaccineData?.certificate ?? undefined,
-      remainingQuantity: vaccineData?.remainingQuantity ?? undefined,
+      remainingQuantity: vaccineData?.remainingQuantity ?? 0,
       expirationDate: vaccineData?.expirationDate ?? undefined,
       sideEffect: vaccineData?.sideEffect ?? undefined,
       categoryVaccinationId: vaccineData?.categoryVaccinationId ?? undefined
@@ -79,7 +78,6 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
         image,
         description,
         price,
-        location,
         batchNumber,
         certificate,
         remainingQuantity,
@@ -94,7 +92,6 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
         image: image ?? undefined,
         price,
         description,
-        location,
         batchNumber,
         certificate: certificate ?? undefined,
         remainingQuantity,
@@ -135,22 +132,23 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
       })
     }
   }
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
         <DialogHeader>
-          <DialogTitle>Edit Vaccine</DialogTitle>
-          <DialogDescription>Update the details for the selected vaccine.</DialogDescription>
+          <DialogTitle>Sửa vaccine</DialogTitle>
+          <DialogDescription>Cập nhật thông tin cho vaccine đã chọn.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='vaccineName'>Vaccine Name *</Label>
+              <Label htmlFor='vaccineName'>Tên vaccine *</Label>
               <Input
                 id='vaccineName'
                 {...form.register('vaccineName')}
-                placeholder='e.g., COVID-19 Vaccine'
+                placeholder='e.g., Vaccine COVID-19'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.vaccineName ? 'border-red-500' : ''
                 }`}
@@ -160,7 +158,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='price'>Price (VND)</Label>
+              <Label htmlFor='price'>Giá (VND) *</Label>
               <Input
                 id='price'
                 type='number'
@@ -175,21 +173,35 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='location'>Location</Label>
+              <Label htmlFor='expirationDate'>Ngày hạn sử dụng *</Label>
               <Input
-                id='location'
-                {...form.register('location')}
-                placeholder='Enter location'
+                id='expirationDate'
+                type='date'
+                min={tomorrow}
+                value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const [year, month, day] = e.target.value.split('-').map(Number)
+                  const now = new Date()
+                  const combinedDate = new Date(
+                    year,
+                    month - 1,
+                    day,
+                    now.getHours(),
+                    now.getMinutes(),
+                    now.getSeconds()
+                  )
+                  form.setValue('expirationDate', combinedDate)
+                }}
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                  form.formState.errors.location ? 'border-red-500' : ''
+                  form.formState.errors.expirationDate ? 'border-red-500' : ''
                 }`}
               />
-              {form.formState.errors.location && (
-                <p className='text-red-500 text-sm'>{form.formState.errors.location.message}</p>
+              {form.formState.errors.expirationDate && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.expirationDate.message}</p>
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='categoryVaccinationId'>Category Vaccine</Label>
+              <Label htmlFor='categoryVaccinationId'>Danh mục vaccine *</Label>
               <Select
                 value={form.watch('categoryVaccinationId')}
                 onValueChange={(value) => form.setValue('categoryVaccinationId', value)}
@@ -215,7 +227,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='manufacturerId'>Manufacturer Vaccine</Label>
+              <Label htmlFor='manufacturerId'>Nhà sản xuất vaccine *</Label>
               <Select
                 value={form.watch('manufacturerId')}
                 onValueChange={(value) => form.setValue('manufacturerId', value)}
@@ -241,7 +253,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='supplierId'>Supplier Vaccine</Label>
+              <Label htmlFor='supplierId'>Nhà cung cấp vaccine *</Label>
               <Select value={form.watch('supplierId')} onValueChange={(value) => form.setValue('supplierId', value)}>
                 <SelectTrigger
                   className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
@@ -265,11 +277,11 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
             </div>
 
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='certificate'>Certificate</Label>
+              <Label htmlFor='certificate'>Chứng chỉ vaccine *</Label>
               <Input
                 id='certificate'
                 {...form.register('certificate')}
-                placeholder='e.g., Certificate'
+                placeholder='e.g., Chứng chỉ'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.certificate ? 'border-red-500' : ''
                 }`}
@@ -279,11 +291,11 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='batchNumber'>Batch Number</Label>
+              <Label htmlFor='batchNumber'>Số lô vaccine *</Label>
               <Input
                 id='batchNumber'
                 {...form.register('batchNumber')}
-                placeholder='e.g., Batch Number'
+                placeholder='e.g., Số lô'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.batchNumber ? 'border-red-500' : ''
                 }`}
@@ -293,7 +305,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='remainingQuantity'>Remaining Quantity</Label>
+              <Label htmlFor='remainingQuantity'>Số lượng vaccine *</Label>
               <Input
                 id='remainingQuantity'
                 type='number'
@@ -308,11 +320,11 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='sideEffect'>Side Effect</Label>
+              <Label htmlFor='sideEffect'>Tác dụng phụ</Label>
               <Input
                 id='sideEffect'
                 {...form.register('sideEffect')}
-                placeholder='Enter side effect'
+                placeholder='e.g., Tác dụng phụ'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.sideEffect ? 'border-red-500' : ''
                 }`}
@@ -321,27 +333,12 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
                 <p className='text-red-500 text-sm'>{form.formState.errors.sideEffect.message}</p>
               )}
             </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='expirationDate'>Expiration Date</Label>
-              <Input
-                id='expirationDate'
-                type='date'
-                value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
-                onChange={(e) => form.setValue('expirationDate', new Date(e.target.value))}
-                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                  form.formState.errors.expirationDate ? 'border-red-500' : ''
-                }`}
-              />
-              {form.formState.errors.expirationDate && (
-                <p className='text-red-500 text-sm'>{form.formState.errors.expirationDate.message}</p>
-              )}
-            </div>
           </div>
 
           <div className='flex gap-2 items-start justify-start'>
             <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
               <AvatarImage src={previewImageFromFile || ''} />
-              <AvatarFallback className='rounded-none'>{previewImageFromFile || 'Image'}</AvatarFallback>
+              <AvatarFallback className='rounded-none'>{previewImageFromFile || 'Ảnh'}</AvatarFallback>
             </Avatar>
             <Input
               type='file'
@@ -378,11 +375,11 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
           </div>
           {form.formState.errors.image && <p className='text-red-500 text-sm'>{form.formState.errors.image.message}</p>}
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='description'>Description</Label>
+            <Label htmlFor='description'>Mô tả</Label>
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='Enter vaccine description'
+              placeholder='e.g., Mô tả vaccine'
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                 form.formState.errors.description ? 'border-red-500' : ''
               }`}
@@ -393,11 +390,11 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button type='submit' disabled={isLoading}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading ? 'Updating...' : 'Update Vaccine'}
+              {isLoading ? 'Đang cập nhật...' : 'Cập nhật vaccine'}
             </Button>
           </DialogFooter>
         </form>

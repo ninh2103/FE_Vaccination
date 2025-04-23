@@ -46,12 +46,15 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
       vaccineName: '',
       image: '',
       description: '',
-      price: undefined,
-      location: '',
-      expirationDate: undefined,
+      price: 0,
+      expirationDate: new Date(),
       manufacturerId: '',
       supplierId: '',
-      categoryVaccinationId: ''
+      categoryVaccinationId: '',
+      batchNumber: '',
+      remainingQuantity: 0,
+      sideEffect: '',
+      certificate: ''
     }
   })
   const onSubmit = async (values: VaccineCreateBodyType) => {
@@ -68,7 +71,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
         }
       }
       await createVaccination(body)
-      toast.success('Vaccine created successfully')
+      toast.success('Vaccine đã được tạo thành công')
       onOpenChange(false)
       form.reset()
     } catch (error) {
@@ -83,17 +86,17 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
         <DialogHeader>
-          <DialogTitle>Add New Vaccine</DialogTitle>
-          <DialogDescription>Enter the details for the new vaccine below.</DialogDescription>
+          <DialogTitle>Thêm vaccine mới</DialogTitle>
+          <DialogDescription>Nhập thông tin cho vaccine mới dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='vaccineName'>Vaccine Name *</Label>
+              <Label htmlFor='vaccineName'>Tên vaccine *</Label>
               <Input
                 id='vaccineName'
                 {...form.register('vaccineName')}
-                placeholder='e.g., COVID-19 Vaccine'
+                placeholder='e.g., Vaccine COVID-19'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.vaccineName ? 'border-red-500' : ''
                 }`}
@@ -103,7 +106,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='price'>Price (VND)</Label>
+              <Label htmlFor='price'>Giá (VND) *</Label>
               <Input
                 id='price'
                 type='number'
@@ -118,21 +121,34 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='location'>Location</Label>
+              <Label htmlFor='expirationDate'>Ngày hạn sử dụng *</Label>
               <Input
-                id='location'
-                {...form.register('location')}
-                placeholder='Enter location'
+                id='expirationDate'
+                type='date'
+                value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const [year, month, day] = e.target.value.split('-').map(Number)
+                  const now = new Date()
+                  const combinedDate = new Date(
+                    year,
+                    month - 1,
+                    day,
+                    now.getHours(),
+                    now.getMinutes(),
+                    now.getSeconds()
+                  )
+                  form.setValue('expirationDate', combinedDate)
+                }}
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                  form.formState.errors.location ? 'border-red-500' : ''
+                  form.formState.errors.expirationDate ? 'border-red-500' : ''
                 }`}
               />
-              {form.formState.errors.location && (
-                <p className='text-red-500 text-sm'>{form.formState.errors.location.message}</p>
+              {form.formState.errors.expirationDate && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.expirationDate.message}</p>
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='categoryVaccinationId'>Category Vaccine</Label>
+              <Label htmlFor='categoryVaccinationId'>Danh mục vaccine *</Label>
               <Select
                 value={form.watch('categoryVaccinationId')}
                 onValueChange={(value) => form.setValue('categoryVaccinationId', value)}
@@ -142,9 +158,13 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                     form.formState.errors.categoryVaccinationId ? 'border-red-500' : ''
                   }`}
                 >
-                  {categoryVaccinationData?.data.find((category) => category.id === form.watch('categoryVaccinationId'))
-                    ?.name || 'Select Category Vaccination'}
+                  <span className='block max-w-[250px] truncate'>
+                    {categoryVaccinationData?.data.find(
+                      (category) => category.id === form.watch('categoryVaccinationId')
+                    )?.name || 'Chọn danh mục vaccine'}
+                  </span>
                 </SelectTrigger>
+
                 <SelectContent>
                   {categoryVaccinationData?.data.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
@@ -158,7 +178,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='manufacturerId'>Manufacturer Vaccine</Label>
+              <Label htmlFor='manufacturerId'>Nhà sản xuất vaccine *</Label>
               <Select
                 value={form.watch('manufacturerId')}
                 onValueChange={(value) => form.setValue('manufacturerId', value)}
@@ -169,7 +189,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                   }`}
                 >
                   {manufacturerData?.data.find((manufacturer) => manufacturer.id === form.watch('manufacturerId'))
-                    ?.name || 'Select Manufacturer'}
+                    ?.name || 'Chọn nhà sản xuất'}
                 </SelectTrigger>
                 <SelectContent>
                   {manufacturerData?.data.map((manufacturer) => (
@@ -184,16 +204,19 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='supplierId'>Supplier Vaccine</Label>
+              <Label htmlFor='supplierId'>Nhà cung cấp vaccine *</Label>
               <Select value={form.watch('supplierId')} onValueChange={(value) => form.setValue('supplierId', value)}>
                 <SelectTrigger
                   className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                    form.formState.errors.supplierId ? 'border-red-500' : ''
+                    form.formState.errors.categoryVaccinationId ? 'border-red-500' : ''
                   }`}
                 >
-                  {supplierData?.data.find((supplier) => supplier.id === form.watch('supplierId'))?.name ||
-                    'Select Supplier'}
+                  <span className='block max-w-[250px] truncate'>
+                    {supplierData?.data.find((supplier) => supplier.id === form.watch('supplierId'))?.name ||
+                      'Chọn nhà cung cấp'}
+                  </span>
                 </SelectTrigger>
+
                 <SelectContent>
                   {supplierData?.data.map((supplier) => (
                     <SelectItem key={supplier.id} value={supplier.id}>
@@ -206,21 +229,61 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                 <p className='text-red-500 text-sm'>{form.formState.errors.supplierId.message}</p>
               )}
             </div>
-          </div>
-          <div className='grid grid-cols-3 gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='expirationDate'>Expiration Date</Label>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='certificate'>Chứng chỉ vaccine *</Label>
               <Input
-                id='expirationDate'
-                type='date'
-                value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
-                onChange={(e) => form.setValue('expirationDate', new Date(e.target.value))}
+                id='certificate'
+                {...form.register('certificate')}
+                placeholder='e.g., Chứng chỉ'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                  form.formState.errors.expirationDate ? 'border-red-500' : ''
+                  form.formState.errors.certificate ? 'border-red-500' : ''
                 }`}
               />
-              {form.formState.errors.expirationDate && (
-                <p className='text-red-500 text-sm'>{form.formState.errors.expirationDate.message}</p>
+              {form.formState.errors.certificate && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.certificate.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='batchNumber'>Số lô vaccine *</Label>
+              <Input
+                id='batchNumber'
+                {...form.register('batchNumber')}
+                placeholder='e.g., Số lô'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.batchNumber ? 'border-red-500' : ''
+                }`}
+              />
+              {form.formState.errors.batchNumber && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.batchNumber.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='remainingQuantity'>Số lượng vaccine *</Label>
+              <Input
+                id='remainingQuantity'
+                type='number'
+                {...form.register('remainingQuantity', { valueAsNumber: true })}
+                placeholder='e.g., 500000'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.price ? 'border-red-500' : ''
+                }`}
+              />
+              {form.formState.errors.remainingQuantity && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.remainingQuantity.message}</p>
+              )}
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='sideEffect'>Tác dụng phụ *</Label>
+              <Input
+                id='sideEffect'
+                {...form.register('sideEffect')}
+                placeholder='e.g., Tác dụng phụ'
+                className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                  form.formState.errors.sideEffect ? 'border-red-500' : ''
+                }`}
+              />
+              {form.formState.errors.sideEffect && (
+                <p className='text-red-500 text-sm'>{form.formState.errors.sideEffect.message}</p>
               )}
             </div>
           </div>
@@ -228,7 +291,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
           <div className='flex gap-2 items-start justify-start'>
             <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
               <AvatarImage src={previewImage || ''} />
-              <AvatarFallback className='rounded-none'>{previewImage || 'Image'}</AvatarFallback>
+              <AvatarFallback className='rounded-none'>{previewImage || 'Ảnh'}</AvatarFallback>
             </Avatar>
             <Input
               type='file'
@@ -262,16 +325,16 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               }}
             >
               <Upload className='h-4 w-4 text-muted-foreground' />
-              <span className='sr-only'>Upload</span>
+              <span className='sr-only'>Tải lên</span>
             </button>
           </div>
           {form.formState.errors.image && <p className='text-red-500 text-sm'>{form.formState.errors.image.message}</p>}
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='description'>Description</Label>
+            <Label htmlFor='description'>Mô tả</Label>
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='Enter vaccine description'
+              placeholder='e.g., Mô tả vaccine'
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                 form.formState.errors.description ? 'border-red-500' : ''
               }`}
@@ -282,11 +345,11 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isCreating}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button type='submit' disabled={isCreating}>
               {isCreating ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isCreating ? 'Saving...' : 'Save Vaccine'}
+              {isCreating ? 'Đang lưu...' : 'Lưu vaccine'}
             </Button>
           </DialogFooter>
         </form>

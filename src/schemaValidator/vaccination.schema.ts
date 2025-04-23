@@ -41,39 +41,117 @@ const VaccineResponseSchema = z.object({
 export type VaccineResponseType = z.infer<typeof VaccineResponseSchema>
 
 export const VaccineCreateBodySchema = z.object({
-  vaccineName: z.string().min(1, 'Vaccine name is required'),
-  image: z.string().min(1, 'Image is required'),
-  description: z.string().min(1, 'Description is required'),
-  price: z.number().nonnegative('Price must be a non-negative number'),
-  location: z.string().min(1, 'Location is required'),
-  expirationDate: z.coerce.date({
-    required_error: 'Expiration date is required',
-    invalid_type_error: 'Expiration date must be a valid date'
-  }),
-  manufacturerId: z.string().min(1, 'Manufacturer is required'),
-  supplierId: z.string().min(1, 'Supplier is required'),
-  categoryVaccinationId: z.string().min(1, 'Category is required')
+  vaccineName: z
+    .string()
+    .min(1, 'Tên vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên vaccine không được chỉ chứa khoảng trắng'
+    }),
+  image: z.string().min(1, 'Ảnh vaccine không được để trống'),
+  description: z
+    .string()
+    .min(1, 'Mô tả vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Mô tả vaccine không được chỉ chứa khoảng trắng'
+    }),
+  price: z.coerce
+    .number({
+      required_error: 'Giá vaccine không được để trống',
+      invalid_type_error: 'Giá vaccine phải là số'
+    })
+    .gt(0, 'Giá vaccine phải lớn hơn 0'),
+  expirationDate: z.coerce
+    .date({
+      invalid_type_error: 'Ngày hạn sử dụng vaccine phải là ngày hợp lệ'
+    })
+    .refine((value) => value >= new Date(), {
+      message: 'Ngày hạn sử dụng vaccine phải là ngày hiện tại trở lên'
+    }),
+  manufacturerId: z.string().min(1, 'Nhà sản xuất vaccine không được để trống'),
+  supplierId: z.string().min(1, 'Nhà cung cấp vaccine không được để trống'),
+  categoryVaccinationId: z.string().min(1, 'Danh mục vaccine không được để trống'),
+  batchNumber: z
+    .string()
+    .min(1, 'Số lô vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Số lô vaccine không được chỉ chứa khoảng trắng'
+    }),
+  remainingQuantity: z.coerce
+    .number({
+      required_error: 'Số lượng vaccine không được để trống',
+      invalid_type_error: 'Số lượng vaccine phải là số'
+    })
+    .gt(0, 'Số lượng vaccine phải lớn hơn 0'),
+  sideEffect: z
+    .string()
+    .min(1, 'Tác dụng phụ vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tác dụng phụ vaccine không được chỉ chứa khoảng trắng'
+    }),
+  certificate: z
+    .string()
+    .min(1, 'Chứng chỉ vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Chứng chỉ vaccine không được chỉ chứa khoảng trắng'
+    })
 })
 
 export type VaccineCreateBodyType = z.infer<typeof VaccineCreateBodySchema>
 
 export const VaccineUpdateBodySchema = z.object({
-  vaccineName: z.string(),
-  image: z.string(),
-  description: z.string(),
-  price: z.number().nonnegative(),
-  location: z.string(),
-  batchNumber: z.string(),
-  certificate: z.string(),
-  remainingQuantity: z.number().nonnegative(),
-  expirationDate: z.coerce.date({
-    required_error: 'Expiration date is required',
-    invalid_type_error: 'Expiration date must be a valid date'
-  }),
-  manufacturerId: z.string(),
-  supplierId: z.string(),
-  sideEffect: z.string(),
-  categoryVaccinationId: z.string()
+  vaccineName: z
+    .string()
+    .min(1, 'Tên vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên vaccine không được chỉ chứa khoảng trắng'
+    }),
+  image: z.string().min(1, 'Ảnh vaccine không được để trống'),
+  description: z
+    .string()
+    .min(1, 'Mô tả vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Mô tả vaccine không được chỉ chứa khoảng trắng'
+    }),
+  price: z.coerce
+    .number({
+      required_error: 'Giá vaccine không được để trống',
+      invalid_type_error: 'Giá vaccine phải là số'
+    })
+    .gt(0, 'Giá vaccine phải lớn hơn 0'),
+  expirationDate: z.coerce
+    .date({
+      invalid_type_error: 'Ngày hạn sử dụng vaccine phải là ngày hợp lệ'
+    })
+    .refine((value) => value >= new Date(), {
+      message: 'Ngày hạn sử dụng vaccine phải là ngày hiện tại trở lên'
+    }),
+  manufacturerId: z.string().min(1, 'Nhà sản xuất vaccine không được để trống'),
+  supplierId: z.string().min(1, 'Nhà cung cấp vaccine không được để trống'),
+  categoryVaccinationId: z.string().min(1, 'Danh mục vaccine không được để trống'),
+  batchNumber: z
+    .string()
+    .min(1, 'Số lô vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Số lô vaccine không được chỉ chứa khoảng trắng'
+    }),
+  remainingQuantity: z.coerce
+    .number({
+      required_error: 'Số lượng vaccine không được để trống',
+      invalid_type_error: 'Số lượng vaccine phải là số'
+    })
+    .gt(0, 'Số lượng vaccine phải lớn hơn 0'),
+  sideEffect: z
+    .string()
+    .min(1, 'Tác dụng phụ vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tác dụng phụ vaccine không được chỉ chứa khoảng trắng'
+    }),
+  certificate: z
+    .string()
+    .min(1, 'Chứng chỉ vaccine không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Chứng chỉ vaccine không được chỉ chứa khoảng trắng'
+    })
 })
 
 export type VaccineUpdateBodyType = z.infer<typeof VaccineUpdateBodySchema>
