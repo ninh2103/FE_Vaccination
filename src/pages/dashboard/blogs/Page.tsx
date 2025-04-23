@@ -130,7 +130,7 @@ export const BlogPage: React.FC = () => {
       XLSX.utils.book_append_sheet(wb, ws, 'Blog Posts')
       XLSX.writeFile(wb, 'blog_posts.xlsx')
       setIsExporting(false)
-      toast.success('Blog posts have been exported to Excel successfully.')
+      toast.success('Tất cả đã được xuất ra Excel thành công.')
     }, 1000)
   }
 
@@ -141,7 +141,7 @@ export const BlogPage: React.FC = () => {
       setSelectedTag('all')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Data has been refreshed.')
+      toast.success('Dữ liệu đã được cập nhật.')
     })
   }
 
@@ -157,7 +157,7 @@ export const BlogPage: React.FC = () => {
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
             Blogs
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor blogs in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi blog trong hệ thống của bạn.</p>
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export const BlogPage: React.FC = () => {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -177,10 +177,10 @@ export const BlogPage: React.FC = () => {
           </div>
           <Select value={selectedTag} onValueChange={handleTagChange}>
             <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Filter by tag' />
+              <SelectValue placeholder='Lọc theo tag' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>All Tags</SelectItem>
+              <SelectItem value='all'>Tất cả tag</SelectItem>
               {tags?.data.map((tag) => (
                 <SelectItem key={tag.id} value={tag.id}>
                   {tag.name}
@@ -192,15 +192,15 @@ export const BlogPage: React.FC = () => {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExportExcel} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
+            Xuất ra Excel
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
+            Cập nhật
           </Button>
           <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Add Blog
+            Thêm blog
           </Button>
         </div>
       </div>
@@ -217,7 +217,7 @@ export const BlogPage: React.FC = () => {
         {totalPages > 1 && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Showing {startIndex} to {endIndex} of {totalItems} entries
+              Hiển thị {startIndex} đến {endIndex} của {totalItems} bài viết
             </div>
             <div className='flex items-center space-x-2'>
               <Button
@@ -226,7 +226,7 @@ export const BlogPage: React.FC = () => {
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Previous
+                Trang trước
               </Button>
               <div className='flex items-center gap-1'>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -247,7 +247,7 @@ export const BlogPage: React.FC = () => {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                Trang tiếp
               </Button>
             </div>
           </div>
@@ -261,9 +261,9 @@ export const BlogPage: React.FC = () => {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Delete Blog</DialogTitle>
+            <DialogTitle>Xóa blog</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this blog? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>
@@ -278,11 +278,11 @@ export const BlogPage: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoadingBlogs}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleConfirmDelete} disabled={isLoadingBlogs}>
               {isLoadingBlogs ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoadingBlogs ? 'Deleting...' : 'Delete'}
+              {isLoadingBlogs ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

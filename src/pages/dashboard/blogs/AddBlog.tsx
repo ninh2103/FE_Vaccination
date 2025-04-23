@@ -40,7 +40,7 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
   const handleSubmit = (data: BlogBodyType) => {
     addBlog(data, {
       onSuccess: () => {
-        toast.success('Blog post created successfully')
+        toast.success('Bài viết blog đã thành công')
         form.reset()
         onOpenChange(false)
       }
@@ -51,29 +51,39 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Add New Blog Post</DialogTitle>
-          <DialogDescription>Create a new blog post by filling out the form below.</DialogDescription>
+          <DialogTitle>Thêm bài viết blog mới</DialogTitle>
+          <DialogDescription>Tạo một bài viết blog mới bằng cách điền vào biểu mẫu bên dưới.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
-            <Label htmlFor='title'>Title</Label>
-            <Input id='title' {...form.register('title')} placeholder='Enter blog post title' />
+            <Label htmlFor='title'>Tiêu đề bài viết *</Label>
+            <Input
+              id='title'
+              {...form.register('title')}
+              placeholder='Nhập tiêu đề bài viết blog'
+              className={form.formState.errors.title ? 'border-red-500' : ''}
+            />
             {form.formState.errors.title && (
               <p className='text-sm text-red-500'>{form.formState.errors.title.message}</p>
             )}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='content'>Content</Label>
-            <Textarea id='content' {...form.register('content')} placeholder='Enter blog post content' />
+            <Label htmlFor='content'>Nội dung bài viết *</Label>
+            <Textarea
+              id='content'
+              {...form.register('content')}
+              placeholder='Nhập nội dung bài viết blog'
+              className={form.formState.errors.content ? 'border-red-500' : ''}
+            />
             {form.formState.errors.content && (
               <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
             )}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='tagId'>Tag ID</Label>
+            <Label htmlFor='tagId'>Tag *</Label>
             <Select onValueChange={(value) => form.setValue('tagId', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder='Select a tag' />
+              <SelectTrigger className={form.formState.errors.tagId ? 'border-red-500' : ''}>
+                <SelectValue placeholder='Chọn một tag' />
               </SelectTrigger>
               <SelectContent>
                 {tags?.data.map((tag) => (
@@ -90,10 +100,10 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
 
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button type='submit' disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Creating...' : 'Create Post'}
+              {form.formState.isSubmitting ? 'Đang tạo...' : 'Tạo bài viết'}
             </Button>
           </DialogFooter>
         </form>

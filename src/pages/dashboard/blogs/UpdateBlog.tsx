@@ -57,7 +57,7 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
       id: post.id,
       body: data
     })
-    toast.success('Blog post updated successfully')
+    toast.success('Bài viết blog đã được cập nhật thành công')
     onOpenChange(false)
   }
 
@@ -65,29 +65,39 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Update Blog Post</DialogTitle>
-          <DialogDescription>Update the blog post by modifying the form below.</DialogDescription>
+          <DialogTitle>Cập nhật bài viết blog</DialogTitle>
+          <DialogDescription>Cập nhật bài viết blog bằng cách sửa đổi biểu mẫu bên dưới.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
-            <Label htmlFor='title'>Title</Label>
-            <Input id='title' {...form.register('title')} placeholder='Enter blog post title' />
+            <Label htmlFor='title'>Tiêu đề bài viết *</Label>
+            <Input
+              id='title'
+              {...form.register('title')}
+              placeholder='Nhập tiêu đề bài viết blog'
+              className={form.formState.errors.title ? 'border-red-500' : ''}
+            />
             {form.formState.errors.title && (
               <p className='text-sm text-red-500'>{form.formState.errors.title.message}</p>
             )}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='content'>Content</Label>
-            <Textarea id='content' {...form.register('content')} placeholder='Enter blog post content' />
+            <Label htmlFor='content'>Nội dung bài viết *</Label>
+            <Textarea
+              id='content'
+              {...form.register('content')}
+              placeholder='Nhập nội dung bài viết blog'
+              className={form.formState.errors.content ? 'border-red-500' : ''}
+            />
             {form.formState.errors.content && (
               <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
             )}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='tagId'>Tag</Label>
+            <Label htmlFor='tagId'>Tag *</Label>
             <Select value={form.watch('tagId')} onValueChange={(value) => form.setValue('tagId', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder='Select a tag' />
+              <SelectTrigger className={form.formState.errors.tagId ? 'border-red-500' : ''}>
+                <SelectValue placeholder='Chọn một tag' />
               </SelectTrigger>
               <SelectContent>
                 {tags?.data.map((tag) => (
@@ -103,10 +113,10 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
           </div>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button disabled={form.formState.isSubmitting} type='submit'>
-              {form.formState.isSubmitting ? 'Updating...' : 'Update Post'}
+              {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật bài viết'}
             </Button>
           </DialogFooter>
         </form>

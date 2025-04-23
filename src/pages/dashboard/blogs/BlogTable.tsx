@@ -39,20 +39,20 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
     <Card>
       <CardContent className='p-0'>
         {isLoading ? (
-          <div className='p-4 text-center text-muted-foreground'>Loading blogs...</div>
+          <div className='p-4 text-center text-muted-foreground'>Đang tải blog...</div>
         ) : posts.length === 0 ? (
-          <div className='p-4 text-center text-muted-foreground'>No blogs found.</div>
+          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy blog.</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>No.</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Content</TableHead>
+                <TableHead>STT</TableHead>
+                <TableHead>Tiêu đề</TableHead>
+                <TableHead>Nội dung</TableHead>
                 <TableHead>Tag</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Updated At</TableHead>
-                <TableHead className='w-[100px]'>Actions</TableHead>
+                <TableHead>Ngày tạo</TableHead>
+                <TableHead>Ngày cập nhật</TableHead>
+                <TableHead className='w-[100px]'>Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

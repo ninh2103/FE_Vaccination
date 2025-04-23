@@ -54,9 +54,20 @@ export const CreateResponseBlogSchema = z.object({
 export type CreateResponseBlogType = z.infer<typeof CreateResponseBlogSchema>
 
 export const BlogBodySchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  content: z.string().min(1, 'Content is required'),
-  tagId: z.string().uuid()
+  title: z
+    .string()
+    .min(1, 'Tiêu đề không được để trống')
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tiêu đề chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tiêu đề không được chỉ chứa khoảng trắng'
+    }),
+  content: z
+    .string()
+    .min(1, 'Nội dung không được để trống')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Nội dung không được chỉ chứa khoảng trắng'
+    }),
+  tagId: z.string().min(1, 'Tag không được để trống')
 })
 
 export type BlogBodyType = z.infer<typeof BlogBodySchema>

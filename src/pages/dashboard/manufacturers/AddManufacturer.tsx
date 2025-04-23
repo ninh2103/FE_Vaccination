@@ -60,6 +60,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             <Input
               id='name'
               {...form.register('name')}
+              placeholder='Nhập tên nhà sản xuất'
               className={form.formState.errors.name ? 'border-red-500' : ''}
             />
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
@@ -69,6 +70,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             <Input
               id='country'
               {...form.register('country')}
+              placeholder='Nhập quốc gia'
               className={form.formState.errors.country ? 'border-red-500' : ''}
             />
             {form.formState.errors.country && (
@@ -80,6 +82,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             <Input
               id='contactInfo'
               {...form.register('contactInfo')}
+              placeholder='Nhập thông tin liên hệ'
               className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
             />
             {form.formState.errors.contactInfo && (
