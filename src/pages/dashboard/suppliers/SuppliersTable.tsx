@@ -32,9 +32,9 @@ interface SuppliersTableProps {
 export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
+  const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
-  const [isEditMode, setIsEditMode] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -85,8 +85,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
 
   const handleEditSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
-    setIsEditMode(true)
-    setOpenAddDialog(true)
+    setOpenEditDialog(true)
   }
 
   const handleRefresh = () => {
@@ -95,7 +94,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       setSearchTerm('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Nhà cung cấp đã được cập nhật thành công')
+      toast.success('Dữ liệu đã được cập nhật thành công')
     })
   }
 
@@ -147,32 +146,13 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               </Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[550px]'>
-              {isEditMode ? (
-                <UpdateSupplier
-                  supplier={selectedSupplier!}
-                  onUpdate={(updatedSupplier: Supplier) => {
-                    onUpdateSuppliers(
-                      suppliersData?.data.map((s) => (s.id === updatedSupplier.id ? updatedSupplier : s)) || []
-                    )
-                    setOpenAddDialog(false)
-                    setIsEditMode(false)
-                    setSelectedSupplier(null)
-                  }}
-                  onCancel={() => {
-                    setOpenAddDialog(false)
-                    setIsEditMode(false)
-                    setSelectedSupplier(null)
-                  }}
-                />
-              ) : (
-                <AddSupplier
-                  onAdd={(newSupplier: Supplier) => {
-                    onUpdateSuppliers([...(suppliersData?.data || []), newSupplier])
-                    setOpenAddDialog(false)
-                  }}
-                  onCancel={() => setOpenAddDialog(false)}
-                />
-              )}
+              <AddSupplier
+                onAdd={(newSupplier: Supplier) => {
+                  onUpdateSuppliers([newSupplier, ...(suppliersData?.data || [])])
+                  setOpenAddDialog(false)
+                }}
+                onCancel={() => setOpenAddDialog(false)}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -319,6 +299,27 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               {isDeletingSupplier ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className='sm:max-w-[550px]'>
+          <UpdateSupplier
+            supplier={selectedSupplier!}
+            onUpdate={() => {
+              refetch().then(() => {
+                if (suppliersData?.data.length === 1 && currentPage > 1) {
+                  setCurrentPage(currentPage - 1)
+                }
+                setOpenEditDialog(false)
+                setSelectedSupplier(null)
+              })
+            }}
+            onCancel={() => {
+              setOpenEditDialog(false)
+              setSelectedSupplier(null)
+            }}
+          />
         </DialogContent>
       </Dialog>
     </div>

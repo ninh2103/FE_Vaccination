@@ -1,6 +1,7 @@
 import { vaccinationService } from '@/core/services/vaccination.service'
 import { VaccineCreateBodyType, VaccineUpdateBodyType } from '@/schemaValidator/vaccination.schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ListVaccinationQuery {
   page?: number
@@ -16,20 +17,32 @@ export const useListVaccinationQuery = (query: ListVaccinationQuery = {}) => {
 }
 
 export const useCreateVaccinationQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: VaccineCreateBodyType) => vaccinationService.create(body)
+    mutationFn: (body: VaccineCreateBodyType) => vaccinationService.create(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vaccination-list'] })
+    }
   })
 }
 
 export const useUpdateVaccinationQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: VaccineUpdateBodyType }) => vaccinationService.update(id, body)
+    mutationFn: ({ id, body }: { id: string; body: VaccineUpdateBodyType }) => vaccinationService.update(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vaccination-list'] })
+    }
   })
 }
 
 export const useDeleteVaccinationQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => vaccinationService.delete(id)
+    mutationFn: (id: string) => vaccinationService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vaccination-list'] })
+    }
   })
 }
 

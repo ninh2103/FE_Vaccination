@@ -33,7 +33,7 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
       onSuccess: (response) => {
         onAdd(response)
         onCancel()
-        toast.success('Nhà cung cấp đã được tạo thành công')
+        toast.success('Nhà cung cấp đã được thêm thành công')
         form.reset()
       },
       onError: (error) => {

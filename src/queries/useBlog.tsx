@@ -1,6 +1,7 @@
 import { blogService } from '@/core/services/blog.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { BlogBodyType } from '@/schemaValidator/blog.schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ListBlogQuery {
   page?: number
@@ -17,14 +18,22 @@ export const useListBlogQuery = (query: ListBlogQuery = {}) => {
 }
 
 export const useAddBlogMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: BlogBodyType) => blogService.addBlog(body)
+    mutationFn: (body: BlogBodyType) => blogService.addBlog(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-list'] })
+    }
   })
 }
 
 export const useUpdateBlogMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: BlogBodyType }) => blogService.updateBlog(id, body)
+    mutationFn: ({ id, body }: { id: string; body: BlogBodyType }) => blogService.updateBlog(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-list'] })
+    }
   })
 }
 

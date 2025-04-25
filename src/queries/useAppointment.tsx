@@ -1,6 +1,6 @@
 import { appointmentService } from '@/core/services/appointment.service'
 import { AppointmentUpdateBodyType } from '@/schemaValidator/appointment.schema'
-
+import { useQueryClient } from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 interface ListAppointmentQuery {
@@ -30,14 +30,22 @@ export const useGetAppointmentByIdQuery = (id: string) => {
 }
 
 export const useUpdateAppointmentMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: AppointmentUpdateBodyType }) =>
-      appointmentService.updateAppointment(id, data)
+      appointmentService.updateAppointment(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointment-list'] })
+    }
   })
 }
 
 export const useDeleteAppointmentMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => appointmentService.deleteAppointment(id)
+    mutationFn: (id: string) => appointmentService.deleteAppointment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointment-list'] })
+    }
   })
 }

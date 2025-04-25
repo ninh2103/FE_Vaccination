@@ -19,31 +19,35 @@ interface UpdateSupplierProps {
 }
 
 export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierProps) {
-  const { data: supplierDetail } = useDetailSupplierQuery(supplier.id)
+  const { data: supplierDetail } = useDetailSupplierQuery(supplier?.id || '')
   const { mutate: updateSupplier, isPending } = useUpdateSupplierQuery()
   const form = useForm<SupplierBodyType>({
     resolver: zodResolver(SupplierBody),
     defaultValues: {
-      name: supplierDetail?.name,
-      address: supplierDetail?.address,
-      contactInfo: supplierDetail?.contactInfo
+      name: supplierDetail?.name || '',
+      address: supplierDetail?.address || '',
+      contactInfo: supplierDetail?.contactInfo || ''
     }
   })
 
   useEffect(() => {
-    form.reset({
-      name: supplier.name,
-      address: supplier.address,
-      contactInfo: supplier.contactInfo
-    })
+    if (supplier) {
+      form.reset({
+        name: supplier.name,
+        address: supplier.address,
+        contactInfo: supplier.contactInfo
+      })
+    }
   }, [supplier, form])
 
   const handleSubmit = (data: SupplierBodyType) => {
+    if (!supplier?.id) return
+
     updateSupplier(
       { id: supplier.id, body: data },
       {
-        onSuccess: () => {
-          onUpdate({ ...supplier, ...data })
+        onSuccess: (response) => {
+          onUpdate(response)
           toast.success('Nhà cung cấp đã được cập nhật thành công')
         },
         onError: (error) => {
@@ -51,6 +55,10 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
         }
       }
     )
+  }
+
+  if (!supplier) {
+    return null
   }
 
   return (
@@ -106,7 +114,7 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
           Hủy bỏ
         </Button>
         <Button type='submit' disabled={isPending}>
-          {isPending ? 'Đang cập nhật...' : 'Cập nhật nhà cung cấp'}
+          {isPending ? 'Đang cập nhật...' : 'Cập nhật'}
         </Button>
       </DialogFooter>
     </form>

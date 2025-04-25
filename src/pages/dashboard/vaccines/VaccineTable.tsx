@@ -1,10 +1,11 @@
-import { Edit, Trash, ChevronDown, ChevronUp, Eye } from 'lucide-react'
+import { Edit, Trash, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { VaccineType } from '@/schemaValidator/vaccination.schema'
 import { cn } from '@/core/lib/utils'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface VaccineTableProps {
   vaccines: VaccineType[]
@@ -14,6 +15,7 @@ interface VaccineTableProps {
   onToggleDescription: (vaccineId: string) => void
   onEdit: (vaccine: VaccineType) => void
   onDelete: (vaccineId: string) => void
+  isLoading: boolean
 }
 
 export default function VaccineTable({
@@ -23,7 +25,8 @@ export default function VaccineTable({
   expandedDescriptions,
   onToggleDescription,
   onEdit,
-  onDelete
+  onDelete,
+  isLoading
 }: VaccineTableProps) {
   const getStatusBadge = (quantity: number) => {
     if (quantity <= 0) {
@@ -37,6 +40,14 @@ export default function VaccineTable({
 
   // Sort vaccines by createdAt date in descending order (newest first)
   const sortedVaccines = [...vaccines].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
+    )
+  }
 
   return (
     <Card>
@@ -55,7 +66,7 @@ export default function VaccineTable({
                 <TableHead>Giá (VND)</TableHead>
                 <TableHead>Số lô</TableHead>
                 <TableHead>Số lượng</TableHead>
-                <TableHead>Ngày hạn sử dụng</TableHead>
+                <TableHead>Hạn sử dụng</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className='w-[80px]'>Hành động</TableHead>
               </TableRow>
@@ -110,7 +121,7 @@ export default function VaccineTable({
                   <TableCell>{vaccine.CategoryVaccination.name || 'N/A'}</TableCell>
                   <TableCell>{vaccine.price.toLocaleString()}đ</TableCell>
                   <TableCell>{vaccine.batchNumber}</TableCell>
-                  <TableCell>{vaccine.remainingQuantity}</TableCell>
+                  <TableCell className='text-center'>{vaccine.remainingQuantity}</TableCell>
                   <TableCell>{new Date(vaccine.expirationDate).toLocaleDateString()}</TableCell>
                   <TableCell>{getStatusBadge(vaccine.remainingQuantity)}</TableCell>
                   <TableCell>

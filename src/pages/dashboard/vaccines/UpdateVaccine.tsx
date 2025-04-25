@@ -13,7 +13,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { VaccineType, VaccineUpdateBodySchema, VaccineUpdateBodyType } from '@/schemaValidator/vaccination.schema'
-import { addDays, format } from 'date-fns'
+import { format } from 'date-fns'
 import {
   useUpdateVaccinationQuery,
   useUploadImageVaccinationQuery,
@@ -121,7 +121,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
         }
       }
       await updateVaccine({ id: selectedVaccine?.id as string, body })
-      toast.success('Vaccine updated successfully')
+      toast.success('Cập nhật vaccine thành công')
       setIsLoading(false)
       onOpenChange(false)
     } catch (error) {
@@ -132,7 +132,6 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
       })
     }
   }
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -177,7 +176,6 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               <Input
                 id='expirationDate'
                 type='date'
-                min={tomorrow}
                 value={form.watch('expirationDate') ? format(form.watch('expirationDate'), 'yyyy-MM-dd') : ''}
                 onChange={(e) => {
                   const [year, month, day] = e.target.value.split('-').map(Number)
@@ -320,7 +318,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='sideEffect'>Tác dụng phụ</Label>
+              <Label htmlFor='sideEffect'>Tác dụng phụ *</Label>
               <Input
                 id='sideEffect'
                 {...form.register('sideEffect')}
@@ -375,7 +373,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
           </div>
           {form.formState.errors.image && <p className='text-red-500 text-sm'>{form.formState.errors.image.message}</p>}
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='description'>Mô tả</Label>
+            <Label htmlFor='description'>Mô tả *</Label>
             <Textarea
               id='description'
               {...form.register('description')}

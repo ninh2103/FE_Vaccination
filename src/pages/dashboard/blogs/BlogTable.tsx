@@ -35,13 +35,19 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
     )
   }
 
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
+    )
+  }
+
   return (
     <Card>
       <CardContent className='p-0'>
-        {isLoading ? (
-          <div className='p-4 text-center text-muted-foreground'>Đang tải blog...</div>
-        ) : posts.length === 0 ? (
-          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy blog.</div>
+        {posts.length === 0 ? (
+          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy bài viết.</div>
         ) : (
           <Table>
             <TableHeader>

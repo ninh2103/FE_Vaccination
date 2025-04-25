@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { categoryApi } from '@/core/services/category.service'
 import { CategoryBodyType, UpdateCategoryBodyType } from '@/schemaValidator/category.schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ListCategoryQuery {
   page?: number
@@ -16,20 +17,32 @@ export const useListCategoryQuery = (query: ListCategoryQuery = {}) => {
 }
 
 export const useAddCategoryMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: CategoryBodyType) => categoryApi.createCategory(body)
+    mutationFn: (body: CategoryBodyType) => categoryApi.createCategory(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category-list'] })
+    }
   })
 }
 
 export const useUpdateCategoryMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: UpdateCategoryBodyType }) => categoryApi.updateCategory(id, body)
+    mutationFn: ({ id, body }: { id: string; body: UpdateCategoryBodyType }) => categoryApi.updateCategory(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category-list'] })
+    }
   })
 }
 
 export const useDeleteCategoryMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => categoryApi.deleteCategory(id)
+    mutationFn: (id: string) => categoryApi.deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category-list'] })
+    }
   })
 }
 

@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash, Home, MapPin, Phone } from 'lucide-react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export interface Manufacturer {
   id: string
@@ -26,11 +27,16 @@ export function ManufacturerTable({
   onDelete,
   isLoading
 }: ManufacturerTableProps) {
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
+    )
+  }
   return (
     <div>
-      {isLoading ? (
-        <div className='p-4 text-center text-muted-foreground'>Đang tải dữ liệu...</div>
-      ) : manufacturers.length === 0 ? (
+      {manufacturers.length === 0 ? (
         <div className='p-4 text-center text-muted-foreground'>Không tìm thấy nhà sản xuất.</div>
       ) : (
         <Table>

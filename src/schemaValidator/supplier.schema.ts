@@ -29,7 +29,6 @@ export const SupplierBody = z.object({
   address: z
     .string()
     .min(1, 'Địa chỉ không được để trống')
-    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Địa chỉ chỉ được chứa chữ cái')
     .refine((value) => value.trim().length > 0, {
       message: 'Địa chỉ không được chỉ chứa khoảng trắng'
     }),

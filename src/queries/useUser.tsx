@@ -1,5 +1,6 @@
 import { userApi } from '@/core/services/user.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ListUserQuery {
   page?: number
@@ -13,8 +14,12 @@ export const useGetMeQuery = () => {
   })
 }
 export const useUpdateMeQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: userApi.updateMe
+    mutationFn: userApi.updateMe,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['account-profile'] })
+    }
   })
 }
 export const useListUserQuery = (query: ListUserQuery = {}) => {
@@ -31,18 +36,30 @@ export const useDetailUserQuery = (id: string) => {
   })
 }
 export const useDeleteUserQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: userApi.delete
+    mutationFn: userApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-list'] })
+    }
   })
 }
 export const useCreateUserQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: userApi.create
+    mutationFn: userApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-list'] })
+    }
   })
 }
 export const useUploadAvatarQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: userApi.uploadAvatar
+    mutationFn: userApi.uploadAvatar,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['account-profile'] })
+    }
   })
 }
 export const useCountUserQuery = () => {

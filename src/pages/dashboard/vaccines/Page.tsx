@@ -47,9 +47,11 @@ export default function VaccinesPage() {
 
   const {
     data: vaccineData,
-    isLoading,
-    refetch
+    refetch,
+    isLoading
   } = useListVaccinationQuery({
+    page: currentPage,
+    items_per_page: ITEMS_PER_PAGE,
     search: debouncedSearchTerm
   })
 
@@ -68,14 +70,11 @@ export default function VaccinesPage() {
 
   // Get current page items
   const currentPageVaccines = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE
-    const end = start + ITEMS_PER_PAGE
-    return filteredVaccines.slice(start, end)
-  }, [filteredVaccines, currentPage, ITEMS_PER_PAGE])
+    return vaccineData?.data || []
+  }, [vaccineData?.data])
 
-  const total = filteredVaccines.length
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
-  const totalItems = total
+  const totalPages = Math.ceil((vaccineData?.total ?? 0) / ITEMS_PER_PAGE)
+  const totalItems = vaccineData?.total ?? 0
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
 
@@ -221,45 +220,48 @@ export default function VaccinesPage() {
           setOpenEditDialog(true)
         }}
         onDelete={handleDelete}
+        isLoading={isLoading}
       />
 
       {/* Pagination */}
-      <div className='flex items-center justify-between px-2'>
-        <div className='flex-1 text-sm text-muted-foreground'>
-          Hiển thị {startIndex} đến {endIndex} của {totalItems} bản ghi
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Trang trước
-          </Button>
-          <div className='flex items-center gap-1'>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={currentPage === page ? 'default' : 'outline'}
-                size='sm'
-                onClick={() => setCurrentPage(page)}
-                className='min-w-[2.5rem]'
-              >
-                {page}
-              </Button>
-            ))}
+      {totalPages > 1 && (
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} bài viết
           </div>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Trang tiếp
-          </Button>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Trang trước
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Trang tiếp
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Add Vaccine Dialog */}
       <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>

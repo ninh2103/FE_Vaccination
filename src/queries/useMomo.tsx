@@ -5,7 +5,7 @@ import {
   HandlePaymentIPNBodyType,
   UpdateStatusPaymentBodyType
 } from '@/schemaValidator/momo.schema'
-
+import { useQueryClient } from '@tanstack/react-query'
 interface CheckPaymentStatusQuery {
   orderId: string
   requestId: string
@@ -18,14 +18,22 @@ interface ListPaymentQuery {
 }
 
 export const useCreatePaymentMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: CreatePaymentBodyType) => momoService.createPayment(body)
+    mutationFn: (body: CreatePaymentBodyType) => momoService.createPayment(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+    }
   })
 }
 
 export const useHandlePaymentIPNMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: HandlePaymentIPNBodyType) => momoService.handlePaymentIPN(body)
+    mutationFn: (body: HandlePaymentIPNBodyType) => momoService.handlePaymentIPN(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+    }
   })
 }
 
@@ -64,14 +72,22 @@ export const useListPaymentQuery = (query: ListPaymentQuery) => {
 }
 
 export const useUpdateStatusPaymentMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateStatusPaymentBodyType }) =>
-      momoService.updateStatusPayment(id, body)
+      momoService.updateStatusPayment(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+    }
   })
 }
 
 export const useDeletePaymentMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => momoService.deletePayment(id)
+    mutationFn: (id: string) => momoService.deletePayment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+    }
   })
 }

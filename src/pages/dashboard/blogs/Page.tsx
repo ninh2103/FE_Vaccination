@@ -66,7 +66,7 @@ export const BlogPage: React.FC = () => {
       ...newPost,
       id: Date.now().toString()
     }
-    setPosts((prev) => [...prev, post])
+    setPosts((prev) => [post, ...prev])
     setIsAddDialogOpen(false)
   }
 
@@ -85,7 +85,7 @@ export const BlogPage: React.FC = () => {
         setPosts(posts.filter((post) => post.id !== selectedPost.id))
         setOpenDeleteDialog(false)
         setSelectedPost(null)
-        toast.success('Blog post has been deleted successfully.')
+        toast.success('Bài viết đã được xóa thành công')
       }
     })
   }

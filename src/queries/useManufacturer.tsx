@@ -1,6 +1,7 @@
 import manufacturerService from '@/core/services/manufacturer.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
+import { useQueryClient } from '@tanstack/react-query'
 interface ListManufacturerQuery {
   page?: number
   items_per_page?: number
@@ -14,18 +15,30 @@ export const useListManufacturerQuery = (query: ListManufacturerQuery = {}) => {
   })
 }
 export const useCreateManufacturerQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: manufacturerService.create
+    mutationFn: manufacturerService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturer-list'] })
+    }
   })
 }
 export const useUpdateManufacturerQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: ManufacturerBodyType }) => manufacturerService.update(id, body)
+    mutationFn: ({ id, body }: { id: string; body: ManufacturerBodyType }) => manufacturerService.update(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturer-list'] })
+    }
   })
 }
 export const useDeleteManufacturerQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: manufacturerService.delete
+    mutationFn: manufacturerService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturer-list'] })
+    }
   })
 }
 

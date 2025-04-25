@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import { Plus, Download, RefreshCw, Search } from 'lucide-react'
@@ -26,6 +26,7 @@ import {
 import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
+
 interface Manufacturer {
   id: string
   name: string
@@ -34,6 +35,7 @@ interface Manufacturer {
 }
 
 const ROWS_PER_PAGE = 10
+
 export default function ManufacturersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
@@ -43,6 +45,7 @@ export default function ManufacturersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([])
 
   const {
     data: manufacturersData,
@@ -57,7 +60,12 @@ export default function ManufacturersPage() {
   const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
   const { mutate: deleteManufacturer } = useDeleteManufacturerQuery()
 
-  const manufacturers = manufacturersData?.data || []
+  // Update manufacturers state when data changes
+  useEffect(() => {
+    if (manufacturersData?.data) {
+      setManufacturers(manufacturersData.data)
+    }
+  }, [manufacturersData])
 
   const handleExport = () => {
     setIsExporting(true)
@@ -74,9 +82,13 @@ export default function ManufacturersPage() {
 
   const handleAddManufacturer = (newManufacturer: ManufacturerBodyType) => {
     createManufacturer(newManufacturer, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         setOpenAddDialog(false)
         toast.success('Nhà sản xuất đã được thêm thành công')
+        // Optimistically update the local state
+        setManufacturers((prev) => [response, ...prev])
+        // Reset to first page to show the new item
+        setCurrentPage(1)
         refetch()
       }
     })

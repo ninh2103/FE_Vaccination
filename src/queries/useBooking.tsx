@@ -1,7 +1,7 @@
 import bookingService from '@/core/services/booking.service'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { BookingBodyType, BookingConfirmBodyType, BookingCreateBodyType } from '@/schemaValidator/booking.schema'
-
+import { useQueryClient } from '@tanstack/react-query'
 interface ListBookingQuery {
   page?: number
   items_per_page?: number
@@ -17,8 +17,12 @@ export const useListBookingQuery = (query: ListBookingQuery = {}) => {
 }
 
 export const useCreateBookingQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: BookingBodyType) => bookingService.create(body)
+    mutationFn: (body: BookingBodyType) => bookingService.create(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['booking-list'] })
+    }
   })
 }
 
@@ -30,19 +34,31 @@ export const useDetailBookingQuery = (id: string) => {
 }
 
 export const useConfirmBookingQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: BookingConfirmBodyType) => bookingService.confirmBooking(body)
+    mutationFn: (body: BookingConfirmBodyType) => bookingService.confirmBooking(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['booking-list'] })
+    }
   })
 }
 
 export const useCreateBookingAdminQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: BookingCreateBodyType) => bookingService.createBooking(body)
+    mutationFn: (body: BookingCreateBodyType) => bookingService.createBooking(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['booking-list'] })
+    }
   })
 }
 
 export const useDeleteBookingQuery = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => bookingService.deleteBooking(id)
+    mutationFn: (id: string) => bookingService.deleteBooking(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['booking-list'] })
+    }
   })
 }
