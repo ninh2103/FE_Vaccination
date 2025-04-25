@@ -1,8 +1,32 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '@/components/homepage/Header'
 import Footer from '@/components/homepage/Footer'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
-const AboutUS = () => {
+const AboutUS: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true)
+
+  // Giả lập độ trễ loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    },500) // Độ trễ 2 giây để mô phỏng loading
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return (
+      <div className='flex-1 h-screen overflow-y-auto scrollbar-hide flex items-center justify-center'>
+        <div className='max-w-4xl mx-auto py-8 px-6'>
+          <div className='flex items-center justify-center text-muted-foreground'>
+            <LoadingSpinner className='mr-2 h-10 w-10' />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='min-h-screen bg-white font-sans'>
       <Header />
@@ -18,7 +42,7 @@ const AboutUS = () => {
             </p>
             <a
               href='/vaccination/list'
-              className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition duration-300'
+              className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
             >
               Book Now
             </a>
@@ -58,12 +82,12 @@ const AboutUS = () => {
               <h3 className='text-3xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
                 Our Mission
               </h3>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600 mb-4'>
                 We are committed to providing safe and effective vaccination services to prevent diseases and promote
                 community health. Every client at VaxBot receives personalized care with tailored vaccination schedules.
               </p>
               <ul className='space-y-3'>
-                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <li className='flex items-center text-gray-600'>
                   <svg
                     className='w-6 h-6 text-teal-500 mr-2'
                     fill='none'
@@ -75,7 +99,7 @@ const AboutUS = () => {
                   </svg>
                   Leading team of vaccination experts.
                 </li>
-                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <li className='flex items-center text-gray-600'>
                   <svg
                     className='w-6 h-6 text-teal-500 mr-2'
                     fill='none'
@@ -87,7 +111,7 @@ const AboutUS = () => {
                   </svg>
                   Advanced vaccination technology.
                 </li>
-                <li className='flex via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+                <li className='flex items-center text-gray-600'>
                   <svg
                     className='w-6 h-6 text-teal-500 mr-2'
                     fill='none'
@@ -106,13 +130,13 @@ const AboutUS = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className='py-16 bg-white'>
+      <section className='py-2 bg-white'>
         <div className='max-w-7xl mx-auto px-4'>
           <div className='text-center mb-16'>
             <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
               Why Choose VaxBot?
             </h2>
-            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+            <p className='text-gray-600'>
               We take pride in delivering high-quality services with dedication and professionalism.
             </p>
           </div>
@@ -143,7 +167,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Top Experts
               </h4>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600'>
                 Our team consists of vaccination specialists with over 20 years of experience.
               </p>
             </div>
@@ -162,9 +186,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Certified Vaccines
               </h4>
-              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                We use vaccines from globally trusted brands.
-              </p>
+              <p className='text-gray-600'>We use vaccines from globally trusted brands.</p>
             </div>
             <div className='p-6 text-center'>
               <div className='text-teal-500 mb-4'>
@@ -186,9 +208,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Flexible Booking
               </h4>
-              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                Online booking support 24/7, fast and convenient.
-              </p>
+              <p className='text-gray-600'>Online booking support 24/7, fast and convenient.</p>
             </div>
             <div className='p-6 text-center'>
               <div className='text-teal-500 mb-4'>
@@ -210,97 +230,27 @@ const AboutUS = () => {
               <h4 className='text-xl font-medium bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Long-Term Monitoring
               </h4>
-              <p className='text_blue-300 via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                Regular health monitoring programs with dedicated care.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className='py-16 bg-white'>
-        <div className='max-w-7xl mx-auto px-4'>
-          <div className='text-center mb-16'>
-            <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
-              What Our Clients Say
-            </h2>
-            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-              Client satisfaction drives us to continuously improve and innovate.
-            </p>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <div className='bg-white p-8 rounded-xl shadow-lg'>
-              <div className='flex items-center mb-4'>
-                <img
-                  src='https://chothuestudio.com/wp-content/uploads/2024/07/TCA_3837.jpg'
-                  alt='User 1'
-                  className='w-12 h-12 rounded-full mr-4'
-                />
-                <div>
-                  <h4 className='text-lg font-semibold text-gray-800'>Nguyen Van An</h4>
-                  <p className='text-gray-500'>Client</p>
-                </div>
-              </div>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                "I'm very satisfied with VaxBot's services. The doctors are attentive, and the vaccination process is
-                quick and safe."
-              </p>
-            </div>
-            <div className='bg-white p-8 rounded-xl shadow-lg'>
-              <div className='flex items-center mb-4'>
-                <img
-                  src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYPuR7dCLass9HDnvg3kDRB4ia3iab4Cy5JA&s'
-                  alt='User 2'
-                  className='w-12 h-12 rounded-full mr-4'
-                />
-                <div>
-                  <h4 className='text-lg font-semibold text-gray-800'>Tran Thi Bich</h4>
-                  <p className='text-gray-500'>Client</p>
-                </div>
-              </div>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                "Flexible scheduling and easy online booking. I feel more confident about my health after joining the
-                vaccination program."
-              </p>
-            </div>
-            <div className='bg-white p-8 rounded-xl shadow-lg'>
-              <div className='flex items-center mb-4'>
-                <img
-                  src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0P9u9rorGjwptFOwgGye1i8xdcyUKbC1cwUCTSUl0mVsC0SwdrqxtE_uIvVIOxhP6Dl4&usqp=CAU'
-                  alt='User 3'
-                  className='w-12 h-12 rounded-full mr-4'
-                />
-                <div>
-                  <h4 className='text-lg font-semibold text-gray-800'>Le Minh Chau</h4>
-                  <p className='text-gray-500'>Client</p>
-                </div>
-              </div>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-                "High-quality vaccines and enthusiastic consultations. I'll continue using VaxBot's services."
-              </p>
+              <p className='text-gray-600'>Regular health monitoring programs with dedicated care.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className='py-16 bg-white shadow-lg'>
-        <div className='max-w-7xl mx-auto px-4'>
+      <section className='py-2 bg-white shadow-lg'>
+        <div className='max-w-7xl mx-auto px-2'>
           <div className='text-center mb-16'>
             <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
               Frequently Asked Questions
             </h2>
-            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-              Below are common questions our clients ask us.
-            </p>
+            <p className='text-gray-600'>Below are common questions our clients ask us.</p>
           </div>
           <div className='space-y-6'>
             <div className='bg-white p-6 rounded-xl shadow-md'>
               <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 What should I prepare before vaccination?
               </h4>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600'>
                 Bring identification documents, medical records (if any), and inform the doctor about your current
                 health condition.
               </p>
@@ -309,7 +259,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Is vaccination at VaxBot safe?
               </h4>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600'>
                 Absolutely safe! We use internationally certified vaccines and follow strict vaccination protocols.
               </p>
             </div>
@@ -317,7 +267,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 Can I book for my entire family?
               </h4>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600'>
                 Yes, we offer family vaccination packages with discounted rates and flexible scheduling.
               </p>
             </div>
@@ -325,7 +275,7 @@ const AboutUS = () => {
               <h4 className='text-xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-2'>
                 What should I do after vaccination?
               </h4>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600'>
                 Rest, stay hydrated, and monitor for any post-vaccination reactions. Contact us immediately if you
                 notice anything unusual.
               </p>
@@ -337,16 +287,16 @@ const AboutUS = () => {
       {/* Call to Action */}
       <section
         id='booking'
-        className='max-w-7xl bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 py-16 text-white flex flex-col justify-center items-center mx-auto px-4 text-center rounded-3xl'
+        className='mt-[3rem] max-w-7xl bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 py-16 text-white flex flex-col justify-center items-center mx-auto px-4 text-center rounded-3xl'
       >
         <div className='max-w-7xl mx-auto px-4 text-center'>
           <h2 className='text-4xl md:text-5xl font-bold text-white mb-6'>Protect Your Health Today!</h2>
-          <p className='text-lg mb-8 max-w-2xl mx-auto'>
+          <p className='text-lg mb-6 max-w-2xl mx-auto'>
             Book your vaccination appointment now to receive special offers and ensure long-term health.
           </p>
           <a
             href='/vaccination/list'
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-white text-teal-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition duration-300'
+            className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
           >
             Book Now
           </a>
@@ -360,9 +310,7 @@ const AboutUS = () => {
             <h2 className='text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
               Contact VaxBot
             </h2>
-            <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
-              Visit our center or contact us for prompt support.
-            </p>
+            <p className='text-gray-600'>Visit our center or contact us for prompt support.</p>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-12'>
             {/* Contact Info */}
@@ -370,16 +318,16 @@ const AboutUS = () => {
               <h3 className='text-2xl font-semibold bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-transparent bg-clip-text mb-4'>
                 Center Information
               </h3>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600 mb-4'>
                 <strong>Address:</strong> 120 Hoang Minh Thao, Hoa Khanh Nam, Lien Chieu, Da Nang
               </p>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600 mb-4'>
                 <strong>Phone:</strong> 1900.1900
               </p>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600 mb-4'>
                 <strong>Email:</strong> contact@vaxbot.com
               </p>
-              <p className='via-teal-400 to-green-400text-gray-600 bg-clip-text mb-2'>
+              <p className='text-gray-600 mb-4'>
                 <strong>Working Hours:</strong> Monday - Saturday, 8:00 AM - 5:00 PM
               </p>
             </div>

@@ -31,6 +31,9 @@ import ProfilePage from '@/pages/profile-admin/profile'
 import SearchResults from '@/pages/searchresults/SearchResults'
 import ServiceDetail from '@/pages/serviceDetail/Service'
 import Contact from '@/pages/contact/ContactUS'
+import PrivacyPolicy from '@/pages/page-footer/legal/PrivacyPolicy'
+
+
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -47,8 +50,8 @@ export default function useRoutesElements() {
       { path: path.otp, element: <OTPInput /> },
       { path: path.serviceDetail, element: <ServiceDetail /> },
       { path: path.contact, element: <Contact /> },
-      { path: path.aboutUS, element: <ServiceIntro  /> },
-
+      { path: path.introduce, element: <ServiceIntro /> },
+      { path: path.policy, element: <PrivacyPolicy/> },
       // Thêm route cho SearchResults
       {
         path: searchPath, // Sử dụng giá trị đã tính toán

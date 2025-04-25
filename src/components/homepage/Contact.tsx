@@ -25,11 +25,11 @@ export default function ContactSection() {
               </p>
               <div className='mt-4 flex items-center gap-4'>
                 <PhoneIcon className='h-6 w-6' />
-                <span>+1(424) 535 3523</span>
+                <span>1900 1900 </span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <EnvelopeIcon className='h-6 w-6' />
-                <span>support@vaccinecenter.com</span>
+                <span>support@vaxbot.com</span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <CalendarIcon className='h-6 w-6' />
@@ -38,15 +38,12 @@ export default function ContactSection() {
             </div>
             <div className='col-span-4 mt-8 md:mt-0 md:px-10'>
               <form>
-                <div className='grid gap-4 lg:grid-cols-2'>
+                <div className='grid gap-4 '>
                   <div>
-                    <Label>First Name</Label>
-                    <Input placeholder='e.g. John' />
+                    <Label>Full Name</Label>
+                    <Input placeholder='e.g. Nguyen Van A' />
                   </div>
-                  <div>
-                    <Label>Last Name</Label>
-                    <Input placeholder='e.g. Doe' />
-                  </div>
+                 
                 </div>
                 <div className='mt-4'>
                   <Label>Email</Label>

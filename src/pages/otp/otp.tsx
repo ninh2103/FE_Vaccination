@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { handleErrorApi } from '@/core/lib/utils'
 import { path } from '@/core/constants/path'
 import { Button } from '@/components/ui/button'
-
+import Header from '@/components/homepage/Header'
+import Footer from '@/components/homepage/Footer'
 export function OTPInput() {
   const navigate = useNavigate()
   const email = localStorage.getItem('email') || ''
@@ -45,45 +46,52 @@ export function OTPInput() {
   const otpValue = watch('verificationCode')
 
   return (
-    <div className='min-h-screen flex flex-col items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
-      {/* Background Animation */}
-      <div className='absolute inset-0 pointer-events-none z-0'>
-        {Array.from({ length: 25 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className='absolute h-2 w-2 rounded-full bg-blue-500 opacity-50'
-            animate={{
-              x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-              y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
-              scale: [0, 1, 0],
-              opacity: [0, 1, 0]
-            }}
-            transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, ease: 'linear' }}
-          />
-        ))}
-      </div>
-
-      <div className="fixed inset-0 dark:bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
-
-      <form onSubmit={handleSubmit(handleVerify)} className='flex flex-col items-center space-y-4 z-10 dark:text-white'>
-        <InputOTP maxLength={6} value={otpValue} onChange={(value) => setValue('verificationCode', value)}>
-          <InputOTPGroup>
-            {[...Array(6)].map((_, index) => (
-              <InputOTPSlot key={index} index={index} />
-            ))}
-          </InputOTPGroup>
-        </InputOTP>
-
-        {errors.verificationCode && <p className='text-red-500 text-sm'>{errors.verificationCode.message}</p>}
-
-        <div className='text-lg dark:text-white'>
-          {otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}
+    <div>
+      <Header />
+      <div className='min-h-screen flex flex-col items-center justify-center dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden'>
+        {/* Background Animation */}
+        <div className='absolute inset-0 pointer-events-none z-0'>
+          {Array.from({ length: 25 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className='absolute h-2 w-2 rounded-full bg-blue-500 opacity-50'
+              animate={{
+                x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
+                y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
+                scale: [0, 1, 0],
+                opacity: [0, 1, 0]
+              }}
+              transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, ease: 'linear' }}
+            />
+          ))}
         </div>
 
-        <Button type='submit' className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded'>
-          Verify OTP
-        </Button>
-      </form>
+        <div className="fixed inset-0 dark:bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
+
+        <form
+          onSubmit={handleSubmit(handleVerify)}
+          className='flex flex-col items-center space-y-4 z-10 dark:text-white'
+        >
+          <InputOTP maxLength={6} value={otpValue} onChange={(value) => setValue('verificationCode', value)}>
+            <InputOTPGroup>
+              {[...Array(6)].map((_, index) => (
+                <InputOTPSlot key={index} index={index} />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+
+          {errors.verificationCode && <p className='text-red-500 text-sm'>{errors.verificationCode.message}</p>}
+
+          <div className='text-lg dark:text-white'>
+            {otpValue === '' ? 'Enter your one-time password.' : `You entered: ${otpValue}`}
+          </div>
+
+          <Button type='submit' className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded'>
+            Verify OTP
+          </Button>
+        </form>
+      </div>
+      <Footer />
     </div>
   )
 }

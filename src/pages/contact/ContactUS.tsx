@@ -19,7 +19,7 @@ const Contact = () => {
           </p>
           <a
             href='#contact-form'
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-white text-teal-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105'
+            className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
           >
             Send Us a Message
           </a>
@@ -197,7 +197,8 @@ const Contact = () => {
               </div>
               <button
                 type='submit'
-                className="bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-teal-600 transition duration-300 transform hover:scale-105 w-full sm:w-auto"              >
+                className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
+              >
                 Submit
               </button>
             </form>
@@ -213,10 +214,11 @@ const Contact = () => {
               Find a VaxBot Center Near You
             </h2>
             <p className='text-lg text-gray-900 max-w-3xl mx-auto'>
-              As a large-scale vaccination center, located in a prime location, close to the city center. 
+              As a large-scale vaccination center, located in a prime location, close to the city center.
             </p>
-            <p className='text-lg text-gray-900 max-w-3xl mx-auto'>VaxBot ensures
-            easy access to high-quality vaccines.</p>
+            <p className='text-lg text-gray-900 max-w-3xl mx-auto'>
+              VaxBot ensures easy access to high-quality vaccines.
+            </p>
             <p className='text-lg text-gray-900 max-w-3xl mx-auto'>Find your nearest center today.</p>
           </div>
           <div className='bg-gray-100 p-8 rounded-xl shadow-lg text-center'>
@@ -249,7 +251,7 @@ const Contact = () => {
             <a
               href='https://maps.app.goo.gl/u1y4o9JyLtHjkaw37'
               target='_blank'
-              className='inline-block bg-white text-teal-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105'
+              className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
             >
               View Centers on map
             </a>
@@ -269,7 +271,7 @@ const Contact = () => {
           </p>
           <a
             href='#contact-form'
-            className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white inline-block bg-gradient-to-r from-blue-300 via-teal-400 to-green-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-teal-600 transition duration-300 transform hover:scale-105'
+            className='bg-black w-full sm:w-auto text-white px-4 py-2 rounded-lg font-semibold text-lg inline-block'
           >
             Share Your Feedback
           </a>

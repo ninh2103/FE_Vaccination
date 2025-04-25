@@ -1,10 +1,14 @@
+'use client'
+
+import type React from 'react'
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ChevronUp, X } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { UserCircle, LogOut, Search } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
@@ -70,10 +74,10 @@ interface Vaccine {
 const navItems = [
   { name: 'Home', href: path.home, type: 'route' },
   { name: 'About US', href: '/introduce', type: 'route' },
-  { name: 'Services', href: '/service-detail', type: 'route' },
-  { name: 'Vaccines', href: '#vaccines', type: 'section' },
+  { name: 'Services', href: '/services', type: 'route' },
+  { name: 'Vaccines', href: '/vaccination/list', type: 'route' },
   { name: 'Features', href: '#features', type: 'section' },
-  { name: 'Blog', href: '#blog', type: 'section' }
+  { name: 'Blog', href: '/blog', type: 'route' }
 ]
 
 export default function Header() {
@@ -84,8 +88,10 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Vaccine[]>([])
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [activeNavItem, setActiveNavItem] = useState<string>('') // Thêm trạng thái cho nav item active
 
   const navigate = useNavigate()
+  const location = useLocation() // Add this line to get current location
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
 
@@ -156,12 +162,34 @@ export default function Header() {
     }
   }
 
+  useEffect(() => {
+    // Find the nav item that matches the current path
+    const currentPath = location.pathname
+    const activeItem = navItems.find(
+      (item) =>
+        item.type === 'route' &&
+        (item.href === currentPath || (currentPath.startsWith(item.href) && item.href !== path.home)) // Handle nested routes, but exclude home from this check
+    )
+
+    if (activeItem) {
+      setActiveNavItem(activeItem.name)
+    } else if (currentPath === path.home) {
+      // Special case for home path
+      setActiveNavItem('Home')
+    }
+  }, [location.pathname])
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSignOut = () => {
     setIsLoggedIn(false)
+  }
+
+  const handleNavItemClick = (name: string) => {
+    setActiveNavItem(name) // Cập nhật nav item active
+    setIsMenuOpen(false) // Đóng menu trên mobile
   }
 
   return (
@@ -185,7 +213,10 @@ export default function Header() {
                   <Link key={index} to={item.href}>
                     <Button
                       variant='ghost'
-                      className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
+                      className={`text-gray-900 dark:text-white hover:text-blue-400 transition-colors ${
+                        activeNavItem === item.name ? 'text-blue-500 font-semibold' : ''
+                      }`}
+                      onClick={() => handleNavItemClick(item.name)}
                     >
                       {item.name}
                     </Button>
@@ -194,8 +225,13 @@ export default function Header() {
                   <Button
                     key={index}
                     variant='ghost'
-                    className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                    onClick={() => scrollToSection(item.name.toLowerCase())}
+                    className={`text-gray-900 dark:text-white hover:text-blue-400 transition-colors ${
+                      activeNavItem === item.name ? 'text-blue-500 font-semibold' : ''
+                    }`}
+                    onClick={() => {
+                      scrollToSection(item.name.toLowerCase())
+                      handleNavItemClick(item.name)
+                    }}
                   >
                     {item.name}
                   </Button>
@@ -208,7 +244,7 @@ export default function Header() {
                   type='search'
                   id='search'
                   placeholder='Search for vaccine...'
-                  className='w-full text-sm p-3 pr-10 rounded-full border border-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700 transition-all duration-300 shadow-sm dark:bg-gray-800 dark:text-white placeholder-gray-400'
+                  className='w-full text-sm p-3 pr-10 rounded-md border border-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700 transition-all duration-300 shadow-sm dark:bg-gray-800 dark:text-white placeholder-gray-400'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
@@ -217,7 +253,7 @@ export default function Header() {
                   <Button
                     variant='ghost'
                     size='icon'
-                    className='absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    className='absolute right-2 top-2 size-6 rounded-full text-gray-600'
                     onClick={handleClearSearch}
                   >
                     <X className='h-4 w-4' />
@@ -245,7 +281,11 @@ export default function Header() {
                         onClick={() => setIsSearchOpen(false)}
                       >
                         <div className='flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors'>
-                          <img src={vaccine.image} alt={vaccine.name} className='w-10 h-10 object-contain rounded' />
+                          <img
+                            src={vaccine.image || '/placeholder.svg'}
+                            alt={vaccine.name}
+                            className='w-10 h-10 object-contain rounded'
+                          />
                           <div>
                             <p className='text-sm font-semibold text-gray-900 dark:text-white'>{vaccine.name}</p>
                           </div>
@@ -325,8 +365,10 @@ export default function Header() {
                   <Link key={index} to={item.href}>
                     <Button
                       variant='ghost'
-                      className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
-                      onClick={() => setIsMenuOpen(false)}
+                      className={`w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2 ${
+                        activeNavItem === item.name ? 'text-blue-500 font-semibold' : ''
+                      }`}
+                      onClick={() => handleNavItemClick(item.name)}
                     >
                       {item.name}
                     </Button>
@@ -335,10 +377,12 @@ export default function Header() {
                   <Button
                     key={index}
                     variant='ghost'
-                    className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
+                    className={`w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2 ${
+                      activeNavItem === item.name ? 'text-blue-500 font-semibold' : ''
+                    }`}
                     onClick={() => {
                       scrollToSection(item.name.toLowerCase())
-                      setIsMenuOpen(false)
+                      handleNavItemClick(item.name)
                     }}
                   >
                     {item.name}

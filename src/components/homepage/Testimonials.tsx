@@ -27,9 +27,7 @@ export default function VaccinationServices() {
   return (
     <div className='container mx-auto py-16 bg-gray-50 dark:bg-gray-900'>
       <div className='text-center'>
-        <h2 className='text-3xl font-bold text-gray-900 dark:text-white'>
-          Explore Our Vaccination Services
-        </h2>
+        <h2 className='text-3xl font-bold text-gray-900 dark:text-white'>Explore Our Vaccination Services</h2>
         <p className='text-gray-500 dark:text-gray-400'>
           Discover a range of immunization options tailored to your needs.
         </p>
