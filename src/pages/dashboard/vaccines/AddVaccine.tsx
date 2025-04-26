@@ -330,7 +330,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
           </div>
           {form.formState.errors.image && <p className='text-red-500 text-sm'>{form.formState.errors.image.message}</p>}
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='description'>Mô tả</Label>
+            <Label htmlFor='description'>Mô tả *</Label>
             <Textarea
               id='description'
               {...form.register('description')}

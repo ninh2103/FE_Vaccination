@@ -60,7 +60,7 @@ export default function OrdersPage() {
     page: currentPage,
     items_per_page: rowsPerPage,
     search: searchTerm,
-    status: activeTab === 'confirmed' ? 'CONFIRMED' : activeTab === 'pending' ? 'PENDING' : undefined
+    status: activeTab === 'all' ? undefined : activeTab === 'confirmed' ? 'CONFIRMED' : 'PENDING'
   })
 
   const { mutate: deleteBooking } = useDeleteBookingQuery()

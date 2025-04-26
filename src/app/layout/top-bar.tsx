@@ -144,7 +144,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
             >
               <Link to={path.admin.profile}>
                 <DropdownMenu.Item className='px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'>
-                  Profile
+                  Hồ sơ cá nhân
                 </DropdownMenu.Item>
               </Link>
 
@@ -154,7 +154,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
                   className='px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'
                   onClick={handleLogout}
                 >
-                  Logout
+                  Đăng xuất
                 </DropdownMenu.Item>
               </Link>
             </DropdownMenu.Content>

@@ -115,7 +115,7 @@ export const BookingConfirmResponseSchema = z.object({
 export type BookingConfirmResponseType = z.infer<typeof BookingConfirmResponseSchema>
 
 export const BookingCreateBodySchema = z.object({
-  vaccinationId: z.string().uuid(),
+  vaccinationId: z.string().min(1, 'Vaccination không hợp lệ'),
   appointmentDate: z.coerce.date({
     required_error: 'Ngày hẹn là bắt buộc',
     invalid_type_error: 'Ngày hẹn phải là ngày hợp lệ'
@@ -124,7 +124,7 @@ export const BookingCreateBodySchema = z.object({
     .number({ invalid_type_error: 'Số lượng liều tối thiểu là 1' })
     .int('Số lượng liều tối thiểu là 1')
     .positive('Số lượng liều tối thiểu là 1'),
-  userId: z.string().uuid('Người dùng không hợp lệ')
+  userId: z.string().min(1, 'Người dùng không hợp lệ')
 })
 
 export type BookingCreateBodyType = z.infer<typeof BookingCreateBodySchema>

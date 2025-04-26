@@ -137,7 +137,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
         <DialogHeader>
-          <DialogTitle>Sửa vaccine</DialogTitle>
+          <DialogTitle>Cập nhật vaccine</DialogTitle>
           <DialogDescription>Cập nhật thông tin cho vaccine đã chọn.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>

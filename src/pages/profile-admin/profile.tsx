@@ -43,7 +43,7 @@ export default function ProfilePage() {
   const handleUpdateMe = (body: UpdateMeBodyType) => {
     updateMe(body, {
       onSuccess: () => {
-        toast.success('Update Account Success!')
+        toast.success('Cập nhật tài khoản thành công!')
       },
       onError: (error) => {
         handleErrorApi({
@@ -57,7 +57,7 @@ export default function ProfilePage() {
   const handleUploadAvatar = (body: UploadAvatarBodyType) => {
     uploadAvatar(body, {
       onSuccess: () => {
-        toast.success('Upload Avatar Success!')
+        toast.success('Tải lên ảnh đại diện thành công!')
       },
       onError: (error) => {
         handleErrorApi({
@@ -71,16 +71,16 @@ export default function ProfilePage() {
   return (
     <div className='container mx-auto max-w-4xl space-y-6 p-4'>
       <div>
-        <h1 className='text-3xl font-bold tracking-tight'>Profile</h1>
-        <p className='text-muted-foreground'>Manage your account settings and profile information.</p>
+        <h1 className='text-3xl font-bold tracking-tight'>Hồ sơ cá nhân</h1>
+        <p className='text-muted-foreground'>Quản lý thông tin tài khoản và hồ sơ cá nhân.</p>
       </div>
 
       <div className='grid gap-6'>
         {/* Profile Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your personal information and profile picture.</CardDescription>
+            <CardTitle>Thông tin hồ sơ</CardTitle>
+            <CardDescription>Cập nhật thông tin cá nhân và ảnh đại diện.</CardDescription>
           </CardHeader>
           <CardContent className='space-y-6'>
             <div className='flex gap-2 items-start justify-start'>
@@ -120,27 +120,27 @@ export default function ProfilePage() {
               </button>
             </div>
             <div className=' space-y-1'>
-              <Label htmlFor='name'>Full Name</Label>
+              <Label htmlFor='name'>Họ và tên</Label>
               <Input
                 id='name'
                 {...formUpdate.register('name')}
-                placeholder='Enter your full name'
+                placeholder='Nhập họ và tên'
                 className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
               />
             </div>
 
             <div className='grid gap-4 md:grid-cols-2'>
               <div className='space-y-1'>
-                <Label htmlFor='phone'>Phone Number</Label>
+                <Label htmlFor='phone'>Số điện thoại</Label>
                 <Input
                   id='phone'
                   {...formUpdate.register('phone')}
-                  placeholder='Enter your phone number'
+                  placeholder='Nhập số điện thoại'
                   className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                 />
               </div>
               <div className='space-y-1'>
-                <Label htmlFor='date_of_birth'>Date of Birth</Label>
+                <Label htmlFor='date_of_birth'>Ngày sinh</Label>
                 <Input
                   id='date_of_birth'
                   type='date'
@@ -151,21 +151,21 @@ export default function ProfilePage() {
             </div>
 
             <div className='space-y-1'>
-              <Label htmlFor='address'>Address</Label>
+              <Label htmlFor='address'>Địa chỉ</Label>
               <Input
                 id='address'
                 {...formUpdate.register('address')}
-                placeholder='Enter your address'
+                placeholder='Nhập địa chỉ'
                 className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
               />
             </div>
 
             <div className='space-y-1'>
-              <Label htmlFor='country'>Country</Label>
+              <Label htmlFor='country'>Thành phố</Label>
               <Input
                 id='country'
                 {...formUpdate.register('country')}
-                placeholder='Enter your country'
+                placeholder='Nhập thành phố'
                 className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
               />
             </div>
@@ -175,7 +175,7 @@ export default function ProfilePage() {
               className='dark:!bg-green-600 hover:dark:!bg-green-700 transition-colors duration-200'
               onClick={formUpdate.handleSubmit(handleUpdateMe)}
             >
-              Save Changes
+              Lưu thay đổi
             </Button>
           </CardContent>
         </Card>
