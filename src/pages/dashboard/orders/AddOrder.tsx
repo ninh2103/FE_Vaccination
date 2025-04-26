@@ -74,16 +74,16 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
   const handleSubmit = (data: BookingCreateBodyType) => {
     if (selectedVaccine?.remainingQuantity === 0) {
-      toast.error('This vaccine is out of stock')
+      toast.error('Vacxin này đã hết hàng')
       return
     }
     if (data.vaccinationQuantity > selectedVaccine?.remainingQuantity) {
-      toast.error(`Maximum available quantity is ${selectedVaccine?.remainingQuantity}`)
+      toast.error(`Số lượng tối đa có thể là ${selectedVaccine?.remainingQuantity}`)
       return
     }
     createBookingAdmin(data, {
       onSuccess: () => {
-        toast.success('Booking created successfully')
+        toast.success('Đã tạo đơn hàng thành công')
         form.reset()
         onAdd(data as unknown as Booking)
         onCancel()
@@ -114,11 +114,11 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
   const handleQuantityChange = (value: string) => {
     const quantity = parseInt(value)
     if (selectedVaccine?.remainingQuantity === 0) {
-      toast.error('This vaccine is out of stock')
+      toast.error('Vacxin này đã hết hàng')
       return
     }
     if (quantity > selectedVaccine?.remainingQuantity) {
-      toast.error(`Maximum available quantity is ${selectedVaccine?.remainingQuantity}`)
+      toast.error(`Số lượng tối đa có thể là ${selectedVaccine?.remainingQuantity}`)
       return
     }
     form.setValue('vaccinationQuantity', quantity)
@@ -129,15 +129,15 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
   return (
     <DialogContent className='sm:max-w-[550px]'>
       <DialogHeader>
-        <DialogTitle>Add New Booking</DialogTitle>
-        <DialogDescription>Create a new vaccination booking.</DialogDescription>
+        <DialogTitle>Thêm đơn hàng mới</DialogTitle>
+        <DialogDescription>Tạo đơn hàng mới.</DialogDescription>
       </DialogHeader>
       <div className='grid gap-4 py-4'>
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='categoryId'>Category</Label>
+          <Label htmlFor='categoryId'>Danh mục</Label>
           <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
             <SelectTrigger className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}>
-              {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Select Category'}
+              {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Chọn danh mục'}
             </SelectTrigger>
             <SelectContent>
               {categoryOptions?.map((option) => (
@@ -151,20 +151,20 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
         {selectedCategoryId && (
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='vaccinationId'>Vaccine</Label>
+            <Label htmlFor='vaccinationId'>Vacxin</Label>
             <Select value={selectedVaccineId} onValueChange={handleVaccineChange}>
               <SelectTrigger
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.vaccinationId ? 'border-red-500' : ''
                 }`}
               >
-                {vaccineOptions?.find((option) => option.value === selectedVaccineId)?.label || 'Select Vaccine'}
+                {vaccineOptions?.find((option) => option.value === selectedVaccineId)?.label || 'Chọn Vacxin'}
               </SelectTrigger>
               <SelectContent>
                 {vaccineOptions?.map((option) => (
                   <SelectItem key={option.value} value={option.value} disabled={option.remainingQuantity === 0}>
                     {option.label}{' '}
-                    {option.remainingQuantity === 0 ? '(Out of Stock)' : `(${option.remainingQuantity} available)`}
+                    {option.remainingQuantity === 0 ? '(Hết hàng)' : `(${option.remainingQuantity} còn lại)`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -176,14 +176,14 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         )}
 
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='userId'>User</Label>
+          <Label htmlFor='userId'>Người dùng</Label>
           <Select value={form.watch('userId')} onValueChange={(value) => form.setValue('userId', value)}>
             <SelectTrigger
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                 form.formState.errors.userId ? 'border-red-500' : ''
               }`}
             >
-              {userOptions?.find((option) => option.value === form.watch('userId'))?.label || 'Select User'}
+              {userOptions?.find((option) => option.value === form.watch('userId'))?.label || 'Chọn Người dùng'}
             </SelectTrigger>
             <SelectContent>
               {userOptions?.map((option) => (
@@ -200,7 +200,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
-            <Label htmlFor='quantity'>Quantity</Label>
+            <Label htmlFor='quantity'>Số lượng</Label>
             <Input
               id='quantity'
               type='number'
@@ -219,7 +219,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='appointment-date'>Appointment Date</Label>
+            <Label htmlFor='appointment-date'>Ngày hẹn</Label>
             <Input
               id='appointment-date'
               type='date'
@@ -235,19 +235,19 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
             {form.formState.errors.appointmentDate && (
               <p className='text-red-500 text-sm'>{form.formState.errors.appointmentDate.message}</p>
             )}
-            <p className='text-xs text-muted-foreground'>Only future dates are allowed for booking.</p>
+            <p className='text-xs text-muted-foreground'>Chỉ cho phép ngày từ hôm nay trở đi để đặt lịch.</p>
           </div>
         </div>
       </div>
       <DialogFooter>
         <Button variant='outline' onClick={onCancel}>
-          Cancel
+          Hủy bỏ
         </Button>
         <Button
           onClick={form.handleSubmit(handleSubmit)}
           disabled={!selectedVaccineId || selectedVaccine?.remainingQuantity === 0}
         >
-          Create Booking
+          Tạo đơn hàng
         </Button>
       </DialogFooter>
     </DialogContent>

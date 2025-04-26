@@ -155,9 +155,9 @@ export default function AppointmentsPage() {
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments')
       XLSX.writeFile(workbook, `appointments_${format(new Date(), 'yyyyMMdd')}.xlsx`)
-      toast.success('File exported successfully')
+      toast.success('Xuất file thành công')
     } catch (error) {
-      toast.error('Failed to export file')
+      toast.error('Lỗi khi xuất file')
     } finally {
       setIsExporting(false)
     }
@@ -169,7 +169,7 @@ export default function AppointmentsPage() {
       refetch()
       refetchDaily()
       setSearchTerm('')
-      toast.success('Data has been refreshed')
+      toast.success('Dữ liệu đã được cập nhật')
       setIsRefreshing(false)
     }, 1000)
   }, [refetch, refetchDaily])
@@ -178,13 +178,13 @@ export default function AppointmentsPage() {
     (appointment: Appointment) => {
       deleteAppointment(appointment.id, {
         onSuccess: () => {
-          toast.success('Appointment deleted successfully')
+          toast.success('Đã xóa lịch hẹn thành công')
           refetch()
           refetchDaily()
           setOpenDeleteDialog(false)
         },
         onError: () => {
-          toast.error('Failed to delete appointment')
+          toast.error('Lỗi khi xóa lịch hẹn')
         }
       })
     },
@@ -205,7 +205,7 @@ export default function AppointmentsPage() {
     setCurrentPage(1)
     refetch()
     refetchDaily()
-    toast.success('Filters cleared')
+    toast.success('Đã xóa bộ lọc')
   }, [refetch, refetchDaily])
 
   return (
@@ -214,9 +214,9 @@ export default function AppointmentsPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Appointments
+            Lịch hẹn
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor appointments in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi lịch hẹn trong hệ thống.</p>
         </div>
       </div>
 
@@ -227,7 +227,7 @@ export default function AppointmentsPage() {
             <div className='relative w-full max-w-sm'>
               <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
-                placeholder='Search...'
+                placeholder='Tìm kiếm...'
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -249,7 +249,7 @@ export default function AppointmentsPage() {
                   }
                   className='w-[150px]'
                 />
-                <span className='text-muted-foreground'>to</span>
+                <span className='text-muted-foreground'>đến</span>
                 <Input
                   type='date'
                   value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
@@ -260,7 +260,7 @@ export default function AppointmentsPage() {
               <div className='flex items-center space-x-2'></div>
             </div>
             <Button variant='outline' size='sm' onClick={handleClearFilters}>
-              Clear Filters
+              Xóa bộ lọc
             </Button>
           </div>
           <div className='flex items-center gap-2'>
@@ -270,7 +270,7 @@ export default function AppointmentsPage() {
             </div>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
               {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-              Export
+              Xuất file
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
@@ -278,7 +278,7 @@ export default function AppointmentsPage() {
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
-              Refresh
+              Cập nhật
             </Button>
           </div>
         </div>
@@ -286,8 +286,8 @@ export default function AppointmentsPage() {
         {/* Tabs and data table */}
         <Tabs defaultValue='today' onValueChange={setCurrentTab} className='w-full'>
           <TabsList className='grid w-full max-w-md grid-cols-2'>
-            <TabsTrigger value='today'>Today's Appointments</TabsTrigger>
-            <TabsTrigger value='all'>All Appointments</TabsTrigger>
+            <TabsTrigger value='today'>Lịch hẹn hôm nay</TabsTrigger>
+            <TabsTrigger value='all'>Tất cả lịch hẹn</TabsTrigger>
           </TabsList>
           <TabsContent value='today' className='mt-4'>
             <Card>
@@ -298,7 +298,7 @@ export default function AppointmentsPage() {
                   </div>
                 ) : filteredAppointments.length === 0 ? (
                   <div className='p-4 text-center text-muted-foreground'>
-                    No appointments found matching the current filters.
+                    Không tìm thấy lịch hẹn phù hợp với bộ lọc hiện tại.
                   </div>
                 ) : (
                   <AppointmentTable
@@ -334,9 +334,9 @@ export default function AppointmentsPage() {
               {!isLoading && filteredAppointments.length > 0 && (
                 <div className='flex items-center justify-between p-2'>
                   <div className='flex-1 text-sm text-muted-foreground'>
-                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
-                    {Math.min(currentPage * ITEMS_PER_PAGE, apiResponse?.total || 0)} of {apiResponse?.total || 0}{' '}
-                    entries
+                    Hiển thị {currentPage * ITEMS_PER_PAGE} lịch hẹn từ {currentPage * ITEMS_PER_PAGE} đến{' '}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, apiResponse?.total || 0)} trong tổng số{' '}
+                    {apiResponse?.total || 0} lịch hẹn
                   </div>
                   <div className='flex items-center space-x-2'>
                     <Button
@@ -345,7 +345,7 @@ export default function AppointmentsPage() {
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
                     >
-                      Previous
+                      Trang trước
                     </Button>
                     <div className='flex items-center gap-1'>
                       {Array.from(
@@ -373,7 +373,7 @@ export default function AppointmentsPage() {
                       }
                       disabled={currentPage === Math.ceil((apiResponse?.total || 0) / ITEMS_PER_PAGE)}
                     >
-                      Next
+                      Trang tiếp
                     </Button>
                   </div>
                 </div>

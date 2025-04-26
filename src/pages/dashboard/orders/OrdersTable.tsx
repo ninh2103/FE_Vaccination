@@ -52,15 +52,15 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-[60px]'>No.</TableHead>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Total Amount</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className='w-[80px]'>Action</TableHead>
+            <TableHead className='w-[60px] text-center'>STT</TableHead>
+            <TableHead>Mã đơn hàng</TableHead>
+            <TableHead>Số lượng</TableHead>
+            <TableHead>Giá</TableHead>
+            <TableHead>Tổng tiền</TableHead>
+            <TableHead>Ngày</TableHead>
+            <TableHead>Giờ</TableHead>
+            <TableHead>Trạng thái</TableHead>
+            <TableHead className=' text-center'>Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -85,7 +85,7 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
               </TableCell>
               <TableCell>{getStatusBadge(booking.status)}</TableCell>
               <TableCell>
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center justify-center'>
                   <Button variant='ghost' size='icon' onClick={() => onDeleteOrder(booking)}>
                     <Trash className='h-4 w-4 text-destructive text-red-500' />
                   </Button>

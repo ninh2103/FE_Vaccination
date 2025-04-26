@@ -114,7 +114,7 @@ export default function OrdersPage() {
         from: undefined,
         to: undefined
       })
-      toast.success('Data has been refreshed')
+      toast.success('Đã làm mới dữ liệu')
       setIsRefreshing(false)
     }, 1000)
   }, [])
@@ -139,16 +139,16 @@ export default function OrdersPage() {
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders')
       XLSX.writeFile(workbook, `orders_${format(new Date(), 'yyyyMMdd')}.xlsx`)
-      toast.success('File exported successfully')
+      toast.success('Đã xuất file thành công')
     } catch (error) {
-      toast.error('Failed to export file')
+      toast.error('Đã xuất file thất bại')
     } finally {
       setIsExporting(false)
     }
   }, [filteredBookings])
 
-  const handleUpdateOrder = useCallback((updatedOrder: Booking) => {
-    toast.success(`Order status updated successfully to ${updatedOrder.status}`)
+  const handleUpdateOrder = useCallback(() => {
+    toast.success(`Đã cập nhật trạng thái đơn hàng thành công`)
     setOpenUpdateDialog(false)
   }, [])
 
@@ -159,14 +159,14 @@ export default function OrdersPage() {
 
   const handleConfirmDelete = useCallback(() => {
     if (!selectedOrder) return
-    toast.success('Order has been deleted successfully')
+    toast.success('Đã xóa đơn hàng thành công')
     setOpenDeleteDialog(false)
     deleteBooking(selectedOrder.id, {
       onSuccess: () => {
-        toast.success('Order has been deleted successfully')
+        toast.success('Đã xóa đơn hàng thành công')
       },
       onError: () => {
-        toast.error('Failed to delete order')
+        toast.error('Đã xóa đơn hàng thất bại')
       }
     })
   }, [selectedOrder])
@@ -183,7 +183,7 @@ export default function OrdersPage() {
       from: undefined,
       to: undefined
     })
-    toast.success('Filters cleared')
+    toast.success('Đã xóa bộ lọc')
   }, [setSearchTerm, setCurrentPage, setDateRange])
 
   return (
@@ -192,9 +192,9 @@ export default function OrdersPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Orders
+            Đơn hàng
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor orders in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi đơn hàng trong hệ thống.</p>
         </div>
       </div>
 
@@ -205,7 +205,7 @@ export default function OrdersPage() {
             <div className='relative w-full max-w-sm'>
               <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
-                placeholder='Search...'
+                placeholder='Tìm kiếm...'
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -228,7 +228,7 @@ export default function OrdersPage() {
                   onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
                   className='w-[150px]'
                 />
-                <span className='text-muted-foreground'>to</span>
+                <span className='text-muted-foreground'>đến</span>
                 <Input
                   type='date'
                   value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
@@ -239,13 +239,13 @@ export default function OrdersPage() {
               <div className='flex items-center space-x-2'></div>
             </div>
             <Button variant='outline' size='sm' onClick={handleClearFilters}>
-              Clear Filters
+              Xóa bộ lọc
             </Button>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
               {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-              Export
+              Xuất file
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
@@ -253,13 +253,13 @@ export default function OrdersPage() {
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
-              Refresh
+              Làm mới
             </Button>
             <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
               <DialogTrigger asChild>
                 <Button size='sm' className='h-9'>
                   <Plus className='mr-2 h-4 w-4' />
-                  Add Order
+                  Thêm đơn hàng
                 </Button>
               </DialogTrigger>
               <AddOrder
@@ -275,9 +275,9 @@ export default function OrdersPage() {
         {/* Tabs and data table */}
         <Tabs defaultValue='all' className='w-full' onValueChange={setActiveTab}>
           <TabsList className='grid w-full max-w-md grid-cols-3'>
-            <TabsTrigger value='all'>All Orders</TabsTrigger>
-            <TabsTrigger value='confirmed'>Confirmed</TabsTrigger>
-            <TabsTrigger value='pending'>Pending/Canceled</TabsTrigger>
+            <TabsTrigger value='all'>Tất cả đơn hàng</TabsTrigger>
+            <TabsTrigger value='confirmed'>Đã xác nhận</TabsTrigger>
+            <TabsTrigger value='pending'>Chờ xác nhận/Hủy bỏ</TabsTrigger>
           </TabsList>
           <TabsContent value='all' className='mt-4'>
             <Card>
@@ -327,11 +327,11 @@ export default function OrdersPage() {
         {totalPages > 1 && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Showing {startIndex} to {endIndex} of {totalItems} entries
+              Hiển thị {startIndex} đến {endIndex} của {totalItems} mục
             </div>
             <div className='flex items-center space-x-2'>
               <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
-                Previous
+                Trang trước
               </Button>
               <div className='flex items-center gap-1'>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -347,7 +347,7 @@ export default function OrdersPage() {
                 ))}
               </div>
               <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
-                Next
+                Trang tiếp
               </Button>
             </div>
           </div>
@@ -365,17 +365,17 @@ export default function OrdersPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete order {selectedOrder?.id}? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa đơn hàng {selectedOrder?.id}? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleConfirmDelete} disabled={!selectedOrder}>
-              Delete
+              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>

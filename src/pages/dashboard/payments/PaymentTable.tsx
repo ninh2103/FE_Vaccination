@@ -98,10 +98,16 @@ export function PaymentTable({
   return (
     <div className='grid gap-6'>
       <Tabs defaultValue='all' className='w-full'>
-        <TabsList className='grid w-full max-w-md grid-cols-3'>
-          <TabsTrigger value='all'>All Payments</TabsTrigger>
-          <TabsTrigger value='completed'>Completed</TabsTrigger>
-          <TabsTrigger value='pending'>Pending/Failed</TabsTrigger>
+        <TabsList className='grid w-full max-w-md justify-center grid-cols-3'>
+          <TabsTrigger value='all' className='w-full'>
+            Tất cả thanh toán
+          </TabsTrigger>
+          <TabsTrigger value='completed' className='w-full'>
+            Đã thanh toán
+          </TabsTrigger>
+          <TabsTrigger value='pending' className='w-full ml-2'>
+            Chờ thanh toán/Thất bại
+          </TabsTrigger>
         </TabsList>
         <TabsContent value='all' className='mt-4'>
           <Card>
@@ -116,21 +122,21 @@ export function PaymentTable({
                   </div>
                 </div>
               ) : payments.length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No payments found.</div>
+                <div className='p-4 text-center text-muted-foreground'>Không có thanh toán nào.</div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Payment ID</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                      <TableHead className='w-[80px]'>Action</TableHead>
+                      <TableHead className='w-[60px]'>STT</TableHead>
+                      <TableHead>Mã thanh toán</TableHead>
+                      <TableHead>Người dùng</TableHead>
+                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Ngày</TableHead>
+                      <TableHead>Phương thức</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className='w-[80px]'>Sửa</TableHead>
+                      <TableHead className='w-[80px]'>Xóa</TableHead>
+                      <TableHead className='w-[80px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -189,11 +195,11 @@ export function PaymentTable({
                               <DropdownMenuTrigger asChild>
                                 <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
                                   <MoreHorizontal className='h-4 w-4' />
-                                  <span className='sr-only'>Open menu</span>
+                                  <span className='sr-only'>Mở menu</span>
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align='end'>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={(e) => {
@@ -202,7 +208,7 @@ export function PaymentTable({
                                   }}
                                 >
                                   <Receipt className='mr-2 h-4 w-4' />
-                                  View Details
+                                  Xem chi tiết
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={(e) => {
@@ -211,7 +217,7 @@ export function PaymentTable({
                                   }}
                                 >
                                   <Download className='mr-2 h-4 w-4' />
-                                  Download Receipt
+                                  Tải hóa đơn
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={(e) => {
@@ -220,7 +226,7 @@ export function PaymentTable({
                                   }}
                                 >
                                   <Printer className='mr-2 h-4 w-4' />
-                                  Print Receipt
+                                  In hóa đơn
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -242,24 +248,24 @@ export function PaymentTable({
                   <div className='flex items-center justify-center'>
                     <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
                   </div>
-                  <p className='mt-2 text-muted-foreground'>Loading payments...</p>
+                  <p className='mt-2 text-muted-foreground'>Đang tải...</p>
                 </div>
               ) : payments.filter((p) => p.status === 'COMPLETED').length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No completed payments found.</div>
+                <div className='p-4 text-center text-muted-foreground'>Không có thanh toán nào.</div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Payment ID</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'>Edit</TableHead>
-                      <TableHead className='w-[80px]'>Delete</TableHead>
-                      <TableHead className='w-[80px]'>Action</TableHead>
+                      <TableHead className='w-[60px]'>STT</TableHead>
+                      <TableHead>Mã đơn hàng</TableHead>
+                      <TableHead>Mã thanh toán</TableHead>
+                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Ngày</TableHead>
+                      <TableHead>Phương thức</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className='w-[80px]'>Sửa</TableHead>
+                      <TableHead className='w-[80px]'>Xóa</TableHead>
+                      <TableHead className='w-[80px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -336,11 +342,11 @@ export function PaymentTable({
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
                                     <MoreHorizontal className='h-4 w-4' />
-                                    <span className='sr-only'>Open menu</span>
+                                    <span className='sr-only'>Mở menu</span>
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end'>
-                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -349,7 +355,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Receipt className='mr-2 h-4 w-4' />
-                                    View Details
+                                    Xem chi tiết
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -358,7 +364,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Download className='mr-2 h-4 w-4' />
-                                    Download Receipt
+                                    Tải hóa đơn
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -367,7 +373,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Printer className='mr-2 h-4 w-4' />
-                                    Print Receipt
+                                    In hóa đơn
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -389,24 +395,24 @@ export function PaymentTable({
                   <div className='flex items-center justify-center'>
                     <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
                   </div>
-                  <p className='mt-2 text-muted-foreground'>Loading payments...</p>
+                  <p className='mt-2 text-muted-foreground'>Đang tải...</p>
                 </div>
               ) : payments.filter((p) => p.status === 'PENDING' || p.status === 'FAILED').length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No pending or failed payments found.</div>
+                <div className='p-4 text-center text-muted-foreground'>Không có thanh toán nào.</div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Payment ID</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className='w-[80px]'>Edit</TableHead>
-                      <TableHead className='w-[80px]'>Delete</TableHead>
-                      <TableHead className='w-[80px]'>Action</TableHead>
+                      <TableHead className='w-[60px]'>STT</TableHead>
+                      <TableHead>Mã đơn hàng</TableHead>
+                      <TableHead>Mã thanh toán</TableHead>
+                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Ngày</TableHead>
+                      <TableHead>Phương thức</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className='w-[80px]'>Sửa</TableHead>
+                      <TableHead className='w-[80px]'>Xóa</TableHead>
+                      <TableHead className='w-[80px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -467,11 +473,11 @@ export function PaymentTable({
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
                                     <MoreHorizontal className='h-4 w-4' />
-                                    <span className='sr-only'>Open menu</span>
+                                    <span className='sr-only'>Mở menu</span>
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end'>
-                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -480,7 +486,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Receipt className='mr-2 h-4 w-4' />
-                                    View Details
+                                    Xem chi tiết
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -489,7 +495,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Download className='mr-2 h-4 w-4' />
-                                    Download Receipt
+                                    Tải hóa đơn
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -498,7 +504,7 @@ export function PaymentTable({
                                     }}
                                   >
                                     <Printer className='mr-2 h-4 w-4' />
-                                    Print Receipt
+                                    In hóa đơn
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

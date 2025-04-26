@@ -61,7 +61,6 @@ const generateCertificateContent = (vaccination: Vaccination) => `
   <!DOCTYPE html>
   <html>
   <head>
-    <title>Vaccination Certificate</title>
     <style>
       body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
       .certificate { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
@@ -78,32 +77,32 @@ const generateCertificateContent = (vaccination: Vaccination) => `
   <body>
     <div class="certificate">
       <div class="header">
-        <h1>VACCINATION CERTIFICATE</h1>
-        <p>Certificate ID: CERT-${vaccination.id}-${new Date().getFullYear()}</p>
-        <p>Date: ${format(new Date(), 'dd/MM/yyyy')}</p>
+        <h1>CHỨNG NHẬN TIÊM CHỦNG</h1>
+        <p>Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}</p>
+        <p>Ngày: ${format(new Date(), 'dd/MM/yyyy')}</p>
       </div>
       <div class="info">
-        <h3>Patient Information</h3>
-        <div class="info-row"><div class="info-label">Name:</div><div>${vaccination.patient.name}</div></div>
-        <div class="info-row"><div class="info-label">Phone:</div><div>${vaccination.patient.phone}</div></div>
+        <h3>Thông tin bệnh nhân</h3>
+        <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
+        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone}</div></div>
         <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email}</div></div>
       </div>
       <div class="info">
-        <h3>Vaccination Details</h3>
+        <h3>Thông tin tiêm chủng</h3>
         <div class="info-row"><div class="info-label">Vaccine:</div><div>${vaccination.vaccine}</div></div>
-        <div class="info-row"><div class="info-label">Dose Number:</div><div>${vaccination.doseNumber}</div></div>
-        <div class="info-row"><div class="info-label">Date:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
-        <div class="info-row"><div class="info-label">Time:</div><div>${vaccination.time}</div></div>
-        <div class="info-row"><div class="info-label">Administered By:</div><div>${vaccination.administeredBy}</div></div>
-        <div class="info-row"><div class="info-label">Location:</div><div>${vaccination.location}</div></div>
+        <div class="info-row"><div class="info-label">Số liều:</div><div>${vaccination.doseNumber}</div></div>
+        <div class="info-row"><div class="info-label">Ngày:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
+        <div class="info-row"><div class="info-label">Giờ:</div><div>${vaccination.time}</div></div>
+        <div class="info-row"><div class="info-label">Người tiêm:</div><div>${vaccination.administeredBy}</div></div>
+        <div class="info-row"><div class="info-label">Địa điểm:</div><div>${vaccination.location}</div></div>
       </div>
       <div class="seal">
-        <p>Official Seal</p>
+        <p>Chữ ký</p>
         <div><span style="color: #4f46e5; font-weight: bold;">VERIFIED</span></div>
       </div>
       <div class="footer">
-        <p>This certificate confirms that the individual named above has received the specified vaccination.</p>
-        <p>For inquiries, please contact: 1900 1900</p>
+        <p>Chứng nhận này xác nhận rằng bệnh nhân đã nhận tiêm chủng được chỉ định.</p>
+        <p>Để biết thêm thông tin, vui lòng liên hệ: 1900 1900</p>
       </div>
     </div>
     <script>window.onload = function() { window.print(); }</script>
@@ -114,22 +113,22 @@ const generateCertificateContent = (vaccination: Vaccination) => `
 const generateInvoicePDF = (vaccination: Vaccination) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
-  doc.setFontSize(16).setFont('helvetica', 'bold').text('VACCINATION INVOICE', 105, 20, { align: 'center' })
+  doc.setFontSize(16).setFont('helvetica', 'bold').text('HÓA ĐƠN TIÊM CHỦNG', 105, 20, { align: 'center' })
   doc
     .setFontSize(12)
     .setFont('helvetica', 'normal')
-    .text(`Invoice ID: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
-    .text(`Date: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
+    .text(`Mã hóa đơn: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
+    .text(`Ngày: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
 
-  doc.setFontSize(14).setFont('helvetica', 'bold').text('Patient Information', 20, 55)
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Thông tin bệnh nhân', 20, 55)
   doc
     .setFontSize(12)
     .setFont('helvetica', 'normal')
-    .text(`Name: ${vaccination.patient.name}`, 20, 65)
-    .text(`Phone: ${vaccination.patient.phone}`, 20, 73)
+    .text(`Tên: ${vaccination.patient.name}`, 20, 65)
+    .text(`SĐT: ${vaccination.patient.phone}`, 20, 73)
     .text(`Email: ${vaccination.patient.email}`, 20, 81)
 
-  doc.setFontSize(14).setFont('helvetica', 'bold').text('Vaccination Details', 20, 95)
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Thông tin tiêm chủng', 20, 95)
   doc
     .setFontSize(12)
     .setFont('helvetica', 'normal')
@@ -143,8 +142,8 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
   doc
     .setFontSize(10)
     .setTextColor(100)
-    .text('This invoice confirms the vaccination service provided.', 105, 260, { align: 'center' })
-    .text('For inquiries, please contact: 1900 1234', 105, 268, { align: 'center' })
+    .text('Hóa đơn xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
+    .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' })
 
   doc.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
   doc.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
@@ -242,7 +241,7 @@ export default function HistorysPage() {
       setDateRange({ from: undefined, to: undefined })
       setCurrentPage(1)
       refetch()
-      toast.success('Refreshed successfully')
+      toast.success('Cập nhật dữ liệu thành công')
       setIsRefreshing(false)
     }, 1000)
   }
@@ -252,7 +251,7 @@ export default function HistorysPage() {
     setDateRange({ from: undefined, to: undefined })
     setCurrentPage(1)
     refetch()
-    toast.success('Filters cleared successfully')
+    toast.success('Đã xóa bộ lọc')
   }
 
   // Handle export to Excel
@@ -273,10 +272,10 @@ export default function HistorysPage() {
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vaccination History')
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch sử tiêm chủng')
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
-    saveAs(blob, `vaccination_history_${format(new Date(), 'yyyyMMdd')}.xlsx`)
+    saveAs(blob, `lịch_sử_tiêm_chủng_${format(new Date(), 'yyyyMMdd')}.xlsx`)
   }
 
   // Handle print certificate
@@ -300,9 +299,9 @@ export default function HistorysPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Vaccination History
+            Lịch sử tiêm chủng
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor vaccination history in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi lịch sử tiêm chủng trong hệ thống.</p>
         </div>
       </div>
 
@@ -313,7 +312,7 @@ export default function HistorysPage() {
             <div className='relative w-full max-w-sm'>
               <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
-                placeholder='Search...'
+                placeholder='Tìm kiếm...'
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -331,7 +330,7 @@ export default function HistorysPage() {
                   onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
                   className='w-[150px]'
                 />
-                <span className='text-muted-foreground'>to</span>
+                <span className='text-muted-foreground'>đến</span>
                 <Input
                   type='date'
                   value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
@@ -342,13 +341,13 @@ export default function HistorysPage() {
               <div className='flex items-center space-x-2'></div>
             </div>
             <Button variant='outline' size='sm' onClick={handleClearFilters}>
-              Clear Filters
+              Xóa bộ lọc
             </Button>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
               <Download className='mr-2 h-4 w-4' />
-              Export
+              Xuất file
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
@@ -356,7 +355,7 @@ export default function HistorysPage() {
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
-              Refresh
+              Cập nhật
             </Button>
           </div>
         </div>
@@ -370,7 +369,7 @@ export default function HistorysPage() {
               </div>
             ) : paginatedVaccinations.length === 0 ? (
               <div className='p-4 text-center text-muted-foreground'>
-                No vaccination records found matching the current filters.
+                Không tìm thấy lịch sử tiêm chủng phù hợp với bộ lọc hiện tại.
               </div>
             ) : (
               <HistorysTable
@@ -392,7 +391,7 @@ export default function HistorysPage() {
         {totalPages > 1 && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Showing {startIndex} to {endIndex} of {totalItems} entries
+              Hiển thị {startIndex} đến {endIndex} trong tổng số {totalItems} lịch sử tiêm chủng
             </div>
             <div className='flex items-center space-x-2'>
               <Button
@@ -401,7 +400,7 @@ export default function HistorysPage() {
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Previous
+                Trang trước
               </Button>
               <div className='flex items-center gap-1'>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -422,7 +421,7 @@ export default function HistorysPage() {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                Trang tiếp
               </Button>
             </div>
           </div>
@@ -433,8 +432,8 @@ export default function HistorysPage() {
       <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
         <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
-            <DialogTitle>Vaccination Details</DialogTitle>
-            <DialogDescription>View detailed information about this vaccination record.</DialogDescription>
+            <DialogTitle>Chi tiết tiêm chủng</DialogTitle>
+            <DialogDescription>Xem thông tin chi tiết về lịch sử tiêm chủng này.</DialogDescription>
           </DialogHeader>
           {selectedVaccination && (
             <div className='grid gap-4 py-4'>
@@ -455,21 +454,21 @@ export default function HistorysPage() {
                   <p>{selectedVaccination.vaccine}</p>
                 </div>
                 <div>
-                  <h4 className='text-sm font-medium text-muted-foreground'>Dose Number</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Số liều</h4>
                   <p>{selectedVaccination.doseNumber}</p>
                 </div>
               </div>
 
               <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <h4 className='text-sm font-medium text-muted-foreground'>Date</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Ngày</h4>
                   <div className='flex items-center gap-1'>
                     <Calendar className='h-4 w-4 text-muted-foreground' />
                     <p>{format(new Date(selectedVaccination.date), 'MM/dd/yyyy')}</p>
                   </div>
                 </div>
                 <div>
-                  <h4 className='text-sm font-medium text-muted-foreground'>Time</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Giờ</h4>
                   <div className='flex items-center gap-1'>
                     <Clock className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.time}</p>
@@ -479,14 +478,14 @@ export default function HistorysPage() {
 
               <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <h4 className='text-sm font-medium text-muted-foreground'>Administered By</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Người tiêm</h4>
                   <div className='flex items-center gap-1'>
                     <User className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.administeredBy}</p>
                   </div>
                 </div>
                 <div>
-                  <h4 className='text-sm font-medium text-muted-foreground'>Location</h4>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Địa điểm</h4>
                   <div className='flex items-center gap-1'>
                     <MapPin className='h-4 w-4 text-muted-foreground' />
                     <p>{selectedVaccination.location}</p>
@@ -495,12 +494,12 @@ export default function HistorysPage() {
               </div>
 
               <div>
-                <h4 className='text-sm font-medium text-muted-foreground'>Notes</h4>
+                <h4 className='text-sm font-medium text-muted-foreground'>Ghi chú</h4>
                 <p>{selectedVaccination.notes}</p>
               </div>
 
               <div>
-                <h4 className='text-sm font-medium text-muted-foreground'>Contact Information</h4>
+                <h4 className='text-sm font-medium text-muted-foreground'>Thông tin liên hệ</h4>
                 <p className='text-sm flex items-center gap-1'>
                   <Phone className='h-3 w-3' /> {selectedVaccination.patient.phone}
                 </p>
@@ -510,15 +509,15 @@ export default function HistorysPage() {
           )}
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Close
+              Đóng
             </Button>
             <Button onClick={() => selectedVaccination && handlePrintCertificate(selectedVaccination)}>
               <FileText className='mr-2 h-4 w-4' />
-              Print Certificate
+              In chứng nhận
             </Button>
             <Button onClick={() => selectedVaccination && handleDownloadInvoice(selectedVaccination)}>
               <Printer className='mr-2 h-4 w-4' />
-              Download Invoice
+              Tải hóa đơn
             </Button>
           </DialogFooter>
         </DialogContent>

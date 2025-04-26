@@ -46,7 +46,7 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
       { id: selectedPayment.id, body: data },
       {
         onSuccess: () => {
-          toast.success(`Payment has been updated successfully.`)
+          toast.success(`Thanh toán đã được cập nhật thành công.`)
           onOpenChange(false)
         }
       }
@@ -59,12 +59,12 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Update Payment Status</DialogTitle>
-          <DialogDescription>Change the status for {selectedPayment.orderId}</DialogDescription>
+          <DialogTitle>Cập nhật trạng thái thanh toán</DialogTitle>
+          <DialogDescription>Thay đổi trạng thái cho {selectedPayment.orderId}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='status'>Status</Label>
+            <Label htmlFor='status'>Trạng thái</Label>
             <Select
               value={form.watch('status')}
               onValueChange={(value) => form.setValue('status', value as 'PENDING' | 'COMPLETED' | 'FAILED')}
@@ -79,12 +79,12 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
           </div>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Cancel
+              Hủy bỏ
             </Button>
 
             <Button type='submit' disabled={isLoading} className={cn(isLoading ? 'opacity-50 cursor-not-allowed' : '')}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading ? 'Updating...' : 'Update Status'}
+              {isLoading ? 'Đang cập nhật...' : 'Cập nhật trạng thái'}
             </Button>
           </DialogFooter>
         </form>

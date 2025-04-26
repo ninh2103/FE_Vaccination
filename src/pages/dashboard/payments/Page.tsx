@@ -268,29 +268,29 @@ export default function PaymentsPage() {
       <body>
         <div class="receipt">
           <div class="header">
-            <h2>VAXBOT Vaccine Joint Stock Company</h2>
+            <h2>Công ty cổ phần Vaccine</h2>
             <p>Receipt #${payment.id}</p>
             <p>Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}</p>
           </div>
           <div class="details">
-            <h4>Payment ID</h4>
+            <h4>Mã thanh toán</h4>
             <p>${payment.id}</p>
           </div>
           <div class="details">
-            <h4>Amount</h4>
+            <h4>Số tiền</h4>
             <p>${formatCurrency(payment.amount)}</p>
           </div>
           <div class="details">
-            <h4>Payment Method</h4>
+            <h4>Phương thức thanh toán</h4>
             <p>${payment.paymentMethod}</p>
           </div>
           <div class="details">
-            <h4>Status</h4>
+            <h4>Trạng thái</h4>
             <span class="status-badge ${statusClass}">${payment.status}</span>
           </div>
           <div class="footer">
-            <p>Thank you for your payment!</p>
-            <p>VAXBOT © ${new Date().getFullYear()}</p>
+            <p>Cảm ơn bạn đã thanh toán!</p>
+            <p>Công ty cổ phần Vaccine © ${new Date().getFullYear()}</p>
           </div>
         </div>
       </body>
@@ -312,7 +312,7 @@ export default function PaymentsPage() {
   const handleDeletePayment = (paymentId: string) => {
     deletePayment(paymentId, {
       onSuccess: () => {
-        toast.success('Payment deleted successfully')
+        toast.success('Thanh toán đã được xóa thành công')
       }
     })
   }
@@ -322,9 +322,9 @@ export default function PaymentsPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Payments
+            Thanh toán
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor payments in your system.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi thanh toán trong hệ thống của bạn.</p>
         </div>
       </div>
 
@@ -334,7 +334,7 @@ export default function PaymentsPage() {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search...'
+              placeholder='Tìm kiếm...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
@@ -346,7 +346,7 @@ export default function PaymentsPage() {
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
               <Download className='mr-2 h-4 w-4' />
-              Export
+              Xuất
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
@@ -354,7 +354,7 @@ export default function PaymentsPage() {
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
-              Refresh
+              Làm mới
             </Button>
           </div>
         </div>
@@ -363,8 +363,10 @@ export default function PaymentsPage() {
         {filteredPayments.some((p) => p.status === 'PENDING' || p.status === 'FAILED') && (
           <Alert variant='destructive' className='bg-red-50 border-red-200'>
             <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Payment Alert</AlertTitle>
-            <AlertDescription>Some payments are pending or failed. Review and process them as needed.</AlertDescription>
+            <AlertTitle>Cảnh báo thanh toán</AlertTitle>
+            <AlertDescription>
+              Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
+            </AlertDescription>
           </Alert>
         )}
 
@@ -394,8 +396,8 @@ export default function PaymentsPage() {
       <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
         <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
-            <DialogTitle>Payment Details</DialogTitle>
-            <DialogDescription>View complete payment information.</DialogDescription>
+            <DialogTitle>Chi tiết thanh toán</DialogTitle>
+            <DialogDescription>Xem thông tin thanh toán đầy đủ.</DialogDescription>
           </DialogHeader>
           {selectedPayment && (
             <div className='grid gap-4 py-4'>
@@ -406,7 +408,7 @@ export default function PaymentsPage() {
                   </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <span className='text-sm font-medium'>Status:</span>
+                  <span className='text-sm font-medium'>Trạng thái:</span>
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       selectedPayment.status === 'COMPLETED'
@@ -426,33 +428,33 @@ export default function PaymentsPage() {
               <div className='rounded-lg border p-4'>
                 <div className='flex justify-between'>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Order ID</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Mã đơn hàng</h4>
                     <p className='font-medium'>#{selectedPayment.id.slice(0, 8)}</p>
                   </div>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Amount</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Số tiền</h4>
                     <p className='text-xl font-bold'>{formatCurrency(selectedPayment.amount)}</p>
                   </div>
                 </div>
 
                 <div className='mt-4 flex justify-between'>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Date</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Ngày</h4>
                     <p>{format(new Date(selectedPayment.createdAt), 'dd/MM/yyyy')}</p>
                   </div>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Payment Method</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Phương thức thanh toán</h4>
                     <p>{selectedPayment.paymentMethod}</p>
                   </div>
                 </div>
 
                 <div className='mt-4 flex justify-between'>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Payment ID</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Mã thanh toán</h4>
                     <p>#{selectedPayment.id.slice(0, 8)}</p>
                   </div>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground '>User</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground '>Người dùng</h4>
                     <p>{selectedPayment.user.name}</p>
                   </div>
                 </div>
@@ -461,15 +463,15 @@ export default function PaymentsPage() {
           )}
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Close
+              Đóng
             </Button>
             <Button onClick={() => handlePrintReceipt(selectedPayment)}>
               <Printer className='mr-2 h-4 w-4' />
-              Print
+              In
             </Button>
             <Button variant='outline' onClick={() => handleDownloadReceipt(selectedPayment)}>
               <Download className='mr-2 h-4 w-4' />
-              Download Receipt
+              Tải hóa đơn
             </Button>
           </DialogFooter>
         </DialogContent>

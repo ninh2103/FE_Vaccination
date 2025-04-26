@@ -50,7 +50,7 @@ export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateApp
       { id: appointment.id, data },
       {
         onSuccess: () => {
-          toast.success('Appointment status has been updated successfully.')
+          toast.success('Cập nhật trạng thái lịch hẹn thành công')
           // Update the local appointment with new status
           onUpdate({
             ...appointment,
@@ -59,7 +59,7 @@ export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateApp
           onCancel()
         },
         onError: () => {
-          toast.error('Failed to update appointment status.')
+          toast.error('Lỗi khi cập nhật trạng thái lịch hẹn')
         }
       }
     )
@@ -68,8 +68,8 @@ export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateApp
   return (
     <DialogContent className='sm:max-w-[550px]'>
       <DialogHeader>
-        <DialogTitle>Update Appointment Status</DialogTitle>
-        <DialogDescription>Change the status of this appointment.</DialogDescription>
+        <DialogTitle>Cập nhật trạng thái lịch hẹn</DialogTitle>
+        <DialogDescription>Thay đổi trạng thái của lịch hẹn này.</DialogDescription>
       </DialogHeader>
       <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
         {isLoading ? (
@@ -79,12 +79,12 @@ export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateApp
         ) : (
           <>
             <div className='grid gap-2'>
-              <Label htmlFor='status'>Status</Label>
+              <Label htmlFor='status'>Trạng thái</Label>
               <Select
                 value={form.watch('status')}
                 onValueChange={(value) => form.setValue('status', value as AppointmentUpdateBodyType['status'])}
               >
-                <SelectTrigger>{appointmentData?.status || appointment.status}</SelectTrigger>
+                <SelectTrigger>{form.watch('status')}</SelectTrigger>
                 <SelectContent>
                   <SelectItem value='PENDING'>PENDING</SelectItem>
                   <SelectItem value='CONFIRMED'>CONFIRMED</SelectItem>
@@ -96,11 +96,11 @@ export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateApp
 
             <DialogFooter>
               <Button type='button' variant='outline' onClick={onCancel}>
-                Cancel
+                Hủy bỏ
               </Button>
               <Button type='submit' disabled={isUpdating}>
                 {isUpdating ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
-                Save Changes
+                Lưu thay đổi
               </Button>
             </DialogFooter>
           </>

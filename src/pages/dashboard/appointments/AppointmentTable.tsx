@@ -78,7 +78,7 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
       },
       {
         onSuccess: () => {
-          toast.success(`Appointment ${newStatus === 'CONFIRMED' ? 'confirmed' : 'canceled'} successfully`)
+          toast.success(`Lịch hẹn ${newStatus === 'CONFIRMED' ? 'đã được xác nhận' : 'đã bị hủy'} thành công`)
           // Update the local state without triggering the dialog
           const updatedAppointment = {
             ...appointment,
@@ -92,7 +92,7 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
           setUpdatingId(null)
         },
         onError: () => {
-          toast.error('Failed to update appointment status')
+          toast.error('Cập nhật trạng thái lịch hẹn thất bại')
           setUpdatingId(null)
         }
       }
@@ -110,13 +110,13 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-[60px]'>No.</TableHead>
-            <TableHead>Patient</TableHead>
+            <TableHead className='w-[60px]'>STT</TableHead>
+            <TableHead>Bệnh nhân</TableHead>
             <TableHead>Vaccine</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className='w-[80px]'>Actions</TableHead>
+            <TableHead>Ngày</TableHead>
+            <TableHead>Giờ</TableHead>
+            <TableHead>Trạng thái</TableHead>
+            <TableHead className='w-[80px]'>Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

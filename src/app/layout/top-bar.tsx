@@ -92,7 +92,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
         </button>
 
         {/* Language Dropdown */}
-        <DropdownMenu.Root>
+        {/* <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
               className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center'
@@ -118,7 +118,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
               ))}
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+        </DropdownMenu.Root> */}
 
         {/* Account Dropdown */}
         <DropdownMenu.Root>

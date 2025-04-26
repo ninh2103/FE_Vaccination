@@ -35,7 +35,9 @@ export const useUpdateAppointmentMutation = () => {
     mutationFn: ({ id, data }: { id: string; data: AppointmentUpdateBodyType }) =>
       appointmentService.updateAppointment(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['appointment-list'] })
+      ;['appointment-list', 'appointment-list-daily'].forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: [key] })
+      })
     }
   })
 }
