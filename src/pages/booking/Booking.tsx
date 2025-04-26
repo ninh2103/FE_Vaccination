@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
 import { useGetVaccinationByIdQuery } from '@/queries/useVaccination'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useConfirmBookingQuery, useCreateBookingQuery } from '@/queries/useBooking'
 import { getUserFromLocalStorage } from '@/core/shared/storage'
 import { useDetailUserQuery } from '@/queries/useUser'
@@ -16,8 +16,10 @@ import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Banknote, CreditCard, HandCoins } from 'lucide-react'
+import { path } from '@/core/constants/path'
 
 const CheckOutPagePageMain = () => {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const user = getUserFromLocalStorage()
@@ -76,7 +78,7 @@ const CheckOutPagePageMain = () => {
     createBooking(body, {
       onSuccess: (response) => {
         refetchVaccine()
-        toast.success('Booking created successfully')
+        toast.success('Đặt lịch hẹn thành công')
 
         if (paymentMethod === 'MOMO') {
           createPayment(
@@ -91,7 +93,7 @@ const CheckOutPagePageMain = () => {
                   setError: form.setError,
                   duration: 5000
                 })
-                toast.error(error.message || 'Payment failed')
+                toast.error(error.message || 'Thanh toán thất bại')
               }
             }
           )
@@ -101,6 +103,7 @@ const CheckOutPagePageMain = () => {
             {
               onSuccess: (data) => {
                 toast.success(data.message)
+                navigate(path.list)
               },
               onError: (error) => {
                 handleErrorApi({
@@ -108,7 +111,7 @@ const CheckOutPagePageMain = () => {
                   setError: form.setError,
                   duration: 5000
                 })
-                toast.error(error.message || 'Booking confirmation failed')
+                toast.error(error.message || 'Đặt lịch hẹn thất bại')
               }
             }
           )
@@ -120,7 +123,7 @@ const CheckOutPagePageMain = () => {
           setError: form.setError,
           duration: 5000
         })
-        toast.error(error.message || 'Booking failed')
+        toast.error(error.message || 'Đặt lịch hẹn thất bại')
       }
     })
   }
@@ -132,11 +135,11 @@ const CheckOutPagePageMain = () => {
         <div className='lg:col-span-2'>
           <Card className='dark:bg-gray-900 h-full'>
             <CardContent className='p-6 space-y-6'>
-              <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Booking Information</h2>
+              <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Thông tin đặt lịch hẹn</h2>
               <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <Label htmlFor='appointmentDate'>Appointment Date</Label>
+                    <Label htmlFor='appointmentDate'>Ngày đặt lịch hẹn</Label>
                     <Input
                       id='appointmentDate'
                       type='date'
@@ -149,7 +152,7 @@ const CheckOutPagePageMain = () => {
                     />
                   </div>
                   <div className='space-y-2'>
-                    <Label htmlFor='appointmentTime'>Appointment Time</Label>
+                    <Label htmlFor='appointmentTime'>Thời gian đặt lịch hẹn</Label>
                     <Input
                       id='appointmentTime'
                       type='time'
@@ -161,7 +164,7 @@ const CheckOutPagePageMain = () => {
                       }`}
                     />
                     <p className='text-sm text-gray-500 dark:text-gray-400'>
-                      Available times: 8:00 AM - 5:00 PM (30-minute intervals)
+                      Thời gian khả dụng: 8:00 - 17:00 (30 phút)
                     </p>
                   </div>
                 </div>
@@ -170,7 +173,7 @@ const CheckOutPagePageMain = () => {
                 )}
 
                 <div className='space-y-2'>
-                  <Label htmlFor='vaccinationQuantity'>Number of Doses</Label>
+                  <Label htmlFor='vaccinationQuantity'>Số liệu pháp</Label>
                   <Input
                     id='vaccinationQuantity'
                     type='number'
@@ -187,7 +190,7 @@ const CheckOutPagePageMain = () => {
                 <div className='space-y-4 '>
                   <div className='pt-4 flex items-center space-x-2 border-t border-green-500 dark:border-green-700'>
                     <Banknote className='w-6 h-6 text-gray-900 dark:text-white' />
-                    <Label className='text-gray-900 dark:text-white text-lg font-bold'>Payment Method</Label>
+                    <Label className='text-gray-900 dark:text-white text-lg font-bold'>Phương thức thanh toán</Label>
                   </div>
                   <RadioGroup
                     defaultValue='MOMO'
@@ -198,8 +201,8 @@ const CheckOutPagePageMain = () => {
                     <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
                       <div className='flex items-center space-x-2'>
                         <CreditCard className='w-6 h-6 text-gray-900 dark:text-white' />
-                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='momo'>
-                          Momo Payment
+                        <Label className='text-gray-900 dark:text-white text-lg font-semibold' htmlFor='momo'>
+                          Thanh toán qua Momo
                         </Label>
                       </div>
                       <RadioGroupItem
@@ -212,8 +215,8 @@ const CheckOutPagePageMain = () => {
                     <div className='flex items-center justify-between border border-green-500 dark:border-green-700 rounded-md p-4'>
                       <div className='flex items-center space-x-2'>
                         <HandCoins className='w-6 h-6 text-gray-900 dark:text-white' />
-                        <Label className='text-gray-900 dark:text-white text-lg font-serif' htmlFor='cash'>
-                          Cash Payment
+                        <Label className='text-gray-900 dark:text-white text-lg font-semibold' htmlFor='cash'>
+                          Thanh toán tiền mặt
                         </Label>
                       </div>
                       <RadioGroupItem
@@ -229,7 +232,7 @@ const CheckOutPagePageMain = () => {
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
                 >
-                  Confirm Booking
+                  Xác nhận đặt lịch hẹn
                 </Button>
               </form>
             </CardContent>
@@ -241,7 +244,7 @@ const CheckOutPagePageMain = () => {
           <Card className='dark:bg-gray-900 sticky top-8 h-full'>
             <CardContent className='p-6 space-y-6'>
               <div className='flex flex-col space-y-4'>
-                <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Booking Summary</h3>
+                <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông tin vaccine</h3>
                 <div className='rounded-lg overflow-hidden'>
                   <img
                     alt={vaccineDetail?.vaccineName}
@@ -252,20 +255,19 @@ const CheckOutPagePageMain = () => {
                 <div className='space-y-2'>
                   <h4 className='font-semibold text-gray-900 dark:text-white'>{vaccineDetail?.vaccineName}</h4>
                   <p className='text-sm text-gray-600 dark:text-gray-300'>{vaccineDetail?.description}</p>
-                  <p className='text-sm text-gray-600 dark:text-gray-300'>Location: {vaccineDetail?.location}</p>
                   <p className='text-sm text-gray-600 dark:text-gray-300'>
-                    Available Quantity: {vaccineDetail?.remainingQuantity}
+                    Số liệu pháp còn lại: {vaccineDetail?.remainingQuantity}
                   </p>
                 </div>
                 <div className='border-t border-gray-200 dark:border-gray-700 pt-4'>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-300'>Price per Dose</span>
+                    <span className='text-gray-600 dark:text-gray-300'>Giá tiền</span>
                     <span className='text-xl font-semibold text-gray-900 dark:text-white'>
                       {formatVND(vaccineDetail?.price || 0)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center mt-2'>
-                    <span className='text-gray-600 dark:text-gray-300'>Total Amount</span>
+                    <span className='text-gray-600 dark:text-gray-300'>Tổng số tiền</span>
                     <span className='text-xl font-semibold text-gray-900 dark:text-white'>
                       {formatVND(vaccineDetail?.price || 0 * (form.watch('vaccinationQuantity') || 1))}
                     </span>

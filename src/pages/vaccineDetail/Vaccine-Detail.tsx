@@ -28,7 +28,7 @@ export default function VaccineDetail() {
   }
 
   if (!vaccineDetail) {
-    return <div className='p-8'>Vaccine not found</div>
+    return <div className='p-8'>Không tìm thấy vaccine</div>
   }
 
   const formatCurrency = (amount: number) => {
@@ -36,15 +36,15 @@ export default function VaccineDetail() {
   }
 
   const getStatusColor = (quantity: number) => {
-    if (quantity > 10) return 'bg-green-100 text-green-800'
+    if (quantity > 5) return 'bg-green-100 text-green-800'
     if (quantity > 0) return 'bg-yellow-100 text-yellow-800'
     return 'bg-red-100 text-red-800'
   }
 
   const getStatusText = (quantity: number) => {
-    if (quantity > 10) return 'In Stock'
-    if (quantity > 0) return 'Low Stock'
-    return 'Out of Stock'
+    if (quantity > 5) return 'Còn hàng'
+    if (quantity > 0) return 'Sắp hết hàng'
+    return 'Hết hàng'
   }
 
   return (
@@ -66,29 +66,29 @@ export default function VaccineDetail() {
                 <div className='mt-4 flex items-center justify-between'>
                   <div className='flex items-center'>
                     <Tag className='mr-2 h-4 w-4' />
-                    <span className='text-sm'>Price:</span>
+                    <span className='text-sm'>Giá:</span>
                   </div>
                   <span className='font-bold'>{formatCurrency(vaccineDetail.price)}</span>
                 </div>
                 <div className='mt-2 flex items-center justify-between'>
                   <div className='flex items-center'>
                     <Calendar className='mr-2 h-4 w-4' />
-                    <span className='text-sm'>Expires:</span>
+                    <span className='text-sm'>Hạn sử dụng:</span>
                   </div>
                   <span>{new Date(vaccineDetail.expirationDate).toLocaleDateString()}</span>
                 </div>
                 <div className='mt-2 flex items-center justify-between'>
                   <div className='flex items-center'>
                     <Tag className='mr-2 h-4 w-4' />
-                    <span className='text-sm'>Quantity:</span>
+                    <span className='text-sm'>Số lượng:</span>
                   </div>
-                  <span>{vaccineDetail.remainingQuantity} doses</span>
+                  <span>{vaccineDetail.remainingQuantity} liệu pháp</span>
                 </div>
                 <div className='mt-4'>
                   {vaccineDetail.remainingQuantity > 0 ? (
                     <Link to={`${path.booking}?id=${vaccineDetail.id}`}>
                       <Button className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white'>
-                        Book Appointment
+                        Đặt lịch hẹn
                       </Button>
                     </Link>
                   ) : (
@@ -96,7 +96,7 @@ export default function VaccineDetail() {
                       disabled
                       className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white'
                     >
-                      Contact
+                      Liên hệ
                     </Button>
                   )}
                 </div>
@@ -117,15 +117,15 @@ export default function VaccineDetail() {
                 <div>
                   <h3 className='font-semibold flex items-center'>
                     <Building className='mr-2 h-4 w-4' />
-                    Location Information
+                    Thông tin địa điểm
                   </h3>
                   <div className='grid grid-cols-2 gap-4 mt-2'>
                     <div className='flex items-center gap-2'>
-                      <span className='text-sm text-gray-500'>Location:</span>
+                      <span className='text-sm text-gray-500'>Địa điểm:</span>
                       <p>{vaccineDetail.location}</p>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <span className='text-sm text-gray-500'>Batch Number:</span>
+                      <span className='text-sm text-gray-500'>Số lô:</span>
                       <p>{vaccineDetail.batchNumber}</p>
                     </div>
                   </div>
@@ -136,20 +136,20 @@ export default function VaccineDetail() {
                 <div>
                   <h3 className='font-semibold flex items-center'>
                     <Info className='mr-2 h-4 w-4' />
-                    Additional Details
+                    Thông tin bổ sung
                   </h3>
                   <div className='grid grid-cols-2 gap-4 mt-2'>
                     <div className='flex items-center gap-2'>
-                      <span className='text-sm text-gray-500'>Created At:</span>
+                      <span className='text-sm text-gray-500'>Ngày tạo:</span>
                       <p>{new Date(vaccineDetail.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <span className='text-sm text-gray-500'>Last Updated:</span>
+                      <span className='text-sm text-gray-500'>Ngày cập nhật:</span>
                       <p>{new Date(vaccineDetail.updatedAt).toLocaleDateString()}</p>
                     </div>
                     {vaccineDetail.certificate && (
                       <div className='flex items-center gap-2'>
-                        <span className='text-sm text-gray-500'>Certificate:</span>
+                        <span className='text-sm text-gray-500'>Chứng chỉ:</span>
                         <p>{vaccineDetail.certificate}</p>
                       </div>
                     )}
@@ -161,20 +161,20 @@ export default function VaccineDetail() {
 
           <Tabs defaultValue='side-effects' className='w-full'>
             <TabsList className='grid w-full grid-cols-1'>
-              <TabsTrigger value='side-effects'>Side Effects</TabsTrigger>
+              <TabsTrigger value='side-effects'>Tác dụng phụ</TabsTrigger>
             </TabsList>
             <TabsContent value='side-effects'>
               <Card>
                 <CardHeader>
-                  <CardTitle>Potential Side Effects</CardTitle>
-                  <CardDescription>Information about potential side effects</CardDescription>
+                  <CardTitle>Tác dụng phụ</CardTitle>
+                  <CardDescription>Thông tin về tác dụng phụ</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className='space-y-4'>
                     {vaccineDetail.sideEffect ? (
                       <p>{vaccineDetail.sideEffect}</p>
                     ) : (
-                      <p className='text-gray-500'>No side effects information available.</p>
+                      <p className='text-gray-500'>Không có thông tin tác dụng phụ.</p>
                     )}
                   </div>
                 </CardContent>

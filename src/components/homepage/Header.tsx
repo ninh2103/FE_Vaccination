@@ -123,13 +123,6 @@ export default function Header() {
 
             <div className='hidden md:flex items-center space-x-4'>
               <ThemeToggle />
-              <Button
-                variant='ghost'
-                size='icon'
-                className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-              >
-                <Icons.Globe className='h-5 w-5' />
-              </Button>
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
