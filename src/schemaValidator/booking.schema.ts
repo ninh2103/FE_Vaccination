@@ -40,7 +40,7 @@ export const BookingBodySchema = (remainingQuantity: number) =>
           return timeInMinutes >= 480 && timeInMinutes <= 1020
         },
         {
-          message: 'Appointment time must be between 8:00 AM and 5:00 PM'
+          message: 'Giờ hẹn phải từ 8:00 AM đến 5:00 PM'
         }
       )
       .refine(
@@ -62,7 +62,7 @@ export const BookingBodySchema = (remainingQuantity: number) =>
           return appointmentDate > new Date(now.setHours(0, 0, 0, 0))
         },
         {
-          message: 'Appointment cannot be in the past or in a past hour of today'
+          message: 'Ngày hẹn không được ở quá khứ hoặc trong giờ qua'
         }
       )
       .refine(
@@ -73,15 +73,15 @@ export const BookingBodySchema = (remainingQuantity: number) =>
           return minutes === 0 || minutes === 30
         },
         {
-          message: 'Appointment time must be at :00 or :30'
+          message: 'Giờ hẹn phải là 00:00 hoặc 00:30'
         }
       ),
 
     vaccinationQuantity: z
-      .number({ invalid_type_error: 'Please enter a valid number' })
-      .int('Number of doses must be an integer')
-      .min(1, 'Minimum dose is 1')
-      .max(remainingQuantity, `Maximum available doses: ${remainingQuantity}`)
+      .number({ invalid_type_error: 'Vui lòng nhập số lượng hợp lệ' })
+      .int('Số lượng liều phải là số nguyên')
+      .min(1, 'Số lượng liều tối thiểu là 1')
+      .max(remainingQuantity, `Số lượng liều tối đa là ${remainingQuantity}`)
   })
 
 export type BookingBodyType = z.infer<ReturnType<typeof BookingBodySchema>>
@@ -117,11 +117,14 @@ export type BookingConfirmResponseType = z.infer<typeof BookingConfirmResponseSc
 export const BookingCreateBodySchema = z.object({
   vaccinationId: z.string().uuid(),
   appointmentDate: z.coerce.date({
-    required_error: 'Appointment date is required',
-    invalid_type_error: 'Appointment date must be a valid date'
+    required_error: 'Ngày hẹn là bắt buộc',
+    invalid_type_error: 'Ngày hẹn phải là ngày hợp lệ'
   }),
-  vaccinationQuantity: z.number().int().positive(),
-  userId: z.string().uuid()
+  vaccinationQuantity: z
+    .number({ invalid_type_error: 'Số lượng liều tối thiểu là 1' })
+    .int('Số lượng liều tối thiểu là 1')
+    .positive('Số lượng liều tối thiểu là 1'),
+  userId: z.string().uuid('Người dùng không hợp lệ')
 })
 
 export type BookingCreateBodyType = z.infer<typeof BookingCreateBodySchema>

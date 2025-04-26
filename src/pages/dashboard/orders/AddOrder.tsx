@@ -124,7 +124,8 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
     form.setValue('vaccinationQuantity', quantity)
   }
 
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+  // lấy ngày hôm sau hoặc ngày hiện tại
+  const today = new Date()
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
@@ -214,7 +215,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               <p className='text-red-500 text-sm'>{form.formState.errors.vaccinationQuantity.message}</p>
             )}
             {selectedVaccine && (
-              <p className='text-xs text-muted-foreground'>Available: {selectedVaccine.remainingQuantity} doses</p>
+              <p className='text-xs text-muted-foreground'>Còn lại: {selectedVaccine.remainingQuantity} liều</p>
             )}
           </div>
 
@@ -223,7 +224,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
             <Input
               id='appointment-date'
               type='date'
-              min={tomorrow}
+              min={today.toISOString().split('T')[0]}
               value={form.watch('appointmentDate') ? format(form.watch('appointmentDate'), 'yyyy-MM-dd') : ''}
               onChange={(e) => {
                 const [year, month, day] = e.target.value.split('-').map(Number)
