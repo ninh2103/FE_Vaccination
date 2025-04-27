@@ -256,18 +256,11 @@ export default function Header() {
                     className='absolute right-2 top-2 size-6 rounded-full text-gray-600'
                     onClick={handleClearSearch}
                   >
-                    <X className='h-4 w-4' />
+                    
                   </Button>
                 )}
               </div>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-teal-500 text-white hover:from-blue-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105'
-                onClick={() => handleSearch()}
-              >
-                <Search className='h-5 w-5' />
-              </Button>
+              
               {isSearchOpen && searchResults.length > 0 && (
                 <Card className='absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto rounded-lg shadow-lg border border-gray-200 dark:border-gray-700'>
                   <CardContent className='p-2'>
