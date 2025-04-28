@@ -148,7 +148,7 @@ export function PaymentTable({
                       >
                         <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                         <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                        <TableCell>{payment.user.name}</TableCell>
+                        <TableCell>{payment?.user?.name}</TableCell>
                         <TableCell>{formatCurrency(payment.amount)}</TableCell>
                         <TableCell>
                           <div className='flex items-center'>

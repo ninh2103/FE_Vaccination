@@ -118,7 +118,7 @@ export default function VaccineTable({
                       </Button>
                     </div>
                   </TableCell>
-                  <TableCell>{vaccine.CategoryVaccination.name || 'N/A'}</TableCell>
+                  <TableCell>{vaccine.CategoryVaccination?.name || 'N/A'}</TableCell>
                   <TableCell>{vaccine.price.toLocaleString()}đ</TableCell>
                   <TableCell>{vaccine.batchNumber}</TableCell>
                   <TableCell className='text-center'>{vaccine.remainingQuantity}</TableCell>

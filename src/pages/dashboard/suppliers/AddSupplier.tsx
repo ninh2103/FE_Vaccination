@@ -51,7 +51,9 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
 
       <div className='space-y-4'>
         <div className='space-y-2'>
-          <Label htmlFor='name'>Tên nhà cung cấp *</Label>
+          <Label htmlFor='name'>
+            Tên nhà cung cấp<span className='text-red-500'>*</span>
+          </Label>
           <Input
             id='name'
             {...form.register('name')}
@@ -64,7 +66,9 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='address'>Địa chỉ *</Label>
+          <Label htmlFor='address'>
+            Địa chỉ <span className='text-red-500'>*</span>
+          </Label>
           <Textarea
             id='address'
             {...form.register('address')}
@@ -77,7 +81,9 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
+          <Label htmlFor='contactInfo'>
+            Thông tin liên hệ <span className='text-red-500'>*</span>
+          </Label>
           <Input
             id='contactInfo'
             {...form.register('contactInfo')}
