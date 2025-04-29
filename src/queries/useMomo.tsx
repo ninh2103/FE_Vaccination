@@ -77,7 +77,7 @@ export const useUpdateStatusPaymentMutation = () => {
     mutationFn: ({ id, body }: { id: string; body: UpdateStatusPaymentBodyType }) =>
       momoService.updateStatusPayment(id, body),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+      queryClient.invalidateQueries({ queryKey: ['listPayment'] })
     }
   })
 }

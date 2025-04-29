@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format, parseISO, isBefore } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Download, RefreshCw, Plus, X, Loader2, Search } from 'lucide-react'
+import { Download, RefreshCw, Plus, Loader2, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -38,8 +38,12 @@ interface Booking {
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalItems, setTotalItems] = useState(0)
+  const [tabPages, setTabPages] = useState<Record<string, number>>({
+    all: 1,
+    confirmed: 1,
+    pending: 1
+  })
+  const [, setTotalItems] = useState(0)
   const [rowsPerPage] = useState(10)
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
@@ -57,10 +61,9 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState('all')
 
   const { data: bookingData } = useListBookingQuery({
-    page: currentPage,
-    items_per_page: rowsPerPage,
-    search: searchTerm,
-    status: activeTab === 'all' ? undefined : activeTab === 'confirmed' ? 'CONFIRMED' : 'PENDING'
+    page: 1,
+    items_per_page: 100, // Fetch more items to handle frontend pagination
+    search: '' // Remove search from backend since we're doing it in frontend
   })
 
   const { mutate: deleteBooking } = useDeleteBookingQuery()
@@ -76,6 +79,7 @@ export default function OrdersPage() {
   const filteredBookings = useMemo(() => {
     return bookingsData.filter((booking: Booking) => {
       const matchesSearch =
+        searchTerm === '' ||
         booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.vaccinationId.toLowerCase().includes(searchTerm.toLowerCase())
 
@@ -89,27 +93,70 @@ export default function OrdersPage() {
     })
   }, [bookingsData, searchTerm, dateRange])
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage))
-  const startIndex = (currentPage - 1) * rowsPerPage + 1
-  const endIndex = Math.min(startIndex + rowsPerPage - 1, totalItems)
+  const getTabFilteredBookings = useCallback(
+    (tab: string) => {
+      return filteredBookings.filter((booking: Booking) => {
+        if (tab === 'all') return true
+        if (tab === 'confirmed') return booking.status === 'CONFIRMED'
+        if (tab === 'pending') return booking.status === 'WAITING_PAYMENT' || booking.status === 'PENDING'
+        return true
+      })
+    },
+    [filteredBookings]
+  )
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page)
-  }, [])
+  const getPaginatedBookings = useCallback(
+    (tab: string) => {
+      const tabFilteredBookings = getTabFilteredBookings(tab)
+      const startIndex = (tabPages[tab] - 1) * rowsPerPage
+      const endIndex = startIndex + rowsPerPage
+      return tabFilteredBookings.slice(startIndex, endIndex)
+    },
+    [getTabFilteredBookings, tabPages, rowsPerPage]
+  )
+
+  const getTotalPages = useCallback(
+    (tab: string) => {
+      const tabFilteredBookings = getTabFilteredBookings(tab)
+      return Math.max(1, Math.ceil(tabFilteredBookings.length / rowsPerPage))
+    },
+    [getTabFilteredBookings, rowsPerPage]
+  )
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setTabPages((prev) => ({
+        ...prev,
+        [activeTab]: page
+      }))
+    },
+    [activeTab]
+  )
 
   const handlePreviousPage = useCallback(() => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1))
-  }, [])
+    setTabPages((prev) => ({
+      ...prev,
+      [activeTab]: Math.max(prev[activeTab] - 1, 1)
+    }))
+  }, [activeTab])
 
   const handleNextPage = useCallback(() => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-  }, [totalPages])
+    const totalPages = getTotalPages(activeTab)
+    setTabPages((prev) => ({
+      ...prev,
+      [activeTab]: Math.min(prev[activeTab] + 1, totalPages)
+    }))
+  }, [activeTab, getTotalPages])
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true)
     setTimeout(() => {
       setSearchTerm('')
-      setCurrentPage(1)
+      setTabPages({
+        all: 1,
+        confirmed: 1,
+        pending: 1
+      })
       setDateRange({
         from: undefined,
         to: undefined
@@ -122,7 +169,7 @@ export default function OrdersPage() {
   const handleExport = useCallback(async () => {
     setIsExporting(true)
     try {
-      const exportData = filteredBookings.map((booking: Booking) => ({
+      const exportData = getTabFilteredBookings(activeTab).map((booking: Booking) => ({
         'Order ID': booking.id,
         'Vaccination ID': booking.vaccinationId,
         'User ID': booking.userId,
@@ -145,7 +192,7 @@ export default function OrdersPage() {
     } finally {
       setIsExporting(false)
     }
-  }, [filteredBookings])
+  }, [activeTab, getTabFilteredBookings])
 
   const handleUpdateOrder = useCallback(() => {
     toast.success(`Đã cập nhật trạng thái đơn hàng thành công`)
@@ -178,13 +225,17 @@ export default function OrdersPage() {
 
   const handleClearFilters = useCallback(() => {
     setSearchTerm('')
-    setCurrentPage(1)
+    setTabPages({
+      all: 1,
+      confirmed: 1,
+      pending: 1
+    })
     setDateRange({
       from: undefined,
       to: undefined
     })
     toast.success('Đã xóa bộ lọc')
-  }, [setSearchTerm, setCurrentPage, setDateRange])
+  }, [setSearchTerm, setTabPages, setDateRange])
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
@@ -209,16 +260,15 @@ export default function OrdersPage() {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
-                  setCurrentPage(1)
+                  setTabPages({
+                    all: 1,
+                    confirmed: 1,
+                    pending: 1
+                  })
                 }}
                 className='pl-8 w-full'
                 type='search'
               />
-              {searchTerm && (
-                <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                  <X className='h-4 w-4' />
-                </Button>
-              )}
             </div>
             <div className='flex items-center space-x-2'>
               <div className='flex items-center space-x-2'>
@@ -286,9 +336,9 @@ export default function OrdersPage() {
                   onUpdateOrder={handleUpdateOrder}
                   onDeleteOrder={handleDeleteOrder}
                   onViewDetails={handleViewDetails}
-                  currentPage={currentPage}
+                  currentPage={tabPages.all}
                   itemsPerPage={rowsPerPage}
-                  bookings={filteredBookings}
+                  bookings={getPaginatedBookings('all')}
                 />
               </CardContent>
             </Card>
@@ -300,9 +350,9 @@ export default function OrdersPage() {
                   onUpdateOrder={handleUpdateOrder}
                   onDeleteOrder={handleDeleteOrder}
                   onViewDetails={handleViewDetails}
-                  currentPage={currentPage}
+                  currentPage={tabPages.confirmed}
                   itemsPerPage={rowsPerPage}
-                  bookings={filteredBookings}
+                  bookings={getPaginatedBookings('confirmed')}
                 />
               </CardContent>
             </Card>
@@ -314,9 +364,9 @@ export default function OrdersPage() {
                   onUpdateOrder={handleUpdateOrder}
                   onDeleteOrder={handleDeleteOrder}
                   onViewDetails={handleViewDetails}
-                  currentPage={currentPage}
+                  currentPage={tabPages.pending}
                   itemsPerPage={rowsPerPage}
-                  bookings={filteredBookings}
+                  bookings={getPaginatedBookings('pending')}
                 />
               </CardContent>
             </Card>
@@ -324,20 +374,22 @@ export default function OrdersPage() {
         </Tabs>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {getTotalPages(activeTab) > 1 && (
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Hiển thị {startIndex} đến {endIndex} của {totalItems} mục
+              Hiển thị {(tabPages[activeTab] - 1) * rowsPerPage + 1} đến{' '}
+              {Math.min(tabPages[activeTab] * rowsPerPage, getTabFilteredBookings(activeTab).length)} của{' '}
+              {getTabFilteredBookings(activeTab).length} mục
             </div>
             <div className='flex items-center space-x-2'>
-              <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
+              <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={tabPages[activeTab] === 1}>
                 Trang trước
               </Button>
               <div className='flex items-center gap-1'>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: getTotalPages(activeTab) }, (_, i) => i + 1).map((page) => (
                   <Button
                     key={page}
-                    variant={currentPage === page ? 'default' : 'outline'}
+                    variant={tabPages[activeTab] === page ? 'default' : 'outline'}
                     size='sm'
                     onClick={() => handlePageChange(page)}
                     className='min-w-[2.5rem]'
@@ -346,7 +398,12 @@ export default function OrdersPage() {
                   </Button>
                 ))}
               </div>
-              <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={handleNextPage}
+                disabled={tabPages[activeTab] === getTotalPages(activeTab)}
+              >
                 Trang tiếp
               </Button>
             </div>

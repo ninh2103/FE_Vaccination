@@ -142,7 +142,7 @@ export default function PaymentsPage() {
       setCurrentPage(1)
       setIsRefreshing(false)
       refetch()
-      toast.success('Refreshed successfully')
+      toast.success('Đã làm mới dữ liệu')
     }, 1000)
   }
 
@@ -429,7 +429,7 @@ export default function PaymentsPage() {
                 <div className='flex justify-between'>
                   <div>
                     <h4 className='text-sm font-medium text-muted-foreground'>Mã đơn hàng</h4>
-                    <p className='font-medium'>#{selectedPayment.id.slice(0, 8)}</p>
+                    <p className='font-medium'>#{selectedPayment.bookingId?.slice(0, 8)}</p>
                   </div>
                   <div>
                     <h4 className='text-sm font-medium text-muted-foreground'>Số tiền</h4>

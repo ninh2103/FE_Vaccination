@@ -172,9 +172,9 @@ export default function HistorysPage() {
     refetch,
     isLoading
   } = useListAppointmentQuery({
-    items_per_page: 100,
+    items_per_page: 1000,
     page: 1,
-    search: searchTerm
+    search: ''
   })
 
   // Filter vaccinations based on search and filters
@@ -185,10 +185,36 @@ export default function HistorysPage() {
       .filter((appointment) => {
         const appointmentDate = new Date(appointment.appointmentDate)
         const isCompleted = appointment.status === 'COMPLETED'
-        const isInDateRange =
-          (!dateRange.from || appointmentDate >= dateRange.from) && (!dateRange.to || appointmentDate <= dateRange.to)
 
-        return isCompleted && isInDateRange
+        // Search by username or vaccine name
+        const matchesSearch = searchTerm
+          ? appointment.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            appointment.vaccination.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
+          : true
+
+        // Date range filter
+        const isInDateRange = (() => {
+          if (!dateRange.from && !dateRange.to) return true
+
+          const appointmentDateOnly = new Date(appointmentDate)
+          appointmentDateOnly.setHours(0, 0, 0, 0)
+
+          if (dateRange.from) {
+            const fromDate = new Date(dateRange.from)
+            fromDate.setHours(0, 0, 0, 0)
+            if (appointmentDateOnly < fromDate) return false
+          }
+
+          if (dateRange.to) {
+            const toDate = new Date(dateRange.to)
+            toDate.setHours(23, 59, 59, 999)
+            if (appointmentDateOnly > toDate) return false
+          }
+
+          return true
+        })()
+
+        return isCompleted && matchesSearch && isInDateRange
       })
       .map((appointment) => {
         const appointmentDate = new Date(appointment.appointmentDate)
@@ -214,7 +240,7 @@ export default function HistorysPage() {
           status: appointment.status
         }
       })
-  }, [apiResponse, dateRange])
+  }, [apiResponse, dateRange, searchTerm])
 
   // Pagination
   const totalPages = Math.ceil(filteredVaccinations.length / ROWS_PER_PAGE)
@@ -223,7 +249,7 @@ export default function HistorysPage() {
     currentPage * ROWS_PER_PAGE
   )
   const startIndex = (currentPage - 1) * ROWS_PER_PAGE + 1
-  const endIndex = startIndex + paginatedVaccinations.length - 1
+  const endIndex = Math.min(startIndex + ROWS_PER_PAGE - 1, filteredVaccinations.length)
   const totalItems = filteredVaccinations.length
 
   // Reset to page 1 if current page exceeds total pages
@@ -232,6 +258,11 @@ export default function HistorysPage() {
       setCurrentPage(totalPages)
     }
   }, [totalPages, currentPage])
+
+  // Reset to page 1 when search or filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, dateRange.from, dateRange.to])
 
   // Handle refresh
   const handleRefresh = () => {
@@ -249,6 +280,7 @@ export default function HistorysPage() {
   // Handle clear filters
   const handleClearFilters = () => {
     setDateRange({ from: undefined, to: undefined })
+    setSearchTerm('')
     setCurrentPage(1)
     refetch()
     toast.success('Đã xóa bộ lọc')

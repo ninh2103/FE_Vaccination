@@ -46,7 +46,6 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case 'COMPLETED':
       return <Badge className='bg-green-500 hover:bg-green-600'>Completed</Badge>
-
     default:
       return <Badge>{status}</Badge>
   }

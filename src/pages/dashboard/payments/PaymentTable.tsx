@@ -67,7 +67,7 @@ export function PaymentTable({
     } = {
       COMPLETED: { variant: 'default', className: 'bg-green-500 text-white' },
       PENDING: { variant: 'outline', className: 'bg-yellow-100 text-yellow-800' },
-      FAILED: { variant: 'destructive', className: 'text-white' }
+      FAILED: { variant: 'destructive', className: 'text-white bg-red-500' }
     }
     const { variant = 'default', className = '' } = variants[status] || {}
     return (
