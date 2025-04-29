@@ -160,12 +160,12 @@ export default function PaymentsPage() {
 
     // Add header
     pdf.setFontSize(18)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('VAXBOT Vaccine Joint Stock Company', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     pdf.setFontSize(12)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(`Receipt #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
@@ -178,27 +178,27 @@ export default function PaymentsPage() {
 
     // Add details
     pdf.setFontSize(12)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Payment ID:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(payment.id, margin + 30, y)
     y += 8
 
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Amount:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(formatCurrency(payment.amount), margin + 30, y)
     y += 8
 
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Payment Method:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(payment.paymentMethod, margin + 30, y)
     y += 8
 
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Status:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(payment.status, margin + 30, y)
     y += 10
 
@@ -208,7 +208,7 @@ export default function PaymentsPage() {
     y += 10
 
     pdf.setFontSize(10)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text('Thank you for your payment!', pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`Contact: ${payment.user.phone}`, pageWidth / 2, y, { align: 'center' })

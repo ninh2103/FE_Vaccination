@@ -131,7 +131,7 @@ export function HistorysTable({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onDownloadInvoice(vaccination)}>
                     <Printer className='mr-2 h-4 w-4' />
-                    Tải hóa đơn
+                    Tải chứng nhận
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

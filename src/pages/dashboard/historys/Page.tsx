@@ -84,8 +84,8 @@ const generateCertificateContent = (vaccination: Vaccination) => `
       <div class="info">
         <h3>Thông tin bệnh nhân</h3>
         <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
-        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone}</div></div>
-        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email}</div></div>
+        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone || ''}</div></div>
+        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email || ''}</div></div>
       </div>
       <div class="info">
         <h3>Thông tin tiêm chủng</h3>
@@ -111,27 +111,31 @@ const generateCertificateContent = (vaccination: Vaccination) => `
 `
 
 const generateInvoicePDF = (vaccination: Vaccination) => {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  })
 
-  doc.setFontSize(16).setFont('helvetica', 'bold').text('HÓA ĐƠN TIÊM CHỦNG', 105, 20, { align: 'center' })
-  doc
+  pdf.setFontSize(16).setFont('times', 'bold').text(`CHỨNG NHẬN TIÊM CHỦNG`, 105, 20, { align: 'center' })
+  pdf
     .setFontSize(12)
-    .setFont('helvetica', 'normal')
-    .text(`Mã hóa đơn: INV-${vaccination.id}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
+    .setFont('times', 'normal')
+    .text(`Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
     .text(`Ngày: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
 
-  doc.setFontSize(14).setFont('helvetica', 'bold').text('Thông tin bệnh nhân', 20, 55)
-  doc
+  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin bệnh nhân', 20, 55)
+  pdf
     .setFontSize(12)
-    .setFont('helvetica', 'normal')
+    .setFont('times', 'normal')
     .text(`Tên: ${vaccination.patient.name}`, 20, 65)
-    .text(`SĐT: ${vaccination.patient.phone}`, 20, 73)
-    .text(`Email: ${vaccination.patient.email}`, 20, 81)
+    .text(`Email: ${vaccination.patient.email || ''}`, 20, 81)
+    .text(`SĐT: ${vaccination.patient.phone || ''}`, 20, 97)
 
-  doc.setFontSize(14).setFont('helvetica', 'bold').text('Thông tin tiêm chủng', 20, 95)
-  doc
+  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin tiêm chủng', 20, 95)
+  pdf
     .setFontSize(12)
-    .setFont('helvetica', 'normal')
+    .setFont('times', 'normal')
     .text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
     .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
     .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
@@ -139,16 +143,16 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
     .text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
     .text(`Location: ${vaccination.location}`, 20, 145)
 
-  doc
+  pdf
     .setFontSize(10)
     .setTextColor(100)
-    .text('Hóa đơn xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
+    .text('Chứng nhận xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
     .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' })
 
-  doc.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
-  doc.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
+  pdf.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
+  pdf.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
 
-  doc.save(`vaccination_invoice_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
+  pdf.save(`vaccination_certificate_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
 }
 
 // Sample data
@@ -549,7 +553,7 @@ export default function HistorysPage() {
             </Button>
             <Button onClick={() => selectedVaccination && handleDownloadInvoice(selectedVaccination)}>
               <Printer className='mr-2 h-4 w-4' />
-              Tải hóa đơn
+              Tải chứng nhận
             </Button>
           </DialogFooter>
         </DialogContent>
