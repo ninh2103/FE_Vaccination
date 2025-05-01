@@ -88,7 +88,7 @@ export default function VaccineDetail() {
                   {vaccineDetail.remainingQuantity > 0 ? (
                     <Link to={`${path.booking}?id=${vaccineDetail.id}`}>
                       <Button className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white'>
-                        Đặt lịch hẹn
+                        Đặt mua vắc xin
                       </Button>
                     </Link>
                   ) : (

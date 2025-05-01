@@ -324,7 +324,7 @@ export default function PaymentsPage() {
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
             Thanh toán
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi thanh toán trong hệ thống của bạn.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi thanh toán trong hệ thống.</p>
         </div>
       </div>
 

@@ -67,7 +67,7 @@ const General: React.FC = () => {
   const { data: userCount } = useCountUserQuery()
   const { data: appointmentCount } = useListAppointmentQuery({ items_per_page: 5 })
   const { data: vaccineCount } = useListVaccinationQuery()
-  const { data: vaccineInventories } = useInventoryVaccinationQuery()
+  const { data: vaccineInventories } = useInventoryVaccinationQuery({ items_per_page: 5 })
   const { data: supplierCount } = useListSupplierQuery({ items_per_page: 5 })
   const { data: userPaymentTotalPrice, refetch: refetchUserPaymentTotalPrice } = useListPaymentQuery({
     items_per_page: 100

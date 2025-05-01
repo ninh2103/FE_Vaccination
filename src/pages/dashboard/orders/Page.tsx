@@ -60,7 +60,7 @@ export default function OrdersPage() {
   })
   const [activeTab, setActiveTab] = useState('all')
 
-  const { data: bookingData } = useListBookingQuery({
+  const { data: bookingData, isLoading: isLoadingBookings } = useListBookingQuery({
     page: 1,
     items_per_page: 100, // Fetch more items to handle frontend pagination
     search: '' // Remove search from backend since we're doing it in frontend
@@ -339,6 +339,7 @@ export default function OrdersPage() {
                   currentPage={tabPages.all}
                   itemsPerPage={rowsPerPage}
                   bookings={getPaginatedBookings('all')}
+                  isLoading={isLoadingBookings}
                 />
               </CardContent>
             </Card>
@@ -353,6 +354,7 @@ export default function OrdersPage() {
                   currentPage={tabPages.confirmed}
                   itemsPerPage={rowsPerPage}
                   bookings={getPaginatedBookings('confirmed')}
+                  isLoading={isLoadingBookings}
                 />
               </CardContent>
             </Card>
@@ -367,6 +369,7 @@ export default function OrdersPage() {
                   currentPage={tabPages.pending}
                   itemsPerPage={rowsPerPage}
                   bookings={getPaginatedBookings('pending')}
+                  isLoading={isLoadingBookings}
                 />
               </CardContent>
             </Card>

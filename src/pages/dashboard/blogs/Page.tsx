@@ -103,11 +103,6 @@ export const BlogPage: React.FC = () => {
     setIsUpdateDialogOpen(true)
   }
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
-  }
-
   const handleTagChange = (value: string) => {
     setSelectedTag(value)
     setCurrentPage(1)
@@ -157,7 +152,7 @@ export const BlogPage: React.FC = () => {
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
             Blogs
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi blog trong hệ thống của bạn.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi blog trong hệ thống.</p>
         </div>
       </div>
 

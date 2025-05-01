@@ -54,10 +54,10 @@ export const useGetVaccinationByIdQuery = (id: string) => {
   })
 }
 
-export const useInventoryVaccinationQuery = () => {
+export const useInventoryVaccinationQuery = (query: ListVaccinationQuery) => {
   return useQuery({
-    queryKey: ['vaccination-inventory'],
-    queryFn: () => vaccinationService.inventory()
+    queryKey: ['vaccination-inventory', query],
+    queryFn: () => vaccinationService.inventory(query)
   })
 }
 

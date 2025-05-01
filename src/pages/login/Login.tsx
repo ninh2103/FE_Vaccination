@@ -77,10 +77,10 @@ export default function FormLogin() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r dark:from-blue-400 dark:to-green-500 dark:text-transparent bg-clip-text'>
-            Welcome back to Vax-Box
+            Chào mừng trở lại Vax-Box
           </CardTitle>
           <CardDescription className='text-gray-400 text-center'>
-            Enter your credentials to access your account
+            Nhập thông tin để truy cập tài khoản của bạn
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +98,7 @@ export default function FormLogin() {
                         <Input
                           {...field}
                           id='email'
-                          placeholder='Enter your email'
+                          placeholder='Nhập email của bạn'
                           type='email'
                           className='pl-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
                         />
@@ -122,7 +122,7 @@ export default function FormLogin() {
                           {...field}
                           id='password'
                           type={showPassword ? 'text' : 'password'}
-                          placeholder='Enter your password'
+                          placeholder='Nhập mật khẩu của bạn'
                           className='pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
                         />
                         <button
@@ -142,7 +142,7 @@ export default function FormLogin() {
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
               >
-                Sign In
+                Đăng nhập
               </Button>
             </form>
           </Form>
@@ -152,20 +152,20 @@ export default function FormLogin() {
             variant='secondary'
             className='w-full  items-center bg-gradient-to-r dark:bg-gray-700 border-gray-600 placeholder-gray-400  hover:from-blue-600 hover:to-green-600'
           >
-            Sign in with Google
+            Đăng nhập với Google
           </Button>
           <div className='text-sm text-center text-gray-400'>
-            Don't have an account?{' '}
+            Không có tài khoản?{' '}
             <Link to={path.register} className='text-green-400 hover:text-green-300'>
-              Sign up
+              Đăng ký
             </Link>
           </div>
           <div className='flex flex-col gap-2 justify-center'>
             <Link to={path.forgotPassword} className='text-sm text-center text-green-400 hover:text-green-300'>
-              Forgot your password ?
+              Quên mật khẩu?
             </Link>
             <Link to={path.reSendVerifyEmail} className='text-sm text-center text-green-400 hover:text-green-300'>
-              Resend verify email !
+              Gửi lại email xác thực!
             </Link>
           </div>
         </CardFooter>
