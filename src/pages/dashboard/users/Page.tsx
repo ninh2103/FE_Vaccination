@@ -139,7 +139,7 @@ export default function UsersPage() {
   })
 
   return (
-    <div className='flex flex-col gap-6 p-4'>
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Header Section */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div>

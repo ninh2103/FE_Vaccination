@@ -1,8 +1,10 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Eye, Edit, Trash } from 'lucide-react'
+import { Edit, Trash, Tag, Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Badge } from '@/components/ui/badge'
 
 export interface BlogPost {
   id: string
@@ -12,6 +14,8 @@ export interface BlogPost {
   updatedAt: string
   userId: string
   tagId: string
+  coverImage?: string
+  status?: string
   tag: {
     id: string
     name: string
@@ -30,15 +34,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
   if (isLoading) {
     return (
       <div className='flex items-center justify-center p-8'>
-        <LoadingSpinner className='h-8 w-8' />
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className='flex items-center justify-center p-8'>
-        <LoadingSpinner className='h-8 w-8' />
+        <Loader2 className='h-8 w-8 animate-spin' />
       </div>
     )
   }
@@ -56,25 +52,35 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
                 <TableHead>Tiêu đề</TableHead>
                 <TableHead>Nội dung</TableHead>
                 <TableHead>Tag</TableHead>
+                <TableHead>Trạng thái</TableHead>
                 <TableHead>Ngày tạo</TableHead>
                 <TableHead>Ngày cập nhật</TableHead>
-                <TableHead className='w-[100px]'>Hành động</TableHead>
+                <TableHead className='w-[80px]'>Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {posts.map((post, index) => (
                 <TableRow key={post.id}>
                   <TableCell className='font-medium'>{index + 1}</TableCell>
-                  <TableCell className='font-medium'>{post.title}</TableCell>
-                  <TableCell>{post.content.substring(0, 100)}...</TableCell>
-                  <TableCell>{post.tag.name}</TableCell>
+                  <TableCell className='font-medium cursor-pointer hover:text-primary ' onClick={() => onView(post.id)}>
+                    {post.title}
+                  </TableCell>
+                  <TableCell>{post.content.replace(/<[^>]*>/g, '').substring(0, 80)}...</TableCell>
+                  <TableCell>
+                    <div className='flex items-center gap-1'>
+                      <Tag className='h-3.5 w-3.5 text-muted-foreground' />
+                      <Badge variant='outline'>{post.tag.name}</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={post.status === 'public' ? 'default' : 'secondary'}>
+                      {post.status === 'public' ? 'Công khai' : 'Nháp'}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className='flex items-center gap-2'>
-                      <Button variant='ghost' size='icon' onClick={() => onView(post.id)}>
-                        <Eye className='h-4 w-4' />
-                      </Button>
                       <Button variant='ghost' size='icon' onClick={() => onEdit(post)}>
                         <Edit className='h-4 w-4' />
                       </Button>

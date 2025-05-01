@@ -126,7 +126,7 @@ export const CategoryPage: React.FC = () => {
   const endIndex = Math.min(startIndex + rowsPerPage - 1, totalItems)
 
   return (
-    <div className='p-6'>
+    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
