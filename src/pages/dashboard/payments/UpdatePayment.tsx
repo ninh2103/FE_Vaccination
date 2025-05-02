@@ -69,7 +69,7 @@ export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPay
               value={form.watch('status')}
               onValueChange={(value) => form.setValue('status', value as 'PENDING' | 'COMPLETED' | 'FAILED')}
             >
-              <SelectTrigger>{payment?.status}</SelectTrigger>
+              <SelectTrigger>{form.watch('status')}</SelectTrigger>
               <SelectContent className='cursor-pointer'>
                 <SelectItem value='PENDING'>PENDING</SelectItem>
                 <SelectItem value='COMPLETED'>COMPLETED</SelectItem>

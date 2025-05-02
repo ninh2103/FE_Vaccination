@@ -95,7 +95,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
       setSearchTerm('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Dữ liệu đã được cập nhật thành công')
+      toast.success('Dữ liệu mới đã được cập nhật')
     })
   }
 
@@ -143,7 +143,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
             <DialogTrigger asChild>
               <Button size='sm' className='h-9'>
                 <Plus className='mr-2 h-4 w-4' />
-                Thêm nhà cung cấp
+                Thêm mới
               </Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[550px]'>

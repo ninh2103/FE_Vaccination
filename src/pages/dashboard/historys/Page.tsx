@@ -276,7 +276,7 @@ export default function HistorysPage() {
       setDateRange({ from: undefined, to: undefined })
       setCurrentPage(1)
       refetch()
-      toast.success('Cập nhật dữ liệu thành công')
+      toast.success('Dữ liệu mới đã được cập nhật')
       setIsRefreshing(false)
     }, 1000)
   }
@@ -383,7 +383,7 @@ export default function HistorysPage() {
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
               <Download className='mr-2 h-4 w-4' />
-              Xuất file
+              Xuất dữ liệu
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (

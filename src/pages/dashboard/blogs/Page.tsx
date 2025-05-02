@@ -125,7 +125,7 @@ export const BlogPage: React.FC = () => {
       XLSX.utils.book_append_sheet(wb, ws, 'Blog Posts')
       XLSX.writeFile(wb, 'blog_posts.xlsx')
       setIsExporting(false)
-      toast.success('Tất cả đã được xuất ra Excel thành công.')
+      toast.success('Xuất dữ liệu thành công.')
     }, 1000)
   }
 
@@ -136,7 +136,7 @@ export const BlogPage: React.FC = () => {
       setSelectedTag('all')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Dữ liệu đã được cập nhật.')
+      toast.success('Dữ liệu mới đã được cập nhật.')
     })
   }
 
@@ -187,7 +187,7 @@ export const BlogPage: React.FC = () => {
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={handleExportExcel} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Xuất ra Excel
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
             {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
@@ -195,7 +195,7 @@ export const BlogPage: React.FC = () => {
           </Button>
           <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Thêm blog
+            Thêm mới
           </Button>
         </div>
       </div>
@@ -256,7 +256,7 @@ export const BlogPage: React.FC = () => {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Xóa blog</DialogTitle>
+            <DialogTitle>Xóa bài viết</DialogTitle>
             <DialogDescription>
               Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.
             </DialogDescription>

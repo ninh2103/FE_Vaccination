@@ -89,7 +89,7 @@ export default function UsersPage() {
       setFilters({ role: [], status: [], registeredDate: '' })
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Dữ liệu đã được cập nhật.')
+      toast.success('Dữ liệu mới đã được cập nhật.')
     })
   }
 
@@ -175,7 +175,7 @@ export default function UsersPage() {
           </Button>
           <Button size='sm' onClick={() => setOpenAddDialog(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Thêm người dùng
+            Thêm mới
           </Button>
         </div>
       </div>

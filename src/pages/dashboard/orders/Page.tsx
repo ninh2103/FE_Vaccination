@@ -161,7 +161,7 @@ export default function OrdersPage() {
         from: undefined,
         to: undefined
       })
-      toast.success('Đã làm mới dữ liệu')
+      toast.success('Dữ liệu mới đã được cập nhật')
       setIsRefreshing(false)
     }, 1000)
   }, [])
@@ -186,16 +186,16 @@ export default function OrdersPage() {
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders')
       XLSX.writeFile(workbook, `orders_${format(new Date(), 'yyyyMMdd')}.xlsx`)
-      toast.success('Đã xuất file thành công')
+      toast.success('Xuất dữ liệu thành công.')
     } catch (error) {
-      toast.error('Đã xuất file thất bại')
+      toast.error('Xuất dữ liệu thất bại.')
     } finally {
       setIsExporting(false)
     }
   }, [activeTab, getTabFilteredBookings])
 
   const handleUpdateOrder = useCallback(() => {
-    toast.success(`Đã cập nhật trạng thái đơn hàng thành công`)
+    toast.success(`Đã cập nhật trạng thái đơn hàng thành công.`)
     setOpenUpdateDialog(false)
   }, [])
 
@@ -206,14 +206,14 @@ export default function OrdersPage() {
 
   const handleConfirmDelete = useCallback(() => {
     if (!selectedOrder) return
-    toast.success('Đã xóa đơn hàng thành công')
+    toast.success('Đã xóa đơn hàng thành công.')
     setOpenDeleteDialog(false)
     deleteBooking(selectedOrder.id, {
       onSuccess: () => {
-        toast.success('Đã xóa đơn hàng thành công')
+        toast.success('Đã xóa đơn hàng thành công.')
       },
       onError: () => {
-        toast.error('Đã xóa đơn hàng thất bại')
+        toast.error('Đã xóa đơn hàng thất bại.')
       }
     })
   }, [selectedOrder])
@@ -234,7 +234,7 @@ export default function OrdersPage() {
       from: undefined,
       to: undefined
     })
-    toast.success('Đã xóa bộ lọc')
+    toast.success('Đã xóa bộ lọc.')
   }, [setSearchTerm, setTabPages, setDateRange])
 
   return (
@@ -295,7 +295,7 @@ export default function OrdersPage() {
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
               {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-              Xuất file
+              Xuất dữ liệu
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
@@ -303,13 +303,13 @@ export default function OrdersPage() {
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
-              Làm mới
+              Cập nhật
             </Button>
             <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
               <DialogTrigger asChild>
                 <Button size='sm' className='h-9'>
                   <Plus className='mr-2 h-4 w-4' />
-                  Thêm đơn hàng
+                  Thêm mới
                 </Button>
               </DialogTrigger>
               <AddOrder
