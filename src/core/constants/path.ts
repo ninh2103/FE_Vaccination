@@ -13,6 +13,7 @@ export const path = {
   forgotPassword: '/forgot-password',
   otp: '/verify-email',
   booking: '/booking',
+  reSendVerifyEmail: '/resend-verify-email',
 
   admin: {
     dashboard: '/admin/dashboard',
@@ -24,6 +25,8 @@ export const path = {
     payments: 'admin/payments',
     history: '/admin/history',
     appointments: '/admin/appointments',
-    order: '/admin/order'
+    order: '/admin/order',
+    profile: '/admin/profile',
+    category: '/admin/category'
   }
 }

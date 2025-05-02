@@ -1,9 +1,6 @@
-import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -12,179 +9,102 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-
-interface BlogPost {
-  id: number
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  author: string
-  category: string
-  tags: string[]
-  status: 'Published' | 'Draft'
-  publishDate: string | null
-  readTime: string
-  featured: boolean
-  image: string | null
-}
-
+import { Textarea } from '@/components/ui/textarea'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import type { BlogPost } from './BlogTable'
+import { useAddBlogMutation } from '@/queries/useBlog'
+import { useListTagQuery } from '@/queries/useTag'
+import { BlogBodySchema, BlogBodyType } from '@/schemaValidator/blog.schema'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { toast } from 'sonner'
 interface AddBlogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSubmit: (post: Omit<BlogPost, 'id'>) => void
 }
 
-export const AddBlog: React.FC<AddBlogProps> = ({ open, onOpenChange, onSubmit }) => {
-  const [newImage, setNewImage] = useState<File | null>(null)
-  const [newContent, setNewContent] = useState('')
+export function AddBlog({ open, onOpenChange }: AddBlogProps) {
+  const { mutate: addBlog } = useAddBlogMutation()
+  const { data: tags } = useListTagQuery()
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    const file =
-      e.type === 'change'
-        ? (e as React.ChangeEvent<HTMLInputElement>).target.files?.[0]
-        : (e as React.DragEvent<HTMLDivElement>).dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
-      setNewImage(file)
+  const form = useForm<BlogBodyType>({
+    resolver: zodResolver(BlogBodySchema),
+    defaultValues: {
+      title: '',
+      content: '',
+      tagId: ''
     }
-  }
+  })
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newPost: Omit<BlogPost, 'id'> = {
-      title: formData.get('title')?.toString() || '',
-      slug: formData.get('slug')?.toString() || '',
-      excerpt: formData.get('excerpt')?.toString() || '',
-      content: newContent || '<p>Write your content here...</p>',
-      author: 'ADMIN',
-      category: formData.get('category')?.toString() || '',
-      tags:
-        formData
-          .get('tags')
-          ?.toString()
-          .split(',')
-          .map((tag) => tag.trim()) || [],
-      status: 'Draft',
-      publishDate: null,
-      readTime: '5 min',
-      featured: formData.get('featured') === 'true',
-      image: newImage ? URL.createObjectURL(newImage) : null
-    }
-    onSubmit(newPost)
-    setNewImage(null)
-    setNewContent('')
+  const handleSubmit = (data: BlogBodyType) => {
+    addBlog(data, {
+      onSuccess: () => {
+        toast.success('Bài viết blog đã thành công')
+        form.reset()
+        onOpenChange(false)
+      }
+    })
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[700px] max-h-[80vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Create New Blog Post</DialogTitle>
-          <DialogDescription>Create a new blog post to publish on your website.</DialogDescription>
+          <DialogTitle>Thêm bài viết blog mới</DialogTitle>
+          <DialogDescription>Tạo một bài viết blog mới bằng cách điền vào biểu mẫu bên dưới.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className='grid gap-4 py-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='title'>Title</Label>
-              <Input id='title' name='title' placeholder='Enter blog post title' required />
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='slug'>Slug</Label>
-                <Input id='slug' name='slug' placeholder='Enter URL slug' required />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='category'>Category</Label>
-                <Select name='category' required>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select category' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='Vaccine Science'>Vaccine Science</SelectItem>
-                    <SelectItem value='Influenza'>Influenza</SelectItem>
-                    <SelectItem value='Travel'>Travel</SelectItem>
-                    <SelectItem value='Pediatric'>Pediatric</SelectItem>
-                    <SelectItem value='Geriatric'>Geriatric</SelectItem>
-                    <SelectItem value='COVID-19'>COVID-19</SelectItem>
-                    <SelectItem value='Respiratory Health'>Respiratory Health</SelectItem>
-                    <SelectItem value='Preventive Care'>Preventive Care</SelectItem>
-                    <SelectItem value='Cancer Prevention'>Cancer Prevention</SelectItem>
-                    <SelectItem value='Maternal Health'>Maternal Health</SelectItem>
-                    <SelectItem value='Global Health'>Global Health</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='excerpt'>Excerpt</Label>
-              <Textarea id='excerpt' name='excerpt' placeholder='Enter a brief summary' rows={2} required />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='content'>Content</Label>
-              <Textarea
-                id='content'
-                name='content'
-                className='border border-gray-300 p-2 min-h-[200px] rounded-md focus:outline-none'
-                placeholder='Write your content here...'
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-              />
-            </div>
-            <div className='grid gap-2'>
-              <Label>Featured Image</Label>
-              <div
-                className='border-2 border-dashed border-gray-300 p-4 rounded-md text-center cursor-pointer'
-                onDrop={handleImageChange}
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => {
-                  const input = document.getElementById('new-image-input')
-                  if (input) input.click()
-                }}
-              >
-                {newImage ? (
-                  <img
-                    src={URL.createObjectURL(newImage) || '/placeholder.svg'}
-                    alt='Featured'
-                    className='max-h-32 mx-auto'
-                  />
-                ) : (
-                  <p className='text-muted-foreground'>Drag and drop an image here or click to select</p>
-                )}
-                <Input
-                  id='new-image-input'
-                  type='file'
-                  accept='image/*'
-                  className='hidden'
-                  onChange={handleImageChange}
-                />
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='tags'>Tags (comma separated)</Label>
-              <Input id='tags' name='tags' placeholder='e.g., Vaccination, Health' required />
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='featured'>Featured</Label>
-                <Select name='featured' defaultValue='false'>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select featured status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='false'>No</SelectItem>
-                    <SelectItem value='true'>Yes</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
+          <div className='grid gap-2'>
+            <Label htmlFor='title'>Tiêu đề bài viết *</Label>
+            <Input
+              id='title'
+              {...form.register('title')}
+              placeholder='Nhập tiêu đề bài viết blog'
+              className={form.formState.errors.title ? 'border-red-500' : ''}
+            />
+            {form.formState.errors.title && (
+              <p className='text-sm text-red-500'>{form.formState.errors.title.message}</p>
+            )}
           </div>
+          <div className='grid gap-2'>
+            <Label htmlFor='content'>Nội dung bài viết *</Label>
+            <Textarea
+              id='content'
+              {...form.register('content')}
+              placeholder='Nhập nội dung bài viết blog'
+              className={form.formState.errors.content ? 'border-red-500' : ''}
+            />
+            {form.formState.errors.content && (
+              <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
+            )}
+          </div>
+          <div className='grid gap-2'>
+            <Label htmlFor='tagId'>Tag *</Label>
+            <Select onValueChange={(value) => form.setValue('tagId', value)}>
+              <SelectTrigger className={form.formState.errors.tagId ? 'border-red-500' : ''}>
+                <SelectValue placeholder='Chọn một tag' />
+              </SelectTrigger>
+              <SelectContent>
+                {tags?.data.map((tag) => (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    {tag.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.tagId && (
+              <p className='text-sm text-red-500'>{form.formState.errors.tagId.message}</p>
+            )}
+          </div>
+
           <DialogFooter>
-            <Button variant='outline' onClick={() => onOpenChange(false)}>
-              Cancel
+            <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
+              Hủy bỏ
             </Button>
-            <Button type='submit'>Save Draft</Button>
+            <Button type='submit' disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Đang tạo...' : 'Tạo bài viết'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

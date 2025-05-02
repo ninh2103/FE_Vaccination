@@ -1,6 +1,10 @@
 import { authApi } from '@/core/services/auth.service'
+import { userApi } from '@/core/services/user.service'
 import { ResetPassword } from '@/models/interface/auth.interface'
+import { LogoutBodyType } from '@/schemaValidator/auth.schema'
+import { UpdateRoleBodyType } from '@/schemaValidator/user.schema'
 import { useMutation } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -30,5 +34,24 @@ export const useResetPasswordMutation = () => {
 export const useChangePasswordMutation = () => {
   return useMutation({
     mutationFn: authApi.changePassword
+  })
+}
+export const useUpdateRoleMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: UpdateRoleBodyType }) => userApi.updateRole(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-list'] })
+    }
+  })
+}
+export const useLogoutMutation = () => {
+  return useMutation({
+    mutationFn: ({ params }: { params: LogoutBodyType }) => authApi.logout(params)
+  })
+}
+export const useResendVerificationEmailMutation = () => {
+  return useMutation({
+    mutationFn: authApi.resendVerificationEmail
   })
 }

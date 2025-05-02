@@ -161,3 +161,7 @@ export const DATE_PLACEHOLDER = STANDARD_DATE_FORMAT_SLASH.toLowerCase()
 // config role
 export const ROLE_ADMIN = 'ADMIN'
 export const ROLE_EMPLOYEE = 'EMPLOYEE'
+export const ROLE_DOCTOR = 'DOCTOR'
+export const ROLE_USER = 'USER'
+
+export const ROLE_LIST = [ROLE_ADMIN, ROLE_EMPLOYEE, ROLE_DOCTOR, ROLE_USER]

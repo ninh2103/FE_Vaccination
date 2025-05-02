@@ -1,20 +1,11 @@
-'use client'
-
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format, parseISO, isBefore } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Filter, Download, RefreshCw, Plus, X, Loader2 } from 'lucide-react'
+import { Download, RefreshCw, Plus, Loader2, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu'
+
 import {
   Dialog,
   DialogContent,
@@ -24,396 +15,403 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from '@/components/ui/use-toast'
 import { OrdersTable } from './OrdersTable'
 import { AddOrder } from './AddOrder'
 import { UpdateOrder } from './UpdateOrder'
+import { useDeleteBookingQuery, useListBookingQuery } from '@/queries/useBooking'
+import { toast } from 'sonner'
 
-interface Patient {
-  name: string
-  avatar: string
-  initials: string
-  phone: string
-  email: string
+interface Booking {
+  id: string
+  vaccinationId: string
+  userId: string
+  vaccinationQuantity: number
+  vaccinationPrice: number
+  totalAmount: number
+  createdAt: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'SUCCESS' | 'WAITING_PAYMENT'
+  vaccinationDate: string
+  confirmationTime: string
+  appointmentDate: string
 }
-
-interface Order {
-  id: number
-  patient: Patient
-  vaccine: string
-  requestDate: string
-  preferredDate: string
-  preferredTime: string
-  status: string
-  notes: string
-  orderCode?: string
-  stt?: number
-  phone?: string
-}
-
-const initialOrders: Order[] = [
-  {
-    id: 1,
-    patient: {
-      name: 'Nguyễn Văn An',
-      avatar: '/placeholder.svg',
-      initials: 'NVA',
-      phone: '0901234567',
-      email: 'an.nguyen@example.com'
-    },
-    vaccine: 'Vaccine COVID-19',
-    requestDate: '2025-03-01',
-    preferredDate: '2025-03-05',
-    preferredTime: 'Morning',
-    status: 'Pending',
-    notes: 'First dose'
-  }
-  // ... Add more initial orders here
-]
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [searchTerm, setSearchTerm] = useState('')
+  const [tabPages, setTabPages] = useState<Record<string, number>>({
+    all: 1,
+    confirmed: 1,
+    pending: 1
+  })
+  const [, setTotalItems] = useState(0)
+  const [rowsPerPage] = useState(10)
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Booking | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [filters, setFilters] = useState({
-    status: { approved: false, pending: false, rejected: false },
-    dateRange: { from: '', to: '' }
+  const [isExporting, setIsExporting] = useState(false)
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined
+    to: Date | undefined
+  }>({
+    from: undefined,
+    to: undefined
+  })
+  const [activeTab, setActiveTab] = useState('all')
+
+  const { data: bookingData, isLoading: isLoadingBookings } = useListBookingQuery({
+    page: 1,
+    items_per_page: 100, // Fetch more items to handle frontend pagination
+    search: '' // Remove search from backend since we're doing it in frontend
   })
 
-  const ordersWithOrderCode = useMemo(() => {
-    return orders.map((order, index) => {
-      const date = parseISO(order.requestDate)
-      const dateCode = format(date, 'ddMMyy')
-      const orderNum = String(index + 1).padStart(2, '0')
-      return {
-        ...order,
-        orderCode: `ODR${dateCode}${orderNum}`,
-        stt: index + 1,
-        phone: order.patient.phone
-      }
-    })
-  }, [orders])
+  const { mutate: deleteBooking } = useDeleteBookingQuery()
 
-  const filteredOrders = useMemo(() => {
-    return ordersWithOrderCode.filter((order) => {
+  const bookingsData = useMemo(() => bookingData?.data || [], [bookingData])
+
+  useEffect(() => {
+    if (bookingData?.total) {
+      setTotalItems(bookingData.total)
+    }
+  }, [bookingData?.total])
+
+  const filteredBookings = useMemo(() => {
+    return bookingsData.filter((booking: Booking) => {
       const matchesSearch =
-        order.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.patient.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.orderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.vaccine.toLowerCase().includes(searchTerm.toLowerCase())
+        searchTerm === '' ||
+        booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.vaccinationId.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const noStatusFilter = !filters.status.approved && !filters.status.pending && !filters.status.rejected
-      const matchesStatus =
-        noStatusFilter ||
-        (filters.status.approved && order.status === 'Approved') ||
-        (filters.status.pending && order.status === 'Pending') ||
-        (filters.status.rejected && order.status === 'Rejected')
-
-      const orderDate = parseISO(order.requestDate)
-      const fromDate = filters.dateRange.from ? parseISO(filters.dateRange.from) : null
-      const toDate = filters.dateRange.to ? parseISO(filters.dateRange.to) : null
+      const bookingDate = parseISO(booking.appointmentDate)
+      const fromDate = dateRange.from ? parseISO(format(dateRange.from, 'yyyy-MM-dd')) : null
+      const toDate = dateRange.to ? parseISO(format(dateRange.to, 'yyyy-MM-dd')) : null
       const matchesDateRange =
-        (!fromDate || !isBefore(orderDate, fromDate)) && (!toDate || !isBefore(toDate, orderDate))
+        (!fromDate || !isBefore(bookingDate, fromDate)) && (!toDate || !isBefore(toDate, bookingDate))
 
-      return matchesSearch && matchesStatus && matchesDateRange
+      return matchesSearch && matchesDateRange
     })
-  }, [ordersWithOrderCode, searchTerm, filters])
+  }, [bookingsData, searchTerm, dateRange])
+
+  const getTabFilteredBookings = useCallback(
+    (tab: string) => {
+      return filteredBookings.filter((booking: Booking) => {
+        if (tab === 'all') return true
+        if (tab === 'confirmed') return booking.status === 'CONFIRMED'
+        if (tab === 'pending') return booking.status === 'WAITING_PAYMENT' || booking.status === 'PENDING'
+        return true
+      })
+    },
+    [filteredBookings]
+  )
+
+  const getPaginatedBookings = useCallback(
+    (tab: string) => {
+      const tabFilteredBookings = getTabFilteredBookings(tab)
+      const startIndex = (tabPages[tab] - 1) * rowsPerPage
+      const endIndex = startIndex + rowsPerPage
+      return tabFilteredBookings.slice(startIndex, endIndex)
+    },
+    [getTabFilteredBookings, tabPages, rowsPerPage]
+  )
+
+  const getTotalPages = useCallback(
+    (tab: string) => {
+      const tabFilteredBookings = getTabFilteredBookings(tab)
+      return Math.max(1, Math.ceil(tabFilteredBookings.length / rowsPerPage))
+    },
+    [getTabFilteredBookings, rowsPerPage]
+  )
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setTabPages((prev) => ({
+        ...prev,
+        [activeTab]: page
+      }))
+    },
+    [activeTab]
+  )
+
+  const handlePreviousPage = useCallback(() => {
+    setTabPages((prev) => ({
+      ...prev,
+      [activeTab]: Math.max(prev[activeTab] - 1, 1)
+    }))
+  }, [activeTab])
+
+  const handleNextPage = useCallback(() => {
+    const totalPages = getTotalPages(activeTab)
+    setTabPages((prev) => ({
+      ...prev,
+      [activeTab]: Math.min(prev[activeTab] + 1, totalPages)
+    }))
+  }, [activeTab, getTotalPages])
+
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setSearchTerm('')
+      setTabPages({
+        all: 1,
+        confirmed: 1,
+        pending: 1
+      })
+      setDateRange({
+        from: undefined,
+        to: undefined
+      })
+      toast.success('Dữ liệu mới đã được cập nhật')
+      setIsRefreshing(false)
+    }, 1000)
+  }, [])
 
   const handleExport = useCallback(async () => {
-    setIsRefreshing(true)
+    setIsExporting(true)
     try {
-      const exportData = filteredOrders.map((order) => ({
-        'Mã Order': order.orderCode,
-        STT: order.stt,
-        Patient: order.patient.name,
-        Phone: order.patient.phone,
-        Vaccine: order.vaccine,
-        'Request Date': order.requestDate,
-        'Preferred Date': order.preferredDate,
-        'Preferred Time': order.preferredTime,
-        Status: order.status,
-        Notes: order.notes
+      const exportData = getTabFilteredBookings(activeTab).map((booking: Booking) => ({
+        'Order ID': booking.id,
+        'Vaccination ID': booking.vaccinationId,
+        'User ID': booking.userId,
+        Quantity: booking.vaccinationQuantity,
+        Price: booking.vaccinationPrice,
+        'Total Amount': booking.totalAmount,
+        'Created At': booking.createdAt,
+        Status: booking.status,
+        'Vaccination Date': booking.vaccinationDate,
+        'Confirmation Time': booking.confirmationTime,
+        'Appointment Date': booking.appointmentDate
       }))
       const worksheet = XLSX.utils.json_to_sheet(exportData)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders')
       XLSX.writeFile(workbook, `orders_${format(new Date(), 'yyyyMMdd')}.xlsx`)
-      toast({ title: 'Success', description: 'File exported successfully' })
+      toast.success('Xuất dữ liệu thành công.')
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to export file', variant: 'destructive' })
+      toast.error('Xuất dữ liệu thất bại.')
     } finally {
-      setIsRefreshing(false)
+      setIsExporting(false)
     }
-  }, [filteredOrders])
+  }, [activeTab, getTabFilteredBookings])
 
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true)
-    setTimeout(() => {
-      setOrders(initialOrders)
-      setSearchTerm('')
-      setFilters({
-        status: { approved: false, pending: false, rejected: false },
-        dateRange: { from: '', to: '' }
-      })
-      toast({ title: 'Refreshed', description: 'Data has been refreshed' })
-      setIsRefreshing(false)
-    }, 1000)
-  }, [])
-
-  const handleUpdateOrder = useCallback((updatedOrder: Order) => {
-    setOrders((prev) => prev.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)))
-    toast({
-      title: 'Changes Saved',
-      description: `Order status updated successfully to ${updatedOrder.status}`
-    })
+  const handleUpdateOrder = useCallback(() => {
+    toast.success(`Đã cập nhật trạng thái đơn hàng thành công.`)
     setOpenUpdateDialog(false)
   }, [])
 
-  const handleDeleteOrder = useCallback((order: Order) => {
+  const handleDeleteOrder = useCallback((order: Booking) => {
     setSelectedOrder(order)
     setOpenDeleteDialog(true)
   }, [])
 
   const handleConfirmDelete = useCallback(() => {
     if (!selectedOrder) return
-    setOrders((prev) => prev.filter((order) => order.id !== selectedOrder.id))
-    toast({
-      title: 'Deleted',
-      description: `Order has been deleted successfully`
-    })
+    toast.success('Đã xóa đơn hàng thành công.')
     setOpenDeleteDialog(false)
+    deleteBooking(selectedOrder.id, {
+      onSuccess: () => {
+        toast.success('Đã xóa đơn hàng thành công.')
+      },
+      onError: () => {
+        toast.error('Đã xóa đơn hàng thất bại.')
+      }
+    })
   }, [selectedOrder])
 
-  const handleViewDetails = useCallback((order: Order) => {
+  const handleViewDetails = useCallback((order: Booking) => {
     setSelectedOrder(order)
     setOpenUpdateDialog(true)
   }, [])
 
   const handleClearFilters = useCallback(() => {
-    setFilters({
-      status: { approved: false, pending: false, rejected: false },
-      dateRange: { from: '', to: '' }
+    setSearchTerm('')
+    setTabPages({
+      all: 1,
+      confirmed: 1,
+      pending: 1
     })
-  }, [])
+    setDateRange({
+      from: undefined,
+      to: undefined
+    })
+    toast.success('Đã xóa bộ lọc.')
+  }, [setSearchTerm, setTabPages, setDateRange])
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Orders
-        </h1>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isRefreshing}>
-            {isRefreshing ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
-          <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-            <DialogTrigger asChild>
-              <Button size='sm' className='h-9'>
-                <Plus className='mr-2 h-4 w-4' />
-                Add Order
-              </Button>
-            </DialogTrigger>
-            <AddOrder
-              onAdd={(newOrder: Order) => {
-                setOrders((prev) => [...prev, newOrder])
-                setOpenAddDialog(false)
-              }}
-              onCancel={() => setOpenAddDialog(false)}
-            />
-          </Dialog>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Đơn hàng
+          </h1>
+          <p className='text-muted-foreground'>Quản lý và theo dõi đơn hàng trong hệ thống.</p>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
-            <Input
-              placeholder='Search by name, phone, or order ID...'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-              }}
-              className='w-full'
-              type='search'
-            />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
+          <div className='flex items-center gap-2'>
+            <div className='relative w-full max-w-sm'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Tìm kiếm...'
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setTabPages({
+                    all: 1,
+                    confirmed: 1,
+                    pending: 1
+                  })
+                }}
+                className='pl-8 w-full'
+                type='search'
+              />
+            </div>
+            <div className='flex items-center space-x-2'>
+              <div className='flex items-center space-x-2'>
+                <Input
+                  type='date'
+                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+                <span className='text-muted-foreground'>đến</span>
+                <Input
+                  type='date'
+                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                  className='w-[150px]'
+                />
+              </div>
+              <div className='flex items-center space-x-2'></div>
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Xóa bộ lọc
+            </Button>
           </div>
           <div className='flex items-center gap-2'>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='outline' size='sm'>
-                  <Filter className='mr-2 h-4 w-4' />
-                  Filter
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+              {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
+              Xuất dữ liệu
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Cập nhật
+            </Button>
+            <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+              <DialogTrigger asChild>
+                <Button size='sm' className='h-9'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Thêm mới
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end' className='w-[300px] p-4'>
-                <DropdownMenuLabel className='font-semibold'>Filters</DropdownMenuLabel>
-                <p className='text-sm text-muted-foreground mb-4'>Filter orders by status and request date range.</p>
-
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Order Status</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.approved}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, approved: checked }
-                      }))
-                    }
-                  >
-                    Approved
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.pending}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, pending: checked }
-                      }))
-                    }
-                  >
-                    Pending
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filters.status.rejected}
-                    onCheckedChange={(checked) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: { ...prev.status, rejected: checked }
-                      }))
-                    }
-                  >
-                    Rejected
-                  </DropdownMenuCheckboxItem>
-                </div>
-
-                <div className='mb-4'>
-                  <DropdownMenuLabel className='text-sm font-medium'>Request Date Range</DropdownMenuLabel>
-                  <div className='grid grid-cols-2 gap-2 mt-2'>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>From</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.from}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, from: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                    <div className='flex flex-col gap-1'>
-                      <Label className='text-xs text-muted-foreground'>To</Label>
-                      <Input
-                        type='date'
-                        value={filters.dateRange.to}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            dateRange: { ...prev.dateRange, to: e.target.value }
-                          }))
-                        }
-                        className='w-full'
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Button variant='outline' size='sm' onClick={handleClearFilters}>
-                  Clear Filters
-                </Button>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </DialogTrigger>
+              <AddOrder
+                onAdd={() => {
+                  setOpenAddDialog(false)
+                }}
+                onCancel={() => setOpenAddDialog(false)}
+              />
+            </Dialog>
           </div>
         </div>
 
         {/* Tabs and data table */}
-        <Tabs defaultValue='all' className='w-full'>
+        <Tabs defaultValue='all' className='w-full' onValueChange={setActiveTab}>
           <TabsList className='grid w-full max-w-md grid-cols-3'>
-            <TabsTrigger value='all'>All Orders</TabsTrigger>
-            <TabsTrigger value='approved'>Approved</TabsTrigger>
-            <TabsTrigger value='pending'>Pending/Rejected</TabsTrigger>
+            <TabsTrigger value='all'>Tất cả đơn hàng</TabsTrigger>
+            <TabsTrigger value='confirmed'>Đã xác nhận</TabsTrigger>
+            <TabsTrigger value='pending'>Chờ xác nhận/Hủy bỏ</TabsTrigger>
           </TabsList>
           <TabsContent value='all' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                {filteredOrders.length === 0 ? (
-                  <div className='p-4 text-center text-muted-foreground'>
-                    No orders found matching the current filters.
-                  </div>
-                ) : (
-                  <OrdersTable
-                    orders={filteredOrders}
-                    onUpdateOrder={handleUpdateOrder}
-                    onDeleteOrder={handleDeleteOrder}
-                    onViewDetails={handleViewDetails}
-                  />
-                )}
+                <OrdersTable
+                  onUpdateOrder={handleUpdateOrder}
+                  onDeleteOrder={handleDeleteOrder}
+                  onViewDetails={handleViewDetails}
+                  currentPage={tabPages.all}
+                  itemsPerPage={rowsPerPage}
+                  bookings={getPaginatedBookings('all')}
+                  isLoading={isLoadingBookings}
+                />
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value='approved' className='mt-4'>
+          <TabsContent value='confirmed' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                {filteredOrders.filter((order) => order.status === 'Approved').length === 0 ? (
-                  <div className='p-4 text-center text-muted-foreground'>
-                    No approved orders found matching the current filters.
-                  </div>
-                ) : (
-                  <OrdersTable
-                    orders={filteredOrders.filter((order) => order.status === 'Approved')}
-                    onUpdateOrder={handleUpdateOrder}
-                    onDeleteOrder={handleDeleteOrder}
-                    onViewDetails={handleViewDetails}
-                  />
-                )}
+                <OrdersTable
+                  onUpdateOrder={handleUpdateOrder}
+                  onDeleteOrder={handleDeleteOrder}
+                  onViewDetails={handleViewDetails}
+                  currentPage={tabPages.confirmed}
+                  itemsPerPage={rowsPerPage}
+                  bookings={getPaginatedBookings('confirmed')}
+                  isLoading={isLoadingBookings}
+                />
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value='pending' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                {filteredOrders.filter((order) => order.status === 'Pending' || order.status === 'Rejected').length ===
-                0 ? (
-                  <div className='p-4 text-center text-muted-foreground'>
-                    No pending or rejected orders found matching the current filters.
-                  </div>
-                ) : (
-                  <OrdersTable
-                    orders={filteredOrders.filter((order) => order.status === 'Pending' || order.status === 'Rejected')}
-                    onUpdateOrder={handleUpdateOrder}
-                    onDeleteOrder={handleDeleteOrder}
-                    onViewDetails={handleViewDetails}
-                  />
-                )}
+                <OrdersTable
+                  onUpdateOrder={handleUpdateOrder}
+                  onDeleteOrder={handleDeleteOrder}
+                  onViewDetails={handleViewDetails}
+                  currentPage={tabPages.pending}
+                  itemsPerPage={rowsPerPage}
+                  bookings={getPaginatedBookings('pending')}
+                  isLoading={isLoadingBookings}
+                />
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Pagination */}
+        {getTotalPages(activeTab) > 1 && (
+          <div className='flex items-center justify-between px-2'>
+            <div className='flex-1 text-sm text-muted-foreground'>
+              Hiển thị {(tabPages[activeTab] - 1) * rowsPerPage + 1} đến{' '}
+              {Math.min(tabPages[activeTab] * rowsPerPage, getTabFilteredBookings(activeTab).length)} của{' '}
+              {getTabFilteredBookings(activeTab).length} mục
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={tabPages[activeTab] === 1}>
+                Trang trước
+              </Button>
+              <div className='flex items-center gap-1'>
+                {Array.from({ length: getTotalPages(activeTab) }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={tabPages[activeTab] === page ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => handlePageChange(page)}
+                    className='min-w-[2.5rem]'
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={handleNextPage}
+                disabled={tabPages[activeTab] === getTotalPages(activeTab)}
+              >
+                Trang tiếp
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Update Order Dialog */}
@@ -427,17 +425,17 @@ export default function OrdersPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete order {selectedOrder?.orderCode}? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa đơn hàng {selectedOrder?.id}? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button variant='destructive' onClick={handleConfirmDelete} disabled={!selectedOrder}>
-              Delete
+              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>

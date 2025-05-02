@@ -1,8 +1,6 @@
-'use client'
-
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { MoreHorizontal, Edit, Trash, Check, X, Calendar, Clock, Phone, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash, Check, X, Calendar, Clock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -15,81 +13,98 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-const ITEMS_PER_PAGE = 10
+import { useUpdateAppointmentMutation } from '@/queries/useAppointment'
+import { toast } from 'sonner'
 
 interface Patient {
   name: string
   avatar: string
   initials: string
-  phone: string
   email: string
 }
 
 interface Appointment {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
   time: string
-  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
   notes: string
 }
 
 interface AppointmentTableProps {
   appointments: Appointment[]
-  onUpdateAppointment: (appointment: Appointment) => void
   onDeleteAppointment: (appointment: Appointment) => void
   onViewDetails: (appointment: Appointment) => void
 }
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'Confirmed':
-      return <Badge className='bg-green-500 hover:bg-green-600'>Confirmed</Badge>
-    case 'Pending':
+    case 'CONFIRMED':
+      return <Badge className='bg-blue-500 hover:bg-blue-600'>Confirmed</Badge>
+    case 'PENDING':
       return (
         <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
           Pending
         </Badge>
       )
-    case 'Cancelled':
-      return <Badge variant='destructive'>Cancelled</Badge>
-    case 'Completed':
-      return <Badge className='bg-blue-500 hover:bg-blue-600'>Completed</Badge>
+    case 'CANCELED':
+      return (
+        <Badge variant='destructive' className='bg-red-500 hover:bg-red-600'>
+          Canceled
+        </Badge>
+      )
+    case 'COMPLETED':
+      return <Badge className='bg-green-500 hover:bg-green-600'>Completed</Badge>
     default:
       return <Badge>{status}</Badge>
   }
 }
 
-export function AppointmentTable({
-  appointments,
-  onUpdateAppointment,
-  onDeleteAppointment,
-  onViewDetails
-}: AppointmentTableProps) {
-  const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = Math.max(1, Math.ceil(appointments.length / ITEMS_PER_PAGE))
-  const paginatedAppointments = appointments.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+export function AppointmentTable({ appointments, onDeleteAppointment, onViewDetails }: AppointmentTableProps) {
+  const { mutate: updateAppointment, isPending: isUpdating } = useUpdateAppointmentMutation()
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const handleQuickStatusUpdate = (appointment: Appointment, newStatus: Appointment['status']) => {
+    setUpdatingId(appointment.id)
+    updateAppointment(
+      {
+        id: appointment.id,
+        data: { status: newStatus }
+      },
+      {
+        onSuccess: () => {
+          toast.success(`Lịch hẹn ${newStatus === 'CONFIRMED' ? 'đã được xác nhận' : 'đã bị hủy'} thành công`)
+          // The React Query cache will be automatically invalidated and refetched
+          setUpdatingId(null)
+        },
+        onError: () => {
+          toast.error('Cập nhật trạng thái lịch hẹn thất bại')
+          setUpdatingId(null)
+        }
+      }
+    )
+  }
 
   return (
     <div className='grid gap-6'>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-[60px]'>No.</TableHead>
-            <TableHead>Patient</TableHead>
+            <TableHead className='w-[60px]'>STT</TableHead>
+            <TableHead>Bệnh nhân</TableHead>
             <TableHead>Vaccine</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className='w-[80px]'>Actions</TableHead>
+            <TableHead>Ngày</TableHead>
+            <TableHead>Giờ</TableHead>
+            <TableHead>Trạng thái</TableHead>
+            <TableHead className='w-[80px]'>Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedAppointments.map((appointment, index) => (
+          {appointments.map((appointment, index) => (
             <TableRow key={appointment.id} className='cursor-pointer hover:bg-muted/50'>
-              <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+              <TableCell>{index + 1}</TableCell>
               <TableCell>
                 <div className='flex items-center gap-2'>
                   <Avatar className='h-8 w-8'>
@@ -98,10 +113,7 @@ export function AppointmentTable({
                   </Avatar>
                   <div>
                     <div className='font-medium'>{appointment.patient.name}</div>
-                    <div className='text-sm text-muted-foreground flex items-center'>
-                      <Phone className='h-3 w-3 mr-1' />
-                      {appointment.patient.phone}
-                    </div>
+                    <div className='text-sm text-muted-foreground flex items-center'>{appointment.patient.email}</div>
                   </div>
                 </div>
               </TableCell>
@@ -121,25 +133,39 @@ export function AppointmentTable({
               <TableCell>{getStatusBadge(appointment.status)}</TableCell>
               <TableCell>
                 <div className='flex items-center gap-2'>
-                  {appointment.status === 'Pending' && (
+                  {appointment.status === 'PENDING' && (
                     <>
                       <Button
                         variant='outline'
                         size='icon'
                         className='h-8 w-8'
-                        onClick={() => onUpdateAppointment({ ...appointment, status: 'Confirmed' })}
-                        title='Accept'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleQuickStatusUpdate(appointment, 'CONFIRMED')
+                        }}
+                        disabled={isUpdating && updatingId === appointment.id}
                       >
-                        <Check className='h-4 w-4 text-green-500' />
+                        {isUpdating && updatingId === appointment.id ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          <Check className='h-4 w-4 text-green-500' />
+                        )}
                       </Button>
                       <Button
                         variant='outline'
                         size='icon'
                         className='h-8 w-8'
-                        onClick={() => onUpdateAppointment({ ...appointment, status: 'Cancelled' })}
-                        title='Reject'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleQuickStatusUpdate(appointment, 'CANCELED')
+                        }}
+                        disabled={isUpdating && updatingId === appointment.id}
                       >
-                        <X className='h-4 w-4 text-red-500' />
+                        {isUpdating && updatingId === appointment.id ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          <X className='h-4 w-4 text-red-500' />
+                        )}
                       </Button>
                     </>
                   )}
@@ -150,15 +176,15 @@ export function AppointmentTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => onViewDetails(appointment)}>
                         <Edit className='mr-2 h-4 w-4' />
-                        Edit
+                        Sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem className='text-red-600' onClick={() => onDeleteAppointment(appointment)}>
                         <Trash className='mr-2 h-4 w-4' />
-                        Delete
+                        Xóa
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -168,29 +194,6 @@ export function AppointmentTable({
           ))}
         </TableBody>
       </Table>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

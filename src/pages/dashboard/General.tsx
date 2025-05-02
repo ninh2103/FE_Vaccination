@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts'
 import { Calendar, DollarSign, Download, Syringe, Users, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react'
@@ -9,7 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import * as XLSX from 'xlsx'
-
+import { useCountUserQuery } from '@/queries/useUser'
+import { useInventoryVaccinationQuery, useListVaccinationQuery } from '@/queries/useVaccination'
+import { useListAppointmentQuery } from '@/queries/useAppointment'
+import { useListPaymentQuery } from '@/queries/useMomo'
+import { formatDate } from 'date-fns'
+import { useListSupplierQuery } from '@/queries/useSupplier'
+import { formatVND } from '@/core/lib/utils'
+import { toast } from 'sonner'
 // Adjusted sample data
 const vaccinationData = [
   { month: 'Jan', doses: 1200 },
@@ -56,17 +61,19 @@ const revenueData = [
   { month: 'Dec', revenue: 800000000 }
 ] // Total: 8,500,000,000 VND
 
-const vaccineInventory = [
-  { name: 'COVID-19 Vaccine', stock: 75, doses: 1500 },
-  { name: 'Influenza Vaccine', stock: 45, doses: 900 },
-  { name: 'Hepatitis B Vaccine', stock: 90, doses: 1800 },
-  { name: 'Tetanus Vaccine', stock: 30, doses: 600 },
-  { name: 'Pneumococcal Vaccine', stock: 60, doses: 1200 }
-]
-
 const General: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const { data: userCount } = useCountUserQuery()
+  const { data: appointmentCount } = useListAppointmentQuery({ items_per_page: 5 })
+  const { data: vaccineCount } = useListVaccinationQuery()
+  const { data: vaccineInventories } = useInventoryVaccinationQuery({ items_per_page: 5 })
+  const { data: supplierCount } = useListSupplierQuery({ items_per_page: 5 })
+  const { data: userPaymentTotalPrice, refetch: refetchUserPaymentTotalPrice } = useListPaymentQuery({
+    items_per_page: 100
+  })
+
+  const totalPrice = userPaymentTotalPrice?.data?.reduce((acc, curr) => acc + curr.amount, 0)
 
   const downloadReport = () => {
     setIsExporting(true)
@@ -100,6 +107,8 @@ const General: React.FC = () => {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
+      refetchUserPaymentTotalPrice()
+      toast.success('Refresh successfully')
     }, 1000)
   }
 
@@ -131,9 +140,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>
-                {vaccinationData.reduce((sum, item) => sum + item.doses, 0).toLocaleString()}
-              </div>
+              <div className='text-2xl font-bold'>{vaccineCount?.total}</div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+12.5%</span>
@@ -150,9 +157,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>
-                {appointmentData.reduce((sum, item) => sum + item.appointments, 0).toLocaleString()}
-              </div>
+              <div className='text-2xl font-bold'>{appointmentCount?.total}</div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowDownRight className='h-4 w-4 text-red-500' />
                 <span className='text-red-500 font-medium'>-3.1%</span>
@@ -169,7 +174,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>5,678</div>
+              <div className='text-2xl font-bold'>{userCount?.data?.total || 0}</div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+8.2%</span>
@@ -181,14 +186,12 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium'>Revenue</CardTitle>
+            <CardTitle className='text-sm font-medium'>Total Revenue</CardTitle>
             <DollarSign className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>
-                {revenueData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()} VND
-              </div>
+              <div className='text-2xl font-bold'>{formatVND(totalPrice || 0)}</div>
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+15.3%</span>
@@ -259,18 +262,18 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              {vaccineInventory.map((vaccine, index) => (
+              {vaccineInventories?.data.map((vaccine, index) => (
                 <div key={index} className='space-y-2'>
                   <div className='flex items-center justify-between text-sm'>
-                    <div className='font-medium'>{vaccine.name}</div>
+                    <div className='font-medium'>{vaccine.nameVaccine}</div>
                     <div className='text-muted-foreground'>
-                      {vaccine.stock}% ({vaccine.doses.toLocaleString()} doses)
+                      {vaccine.totalQuantity}% ({vaccine.totalQuantity} doses)
                     </div>
                   </div>
                   <div className='w-full h-2 bg-gray-200 rounded-none'>
                     <div
                       className='h-full bg-blue-500 rounded-none transition-all duration-300'
-                      style={{ width: `${vaccine.stock}%` }}
+                      style={{ width: `${vaccine.totalQuantity}%` }}
                     />
                   </div>
                 </div>
@@ -284,34 +287,26 @@ const General: React.FC = () => {
       <div className='grid gap-6 grid-cols-1 lg:grid-cols-2'>
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Top Vaccination Centers</CardTitle>
-            <CardDescription>Centers with highest vaccination counts</CardDescription>
+            <CardTitle>Top Suppliers</CardTitle>
+            <CardDescription>Suppliers with highest vaccination counts</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Center</TableHead>
-                  <TableHead>Doses</TableHead>
-                  <TableHead>Revenue</TableHead>
+                  <TableHead>Supplier</TableHead>
+                  <TableHead>Contact Information</TableHead>
+                  <TableHead>Address</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>City Hospital</TableCell>
-                  <TableCell>2,480</TableCell>
-                  <TableCell>{(2480 * 500000).toLocaleString()} VND</TableCell>
-                </TableRow>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>Health Clinic</TableCell>
-                  <TableCell>1,950</TableCell>
-                  <TableCell>{(1950 * 500000).toLocaleString()} VND</TableCell>
-                </TableRow>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>Community Center</TableCell>
-                  <TableCell>1,720</TableCell>
-                  <TableCell>{(1720 * 500000).toLocaleString()} VND</TableCell>
-                </TableRow>
+                {supplierCount?.data?.map((supplier) => (
+                  <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
+                    <TableCell>{supplier.name}</TableCell>
+                    <TableCell>{supplier.contactInfo}</TableCell>
+                    <TableCell>{supplier.address}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>
@@ -333,37 +328,19 @@ const General: React.FC = () => {
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>#VA1711</TableCell>
-                  <TableCell>Nguyen Van A</TableCell>
-                  <TableCell>{(2 * 500000).toLocaleString()} VND</TableCell>
-                  <TableCell>17/03/2025</TableCell>
-                  <TableCell>
-                    <Badge className='bg-green-500 hover:bg-green-600 text-white'>Completed</Badge>
-                  </TableCell>
-                </TableRow>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>#VA1712</TableCell>
-                  <TableCell>Tran Thi B</TableCell>
-                  <TableCell>{(1 * 500000).toLocaleString()} VND</TableCell>
-                  <TableCell>16/03/2025</TableCell>
-                  <TableCell>
-                    <Badge variant='outline' className='bg-yellow-100 text-yellow-800 hover:bg-yellow-200'>
-                      Pending
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-                <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
-                  <TableCell>#VA1713</TableCell>
-                  <TableCell>Le Van C</TableCell>
-                  <TableCell>{(1 * 500000).toLocaleString()} VND</TableCell>
-                  <TableCell>15/03/2025</TableCell>
-                  <TableCell>
-                    <Badge className='bg-green-500 hover:bg-green-600 text-white'>Completed</Badge>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
+              {appointmentCount?.data?.map((appointment) => (
+                <TableBody>
+                  <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
+                    <TableCell>#{appointment.id.slice(0, 5)}</TableCell>
+                    <TableCell>{appointment.user.name}</TableCell>
+                    <TableCell>{formatVND(appointment.vaccination.price)}</TableCell>
+                    <TableCell>{formatDate(appointment.createdAt, 'dd/MM/yyyy')}</TableCell>
+                    <TableCell>
+                      <Badge className='bg-green-500 hover:bg-green-600 text-white'>Completed</Badge>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              ))}
             </Table>
           </CardContent>
         </Card>

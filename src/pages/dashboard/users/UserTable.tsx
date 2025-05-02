@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { numberConstants } from '@/configs/consts'
+import { convertDateFormat } from '@/core/lib/utils'
 export type User = {
-  id: number
+  id: string
   name: string
   email: string
   phone: string
@@ -18,7 +20,6 @@ export type User = {
   status: string
   registeredDate: string
   lastLogin: string
-  vaccinations: number
 }
 
 interface UserTableProps {
@@ -28,17 +29,27 @@ interface UserTableProps {
   isLoading: boolean
   onEditClick: (user: User) => void
   onDeleteClick: (user: User) => void
+  totalItems?: number
 }
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = numberConstants.TEN
 
-export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onDeleteClick }: UserTableProps) {
+export function UserTable({
+  users,
+  currentPage,
+  setCurrentPage,
+  isLoading,
+  onEditClick,
+  onDeleteClick,
+  totalItems = 0
+}: UserTableProps) {
   const filteredUsers = useMemo(() => {
     return users
   }, [users])
 
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE))
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE))
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -53,25 +64,25 @@ export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onD
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'Admin':
+      case 'ADMIN':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <ShieldAlert className='h-3.5 w-3.5' />
             Admin
           </Badge>
         )
-      case 'Doctor':
+      case 'DOCTOR':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <ShieldCheck className='h-3.5 w-3.5' />
             Doctor
           </Badge>
         )
-      case 'Nurse':
+      case 'EMPLOYEE':
         return (
           <Badge variant='default' className='flex items-center gap-1'>
             <Shield className='h-3.5 w-3.5' />
-            Nurse
+            Employee
           </Badge>
         )
       default:
@@ -79,292 +90,169 @@ export function UserTable({ users, currentPage, setCurrentPage, onEditClick, onD
     }
   }
 
+  const getFilteredUsers = (tab: string) => {
+    switch (tab) {
+      case 'patients':
+        return filteredUsers.filter((user) => user.role === 'USER')
+      case 'staff':
+        return filteredUsers.filter((user) => ['ADMIN', 'DOCTOR', 'EMPLOYEE'].includes(user.role))
+      default:
+        return filteredUsers
+    }
+  }
+
+  const renderLoadingState = () => (
+    <div className='flex items-center justify-center p-8'>
+      <LoadingSpinner className='h-8 w-8' />
+    </div>
+  )
+
+  const renderTableContent = (tab: string) => {
+    if (isLoading) {
+      return renderLoadingState()
+    }
+
+    const filteredUsers = getFilteredUsers(tab)
+    if (filteredUsers.length === 0) {
+      return <div className='p-4 text-center text-muted-foreground'>Không tìm thấy người dùng.</div>
+    }
+
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className='w-[60px]'>No.</TableHead>
+            <TableHead>{tab === 'patients' ? 'Bệnh nhân' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
+            <TableHead>Liên hệ</TableHead>
+            {tab !== 'patients' && <TableHead>Vai trò</TableHead>}
+            <TableHead>Trạng thái</TableHead>
+            <TableHead>Ngày đăng ký</TableHead>
+            {tab !== 'patients' && <TableHead>Lần đăng nhập cuối</TableHead>}
+            <TableHead className='w-[80px]'>Hành động</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredUsers.map((user, index) => (
+            <TableRow key={user.id} className='cursor-pointer hover:bg-muted/50' onClick={() => onEditClick(user)}>
+              <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Avatar className='h-8 w-8'>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.initials}</AvatarFallback>
+                  </Avatar>
+                  <div className='font-medium'>{user.name}</div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex flex-col'>
+                  <div className='flex items-center gap-1 text-sm'>
+                    <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                    {user.email}
+                  </div>
+                  <div className='flex items-center gap-1 text-sm'>
+                    <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                    {user.phone}
+                  </div>
+                </div>
+              </TableCell>
+              {tab !== 'patients' && <TableCell>{getRoleBadge(user.role)}</TableCell>}
+              <TableCell>{getStatusBadge(user.status)}</TableCell>
+              <TableCell> {convertDateFormat(user.registeredDate)}</TableCell>
+              {tab !== 'patients' && <TableCell> {convertDateFormat(user.lastLogin)}</TableCell>}
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEditClick(user)
+                    }}
+                  >
+                    <Edit className='h-4 w-4' />
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDeleteClick(user)
+                    }}
+                  >
+                    <Trash className='h-4 w-4 text-destructive text-red-500' />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    )
+  }
+
   return (
     <div className='grid gap-6'>
       <Tabs defaultValue='all' className='w-full'>
         <TabsList className='grid w-full max-w-md grid-cols-3'>
-          <TabsTrigger value='all'>All Users</TabsTrigger>
-          <TabsTrigger value='patients'>Patients</TabsTrigger>
-          <TabsTrigger value='staff'>Staff</TabsTrigger>
+          <TabsTrigger value='all'>Tất cả người dùng</TabsTrigger>
+          <TabsTrigger value='patients'>Bệnh nhân</TabsTrigger>
+          <TabsTrigger value='staff'>Nhân viên</TabsTrigger>
         </TabsList>
         <TabsContent value='all' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No users found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[80px]'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers.map((user, index) => (
-                      <TableRow
-                        key={user.id}
-                        className='cursor-pointer hover:bg-muted/50'
-                        onClick={() => onEditClick(user)}
-                      >
-                        <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Avatar className='h-8 w-8'>
-                              <AvatarImage src={user.avatar} alt={user.name} />
-                              <AvatarFallback>{user.initials}</AvatarFallback>
-                            </Avatar>
-                            <div className='font-medium'>{user.name}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex flex-col'>
-                            <div className='flex items-center gap-1 text-sm'>
-                              <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                              {user.email}
-                            </div>
-                            <div className='flex items-center gap-1 text-sm'>
-                              <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                              {user.phone}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{getRoleBadge(user.role)}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>{user.registeredDate}</TableCell>
-                        <TableCell>{user.lastLogin}</TableCell>
-                        <TableCell>{user.vaccinations}</TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEditClick(user)
-                              }}
-                            >
-                              <Edit className='h-4 w-4' />
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDeleteClick(user)
-                              }}
-                            >
-                              <Trash className='h-4 w-4 text-destructive' />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('all')}</CardContent>
           </Card>
         </TabsContent>
         <TabsContent value='patients' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.filter((u) => u.role === 'Patient').length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No patients found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Patient</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Vaccinations</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers
-                      .filter((user) => user.role === 'Patient')
-                      .map((user, index) => (
-                        <TableRow
-                          key={user.id}
-                          className='cursor-pointer hover:bg-muted/50'
-                          onClick={() => onEditClick(user)}
-                        >
-                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
-                              </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.vaccinations}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('patients')}</CardContent>
           </Card>
         </TabsContent>
         <TabsContent value='staff' className='mt-4'>
           <Card>
-            <CardContent className='p-0'>
-              {paginatedUsers.filter((u) => ['Doctor', 'Nurse', 'Admin'].includes(u.role)).length === 0 ? (
-                <div className='p-4 text-center text-muted-foreground'>No staff members found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[60px]'>No.</TableHead>
-                      <TableHead>Staff Member</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Registered</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead className='w-[80px]'></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedUsers
-                      .filter((user) => ['Doctor', 'Nurse', 'Admin'].includes(user.role))
-                      .map((user, index) => (
-                        <TableRow
-                          key={user.id}
-                          className='cursor-pointer hover:bg-muted/50'
-                          onClick={() => onEditClick(user)}
-                        >
-                          <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
-                              </Avatar>
-                              <div className='font-medium'>{user.name}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex flex-col'>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.email}
-                              </div>
-                              <div className='flex items-center gap-1 text-sm'>
-                                <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                                {user.phone}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getRoleBadge(user.role)}</TableCell>
-                          <TableCell>{getStatusBadge(user.status)}</TableCell>
-                          <TableCell>{user.registeredDate}</TableCell>
-                          <TableCell>{user.lastLogin}</TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEditClick(user)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDeleteClick(user)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+            <CardContent className='p-0'>{renderTableContent('staff')}</CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='flex justify-center gap-2 mt-4'>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className='flex items-center px-4'>
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant='outline'
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} bản ghi
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Trang trước
+            </Button>
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(page)}
+                  className='min-w-[2.5rem]'
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Trang tiếp
+            </Button>
+          </div>
         </div>
       )}
     </div>

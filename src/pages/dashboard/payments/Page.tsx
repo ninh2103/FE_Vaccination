@@ -1,10 +1,8 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
-import { Download, RefreshCw, X, QrCode, DollarSign, Phone, Printer } from 'lucide-react'
+import { Download, RefreshCw, Printer, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -18,29 +16,13 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { PaymentTable } from './PaymentTable'
+import { UpdatePaymentDialog } from './UpdatePayment'
 import { format } from 'date-fns'
+import { useDeletePaymentMutation, useListPaymentQuery } from '@/queries/useMomo'
+import { toast } from 'sonner'
+import { PaymentResponseType } from '@/schemaValidator/momo.schema'
 
-interface Patient {
-  name: string
-  avatar: string
-  initials: string
-  phone: string
-  email: string
-}
-
-interface Payment {
-  id: number
-  orderCode: string
-  patient: Patient
-  amount: number
-  date: string
-  time: string
-  method: string
-  status: 'Completed' | 'Pending' | 'Failed' | 'Refunded'
-  service: string
-  transactionId?: string
-  refundReason?: string
-}
+type Payment = PaymentResponseType
 
 interface Filters {
   status: {
@@ -60,32 +42,11 @@ interface Filters {
 }
 
 // Sample data
-const initialPayments: Payment[] = [
-  {
-    id: 1,
-    orderCode: 'ODR010325-01',
-    patient: {
-      name: 'Nguyễn Văn An',
-      avatar: '/placeholder.svg',
-      initials: 'NVA',
-      phone: '0901234567',
-      email: 'an.nguyen@example.com'
-    },
-    amount: 500000,
-    date: '2025-03-01',
-    time: '10:15',
-    method: 'QR Momo',
-    status: 'Completed',
-    service: 'COVID-19 Vaccine',
-    transactionId: 'MOMO123456789'
-  }
-  // ... Add more sample payments as needed
-]
 
-export default function PaymentsPage1() {
-  const [payments, setPayments] = useState<Payment[]>(initialPayments)
+export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -94,44 +55,55 @@ export default function PaymentsPage1() {
     method: { qrMomo: false, cash: false },
     dateRange: { from: '', to: '' }
   })
-
-  // Filter payments
-  const filteredPayments = payments.filter((payment) => {
-    const matchesSearch =
-      payment.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.patient.phone.includes(searchTerm.toLowerCase()) ||
-      payment.orderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.service.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const noStatusFilter =
-      !filters.status.completed && !filters.status.pending && !filters.status.failed && !filters.status.refunded
-    const matchesStatus =
-      noStatusFilter ||
-      (filters.status.completed && payment.status === 'Completed') ||
-      (filters.status.pending && payment.status === 'Pending') ||
-      (filters.status.failed && payment.status === 'Failed') ||
-      (filters.status.refunded && payment.status === 'Refunded')
-
-    const noMethodFilter = !filters.method.qrMomo && !filters.method.cash
-    const matchesMethod =
-      noMethodFilter ||
-      (filters.method.qrMomo && payment.method === 'QR Momo') ||
-      (filters.method.cash && payment.method === 'Cash')
-
-    const paymentDate = new Date(payment.date)
-    const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null
-    const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null
-    const matchesDateRange = (!fromDate || paymentDate >= fromDate) && (!toDate || paymentDate <= toDate)
-
-    return matchesSearch && matchesStatus && matchesMethod && matchesDateRange
+  const {
+    data: paymentsData,
+    isLoading,
+    refetch
+  } = useListPaymentQuery({
+    page: currentPage,
+    items_per_page: 10,
+    search: searchTerm
   })
 
-  // Reset to page 1 when filters change or total pages change
+  const { mutate: deletePayment } = useDeletePaymentMutation()
+
+  // Handle pagination state
   useEffect(() => {
-    if (filteredPayments.length === 0 || currentPage > Math.ceil(filteredPayments.length / 10)) {
+    if (paymentsData?.data?.length === 0 && currentPage > 1) {
       setCurrentPage(1)
     }
-  }, [filteredPayments])
+  }, [paymentsData?.data, currentPage])
+
+  const filteredPayments = useMemo(() => {
+    return (
+      paymentsData?.data?.filter((payment) => {
+        const matchesSearch =
+          payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          payment.id.toLowerCase().includes(searchTerm.toLowerCase())
+
+        const noStatusFilter =
+          !filters.status.completed && !filters.status.pending && !filters.status.failed && !filters.status.refunded
+        const matchesStatus =
+          noStatusFilter ||
+          (filters.status.completed && payment.status === 'COMPLETED') ||
+          (filters.status.pending && payment.status === 'PENDING') ||
+          (filters.status.failed && payment.status === 'FAILED')
+
+        const noMethodFilter = !filters.method.qrMomo && !filters.method.cash
+        const matchesMethod =
+          noMethodFilter ||
+          (filters.method.qrMomo && payment.paymentMethod === 'MOMO') ||
+          (filters.method.cash && payment.paymentMethod === 'BANK_TRANSFER')
+
+        const paymentDate = new Date(payment.createdAt)
+        const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null
+        const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null
+        const matchesDateRange = (!fromDate || paymentDate >= fromDate) && (!toDate || paymentDate <= toDate)
+
+        return matchesSearch && matchesStatus && matchesMethod && matchesDateRange
+      }) || []
+    )
+  }, [paymentsData?.data, searchTerm, filters])
 
   // Format currency
   const formatCurrency = (amount: number) =>
@@ -141,16 +113,12 @@ export default function PaymentsPage1() {
   const handleExport = () => {
     const exportData = filteredPayments.map((payment, index) => ({
       'No.': index + 1,
-      'Order ID': payment.orderCode,
-      'Patient Name': payment.patient.name,
-      'Phone Number': payment.patient.phone,
-      Email: payment.patient.email,
+      'Order ID': payment.id,
+      'Payment ID': payment.id,
       Amount: formatCurrency(payment.amount),
-      Date: payment.date,
-      Time: payment.time,
-      'Payment Method': payment.method,
-      Status: payment.status,
-      Service: payment.service
+      Date: payment.createdAt,
+      'Payment Method': payment.paymentMethod,
+      Status: payment.status
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
@@ -165,7 +133,6 @@ export default function PaymentsPage1() {
   const handleRefresh = () => {
     setIsRefreshing(true)
     setTimeout(() => {
-      setPayments([...initialPayments])
       setSearchTerm('')
       setFilters({
         status: { completed: false, pending: false, failed: false, refunded: false },
@@ -174,6 +141,8 @@ export default function PaymentsPage1() {
       })
       setCurrentPage(1)
       setIsRefreshing(false)
+      refetch()
+      toast.success('Dữ liệu mới đã được cập nhật')
     }, 1000)
   }
 
@@ -191,15 +160,15 @@ export default function PaymentsPage1() {
 
     // Add header
     pdf.setFontSize(18)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('VAXBOT Vaccine Joint Stock Company', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     pdf.setFontSize(12)
-    pdf.setFont('helvetica', 'normal')
-    pdf.text(`Receipt #${payment.orderCode}`, pageWidth / 2, y, { align: 'center' })
+    pdf.setFont('times', 'normal')
+    pdf.text(`Receipt #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
-    pdf.text(`Date: ${format(new Date(payment.date), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
     y += 10
 
     // Add line
@@ -209,55 +178,27 @@ export default function PaymentsPage1() {
 
     // Add details
     pdf.setFontSize(12)
-    pdf.setFont('helvetica', 'bold')
-    pdf.text('Patient Name:', margin, y)
-    pdf.setFont('helvetica', 'normal')
-    pdf.text(payment.patient.name, margin + 30, y)
+    pdf.setFont('times', 'bold')
+    pdf.text('Payment ID:', margin, y)
+    pdf.setFont('times', 'normal')
+    pdf.text(payment.id, margin + 30, y)
     y += 8
 
-    pdf.setFont('helvetica', 'bold')
-    pdf.text('Service:', margin, y)
-    pdf.setFont('helvetica', 'normal')
-    pdf.text(payment.service, margin + 30, y)
-    y += 8
-
-    pdf.setFont('helvetica', 'bold')
-    pdf.text('Time:', margin, y)
-    pdf.setFont('helvetica', 'normal')
-    pdf.text(payment.time, margin + 30, y)
-    y += 8
-
-    pdf.setFont('helvetica', 'bold')
-    pdf.text('Payment Method:', margin, y)
-    pdf.setFont('helvetica', 'normal')
-    pdf.text(payment.method, margin + 30, y)
-    y += 8
-
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Amount:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(formatCurrency(payment.amount), margin + 30, y)
     y += 8
 
-    if (payment.method === 'QR Momo' && payment.transactionId) {
-      pdf.setFont('helvetica', 'bold')
-      pdf.text('Transaction ID:', margin, y)
-      pdf.setFont('helvetica', 'normal')
-      pdf.text(payment.transactionId, margin + 30, y)
-      y += 8
-    }
+    pdf.setFont('times', 'bold')
+    pdf.text('Payment Method:', margin, y)
+    pdf.setFont('times', 'normal')
+    pdf.text(payment.paymentMethod, margin + 30, y)
+    y += 8
 
-    if (payment.status === 'Refunded' && payment.refundReason) {
-      pdf.setFont('helvetica', 'bold')
-      pdf.text('Refund Reason:', margin, y)
-      pdf.setFont('helvetica', 'normal')
-      pdf.text(payment.refundReason, margin + 30, y)
-      y += 8
-    }
-
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont('times', 'bold')
     pdf.text('Status:', margin, y)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text(payment.status, margin + 30, y)
     y += 10
 
@@ -267,10 +208,10 @@ export default function PaymentsPage1() {
     y += 10
 
     pdf.setFontSize(10)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont('times', 'normal')
     pdf.text('Thank you for your payment!', pageWidth / 2, y, { align: 'center' })
     y += 5
-    pdf.text(`Contact: ${payment.patient.phone}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Contact: ${payment.user.phone}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`VAXBOT © ${new Date().getFullYear()}`, pageWidth / 2, y, { align: 'center' })
 
@@ -283,12 +224,12 @@ export default function PaymentsPage1() {
     const printWindow = window.open('', '', 'width=800,height=600')
     if (!printWindow) return
 
-    const statusClass = payment.status.toLowerCase()
+    const statusClass = payment.status?.toLowerCase() || ''
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Print Receipt - ${payment.orderCode}</title>
+        <title>Print Receipt - ${payment.id.slice(0, 8)}</title>
         <style>
           @media print {
             body { margin: 0; padding: 20mm; font-family: Arial, sans-serif; }
@@ -327,48 +268,29 @@ export default function PaymentsPage1() {
       <body>
         <div class="receipt">
           <div class="header">
-            <h2>VAXBOT Vaccine Joint Stock Company</h2>
-            <p>Receipt #${payment.orderCode}</p>
-            <p>Date: ${format(new Date(payment.date), 'dd/MM/yyyy')}</p>
+            <h2>Công ty cổ phần Vaccine</h2>
+            <p>Receipt #${payment.id}</p>
+            <p>Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}</p>
           </div>
           <div class="details">
-            <h4>Patient Name</h4>
-            <p>${payment.patient.name}</p>
+            <h4>Mã thanh toán</h4>
+            <p>${payment.id}</p>
           </div>
           <div class="details">
-            <h4>Service</h4>
-            <p>${payment.service}</p>
-          </div>
-          <div class="details">
-            <h4>Time</h4>
-            <p>${payment.time}</p>
-          </div>
-          <div class="details">
-            <h4>Payment Method</h4>
-            <p>${payment.method}</p>
-          </div>
-          <div class="details">
-            <h4>Amount</h4>
+            <h4>Số tiền</h4>
             <p>${formatCurrency(payment.amount)}</p>
           </div>
-          ${
-            payment.method === 'QR Momo' && payment.transactionId
-              ? `<div class="details"><h4>Transaction ID</h4><p>${payment.transactionId}</p></div>`
-              : ''
-          }
-          ${
-            payment.status === 'Refunded' && payment.refundReason
-              ? `<div class="details"><h4>Refund Reason</h4><p>${payment.refundReason}</p></div>`
-              : ''
-          }
           <div class="details">
-            <h4>Status</h4>
+            <h4>Phương thức thanh toán</h4>
+            <p>${payment.paymentMethod}</p>
+          </div>
+          <div class="details">
+            <h4>Trạng thái</h4>
             <span class="status-badge ${statusClass}">${payment.status}</span>
           </div>
           <div class="footer">
-            <p>Thank you for your payment!</p>
-            <p>Contact: ${payment.patient.phone}</p>
-            <p>VAXBOT © ${new Date().getFullYear()}</p>
+            <p>Cảm ơn bạn đã thanh toán!</p>
+            <p>Công ty cổ phần Vaccine © ${new Date().getFullYear()}</p>
           </div>
         </div>
       </body>
@@ -384,76 +306,89 @@ export default function PaymentsPage1() {
   const handleDownloadReceipt = (payment: Payment | null) => {
     if (!payment) return
     const pdf = generatePDF(payment)
-    pdf.save(`receipt_${payment.orderCode}.pdf`)
+    pdf.save(`receipt_${payment.id}.pdf`)
   }
 
+  const handleDeletePayment = (paymentId: string) => {
+    deletePayment(paymentId, {
+      onSuccess: () => {
+        toast.success('Thanh toán đã được xóa thành công')
+      }
+    })
+  }
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Payments
+            Thanh toán
           </h1>
-          <p className='text-muted-foreground'>Manage and monitor payments in your system.</p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
-            <Download className='mr-2 h-4 w-4' />
-            Export
-          </Button>
-          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-            {isRefreshing ? (
-              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <RefreshCw className='mr-2 h-4 w-4' />
-            )}
-            Refresh
-          </Button>
+          <p className='text-muted-foreground'>Quản lý và theo dõi thanh toán trong hệ thống.</p>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex w-full max-w-sm items-center space-x-2'>
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search by name, phone...'
+              placeholder='Tìm kiếm...'
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
               }}
               className='w-full'
+              type='search'
             />
-            {searchTerm && (
-              <Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => setSearchTerm('')}>
-                <X className='h-4 w-4' />
-              </Button>
-            )}
+          </div>
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
+              <Download className='mr-2 h-4 w-4' />
+              Xuất dữ liệu
+            </Button>
+            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+              {isRefreshing ? (
+                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <RefreshCw className='mr-2 h-4 w-4' />
+              )}
+              Làm mới
+            </Button>
           </div>
         </div>
 
         {/* Alert */}
-        {filteredPayments.some((p) => p.status === 'Pending' || p.status === 'Failed') && (
+        {filteredPayments.some((p) => p.status === 'PENDING' || p.status === 'FAILED') && (
           <Alert variant='destructive' className='bg-red-50 border-red-200'>
             <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Payment Alert</AlertTitle>
-            <AlertDescription>Some payments are pending or failed. Review and process them as needed.</AlertDescription>
+            <AlertTitle>Cảnh báo thanh toán</AlertTitle>
+            <AlertDescription>
+              Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
+            </AlertDescription>
           </Alert>
         )}
 
         {/* Payment Table */}
         <PaymentTable
-          payments={filteredPayments}
+          payments={filteredPayments as Payment[]}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           onViewDetails={(payment) => {
-            setSelectedPayment(payment)
+            setSelectedPayment(payment as Payment)
             setOpenDetailsDialog(true)
           }}
-          onDownloadReceipt={handleDownloadReceipt}
-          onPrintReceipt={handlePrintReceipt}
+          onDownloadReceipt={(payment) => handleDownloadReceipt(payment as Payment)}
+          onPrintReceipt={(payment) => handlePrintReceipt(payment as Payment)}
+          onEdit={(payment) => {
+            setSelectedPayment(payment as Payment)
+            setOpenUpdateDialog(true)
+          }}
+          onDelete={handleDeletePayment}
+          isLoading={isLoading}
+          total={paymentsData?.total || 0}
+          itemsPerPage={paymentsData?.itemsPerPage || 10}
         />
       </div>
 
@@ -461,30 +396,26 @@ export default function PaymentsPage1() {
       <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
         <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
-            <DialogTitle>Payment Details</DialogTitle>
-            <DialogDescription>View complete payment information.</DialogDescription>
+            <DialogTitle>Chi tiết thanh toán</DialogTitle>
+            <DialogDescription>Xem thông tin thanh toán đầy đủ.</DialogDescription>
           </DialogHeader>
           {selectedPayment && (
             <div className='grid gap-4 py-4'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-4'>
                   <div className='h-12 w-12 rounded-full bg-muted flex items-center justify-center'>
-                    <span className='text-lg font-medium'>{selectedPayment.patient.initials}</span>
-                  </div>
-                  <div>
-                    <h3 className='font-medium'>{selectedPayment.patient.name}</h3>
-                    <p className='text-sm text-muted-foreground'>{selectedPayment.patient.email}</p>
+                    <h3 className='font-medium text-xl ml-14'>#{selectedPayment.id.slice(0, 8)}</h3>
                   </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <span className='text-sm font-medium'>Status:</span>
+                  <span className='text-sm font-medium'>Trạng thái:</span>
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      selectedPayment.status === 'Completed'
+                      selectedPayment.status === 'COMPLETED'
                         ? 'bg-green-100 text-green-800'
-                        : selectedPayment.status === 'Pending'
+                        : selectedPayment.status === 'PENDING'
                           ? 'bg-yellow-100 text-yellow-800'
-                          : selectedPayment.status === 'Failed'
+                          : selectedPayment.status === 'FAILED'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-blue-100 text-blue-800'
                     }`}
@@ -497,90 +428,62 @@ export default function PaymentsPage1() {
               <div className='rounded-lg border p-4'>
                 <div className='flex justify-between'>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Order ID</h4>
-                    <p className='font-medium'>{selectedPayment.orderCode}</p>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Mã đơn hàng</h4>
+                    <p className='font-medium'>#{selectedPayment.bookingId?.slice(0, 8)}</p>
                   </div>
                   <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Service</h4>
-                    <p className='font-medium'>{selectedPayment.service}</p>
-                  </div>
-                </div>
-
-                <div className='mt-4 flex justify-between'>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Date</h4>
-                    <p>{format(new Date(selectedPayment.date), 'dd/MM/yyyy')}</p>
-                  </div>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Time</h4>
-                    <p>{selectedPayment.time}</p>
-                  </div>
-                </div>
-
-                <div className='mt-4 flex justify-between'>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Method</h4>
-                    <div className='flex items-center gap-1'>
-                      {selectedPayment.method === 'QR Momo' ? (
-                        <QrCode className='h-4 w-4 text-pink-500' />
-                      ) : (
-                        <DollarSign className='h-4 w-4 text-green-500' />
-                      )}
-                      <span>{selectedPayment.method}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Amount</h4>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Số tiền</h4>
                     <p className='text-xl font-bold'>{formatCurrency(selectedPayment.amount)}</p>
                   </div>
                 </div>
 
-                {selectedPayment.method === 'QR Momo' && selectedPayment.transactionId && (
-                  <div className='mt-4'>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Transaction ID</h4>
-                    <p>{selectedPayment.transactionId}</p>
+                <div className='mt-4 flex justify-between'>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Ngày</h4>
+                    <p>{format(new Date(selectedPayment.createdAt), 'dd/MM/yyyy')}</p>
                   </div>
-                )}
-
-                {selectedPayment.status === 'Failed' && (
-                  <div className='mt-4'>
-                    <h4 className='text-sm font-medium text-muted-foreground text-red-500'>Failure Reason</h4>
-                    <p className='text-red-500'>Payment processing failed</p>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Phương thức thanh toán</h4>
+                    <p>{selectedPayment.paymentMethod}</p>
                   </div>
-                )}
+                </div>
 
-                {selectedPayment.status === 'Refunded' && selectedPayment.refundReason && (
-                  <div className='mt-4'>
-                    <h4 className='text-sm font-medium text-muted-foreground text-blue-500'>Refund Reason</h4>
-                    <p className='text-blue-500'>{selectedPayment.refundReason}</p>
+                <div className='mt-4 flex justify-between'>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground'>Mã thanh toán</h4>
+                    <p>#{selectedPayment.id.slice(0, 8)}</p>
                   </div>
-                )}
-              </div>
-
-              <div>
-                <h4 className='text-sm font-medium text-muted-foreground'>Contact Information</h4>
-                <p className='text-sm flex items-center gap-1'>
-                  <Phone className='h-3 w-3' /> {selectedPayment.patient.phone}
-                </p>
-                <p className='text-sm'>{selectedPayment.patient.email}</p>
+                  <div>
+                    <h4 className='text-sm font-medium text-muted-foreground '>Người dùng</h4>
+                    <p>{selectedPayment.user.name}</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Close
+              Đóng
             </Button>
             <Button onClick={() => handlePrintReceipt(selectedPayment)}>
               <Printer className='mr-2 h-4 w-4' />
-              Print
+              In
             </Button>
             <Button variant='outline' onClick={() => handleDownloadReceipt(selectedPayment)}>
               <Download className='mr-2 h-4 w-4' />
-              Download Receipt
+              Tải hóa đơn
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Update Payment Dialog */}
+      <UpdatePaymentDialog
+        open={openUpdateDialog}
+        onOpenChange={setOpenUpdateDialog}
+        isLoading={isLoading}
+        selectedPayment={selectedPayment}
+      />
     </div>
   )
 }

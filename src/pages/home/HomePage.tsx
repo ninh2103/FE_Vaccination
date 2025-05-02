@@ -6,7 +6,6 @@ import Feature from '@/components/homepage/Feature'
 import ContactSection from '@/components/homepage/Contact'
 import Doctor from '@/components/homepage/Doctor'
 import Vaccines from '@/components/homepage/Vaccines'
-import Testimonials from '@/components/homepage/Testimonials'
 import Blog from '@/components/homepage/Blog'
 export default function HomePage() {
   const [, setScrollY] = useState(0)
@@ -35,16 +34,12 @@ export default function HomePage() {
           <section id='doctor' className='px-4'>
             <Doctor />
           </section>
-          <section id='testimonials' className='mt-32'>
-            <Testimonials />
-          </section>
           <section className='mt-32' id='blog'>
             <Blog />
           </section>
-          {/* 
-          <Newsletter />
-          <Contributors /> */}
-          <ContactSection />
+          <section className='mt-32' id='contact'>
+            <ContactSection />
+          </section>
         </main>
         <Footer />
       </div>

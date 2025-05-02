@@ -37,7 +37,7 @@ export default function FormRegister() {
     if (body.password !== body.confirmPassword) {
       form.setError('confirmPassword', {
         type: 'manual',
-        message: 'Passwords do not match'
+        message: 'Mật khẩu không khớp'
       })
       return
     }
@@ -45,7 +45,7 @@ export default function FormRegister() {
     registerMutation.mutate(body, {
       onSuccess: () => {
         form.reset()
-        toast.success('Register success !')
+        toast.success('Vào email lấy mã OTP xác thực tài khoản !')
         localStorage.setItem('email', body.email)
         navigate('/verify-email')
       },
@@ -78,9 +78,11 @@ export default function FormRegister() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-blue-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
-            Create your Vax-Box account
+            Tạo tài khoản Vax-Box
           </CardTitle>
-          <CardDescription className='text-gray-400 text-center'>Join our vaccination community today!</CardDescription>
+          <CardDescription className='text-gray-400 text-center'>
+            Tham gia cộng đồng tiêm chủng ngay hôm nay!
+          </CardDescription>
         </CardHeader>
         <Form {...form}>
           <form className='space-y-4' onSubmit={form.handleSubmit(handleSubmit)}>
@@ -90,11 +92,11 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Full Name</Label>
+                    <Label>Họ và tên</Label>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder='Enter your full name'
+                        placeholder='Nhập họ và tên của bạn'
                         className='dark:bg-gray-700 border-gray-600'
                       />
                     </FormControl>
@@ -113,7 +115,7 @@ export default function FormRegister() {
                       <Input
                         {...field}
                         type='email'
-                        placeholder='Enter your email'
+                        placeholder='Nhập email của bạn'
                         className='dark:bg-gray-700 border-gray-600'
                       />
                     </FormControl>
@@ -127,13 +129,13 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Password</Label>
+                    <Label>Mật khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Input
                           {...field}
                           type={showPassword ? 'text' : 'password'}
-                          placeholder='Create a password'
+                          placeholder='Tạo mật khẩu'
                           className='pr-10 dark:bg-gray-700 border-gray-600'
                         />
                         <button
@@ -155,13 +157,13 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Confirm Password</Label>
+                    <Label>Xác nhận mật khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Input
                           {...field}
                           type={showConfirmPassword ? 'text' : 'password'}
-                          placeholder='Confirm your password'
+                          placeholder='Xác nhận mật khẩu'
                           className='pr-10 dark:bg-gray-700 border-gray-600'
                         />
                         <button
@@ -182,12 +184,12 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Phone</Label>
+                    <Label>Số điện thoại</Label>
                     <FormControl>
                       <Input
                         {...field}
                         type='phone'
-                        placeholder='Enter your phone number'
+                        placeholder='Nhập số điện thoại của bạn'
                         className='dark:bg-gray-700 border-gray-600'
                       />
                     </FormControl>
@@ -201,12 +203,12 @@ export default function FormRegister() {
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
               >
-                Create Account
+                Tạo tài khoản
               </Button>
               <div className='text-sm text-center text-gray-400'>
-                Already have an account?{' '}
+                Đã có tài khoản?{' '}
                 <Link to={path.login} className='text-green-400 hover:text-green-300'>
-                  Sign in
+                  Đăng nhập
                 </Link>
               </div>
             </CardFooter>

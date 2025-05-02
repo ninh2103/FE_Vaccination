@@ -35,7 +35,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async (body: ResetPasswordBodyType) => {
     if (!token) {
-      toast.error('Invalid or missing reset token.')
+      toast.error('Mã reset không hợp lệ.')
       return
     }
     if (resetPaswordMutation.isPending) return
@@ -43,7 +43,7 @@ export default function ResetPassword() {
     if (body.newPassword !== body.confirm_password) {
       form.setError('confirm_password', {
         type: 'manual',
-        message: 'Passwords do not match'
+        message: 'Mật khẩu không khớp'
       })
       return
     }
@@ -52,7 +52,7 @@ export default function ResetPassword() {
       { params: body, token: token },
       {
         onSuccess: () => {
-          toast.success('Password reset successfully.')
+          toast.success('Đặt lại mật khẩu thành công.')
           navigate(path.login)
         },
         onError: (error: Error) => {
@@ -97,19 +97,19 @@ export default function ResetPassword() {
             <Key className='h-12 w-12 text-green-500' />
           </div>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-green-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
-            Reset Your Password
+            Đặt lại mật khẩu
           </CardTitle>
-          <CardDescription className='text-gray-400 text-center'>Enter your new password below</CardDescription>
+          <CardDescription className='text-gray-400 text-center'>Nhập mật khẩu mới dưới đây</CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='newPassword'>New Password</Label>
+            <Label htmlFor='newPassword'>Mật khẩu mới</Label>
             <div className='relative'>
               <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
               <Input
                 id='newPassword'
                 type={showNewPassword ? 'text' : 'password'}
-                placeholder='Enter your new password'
+                placeholder='Nhập mật khẩu mới'
                 {...form.register('newPassword')}
                 className={`pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 ${form.formState.errors.newPassword ? 'border-red-500' : ''}`}
               />
@@ -126,13 +126,13 @@ export default function ResetPassword() {
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='confirmPassword'>Confirm New Password</Label>
+            <Label htmlFor='confirmPassword'>Xác nhận mật khẩu mới</Label>
             <div className='relative'>
               <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
               <Input
                 id='confirmPassword'
                 type={showConfirmPassword ? 'text' : 'password'}
-                placeholder='Confirm your new password'
+                placeholder='Xác nhận mật khẩu mới'
                 {...form.register('confirm_password')}
                 className={`pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400 `}
               />
@@ -155,12 +155,12 @@ export default function ResetPassword() {
             onClick={form.handleSubmit(handleSubmit)}
             className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
           >
-            Reset Password
+            Đặt lại mật khẩu
           </Button>
           <div className='text-sm text-center text-gray-400'>
-            Remember your password?{' '}
+            Nhớ mật khẩu?{' '}
             <Link to={path.login} className='text-green-400 hover:text-green-300'>
-              Sign in
+              Đăng nhập
             </Link>
           </div>
         </CardFooter>

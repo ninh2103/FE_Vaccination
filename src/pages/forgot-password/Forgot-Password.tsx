@@ -24,7 +24,7 @@ export default function ForgotPassword() {
   const handleSubmit = async (body: ForgotPasswordBodyType) => {
     await forgotPasswordMutation.mutateAsync(body, {
       onSuccess: () => {
-        toast.success('Password reset instructions have been sent to your email.')
+        toast.success('Mã reset đã được gửi đến email của bạn.')
       },
       onError: (error: Error) => {
         handleErrorApi({
@@ -63,10 +63,10 @@ export default function ForgotPassword() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-green-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
-            Forgot Your Password?
+            Quên mật khẩu?
           </CardTitle>
           <CardDescription className='text-gray-400 text-center'>
-            Enter your email and we'll send you a reset link
+            Nhập email và chúng tôi sẽ gửi cho bạn một liên kết đặt lại mật khẩu
           </CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
@@ -94,12 +94,12 @@ export default function ForgotPassword() {
             onClick={() => form.handleSubmit(handleSubmit)()}
             className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 '
           >
-            Send Reset Link
+            Gửi mã tạo lại mật khẩu
           </Button>
           <div className='text-sm text-center text-gray-400'>
-            Remember your password?{' '}
+            Nhớ mật khẩu?{' '}
             <Link to={path.login} className='text-green-400 hover:text-green-300'>
-              Back to login
+              Quay lại đăng nhập
             </Link>
           </div>
         </CardFooter>

@@ -1,28 +1,28 @@
-'use client'
-
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
+import { useGetAppointmentByIdQuery, useUpdateAppointmentMutation } from '@/queries/useAppointment'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { AppointmentUpdateBodySchema, AppointmentUpdateBodyType } from '@/schemaValidator/appointment.schema'
+import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 interface Patient {
   name: string
   avatar: string
   initials: string
-  phone: string
   email: string
 }
 
 interface Appointment {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
   time: string
-  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
   notes: string
 }
 
@@ -33,165 +33,79 @@ interface UpdateAppointmentProps {
 }
 
 export function UpdateAppointment({ appointment, onUpdate, onCancel }: UpdateAppointmentProps) {
-  const [updatedAppointment, setUpdatedAppointment] = useState(appointment)
+  const { mutate: updateAppointment, isPending: isUpdating } = useUpdateAppointmentMutation()
+  const { data: appointmentData, isLoading } = useGetAppointmentByIdQuery(appointment.id)
 
-  const handleSubmit = () => {
-    if (
-      !updatedAppointment.patient.name ||
-      !updatedAppointment.patient.phone ||
-      !updatedAppointment.vaccine ||
-      !updatedAppointment.date ||
-      !updatedAppointment.time
-    ) {
-      return
+  const form = useForm<AppointmentUpdateBodyType>({
+    resolver: zodResolver(AppointmentUpdateBodySchema),
+    defaultValues: {
+      status: (appointmentData?.status || appointment.status) as AppointmentUpdateBodyType['status']
     }
+  })
 
-    onUpdate(updatedAppointment)
+  const onSubmit = (data: AppointmentUpdateBodyType) => {
+    if (!appointment?.id) return
+
+    updateAppointment(
+      { id: appointment.id, data },
+      {
+        onSuccess: () => {
+          toast.success('Cập nhật trạng thái lịch hẹn thành công')
+          // Update the local appointment with new status
+          onUpdate({
+            ...appointment,
+            status: data.status as Appointment['status']
+          })
+          onCancel()
+        },
+        onError: () => {
+          toast.error('Lỗi khi cập nhật trạng thái lịch hẹn')
+        }
+      }
+    )
   }
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
       <DialogHeader>
-        <DialogTitle>Edit Appointment</DialogTitle>
-        <DialogDescription>Update appointment details.</DialogDescription>
+        <DialogTitle>Cập nhật trạng thái lịch hẹn</DialogTitle>
+        <DialogDescription>Thay đổi trạng thái của lịch hẹn này.</DialogDescription>
       </DialogHeader>
-      <div className='grid gap-4 py-4'>
-        <div className='grid gap-2'>
-          <Label htmlFor='patient-name'>Patient Name</Label>
-          <Input
-            id='patient-name'
-            value={updatedAppointment.patient.name}
-            onChange={(e) =>
-              setUpdatedAppointment({
-                ...updatedAppointment,
-                patient: {
-                  ...updatedAppointment.patient,
-                  name: e.target.value,
-                  initials: e.target.value
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                }
-              })
-            }
-            placeholder='Enter patient name'
-            required
-          />
-        </div>
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='grid gap-2'>
-            <Label htmlFor='patient-phone'>Phone Number</Label>
-            <Input
-              id='patient-phone'
-              value={updatedAppointment.patient.phone}
-              onChange={(e) =>
-                setUpdatedAppointment({
-                  ...updatedAppointment,
-                  patient: { ...updatedAppointment.patient, phone: e.target.value }
-                })
-              }
-              placeholder='Enter phone number'
-              required
-            />
+      <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
+        {isLoading ? (
+          <div className='flex justify-center items-center p-4'>
+            <Loader2 className='h-6 w-6 animate-spin' />
           </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='patient-email'>Email</Label>
-            <Input
-              id='patient-email'
-              type='email'
-              value={updatedAppointment.patient.email}
-              onChange={(e) =>
-                setUpdatedAppointment({
-                  ...updatedAppointment,
-                  patient: { ...updatedAppointment.patient, email: e.target.value }
-                })
-              }
-              placeholder='Enter email'
-            />
-          </div>
-        </div>
-        <div className='grid gap-2'>
-          <Label htmlFor='vaccine'>Vaccine</Label>
-          <Select
-            value={updatedAppointment.vaccine}
-            onValueChange={(value) => setUpdatedAppointment({ ...updatedAppointment, vaccine: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Select vaccine' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='COVID-19 Vaccine'>COVID-19 Vaccine</SelectItem>
-              <SelectItem value='Flu Vaccine'>Flu Vaccine</SelectItem>
-              <SelectItem value='Hepatitis B Vaccine'>Hepatitis B Vaccine</SelectItem>
-              <SelectItem value='Tetanus Vaccine'>Tetanus Vaccine</SelectItem>
-              <SelectItem value='MMR Vaccine'>MMR Vaccine</SelectItem>
-              <SelectItem value='HPV Vaccine'>HPV Vaccine</SelectItem>
-              <SelectItem value='Pneumococcal Vaccine'>Pneumococcal Vaccine</SelectItem>
-              <SelectItem value='Varicella Vaccine'>Varicella Vaccine</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='grid gap-2'>
-            <Label htmlFor='date'>Appointment Date</Label>
-            <Input
-              id='date'
-              type='date'
-              value={updatedAppointment.date}
-              onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, date: e.target.value })}
-              required
-            />
-          </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='time'>Appointment Time</Label>
-            <Input
-              id='time'
-              type='time'
-              value={updatedAppointment.time}
-              onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, time: e.target.value })}
-              required
-            />
-          </div>
-        </div>
-        <div className='grid gap-2'>
-          <Label htmlFor='status'>Status</Label>
-          <Select
-            value={updatedAppointment.status}
-            onValueChange={(value) =>
-              setUpdatedAppointment({
-                ...updatedAppointment,
-                status: value as 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed'
-              })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Select status' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='Confirmed'>Confirmed</SelectItem>
-              <SelectItem value='Pending'>Pending</SelectItem>
-              <SelectItem value='Completed'>Completed</SelectItem>
-              <SelectItem value='Cancelled'>Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className='grid gap-2'>
-          <Label htmlFor='notes'>Notes</Label>
-          <Textarea
-            id='notes'
-            value={updatedAppointment.notes}
-            onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, notes: e.target.value })}
-            placeholder='Enter notes'
-            rows={3}
-          />
-        </div>
-      </div>
-      <DialogFooter>
-        <Button variant='outline' onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit}>Save Changes</Button>
-      </DialogFooter>
+        ) : (
+          <>
+            <div className='grid gap-2'>
+              <Label htmlFor='status'>Trạng thái</Label>
+              <Select
+                value={form.watch('status')}
+                onValueChange={(value) => form.setValue('status', value as AppointmentUpdateBodyType['status'])}
+              >
+                <SelectTrigger>{form.watch('status')}</SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='PENDING'>PENDING</SelectItem>
+                  <SelectItem value='CONFIRMED'>CONFIRMED</SelectItem>
+                  <SelectItem value='COMPLETED'>COMPLETED</SelectItem>
+                  <SelectItem value='CANCELED'>CANCELED</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Hủy bỏ
+              </Button>
+              <Button type='submit' disabled={isUpdating}>
+                {isUpdating ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
+                Lưu thay đổi
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </form>
     </DialogContent>
   )
 }

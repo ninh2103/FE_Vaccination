@@ -1,13 +1,16 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Supplier } from './types'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SupplierBody, SupplierBodyType } from '@/schemaValidator/supplier.schema'
+import { useDetailSupplierQuery, useUpdateSupplierQuery } from '@/queries/useSupplier'
+import { toast } from 'sonner'
+import { handleErrorApi } from '@/core/lib/utils'
 
 interface UpdateSupplierProps {
   supplier: Supplier
@@ -16,207 +19,104 @@ interface UpdateSupplierProps {
 }
 
 export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    country: '',
-    address: '',
-    phone: '',
-    email: '',
-    website: '',
-    established: '',
-    contactPerson: '',
-    status: 'Active' as Supplier['status'],
-    leadTime: '',
-    rating: '4.5',
-    products: ''
+  const { data: supplierDetail } = useDetailSupplierQuery(supplier?.id || '')
+  const { mutate: updateSupplier, isPending } = useUpdateSupplierQuery()
+  const form = useForm<SupplierBodyType>({
+    resolver: zodResolver(SupplierBody),
+    defaultValues: {
+      name: supplierDetail?.name || '',
+      address: supplierDetail?.address || '',
+      contactInfo: supplierDetail?.contactInfo || ''
+    }
   })
 
   useEffect(() => {
-    setFormData({
-      name: supplier.name,
-      country: supplier.country,
-      address: supplier.address,
-      phone: supplier.phone,
-      email: supplier.email,
-      website: supplier.website,
-      established: supplier.established,
-      contactPerson: supplier.contactPerson,
-      status: supplier.status,
-      leadTime: supplier.leadTime,
-      rating: supplier.rating.toString(),
-      products: supplier.products.join(', ')
-    })
-  }, [supplier])
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const updatedSupplier: Supplier = {
-      ...supplier,
-      name: formData.name,
-      country: formData.country,
-      address: formData.address,
-      phone: formData.phone,
-      email: formData.email,
-      website: formData.website,
-      established: formData.established,
-      contactPerson: formData.contactPerson,
-      status: formData.status,
-      leadTime: formData.leadTime,
-      rating: Number.parseFloat(formData.rating),
-      products: formData.products
-        .split(',')
-        .map((p) => p.trim())
-        .filter(Boolean)
+    if (supplier) {
+      form.reset({
+        name: supplier.name,
+        address: supplier.address,
+        contactInfo: supplier.contactInfo
+      })
     }
-    onUpdate(updatedSupplier)
+  }, [supplier, form])
+
+  const handleSubmit = (data: SupplierBodyType) => {
+    if (!supplier?.id) return
+
+    updateSupplier(
+      { id: supplier.id, body: data },
+      {
+        onSuccess: (response) => {
+          onUpdate(response)
+          toast.success('Nhà cung cấp đã được cập nhật thành công')
+        },
+        onError: (error) => {
+          handleErrorApi({ error, setError: form.setError, duration: 3000 })
+        }
+      }
+    )
+  }
+
+  if (!supplier) {
+    return null
   }
 
   return (
-    <>
+    <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
       <DialogHeader>
-        <DialogTitle>Edit Supplier</DialogTitle>
-        <DialogDescription>Edit the supplier details below.</DialogDescription>
+        <DialogTitle>Cập nhật nhà cung cấp</DialogTitle>
+        <DialogDescription>Cập nhật thông tin nhà cung cấp trong hệ thống.</DialogDescription>
       </DialogHeader>
-      <form onSubmit={handleSubmit}>
-        <div className='grid gap-4 py-4'>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='name'>Supplier Name</Label>
-              <Input
-                id='name'
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='country'>Country</Label>
-              <Input
-                id='country'
-                value={formData.country}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label htmlFor='address'>Address</Label>
-            <Textarea
-              id='address'
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              required
-            />
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='phone'>Phone Number</Label>
-              <Input
-                id='phone'
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='email'>Email</Label>
-              <Input
-                id='email'
-                type='email'
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='website'>Website</Label>
-              <Input
-                id='website'
-                value={formData.website}
-                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='established'>Established Year</Label>
-              <Input
-                id='established'
-                value={formData.established}
-                onChange={(e) => setFormData({ ...formData, established: e.target.value.replace(/[^0-9]/g, '') })}
-                placeholder='yyyy'
-                maxLength={4}
-              />
-            </div>
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='contact-person'>Contact Person</Label>
-              <Input
-                id='contact-person'
-                value={formData.contactPerson}
-                onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='status'>Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value: Supplier['status']) => setFormData({ ...formData, status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Select status' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Active'>Active</SelectItem>
-                  <SelectItem value='Inactive'>Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='lead-time'>Lead Time</Label>
-              <Input
-                id='lead-time'
-                value={formData.leadTime}
-                onChange={(e) => setFormData({ ...formData, leadTime: e.target.value })}
-                required
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='rating'>Rating</Label>
-              <Select value={formData.rating} onValueChange={(value) => setFormData({ ...formData, rating: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Select rating' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='5.0'>5.0</SelectItem>
-                  <SelectItem value='4.5'>4.5</SelectItem>
-                  <SelectItem value='4.0'>4.0</SelectItem>
-                  <SelectItem value='3.5'>3.5</SelectItem>
-                  <SelectItem value='3.0'>3.0</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <Label htmlFor='products'>Products (comma separated)</Label>
-            <Input
-              id='products'
-              value={formData.products}
-              onChange={(e) => setFormData({ ...formData, products: e.target.value })}
-              required
-            />
-          </div>
+
+      <div className='space-y-4'>
+        <div className='space-y-2'>
+          <Label htmlFor='name'>Tên nhà cung cấp *</Label>
+          <Input
+            id='name'
+            {...form.register('name')}
+            placeholder='Nhập tên nhà cung cấp'
+            className={form.formState.errors.name ? 'border-red-500' : ''}
+          />
+          {form.formState.errors.name && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.name.message}</p>
+          )}
         </div>
-        <DialogFooter>
-          <Button variant='outline' onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type='submit'>Update Supplier</Button>
-        </DialogFooter>
-      </form>
-    </>
+
+        <div className='space-y-2'>
+          <Label htmlFor='address'>Địa chỉ *</Label>
+          <Textarea
+            id='address'
+            {...form.register('address')}
+            placeholder='Nhập địa chỉ nhà cung cấp'
+            className={form.formState.errors.address ? 'border-red-500' : ''}
+          />
+          {form.formState.errors.address && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.address.message}</p>
+          )}
+        </div>
+
+        <div className='space-y-2'>
+          <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
+          <Input
+            id='contactInfo'
+            {...form.register('contactInfo')}
+            placeholder='Nhập thông tin liên hệ'
+            className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
+          />
+          {form.formState.errors.contactInfo && (
+            <p className='text-red-500 text-sm text-red-500'>{form.formState.errors.contactInfo.message}</p>
+          )}
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button type='button' variant='outline' onClick={onCancel}>
+          Hủy bỏ
+        </Button>
+        <Button type='submit' disabled={isPending}>
+          {isPending ? 'Đang cập nhật...' : 'Cập nhật'}
+        </Button>
+      </DialogFooter>
+    </form>
   )
 }

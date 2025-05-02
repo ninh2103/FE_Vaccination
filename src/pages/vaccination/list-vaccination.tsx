@@ -1,216 +1,47 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
 import { ChevronUp, ChevronDown, Search, Calendar, Tag } from 'lucide-react'
-
-// Use the same interface from the VaccineDetail page
-interface Vaccine {
-  id: number
-  name: string
-  image?: string
-  info: string
-  price: number
-  manufacturer: string
-  country: string
-  type: string
-  quantity: number
-  expiryDate: string
-  doseInterval: string
-  target: string
-  dosage: string
-  administration: string
-  contraindications: string
-  sideEffects: string
-  storage: string
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock'
-}
-
-// Mock data - in a real app, this would come from an API
-const vaccines: Vaccine[] = [
-  {
-    id: 1,
-    name: 'COVID-19 Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'COVID-19 prevention vaccine that provides protection against COVID-19 and its variants, helping to reduce the spread of the virus.',
-    price: 500000,
-    manufacturer: 'BioNTech',
-    country: 'Germany',
-    type: 'Adult',
-    quantity: 15,
-    expiryDate: '2025-12-31',
-    doseInterval: '21 days',
-    target: 'People over 12',
-    dosage: '0.3ml',
-    administration: 'Intramuscular',
-    contraindications: 'Allergy to vaccine components',
-    sideEffects: 'Pain at injection site, fatigue, headache, muscle pain, chills, joint pain, fever',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 2,
-    name: 'Influenza Vaccine',
-    image: 'https://images.unsplash.com/photo-1625833017043-21a7642b9152',
-    info: 'Annual vaccination to protect against influenza viruses and reduce flu-related complications.',
-    price: 300000,
-    manufacturer: 'Sanofi Pasteur',
-    country: 'France',
-    type: 'Children',
-    quantity: 8,
-    expiryDate: '2025-09-30',
-    doseInterval: 'N/A',
-    target: 'Children from 6 months',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'Egg allergy',
-    sideEffects: 'Mild fever, soreness at injection site',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 3,
-    name: 'Hepatitis B Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Hepatitis B prevention',
-    price: 200000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Adult',
-    quantity: 0,
-    expiryDate: '2025-03-15',
-    doseInterval: '30 days',
-    target: 'Adults',
-    dosage: '1ml',
-    administration: 'Intramuscular',
-    contraindications: 'Yeast allergy',
-    sideEffects: 'Muscle pain',
-    storage: '2-8°C',
-    status: 'Out of Stock'
-  },
-  {
-    id: 4,
-    name: 'Tetanus Vaccine',
-    image: 'https://images.unsplash.com/photo-1631815589968-fdb09a223b1e',
-    info: 'Tetanus prevention',
-    price: 150000,
-    manufacturer: 'GSK',
-    country: 'UK',
-    type: 'Adult',
-    quantity: 20,
-    expiryDate: '2025-06-20',
-    doseInterval: 'N/A',
-    target: 'Adults',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'None',
-    sideEffects: 'Soreness',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 5,
-    name: 'MMR Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Measles, Mumps, Rubella',
-    price: 400000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Children',
-    quantity: 5,
-    expiryDate: '2025-10-05',
-    doseInterval: '28 days',
-    target: 'Children',
-    dosage: '0.5ml',
-    administration: 'Subcutaneous',
-    contraindications: 'Immunodeficiency',
-    sideEffects: 'Rash',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 6,
-    name: 'Polio Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Polio prevention',
-    price: 250000,
-    manufacturer: 'Sanofi',
-    country: 'France',
-    type: 'Children',
-    quantity: 12,
-    expiryDate: '2025-07-15',
-    doseInterval: '60 days',
-    target: 'Children',
-    dosage: '0.5ml',
-    administration: 'Oral',
-    contraindications: 'None',
-    sideEffects: 'None',
-    storage: '2-8°C',
-    status: 'In Stock'
-  },
-  {
-    id: 7,
-    name: 'HPV Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Human Papillomavirus',
-    price: 600000,
-    manufacturer: 'Merck',
-    country: 'USA',
-    type: 'Adult',
-    quantity: 3,
-    expiryDate: '2025-11-30',
-    doseInterval: '60 days',
-    target: 'Adults',
-    dosage: '0.5ml',
-    administration: 'Intramuscular',
-    contraindications: 'Allergy',
-    sideEffects: 'Pain',
-    storage: '2-8°C',
-    status: 'Low Stock'
-  },
-  {
-    id: 8,
-    name: 'Rotavirus Vaccine',
-    image: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    info: 'Rotavirus prevention',
-    price: 350000,
-    manufacturer: 'GSK',
-    country: 'UK',
-    type: 'Children',
-    quantity: 0,
-    expiryDate: '2025-08-25',
-    doseInterval: '60 days',
-    target: 'Infants',
-    dosage: '2ml',
-    administration: 'Oral',
-    contraindications: 'Intussusception',
-    sideEffects: 'Diarrhea',
-    storage: '2-8°C',
-    status: 'Out of Stock'
-  }
-]
+import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useListCategoryQuery } from '@/queries/useCategory'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   // State for search, filtering, sorting and pagination
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'price'>('name')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [sortBy, setSortBy] = useState<'vaccineName' | 'price'>('vaccineName')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-  const [filter, setFilter] = useState<'all' | 'In Stock' | 'Low Stock' | 'Out of Stock'>('all')
+  const [filter, setFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 6
+  const itemsPerPage = 9
+  const { data: vaccinationList, isLoading } = useListVaccinationQuery({
+    page: currentPage,
+    items_per_page: itemsPerPage,
+    search: debouncedSearch
+  })
+  const { data: categories } = useListCategoryQuery()
+
+  useEffect(() => {
+    setIsSearching(true)
+    const delayInputTimeoutId = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setIsSearching(false)
+      // Maintain focus after debounce
+      if (searchInputRef.current) {
+        searchInputRef.current.focus()
+      }
+    }, 500)
+    return () => clearTimeout(delayInputTimeoutId)
+  }, [searchTerm])
 
   // Format currency for displaying price
   const formatCurrency = (amount: number) => {
@@ -218,21 +49,21 @@ export default function ListVaccination() {
   }
 
   // Get status color for badges
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'In Stock':
-        return 'bg-green-100 text-green-800'
-      case 'Low Stock':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'Out of Stock':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
+  const getStatusColor = (quantity: number) => {
+    if (quantity > 10) return 'bg-green-100 text-green-800'
+    if (quantity > 0) return 'bg-yellow-100 text-yellow-800'
+    return 'bg-red-100 text-red-800'
+  }
+
+  // Get status text for badges
+  const getStatusText = (quantity: number) => {
+    if (quantity > 5) return 'Còn hàng'
+    if (quantity > 0) return 'Sắp hết hàng'
+    return 'Hết hàng'
   }
 
   // Toggle sort direction
-  const toggleSort = (field: 'name' | 'price') => {
+  const toggleSort = (field: 'vaccineName' | 'price') => {
     if (sortBy === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -242,86 +73,132 @@ export default function ListVaccination() {
   }
 
   // Navigate to detail page when clicking on a vaccine card
-  const handleCardClick = (id: number) => {
+  const handleCardClick = (id: string) => {
     navigate(`/vaccination/${id}`)
+  }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
   // Filter, sort and paginate vaccines
   const filteredAndSortedVaccines = useMemo(() => {
-    // First, filter by search term and status
-    let result = vaccines.filter((vaccine) => {
-      const matchesSearch = vaccine.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesFilter = filter === 'all' || vaccine.status === filter
-      return matchesSearch && matchesFilter
+    if (!vaccinationList?.data) return []
+
+    // First, filter by search term
+    let result = vaccinationList.data.filter((vaccine) => {
+      const matchesSearch = vaccine.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchesSearch
     })
 
     result = [...result].sort((a, b) => {
-      if (sortBy === 'name') {
-        return sortDirection === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      if (sortBy === 'vaccineName') {
+        return sortDirection === 'asc'
+          ? a.vaccineName.localeCompare(b.vaccineName)
+          : b.vaccineName.localeCompare(a.vaccineName)
       } else {
         return sortDirection === 'asc' ? a.price - b.price : b.price - a.price
       }
     })
 
     return result
-  }, [vaccines, searchTerm, filter, sortBy, sortDirection])
+  }, [vaccinationList?.data, searchTerm, sortBy, sortDirection])
 
   // Get current page items
   const currentVaccines = useMemo(() => {
-    const indexOfLastItem = currentPage * itemsPerPage
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage
-    return filteredAndSortedVaccines.slice(indexOfFirstItem, indexOfLastItem)
-  }, [filteredAndSortedVaccines, currentPage, itemsPerPage])
+    return filteredAndSortedVaccines
+  }, [filteredAndSortedVaccines])
 
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredAndSortedVaccines.length / itemsPerPage)
+  // Calculate total pages based on API total
+  const totalPages = Math.ceil((vaccinationList?.total ?? 0) / itemsPerPage)
+  const totalItems = vaccinationList?.total ?? 0
+  const startIndex = (currentPage - 1) * itemsPerPage + 1
+  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems)
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filter, sortBy, sortDirection])
+
+  if (isLoading) {
+    return (
+      <div className='flex-1 h-screen overflow-y-auto scrollbar-hide flex items-center justify-center'>
+        <div className='max-w-4xl mx-auto py-8 px-6'>
+          <div className='flex items-center justify-center text-muted-foreground'>
+            <LoadingSpinner className='mr-2 h-10 w-10' />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-6'>Available Vaccines</h1>
+      <h1 className='text-3xl font-bold mb-6'>Danh sách vaccine</h1>
 
       {/* Search and Filter Section */}
       <div className='grid gap-4 mb-6 md:grid-cols-3'>
-        {/* Search input */}
-        <div className='relative'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
-          <Input
-            placeholder='Search vaccines...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-10'
-          />
-        </div>
+        {isLoading ? (
+          <div className='flex items-center justify-center p-8'>
+            <LoadingSpinner className='h-8 w-8' />
+          </div>
+        ) : (
+          <>
+            {/* Search input */}
+            <div className='relative w-full'>
+              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
+              <Input
+                ref={searchInputRef}
+                placeholder='Tìm kiếm vaccine...'
+                value={searchTerm}
+                onChange={handleSearch}
+                className='pl-10 pr-3 w-full'
+              />
+              {isSearching && (
+                <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
+                  <LoadingSpinner className='h-4 w-4' />
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Filter dropdown */}
-        <Select
-          value={filter}
-          onValueChange={(value: 'all' | 'In Stock' | 'Low Stock' | 'Out of Stock') => setFilter(value)}
-        >
+        <Select value={filter} onValueChange={(value: string) => setFilter(value)}>
           <SelectTrigger>
-            <SelectValue placeholder='Filter by status' />
+            <SelectValue placeholder='Lọc theo danh mục' />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='all'>All Statuses</SelectItem>
-            <SelectItem value='In Stock'>In Stock</SelectItem>
-            <SelectItem value='Low Stock'>Low Stock</SelectItem>
-            <SelectItem value='Out of Stock'>Out of Stock</SelectItem>
+            <SelectItem value='all'>Tất cả danh mục</SelectItem>
+            {categories?.data.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
         {/* Sorting buttons */}
         <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => toggleSort('name')} className='flex-1 dark:text-white'>
-            Name
-            {sortBy === 'name' &&
+          <Button
+            variant='outline'
+            onClick={() => toggleSort('vaccineName')}
+            className='flex-1 dark:text-white dark:bg-gray-900'
+          >
+            Tên vaccine
+            {sortBy === 'vaccineName' &&
               (sortDirection === 'asc' ? (
                 <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
               ) : (
                 <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
               ))}
           </Button>
-          <Button variant='outline' onClick={() => toggleSort('price')} className='flex-1 dark:text-white'>
-            Price
+          <Button
+            variant='outline'
+            onClick={() => toggleSort('price')}
+            className='flex-1 dark:text-white dark:bg-gray-900'
+          >
+            Giá
             {sortBy === 'price' &&
               (sortDirection === 'asc' ? (
                 <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
@@ -333,35 +210,34 @@ export default function ListVaccination() {
       </div>
 
       {/* Results count */}
-      <div className='mb-4 text-sm text-gray-500'>
-        Showing {currentVaccines.length} of {filteredAndSortedVaccines.length} vaccines
-      </div>
 
       {/* Vaccines grid */}
       {currentVaccines.length > 0 ? (
-        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 '>
           {currentVaccines.map((vaccine) => (
             <Card
               key={vaccine.id}
-              className='overflow-hidden cursor-pointer hover:shadow-lg transition-shadow'
+              className='overflow-hidden cursor-pointer hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-green-500'
               onClick={() => handleCardClick(vaccine.id)}
             >
               <div className='aspect-video relative'>
                 <img
                   src={vaccine.image || 'https://via.placeholder.com/400x225?text=No+Image'}
-                  alt={vaccine.name}
+                  alt={vaccine.vaccineName}
                   className='w-full h-full object-cover'
                 />
-                <Badge className={`absolute top-2 right-2 ${getStatusColor(vaccine.status)}`}>{vaccine.status}</Badge>
+                <Badge className={`absolute top-2 right-2 ${getStatusColor(vaccine.remainingQuantity)}`}>
+                  {getStatusText(vaccine.remainingQuantity)}
+                </Badge>
               </div>
               <CardContent className='p-4'>
-                <h2 className='text-xl font-semibold mb-2'>{vaccine.name}</h2>
-                <p className='text-gray-500 text-sm mb-3 line-clamp-2'>{vaccine.info}</p>
+                <h2 className='text-xl font-semibold mb-2'>{vaccine.vaccineName}</h2>
+                <p className='dark:text-white text-sm mb-3 line-clamp-2'>{vaccine.description}</p>
 
                 <div className='flex items-center justify-between text-sm mb-2'>
                   <div className='flex items-center'>
                     <Tag className='mr-1 h-4 w-4' />
-                    <span>Price:</span>
+                    <span>Giá:</span>
                   </div>
                   <span className='font-semibold'>{formatCurrency(vaccine.price)}</span>
                 </div>
@@ -369,21 +245,17 @@ export default function ListVaccination() {
                 <div className='flex items-center justify-between text-sm mb-2'>
                   <div className='flex items-center'>
                     <Tag className='mr-1 h-4 w-4' />
-                    <span>Quantity:</span>
+                    <span>Số lượng:</span>
                   </div>
-                  <span>{vaccine.quantity} doses</span>
+                  <span>{vaccine.remainingQuantity} liệu pháp</span>
                 </div>
 
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center'>
                     <Calendar className='mr-1 h-4 w-4' />
-                    <span>Expires:</span>
+                    <span>Hạn sử dụng:</span>
                   </div>
-                  <span>{vaccine.expiryDate}</span>
-                </div>
-
-                <div className='mt-4'>
-                  <span className='text-xs text-gray-500'>Manufacturer: {vaccine.manufacturer}</span>
+                  <span>{new Date(vaccine.expirationDate).toLocaleDateString()}</span>
                 </div>
               </CardContent>
             </Card>
@@ -391,7 +263,7 @@ export default function ListVaccination() {
         </div>
       ) : (
         <div className='text-center py-12'>
-          <p className='text-lg text-gray-500'>No vaccines match your search criteria</p>
+          <p className='text-lg text-gray-500'>Không tìm thấy vaccine phù hợp</p>
           <Button
             variant='outline'
             onClick={() => {
@@ -400,42 +272,82 @@ export default function ListVaccination() {
             }}
             className='mt-4'
           >
-            Clear filters
+            Xóa bộ lọc
           </Button>
         </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Pagination className='mt-8'>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
+        <div className='flex items-center justify-between px-2 mt-6'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} vaccine
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Trang trước
+            </Button>
+            <div className='flex items-center gap-1'>
+              {/* Always show first page */}
+              <Button
+                variant={currentPage === 1 ? 'default' : 'outline'}
+                size='sm'
+                onClick={() => setCurrentPage(1)}
+                className='min-w-[2.5rem]'
+              >
+                1
+              </Button>
 
-            {Array.from({ length: totalPages }).map((_, index) => (
-              <PaginationItem key={index} className='dark!:bg-white'>
-                <PaginationLink
-                  className='dark!:text-white'
-                  isActive={currentPage === index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
+              {/* Show ellipsis if needed */}
+              {currentPage > 3 && <span className='px-2'>...</span>}
+
+              {/* Show pages around current page */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const page = Math.max(2, Math.min(currentPage - 2 + i, totalPages - 1))
+                if (page === 1 || page === totalPages) return null
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setCurrentPage(page)}
+                    className='min-w-[2.5rem]'
+                  >
+                    {page}
+                  </Button>
+                )
+              })}
+
+              {/* Show ellipsis if needed */}
+              {currentPage < totalPages - 2 && <span className='px-2'>...</span>}
+
+              {/* Always show last page if there's more than one page */}
+              {totalPages > 1 && (
+                <Button
+                  variant={currentPage === totalPages ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setCurrentPage(totalPages)}
+                  className='min-w-[2.5rem]'
                 >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+                  {totalPages}
+                </Button>
+              )}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Trang tiếp
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )

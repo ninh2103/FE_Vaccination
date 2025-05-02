@@ -10,16 +10,22 @@ import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
-import { useGetMeQuery, useUpdateMeQuery } from '@/queries/useUser'
-import { setUserToLS } from '@/core/shared/storage'
+import { useGetMeQuery } from '@/queries/useUser'
+import {
+  setUserToLS,
+  removeAccessTokenFromLS,
+  removeRefreshTokenFromLS,
+  getRefreshTokenFromLS
+} from '@/core/shared/storage'
+import { useLogoutMutation } from '@/queries/useAuth'
 
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'Features', href: '#features' },
   { name: 'Vaccines', href: '#vaccines' },
   { name: 'Doctor', href: '#doctor' },
-  { name: 'Testimonials', href: '#testimonials' },
-  { name: 'Blog', href: '#blog' }
+  { name: 'Blog', href: '#blog' },
+  { name: 'Contact', href: '#contact' }
 ]
 
 export default function Header() {
@@ -32,12 +38,13 @@ export default function Header() {
   const user = getMeQuery.data
   if (user) {
     setUserToLS({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name
+      id: user?.id,
+      name: user?.name,
+      email: user?.email,
+      role: user?.role.name
     })
   }
+  const logoutMutation = useLogoutMutation()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -71,8 +78,13 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    // Implement sign out logic here
-    setIsLoggedIn(false)
+    const refreshToken = getRefreshTokenFromLS()
+    if (refreshToken) {
+      logoutMutation.mutate({ params: { refresh_token: refreshToken } })
+      removeAccessTokenFromLS()
+      removeRefreshTokenFromLS()
+      setIsLoggedIn(false)
+    }
   }
 
   useEffect(() => {
@@ -111,13 +123,6 @@ export default function Header() {
 
             <div className='hidden md:flex items-center space-x-4'>
               <ThemeToggle />
-              <Button
-                variant='ghost'
-                size='icon'
-                className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-              >
-                <Icons.Globe className='h-5 w-5' />
-              </Button>
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -137,10 +142,12 @@ export default function Header() {
                         <span>{user?.name}</span>
                       </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
-                      <LogOut className='mr-2 h-4 w-4' />
-                      <span>Sign out</span>
-                    </DropdownMenuItem>
+                    <Link to={path.login}>
+                      <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
+                        <LogOut className='mr-2 h-4 w-4' />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </Link>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (

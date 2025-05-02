@@ -1,54 +1,72 @@
 import { z } from 'zod'
+import { numberConstants } from '@/configs/consts'
+import { validator } from '@/core/helpers/validator'
 
 export const LoginBody = z
   .object({
-    email: z.string().min(numberConstants.TWO, {
-      message: 'Email is valid.'
-    }),
+    email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
     password: z
       .string()
       .min(numberConstants.ONE, {
-        message: 'Password is required'
+        message: 'Mật khẩu là bắt buộc'
       })
       .regex(validator.passwordRegex, {
-        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
       })
   })
   .strict()
 
 export type LoginBodyType = z.TypeOf<typeof LoginBody>
 
-import { numberConstants } from '@/configs/consts'
-import { validator } from '@/core/helpers/validator'
-
-export const RegisterBody = z.object({
-  name: z.string().min(numberConstants.TWO, {
-    message: 'Name is valid.'
-  }),
-  email: z.string().min(numberConstants.TWO, {
-    message: 'Email is valid.'
-  }),
-  password: z
-    .string()
-    .min(numberConstants.ONE, {
-      message: 'Password is required'
-    })
-    .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
-    }),
-  confirmPassword: z
-    .string()
-    .min(numberConstants.ONE, {
-      message: 'Password is required'
-    })
-    .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
-    }),
-  phone: z.string().min(numberConstants.TEN, {
-    message: 'Phone number must be at least 10 characters.'
+export const RegisterBody = z
+  .object({
+    name: z
+      .string()
+      .min(1, 'Tên không được để trống')
+      .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+      .refine((value) => value.trim().length > 0, {
+        message: 'Tên không được chỉ chứa khoảng trắng'
+      }),
+    email: z
+      .string()
+      .min(1, 'Email là bắt buộc')
+      .email('Email không hợp lệ')
+      .refine((value) => value.trim().length > 0, {
+        message: 'Email không được chỉ chứa khoảng trắng'
+      }),
+    password: z
+      .string()
+      .min(6, 'Mật khẩu là bắt buộc')
+      .regex(validator.passwordRegex, {
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
+      })
+      .refine((value) => value.trim().length > 0, {
+        message: 'Mật khẩu không được chỉ chứa khoảng trắng'
+      }),
+    confirmPassword: z
+      .string()
+      .min(1, 'Mật khẩu là bắt buộc')
+      .regex(validator.passwordRegex, {
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
+      })
+      .refine((value) => value.trim().length > 0, {
+        message: 'Mật khẩu không được chỉ chứa khoảng trắng'
+      }),
+    phone: z
+      .string()
+      .min(1, 'Số điện thoại là bắt buộc')
+      .max(10, 'Số điện thoại phải có tối đa 10 số')
+      .refine((value) => value.trim().length > 0, {
+        message: 'Số điện thoại không được chỉ chứa khoảng trắng'
+      }),
+    role: z.enum(['USER', 'ADMIN', 'DOCTOR', 'EMPLOYEE']).optional()
   })
-})
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu không khớp',
+    path: ['confirmPassword']
+  })
+
+export type RegisterBodyType = z.infer<typeof RegisterBody>
 
 export const VerifyEmailBody = z.object({
   email: z.string().email('Email không hợp lệ').optional(),
@@ -58,7 +76,7 @@ export type VerifyEmailBodyType = z.TypeOf<typeof VerifyEmailBody>
 
 export const ForgotPasswordBody = z
   .object({
-    email: z.string().email()
+    email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ')
   })
   .strict()
 
@@ -68,18 +86,18 @@ export const ResetPasswordBody = z.object({
   newPassword: z
     .string()
     .min(numberConstants.ONE, {
-      message: 'Password is required'
+      message: 'Mật khẩu là bắt buộc'
     })
     .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+      message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
     }),
   confirm_password: z
     .string()
     .min(numberConstants.ONE, {
-      message: 'Password is required'
+      message: 'Mật khẩu là bắt buộc'
     })
     .regex(validator.passwordRegex, {
-      message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+      message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa và một số'
     })
 })
 
@@ -90,30 +108,42 @@ export const ChangePasswordBody = z
     current_password: z
       .string()
       .min(numberConstants.ONE, {
-        message: 'Password is required'
+        message: 'Mật khẩu là bắt buộc'
       })
       .regex(validator.passwordRegex, {
-        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
       }),
 
     password: z
       .string()
       .min(numberConstants.ONE, {
-        message: 'Password is required'
+        message: 'Mật khẩu là bắt buộc'
       })
       .regex(validator.passwordRegex, {
-        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
       }),
 
     confirm_password: z
       .string()
       .min(numberConstants.ONE, {
-        message: 'Password is required'
+        message: 'Mật khẩu là bắt buộc'
       })
       .regex(validator.passwordRegex, {
-        message: 'Password must be at least 6 characters long, contain at least one uppercase letter and one number'
+        message: 'Mật khẩu phải có ít nhất 6 ký tự, chứa ít nhất một chữ cái viết hoa, một số và một ký tự đặc biệt'
       })
   })
   .strict()
 
 export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>
+
+export const LogoutBody = z.object({
+  refresh_token: z.string().min(1, 'Refresh token là bắt buộc')
+})
+
+export type LogoutBodyType = z.TypeOf<typeof LogoutBody>
+
+export const RefreshTokenBody = z.object({
+  refresh_token: z.string().min(1, 'Refresh token là bắt buộc')
+})
+
+export type RefreshTokenBodyType = z.TypeOf<typeof RefreshTokenBody>

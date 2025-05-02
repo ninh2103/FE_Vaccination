@@ -1,5 +1,3 @@
-'use client'
-
 import { format } from 'date-fns'
 import { MoreHorizontal, FileText, Calendar, Phone, Clock, Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -24,7 +22,7 @@ interface Patient {
 }
 
 interface Vaccination {
-  id: number
+  id: string
   patient: Patient
   vaccine: string
   date: string
@@ -33,6 +31,7 @@ interface Vaccination {
   administeredBy: string
   location: string
   notes: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
 }
 
 interface HistorysTableProps {
@@ -42,6 +41,14 @@ interface HistorysTableProps {
   onPrintCertificate: (vaccination: Vaccination) => void
   onDownloadInvoice: (vaccination: Vaccination) => void
   onViewDetails: (vaccination: Vaccination) => void
+}
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'COMPLETED':
+      return <Badge className='bg-green-500 hover:bg-green-600'>Completed</Badge>
+    default:
+      return <Badge>{status}</Badge>
+  }
 }
 
 export function HistorysTable({
@@ -56,14 +63,14 @@ export function HistorysTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className='w-[60px]'>No.</TableHead>
-          <TableHead>Patient</TableHead>
+          <TableHead className='w-[60px]'>STT</TableHead>
+          <TableHead>Bệnh nhân</TableHead>
           <TableHead>Vaccine</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Dose</TableHead>
-          <TableHead>Doctor</TableHead>
-          <TableHead>Location</TableHead>
-          <TableHead className='w-[80px]'></TableHead>
+          <TableHead>Ngày</TableHead>
+          <TableHead>Số liều</TableHead>
+          <TableHead>Địa điểm</TableHead>
+          <TableHead>Trạng thái</TableHead>
+          <TableHead className='text-center'>Hành động</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -101,28 +108,30 @@ export function HistorysTable({
               </div>
             </TableCell>
             <TableCell>
-              <Badge variant='outline'>{vaccination.doseNumber}</Badge>
+              <Badge variant='outline' className='text-center'>
+                {vaccination.doseNumber}
+              </Badge>
             </TableCell>
-            <TableCell>{vaccination.administeredBy}</TableCell>
             <TableCell>{vaccination.location}</TableCell>
-            <TableCell onClick={(e) => e.stopPropagation()}>
+            <TableCell>{getStatusBadge(vaccination.status)}</TableCell>
+            <TableCell className='text-center' onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant='ghost' size='icon'>
                     <MoreHorizontal className='h-4 w-4' />
-                    <span className='sr-only'>Open menu</span>
+                    <span className='sr-only'>Mở menu</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end'>
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onPrintCertificate(vaccination)}>
                     <FileText className='mr-2 h-4 w-4' />
-                    Print Certificate
+                    In chứng nhận
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onDownloadInvoice(vaccination)}>
                     <Printer className='mr-2 h-4 w-4' />
-                    Download Invoice
+                    Tải chứng nhận
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
