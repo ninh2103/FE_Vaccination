@@ -67,7 +67,7 @@ export function PaymentTable({
     } = {
       COMPLETED: { variant: 'default', className: 'bg-green-500 text-white' },
       PENDING: { variant: 'outline', className: 'bg-yellow-100 text-yellow-800' },
-      FAILED: { variant: 'destructive', className: 'text-white' }
+      FAILED: { variant: 'destructive', className: 'text-white bg-red-500' }
     }
     const { variant = 'default', className = '' } = variants[status] || {}
     return (
@@ -95,33 +95,33 @@ export function PaymentTable({
   const startIndex = (currentPage - 1) * itemsPerPage + 1
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems)
 
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
+    )
+  }
+
   return (
     <div className='grid gap-6'>
       <Tabs defaultValue='all' className='w-full'>
-        <TabsList className='grid w-full max-w-md justify-center grid-cols-3'>
+        <TabsList className='grid w-full max-w-md grid-cols-3'>
           <TabsTrigger value='all' className='w-full'>
             Tất cả thanh toán
           </TabsTrigger>
           <TabsTrigger value='completed' className='w-full'>
             Đã thanh toán
           </TabsTrigger>
-          <TabsTrigger value='pending' className='w-full ml-2'>
-            Chờ thanh toán/Thất bại
+          <TabsTrigger value='pending' className='w-full'>
+            Chờ thanh toán
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value='all' className='mt-4'>
           <Card>
             <CardContent className='p-0'>
-              {isLoading ? (
-                <div className='p-4 text-center'>
-                  <div className='flex items-center justify-center'>
-                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
-                  </div>
-                  <div className='flex items-center justify-center p-8'>
-                    <LoadingSpinner className='h-8 w-8' />
-                  </div>
-                </div>
-              ) : payments.length === 0 ? (
+              {payments.length === 0 ? (
                 <div className='p-4 text-center text-muted-foreground'>Không có thanh toán nào.</div>
               ) : (
                 <Table>
@@ -129,14 +129,12 @@ export function PaymentTable({
                     <TableRow>
                       <TableHead className='w-[60px]'>STT</TableHead>
                       <TableHead>Mã thanh toán</TableHead>
-                      <TableHead>Người dùng</TableHead>
-                      <TableHead>Số tiền</TableHead>
-                      <TableHead>Ngày</TableHead>
+                      <TableHead>Khách hàng</TableHead>
+                      <TableHead>Tổng tiền</TableHead>
+                      <TableHead>Ngày đặt hàng</TableHead>
                       <TableHead>Phương thức</TableHead>
                       <TableHead>Trạng thái</TableHead>
-                      <TableHead className='w-[80px]'>Sửa</TableHead>
-                      <TableHead className='w-[80px]'>Xóa</TableHead>
-                      <TableHead className='w-[80px]'>Hành động</TableHead>
+                      <TableHead className='w-[140px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -164,33 +162,7 @@ export function PaymentTable({
                         </TableCell>
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
                         <TableCell>
-                          {payment.paymentMethod === 'CASH' && (
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEdit(payment)
-                              }}
-                            >
-                              <Edit className='h-4 w-4' />
-                            </Button>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onDelete(payment.id)
-                            }}
-                          >
-                            <Trash className='h-4 w-4 text-destructive text-red-500' />
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
+                          <div className='flex items-center pl-4'>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
@@ -228,6 +200,27 @@ export function PaymentTable({
                                   <Printer className='mr-2 h-4 w-4' />
                                   In hóa đơn
                                 </DropdownMenuItem>
+                                {payment.paymentMethod === 'CASH' && (
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onEdit(payment)
+                                    }}
+                                  >
+                                    <Edit className='mr-2 h-4 w-4' />
+                                    Sửa
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDelete(payment.id)
+                                  }}
+                                  className='text-destructive'
+                                >
+                                  <Trash className='mr-2 h-4 w-4 text-red-500' />
+                                  Xóa
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -257,15 +250,13 @@ export function PaymentTable({
                   <TableHeader>
                     <TableRow>
                       <TableHead className='w-[60px]'>STT</TableHead>
-                      <TableHead>Mã đơn hàng</TableHead>
                       <TableHead>Mã thanh toán</TableHead>
-                      <TableHead>Số tiền</TableHead>
-                      <TableHead>Ngày</TableHead>
+                      <TableHead>Khách hàng</TableHead>
+                      <TableHead>Tổng tiền</TableHead>
+                      <TableHead>Ngày đặt hàng</TableHead>
                       <TableHead>Phương thức</TableHead>
                       <TableHead>Trạng thái</TableHead>
-                      <TableHead className='w-[80px]'>Sửa</TableHead>
-                      <TableHead className='w-[80px]'>Xóa</TableHead>
-                      <TableHead className='w-[80px]'>Hành động</TableHead>
+                      <TableHead className='w-[140px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -279,7 +270,7 @@ export function PaymentTable({
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                           <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                          <TableCell>#{payment.id.slice(0, 8)}</TableCell>
+                          <TableCell>{payment.user.name}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
                             <div className='flex items-center'>
@@ -295,49 +286,7 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
-                            {/* <div className='flex items-center gap-2'>
-                              {payment.paymentMethod === 'CASH' ? (
-                                <>
-                                  <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      onEdit(payment)
-                                    }}
-                                  >
-                                    <Edit className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      onDelete(payment.id)
-                                    }}
-                                  >
-                                    <Trash className='h-4 w-4 text-destructive text-red-500' />
-                                  </Button>
-                                </>
-                              ) : (
-                              ) */}
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDelete(payment.id)
-                                }}
-                              >
-                                <Trash className='h-4 w-4 text-destructive text-red-500' />
-                              </Button>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
+                            <div className='flex items-center pl-4'>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>
@@ -404,15 +353,13 @@ export function PaymentTable({
                   <TableHeader>
                     <TableRow>
                       <TableHead className='w-[60px]'>STT</TableHead>
-                      <TableHead>Mã đơn hàng</TableHead>
                       <TableHead>Mã thanh toán</TableHead>
-                      <TableHead>Số tiền</TableHead>
-                      <TableHead>Ngày</TableHead>
+                      <TableHead>Khách hàng</TableHead>
+                      <TableHead>Tổng tiền</TableHead>
+                      <TableHead>Ngày đặt hàng</TableHead>
                       <TableHead>Phương thức</TableHead>
                       <TableHead>Trạng thái</TableHead>
-                      <TableHead className='w-[80px]'>Sửa</TableHead>
-                      <TableHead className='w-[80px]'>Xóa</TableHead>
-                      <TableHead className='w-[80px]'>Hành động</TableHead>
+                      <TableHead className='w-[140px]'>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -426,7 +373,7 @@ export function PaymentTable({
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                           <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                          <TableCell>#{payment.id.slice(0, 8)}</TableCell>
+                          <TableCell>{payment.user.name}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
                             <div className='flex items-center'>
@@ -442,33 +389,7 @@ export function PaymentTable({
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
-                            {payment.paymentMethod === 'CASH' && (
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEdit(payment)
-                                }}
-                              >
-                                <Edit className='h-4 w-4' />
-                              </Button>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDelete(payment.id)
-                              }}
-                            >
-                              <Trash className='h-4 w-4 text-destructive text-red-500' />
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2'>
+                            <div className='flex items-center pl-4'>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant='ghost' size='icon' onClick={(e) => e.stopPropagation()}>

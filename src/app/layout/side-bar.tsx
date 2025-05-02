@@ -3,16 +3,13 @@ import {
   CogIcon,
   UserIcon,
   CurrencyDollarIcon,
-  ClockIcon,
   PencilSquareIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
 import { IconMedicalCross } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { MdOutlineEmojiTransportation } from 'react-icons/md'
-import { TbBrandBooking } from 'react-icons/tb'
-import { IoCartOutline } from 'react-icons/io5'
-import { ShieldPlus } from 'lucide-react'
+import { Clock10, FolderClock, ShieldPlus, ShoppingCart } from 'lucide-react'
 
 interface SidebarItem {
   name: string
@@ -35,13 +32,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     { name: 'Category', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
     { name: 'Vaccines', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
     { name: 'Users', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
-    { name: 'Appointment Orders', icon: <TbBrandBooking className='h-5 w-5' />, path: '/admin/order' },
-    { name: 'Appointment Schedulings', icon: <IoCartOutline className='h-5 w-5' />, path: '/admin/appointments' },
-    { name: 'Vaccination History', icon: <ClockIcon className='h-5 w-5' />, path: '/admin/history' },
     { name: 'Payments', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
+    { name: 'Orders', icon: <ShoppingCart className='h-5 w-5' />, path: '/admin/order' },
+    { name: 'Appointment', icon: <Clock10 className='h-5 w-5' />, path: '/admin/appointments' },
     { name: 'Manufacturers', icon: <BuildingOfficeIcon className='h-5 w-5' />, path: '/admin/manufacturers' },
     { name: 'Suppliers', icon: <MdOutlineEmojiTransportation className='h-5 w-5' />, path: '/admin/suppliers' },
-    { name: 'Blogs', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' }
+    { name: 'Blogs', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' },
+    { name: 'History', icon: <FolderClock className='h-5 w-5' />, path: '/admin/history' }
   ]
 
   const handleItemClick = (itemName: string, path?: string) => {

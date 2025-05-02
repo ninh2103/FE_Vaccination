@@ -46,7 +46,6 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case 'COMPLETED':
       return <Badge className='bg-green-500 hover:bg-green-600'>Completed</Badge>
-
     default:
       return <Badge>{status}</Badge>
   }
@@ -132,7 +131,7 @@ export function HistorysTable({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onDownloadInvoice(vaccination)}>
                     <Printer className='mr-2 h-4 w-4' />
-                    Tải hóa đơn
+                    Tải chứng nhận
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

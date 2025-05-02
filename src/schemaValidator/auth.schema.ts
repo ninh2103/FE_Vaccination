@@ -55,6 +55,7 @@ export const RegisterBody = z
     phone: z
       .string()
       .min(1, 'Số điện thoại là bắt buộc')
+      .max(10, 'Số điện thoại phải có tối đa 10 số')
       .refine((value) => value.trim().length > 0, {
         message: 'Số điện thoại không được chỉ chứa khoảng trắng'
       }),

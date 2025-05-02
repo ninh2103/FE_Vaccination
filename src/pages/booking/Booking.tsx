@@ -139,7 +139,7 @@ const CheckOutPagePageMain = () => {
               <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <Label htmlFor='appointmentDate'>Ngày đặt lịch hẹn</Label>
+                    <Label htmlFor='appointmentDate'>Ngày hẹn tiêm</Label>
                     <Input
                       id='appointmentDate'
                       type='date'
@@ -152,7 +152,7 @@ const CheckOutPagePageMain = () => {
                     />
                   </div>
                   <div className='space-y-2'>
-                    <Label htmlFor='appointmentTime'>Thời gian đặt lịch hẹn</Label>
+                    <Label htmlFor='appointmentTime'>Giờ hẹn tiêm</Label>
                     <Input
                       id='appointmentTime'
                       type='time'
@@ -232,7 +232,7 @@ const CheckOutPagePageMain = () => {
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
                 >
-                  Xác nhận đặt lịch hẹn
+                  Xác nhận đặt mua vắc xin
                 </Button>
               </form>
             </CardContent>

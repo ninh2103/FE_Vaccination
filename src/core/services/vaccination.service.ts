@@ -34,8 +34,8 @@ export const vaccinationService = {
   detail(id: string): Promise<VaccineType> {
     return axiosClient.get(`${API_VACCINATION}/${id}`)
   },
-  inventory(): Promise<VaccineInventoryResponseType> {
-    return axiosClient.get(`${API_INVENTORY}`)
+  inventory(query: ListVaccinationQuery): Promise<VaccineInventoryResponseType> {
+    return axiosClient.get(`${API_INVENTORY}`, { params: query })
   },
   uploadImage(formData: FormData): Promise<VaccineUploadImageResponseType> {
     return axiosClient.post(UPLOAD_IMAGE_VACCINATION, formData, {

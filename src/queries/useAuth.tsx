@@ -4,6 +4,7 @@ import { ResetPassword } from '@/models/interface/auth.interface'
 import { LogoutBodyType } from '@/schemaValidator/auth.schema'
 import { UpdateRoleBodyType } from '@/schemaValidator/user.schema'
 import { useMutation } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -36,8 +37,12 @@ export const useChangePasswordMutation = () => {
   })
 }
 export const useUpdateRoleMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: UpdateRoleBodyType }) => userApi.updateRole(id, body)
+    mutationFn: ({ id, body }: { id: string; body: UpdateRoleBodyType }) => userApi.updateRole(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-list'] })
+    }
   })
 }
 export const useLogoutMutation = () => {

@@ -135,7 +135,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
       </DialogHeader>
       <div className='grid gap-4 py-4'>
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='categoryId'>Danh mục</Label>
+          <Label htmlFor='categoryId'>Danh mục *</Label>
           <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
             <SelectTrigger className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}>
               {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Chọn danh mục'}
@@ -152,7 +152,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
         {selectedCategoryId && (
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='vaccinationId'>Vacxin</Label>
+            <Label htmlFor='vaccinationId'>Vacxin *</Label>
             <Select value={selectedVaccineId} onValueChange={handleVaccineChange}>
               <SelectTrigger
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
@@ -177,7 +177,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         )}
 
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='userId'>Người dùng</Label>
+          <Label htmlFor='userId'>Người dùng *</Label>
           <Select value={form.watch('userId')} onValueChange={(value) => form.setValue('userId', value)}>
             <SelectTrigger
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
@@ -201,7 +201,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
 
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
-            <Label htmlFor='quantity'>Số lượng</Label>
+            <Label htmlFor='quantity'>Số lượng *</Label>
             <Input
               id='quantity'
               type='number'
@@ -220,7 +220,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='appointment-date'>Ngày hẹn</Label>
+            <Label htmlFor='appointment-date'>Ngày hẹn *</Label>
             <Input
               id='appointment-date'
               type='date'

@@ -83,13 +83,13 @@ export default function Profile() {
     if (body.password !== body.confirm_password) {
       form.setError('confirm_password', {
         type: 'manual',
-        message: 'Passwords do not match'
+        message: 'Mật khẩu không khớp'
       })
       return
     }
     changePasswordMutation.mutate(body, {
       onSuccess: () => {
-        toast.success('Change Password Success!')
+        toast.success('Đổi mật khẩu thành công!')
         form.reset()
       },
       onError: (error) => {
@@ -105,7 +105,7 @@ export default function Profile() {
     updateMeMutation.mutate(body, {
       onSuccess: () => {
         getMeQuery.refetch()
-        toast.success('Update Account Success!')
+        toast.success('Cập nhật tài khoản thành công!')
       },
       onError: (error) => {
         handleErrorApi({
@@ -120,7 +120,7 @@ export default function Profile() {
     uploadAvatarMutation.mutate(body, {
       onSuccess: () => {
         getMeQuery.refetch()
-        toast.success('Upload Avatar Success!')
+        toast.success('Tải lên ảnh đại diện thành công!')
       },
       onError: (error) => {
         handleErrorApi({
@@ -158,7 +158,7 @@ export default function Profile() {
     <div className='min-h-screen w-full dark:bg-gray-900 p-8'>
       <div className='max-w-4xl mx-auto'>
         <h1 className='text-4xl font-bold mb-8 text-center mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-500'>
-          Account Management
+          Quản lý tài khoản
         </h1>
 
         <Tabs defaultValue='account' className='w-full'>
@@ -168,29 +168,29 @@ export default function Profile() {
               className='dark:text-white data-[state=active]:dark:bg-green-600 transition-all duration-200'
             >
               <User className='w-5 h-5 mr-2' />
-              Account
+              Tài khoản
             </TabsTrigger>
             <TabsTrigger
               value='password'
               className='dark:text-white data-[state=active]:dark:bg-green-600 transition-all duration-200'
             >
               <Lock className='w-5 h-5 mr-2' />
-              Change Password
+              Đổi mật khẩu
             </TabsTrigger>
             <TabsTrigger
               value='cart'
               className='dark:text-white data-[state=active]:dark:bg-green-600 transition-all duration-200'
             >
               <TicketCheck className='w-5 h-5 mr-2' />
-              Booked Lists
+              Danh sách đặt hàng
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value='account'>
             <Card className='dark:bg-gray-900 border-gray-700 shadow-xl'>
               <CardHeader>
-                <CardTitle className='text-2xl dark:text-green-400'>Account Information</CardTitle>
-                <CardDescription className='text-gray-400'>Edit your personal information here.</CardDescription>
+                <CardTitle className='text-2xl dark:text-green-400'>Thông tin tài khoản</CardTitle>
+                <CardDescription className='text-gray-400'>Chỉnh sửa thông tin cá nhân ở đây.</CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
                 <div className='flex items-center gap-6'>
@@ -227,14 +227,14 @@ export default function Profile() {
                       }}
                     >
                       <Upload className='h-4 w-4 text-muted-foreground' />
-                      <span className='sr-only'>Upload</span>
+                      <span className='sr-only'>Tải lên</span>
                     </button>
                   </div>
                 </div>
 
                 <div className='space-y-2'>
                   <Label htmlFor='name' className='dark:text-green-300'>
-                    Name
+                    Tên
                   </Label>
                   <Input
                     id='name'
@@ -245,7 +245,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='phone' className='dark:text-green-300'>
-                    Number Phone
+                    Số điện thoại
                   </Label>
                   <Input
                     id='phone'
@@ -258,7 +258,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='address' className='dark:text-green-300'>
-                    Address
+                    Địa chỉ
                   </Label>
                   <Input
                     id='address'
@@ -269,7 +269,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='date_of_birth' className='dark:text-green-300'>
-                    Date of Birth
+                    Ngày sinh
                   </Label>
                   <Input
                     id='date_of_birth'
@@ -281,7 +281,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='country' className='dark:text-green-300'>
-                    Country
+                    Quốc tịch
                   </Label>
                   <Input
                     id='country'
@@ -295,7 +295,7 @@ export default function Profile() {
                   variant={'secondary'}
                   className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
                 >
-                  Save changes
+                  Lưu thay đổi
                 </Button>
               </CardContent>
             </Card>
@@ -306,13 +306,13 @@ export default function Profile() {
               <CardHeader>
                 <CardTitle className='text-2xl dark:text-green-400'>Change Password</CardTitle>
                 <CardDescription className='text-gray-400'>
-                  Update your password to secure your account.
+                  Cập nhật mật khẩu để bảo mật tài khoản của bạn.
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
                 <div className='space-y-2'>
                   <Label htmlFor='current-password' className='dark:text-green-300'>
-                    Current Password
+                    Mật khẩu hiện tại
                   </Label>
                   <div className='relative'>
                     <Input
@@ -343,7 +343,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='new-password' className='dark:text-green-300'>
-                    New Password
+                    Mật khẩu mới
                   </Label>
                   <Input
                     {...form.register('password')}
@@ -360,7 +360,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='confirm-password' className='dark:text-green-300'>
-                    Confirm the new password
+                    Xác nhận mật khẩu mới
                   </Label>
                   <Input
                     {...form.register('confirm_password')}
@@ -380,7 +380,7 @@ export default function Profile() {
                   variant={'secondary'}
                   className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
                 >
-                  Update Password
+                  Cập nhật mật khẩu
                 </Button>
               </CardContent>
             </Card>
@@ -389,9 +389,9 @@ export default function Profile() {
           <TabsContent value='cart'>
             <Card className='dark:bg-gray-900 border-gray-700 shadow-xl'>
               <CardHeader>
-                <CardTitle className='text-2xl dark:text-green-400'>Your Booked Lists</CardTitle>
+                <CardTitle className='text-2xl dark:text-green-400'>Danh sách đặt hàng của bạn</CardTitle>
                 <CardDescription className='dark:text-gray-400'>
-                  View and manage your vaccination appointments.
+                  Xem và quản lý lịch hẹn tiêm chủng của bạn.
                 </CardDescription>
               </CardHeader>
               <CardContent>

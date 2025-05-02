@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Download, RefreshCw, X, Loader2, CalendarIcon, Search } from 'lucide-react'
+import { Download, RefreshCw, Loader2, CalendarIcon, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -98,13 +98,10 @@ export default function AppointmentsPage() {
   } = useListAppointmentQuery({
     page: currentPage,
     items_per_page: ITEMS_PER_PAGE,
-    search: searchTerm
+    search: ''
   })
-  const {
-    data: appointmentsDaily,
-    isLoading: isLoadingDaily,
-    refetch: refetchDaily
-  } = useListAppointmentDailyQuery(searchTerm)
+  const { data: appointmentsDaily, isLoading: isLoadingDaily, refetch: refetchDaily } = useListAppointmentDailyQuery('')
+
   const { mutate: deleteAppointment } = useDeleteAppointmentMutation()
 
   const mapApiToAppointment = (apiAppointment: ApiAppointment): Appointment => {
@@ -128,17 +125,77 @@ export default function AppointmentsPage() {
     }
   }
 
+  const handleClearFilters = useCallback(() => {
+    setDateRange({
+      from: undefined,
+      to: undefined
+    })
+    setSearchTerm('')
+    setCurrentPage(1)
+    toast.success('Đã xóa bộ lọc')
+  }, [])
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1) // Reset to first page when searching
+  }, [])
+
+  const handleDateRangeChange = useCallback((from: Date | undefined, to: Date | undefined) => {
+    setDateRange({ from, to })
+    setCurrentPage(1) // Reset to first page when changing date range
+  }, [])
+
   const filteredAppointments = useMemo(() => {
+    let appointments: Appointment[] = []
+
     if (currentTab === 'today') {
       if (!appointmentsDaily?.data) return []
-      return appointmentsDaily.data.appointments.map((appointment) =>
+      appointments = appointmentsDaily.data.appointments.map((appointment) =>
         mapApiToAppointment(appointment as unknown as ApiAppointment)
       )
     } else {
       if (!apiResponse?.data) return []
-      return apiResponse.data.map((appointment) => mapApiToAppointment(appointment as unknown as ApiAppointment))
+      appointments = apiResponse.data.map((appointment) =>
+        mapApiToAppointment(appointment as unknown as ApiAppointment)
+      )
     }
-  }, [apiResponse, appointmentsDaily, currentTab])
+
+    // Apply search filter
+    if (searchTerm) {
+      appointments = appointments.filter((appointment) => {
+        const searchLower = searchTerm.toLowerCase()
+        return (
+          appointment.patient.name.toLowerCase().includes(searchLower) ||
+          appointment.vaccine.toLowerCase().includes(searchLower) ||
+          appointment.patient.email.toLowerCase().includes(searchLower)
+        )
+      })
+    }
+
+    // Apply date range filter
+    if (dateRange.from || dateRange.to) {
+      appointments = appointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.date)
+        appointmentDate.setHours(0, 0, 0, 0)
+
+        if (dateRange.from) {
+          const fromDate = new Date(dateRange.from)
+          fromDate.setHours(0, 0, 0, 0)
+          if (appointmentDate < fromDate) return false
+        }
+
+        if (dateRange.to) {
+          const toDate = new Date(dateRange.to)
+          toDate.setHours(23, 59, 59, 999)
+          if (appointmentDate > toDate) return false
+        }
+
+        return true
+      })
+    }
+
+    return appointments
+  }, [apiResponse, appointmentsDaily, currentTab, searchTerm, dateRange])
 
   const handleExport = useCallback(async () => {
     setIsExporting(true)
@@ -195,19 +252,6 @@ export default function AppointmentsPage() {
     setOpenUpdateDialog(true)
   }, [])
 
-  const handleClearFilters = useCallback(() => {
-    setDateRange({
-      from: undefined,
-      to: undefined
-    })
-    setSearchTerm('')
-    setCurrentTab('today')
-    setCurrentPage(1)
-    refetch()
-    refetchDaily()
-    toast.success('Đã xóa bộ lọc')
-  }, [refetch, refetchDaily])
-
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
@@ -229,9 +273,7 @@ export default function AppointmentsPage() {
               <Input
                 placeholder='Tìm kiếm...'
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                }}
+                onChange={(e) => handleSearch(e.target.value)}
                 className='w-full'
                 type='search'
               />
@@ -242,10 +284,7 @@ export default function AppointmentsPage() {
                   type='date'
                   value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
                   onChange={(e) =>
-                    setDateRange((prev) => ({
-                      ...prev,
-                      from: new Date(e.target.value)
-                    }))
+                    handleDateRangeChange(e.target.value ? new Date(e.target.value) : undefined, dateRange.to)
                   }
                   className='w-[150px]'
                 />
@@ -253,11 +292,12 @@ export default function AppointmentsPage() {
                 <Input
                   type='date'
                   value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                  onChange={(e) =>
+                    handleDateRangeChange(dateRange.from, e.target.value ? new Date(e.target.value) : undefined)
+                  }
                   className='w-[150px]'
                 />
               </div>
-              <div className='flex items-center space-x-2'></div>
             </div>
             <Button variant='outline' size='sm' onClick={handleClearFilters}>
               Xóa bộ lọc
@@ -320,7 +360,7 @@ export default function AppointmentsPage() {
                     </div>
                   ) : filteredAppointments.length === 0 ? (
                     <div className='p-4 text-center text-muted-foreground'>
-                      No appointments found matching the current filters.
+                      Không tìm thấy lịch hẹn phù hợp với bộ lọc hiện tại.
                     </div>
                   ) : (
                     <AppointmentTable
@@ -331,12 +371,12 @@ export default function AppointmentsPage() {
                   )}
                 </CardContent>
               </Card>
-              {!isLoading && filteredAppointments.length > 0 && (
+              {!isLoading && apiResponse?.total && apiResponse.total > 0 && (
                 <div className='flex items-center justify-between p-2'>
                   <div className='flex-1 text-sm text-muted-foreground'>
-                    Hiển thị {currentPage * ITEMS_PER_PAGE} lịch hẹn từ {currentPage * ITEMS_PER_PAGE} đến{' '}
-                    {Math.min(currentPage * ITEMS_PER_PAGE, apiResponse?.total || 0)} trong tổng số{' '}
-                    {apiResponse?.total || 0} lịch hẹn
+                    Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1} đến{' '}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, apiResponse.total)} trong tổng số {apiResponse.total} lịch
+                    hẹn
                   </div>
                   <div className='flex items-center space-x-2'>
                     <Button
@@ -348,30 +388,27 @@ export default function AppointmentsPage() {
                       Trang trước
                     </Button>
                     <div className='flex items-center gap-1'>
-                      {Array.from(
-                        { length: Math.ceil((apiResponse?.total || 0) / ITEMS_PER_PAGE) },
-                        (_, i) => i + 1
-                      ).map((page) => (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? 'default' : 'outline'}
-                          size='sm'
-                          onClick={() => setCurrentPage(page)}
-                          className='min-w-[2.5rem]'
-                        >
-                          {page}
-                        </Button>
-                      ))}
+                      {Array.from({ length: Math.ceil(apiResponse.total / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(
+                        (page) => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? 'default' : 'outline'}
+                            size='sm'
+                            onClick={() => setCurrentPage(page)}
+                            className='min-w-[2.5rem]'
+                          >
+                            {page}
+                          </Button>
+                        )
+                      )}
                     </div>
                     <Button
                       variant='outline'
                       size='sm'
                       onClick={() =>
-                        setCurrentPage((prev) =>
-                          Math.min(prev + 1, Math.ceil((apiResponse?.total || 0) / ITEMS_PER_PAGE))
-                        )
+                        setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(apiResponse.total / ITEMS_PER_PAGE)))
                       }
-                      disabled={currentPage === Math.ceil((apiResponse?.total || 0) / ITEMS_PER_PAGE)}
+                      disabled={currentPage === Math.ceil(apiResponse.total / ITEMS_PER_PAGE)}
                     >
                       Trang tiếp
                     </Button>
@@ -401,14 +438,14 @@ export default function AppointmentsPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this appointment? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa lịch hẹn này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Cancel
+              Hủy bỏ
             </Button>
             <Button
               variant='destructive'
@@ -418,7 +455,7 @@ export default function AppointmentsPage() {
               }}
               disabled={!selectedAppointment}
             >
-              Delete
+              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>

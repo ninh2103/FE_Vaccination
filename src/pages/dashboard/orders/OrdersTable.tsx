@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 
 import { formatVND } from '@/core/lib/utils'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Booking {
   id: string
@@ -27,6 +28,7 @@ interface OrdersTableProps {
   currentPage: number
   itemsPerPage: number
   bookings: Booking[]
+  isLoading: boolean
 }
 
 const getStatusBadge = (status: string) => {
@@ -46,55 +48,66 @@ const getStatusBadge = (status: string) => {
   }
 }
 
-export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings }: OrdersTableProps) {
+export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings, isLoading }: OrdersTableProps) {
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center p-8'>
+        <LoadingSpinner className='h-8 w-8' />
+      </div>
+    )
+  }
   return (
     <div className='grid gap-6'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='w-[60px] text-center'>STT</TableHead>
-            <TableHead>Mã đơn hàng</TableHead>
-            <TableHead>Số lượng</TableHead>
-            <TableHead>Giá</TableHead>
-            <TableHead>Tổng tiền</TableHead>
-            <TableHead>Ngày</TableHead>
-            <TableHead>Giờ</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className=' text-center'>Hành động</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bookings.map((booking, index) => (
-            <TableRow key={booking.id} className='cursor-pointer hover:bg-muted/50'>
-              <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-              <TableCell className='font-medium'>#{booking.id.slice(0, 8)}</TableCell>
-              <TableCell>{booking.vaccinationQuantity}</TableCell>
-              <TableCell>{formatVND(booking.vaccinationPrice)}</TableCell>
-              <TableCell>{formatVND(booking.totalAmount)}</TableCell>
-              <TableCell>
-                <div className='flex items-center'>
-                  <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
-                  {format(parseISO(booking.appointmentDate), 'dd/MM/yyyy')}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className='flex items-center'>
-                  <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
-                  {format(parseISO(booking.appointmentDate), 'HH:mm')}
-                </div>
-              </TableCell>
-              <TableCell>{getStatusBadge(booking.status)}</TableCell>
-              <TableCell>
-                <div className='flex items-center justify-center'>
-                  <Button variant='ghost' size='icon' onClick={() => onDeleteOrder(booking)}>
-                    <Trash className='h-4 w-4 text-destructive text-red-500' />
-                  </Button>
-                </div>
-              </TableCell>
+      {bookings.length === 0 ? (
+        <div className='p-4 text-center text-muted-foreground'>Không tìm thấy đơn hàng.</div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-[60px] text-center'>STT</TableHead>
+              <TableHead>Mã đơn hàng</TableHead>
+              <TableHead>Số lượng</TableHead>
+              <TableHead>Giá</TableHead>
+              <TableHead>Tổng tiền</TableHead>
+              <TableHead>Ngày</TableHead>
+              <TableHead>Giờ</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className=' text-center'>Hành động</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {bookings.map((booking, index) => (
+              <TableRow key={booking.id} className='cursor-pointer hover:bg-muted/50'>
+                <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                <TableCell className='font-medium'>#{booking.id.slice(0, 8)}</TableCell>
+                <TableCell>{booking.vaccinationQuantity}</TableCell>
+                <TableCell>{formatVND(booking.vaccinationPrice)}</TableCell>
+                <TableCell>{formatVND(booking.totalAmount)}</TableCell>
+                <TableCell>
+                  <div className='flex items-center'>
+                    <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                    {format(parseISO(booking.appointmentDate), 'dd/MM/yyyy')}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className='flex items-center'>
+                    <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
+                    {format(parseISO(booking.appointmentDate), 'HH:mm')}
+                  </div>
+                </TableCell>
+                <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                <TableCell>
+                  <div className='flex items-center justify-center'>
+                    <Button variant='ghost' size='icon' onClick={() => onDeleteOrder(booking)}>
+                      <Trash className='h-4 w-4 text-destructive text-red-500' />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }
