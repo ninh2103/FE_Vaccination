@@ -2,18 +2,19 @@ import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import {
   Calendar,
   RefreshCw,
   Search,
   Download,
-  FileText,
   Printer,
   Phone,
   Clock,
   MapPin,
   User,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -57,106 +58,98 @@ interface Vaccination {
 // Constants
 const ROWS_PER_PAGE = 10
 
-const generateCertificateContent = (vaccination: Vaccination) => `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-      .certificate { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
-      .header { text-align: center; margin-bottom: 20px; }
-      .header h1 { margin: 0; color: #4f46e5; }
-      .info { margin-bottom: 20px; }
-      .info-row { display: flex; margin-bottom: 5px; }
-      .info-label { font-weight: bold; width: 150px; }
-      .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
-      .seal { text-align: center; margin: 30px 0; }
-      .seal div { border: 2px solid #4f46e5; border-radius: 50%; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
-    </style>
-  </head>
-  <body>
-    <div class="certificate">
-      <div class="header">
-        <h1>CHỨNG NHẬN TIÊM CHỦNG</h1>
-        <p>Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}</p>
-        <p>Ngày: ${format(new Date(), 'dd/MM/yyyy')}</p>
+const generateCertificateContent = (vaccination: Vaccination) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .certificate { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; color: #4f46e5; }
+        .info { margin-bottom: 20px; }
+        .info-row { display: flex; margin-bottom: 5px; }
+        .info-label { font-weight: bold; width: 150px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+        .seal { text-align: center; margin: 30px 0; }
+        .seal div { border: 2px solid #4f46e5; border-radius: 50%; width: 100px; height: 100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+      </style>
+    </head>
+    <body>
+      <div class="certificate">
+        <div class="header">
+          <h1>CHỨNG NHẬN TIÊM CHỦNG</h1>
+          <p>Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}</p>
+          <p>Ngày: ${format(new Date(), 'dd/MM/yyyy')}</p>
+        </div>
+        <div class="info">
+          <h3>Thông tin bệnh nhân</h3>
+          <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
+          <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone || ''}</div></div>
+          <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email || ''}</div></div>
+        </div>
+        <div class="info">
+          <h3>Thông tin tiêm chủng</h3>
+          <div class="info-row"><div class="info-label">Vaccine:</div><div>${vaccination.vaccine}</div></div>
+          <div class="info-row"><div class="info-label">Số liều:</div><div>${vaccination.doseNumber}</div></div>
+          <div class="info-row"><div class="info-label">Ngày:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
+          <div class="info-row"><div class="info-label">Giờ:</div><div>${vaccination.time}</div></div>
+          <div class="info-row"><div class="info-label">Người tiêm:</div><div>${vaccination.administeredBy}</div></div>
+          <div class="info-row"><div class="info-label">Địa điểm:</div><div>${vaccination.location}</div></div>
+        </div>
+        <div class="seal">
+          <p>Chữ ký</p>
+          <div><span style="color: #4f46e5; font-weight: bold;">VERIFIED</span></div>
+        </div>
+        <div class="footer">
+          <p>Chứng nhận này xác nhận rằng bệnh nhân đã nhận tiêm chủng được chỉ định.</p>
+          <p>Để biết thêm thông tin, vui lòng liên hệ: 1900 1900</p>
+        </div>
       </div>
-      <div class="info">
-        <h3>Thông tin bệnh nhân</h3>
-        <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
-        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone || ''}</div></div>
-        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email || ''}</div></div>
-      </div>
-      <div class="info">
-        <h3>Thông tin tiêm chủng</h3>
-        <div class="info-row"><div class="info-label">Vaccine:</div><div>${vaccination.vaccine}</div></div>
-        <div class="info-row"><div class="info-label">Số liều:</div><div>${vaccination.doseNumber}</div></div>
-        <div class="info-row"><div class="info-label">Ngày:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
-        <div class="info-row"><div class="info-label">Giờ:</div><div>${vaccination.time}</div></div>
-        <div class="info-row"><div class="info-label">Người tiêm:</div><div>${vaccination.administeredBy}</div></div>
-        <div class="info-row"><div class="info-label">Địa điểm:</div><div>${vaccination.location}</div></div>
-      </div>
-      <div class="seal">
-        <p>Chữ ký</p>
-        <div><span style="color: #4f46e5; font-weight: bold;">VERIFIED</span></div>
-      </div>
-      <div class="footer">
-        <p>Chứng nhận này xác nhận rằng bệnh nhân đã nhận tiêm chủng được chỉ định.</p>
-        <p>Để biết thêm thông tin, vui lòng liên hệ: 1900 1900</p>
-      </div>
-    </div>
-    <script>window.onload = function() { window.print(); }</script>
-  </body>
-  </html>
-`
+    </body>
+    </html>
+  `
+  return htmlContent
+}
 
-const generateInvoicePDF = (vaccination: Vaccination) => {
+const generateInvoicePDF = async (vaccination: Vaccination) => {
+  const htmlContent = generateCertificateContent(vaccination)
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) return
+
+  printWindow.document.open()
+  printWindow.document.write(htmlContent)
+  printWindow.document.close()
+  await new Promise(resolve => setTimeout(resolve, 100)) // Wait for content to load
+  const canvas = await html2canvas(printWindow.document.body)
+  const imgData = canvas.toDataURL('image/png')
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4'
   })
+  const imgWidth = 210 // A4 width in mm
+  const pageHeight = 295 // A4 height in mm
+  const imgHeight = (canvas.height * imgWidth) / canvas.width
+  let heightLeft = imgHeight
+  let position = 0
 
-  pdf.setFontSize(16).setFont('times', 'bold').text(`CHỨNG NHẬN TIÊM CHỦNG`, 105, 20, { align: 'center' })
-  pdf
-    .setFontSize(12)
-    .setFont('times', 'normal')
-    .text(`Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
-    .text(`Ngày: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
+  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+  heightLeft -= pageHeight
 
-  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin bệnh nhân', 20, 55)
-  pdf
-    .setFontSize(12)
-    .setFont('times', 'normal')
-    .text(`Tên: ${vaccination.patient.name}`, 20, 65)
-    .text(`Email: ${vaccination.patient.email || ''}`, 20, 81)
-    .text(`SĐT: ${vaccination.patient.phone || ''}`, 20, 97)
-
-  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin tiêm chủng', 20, 95)
-  pdf
-    .setFontSize(12)
-    .setFont('times', 'normal')
-    .text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
-    .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
-    .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
-    .text(`Time: ${vaccination.time}`, 20, 129)
-    .text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
-    .text(`Location: ${vaccination.location}`, 20, 145)
-
-  pdf
-    .setFontSize(10)
-    .setTextColor(100)
-    .text('Chứng nhận xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
-    .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' })
-
-  pdf.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
-  pdf.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight
+    pdf.addPage()
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
+  }
 
   pdf.save(`vaccination_certificate_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
+  printWindow.close()
 }
 
 // Sample data
-
 export default function HistorysPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
@@ -322,6 +315,9 @@ export default function HistorysPage() {
     printWindow.document.open()
     printWindow.document.write(generateCertificateContent(vaccination))
     printWindow.document.close()
+    printWindow.onload = () => {
+      printWindow.print()
+    }
   }
 
   // Handle download invoice
@@ -344,9 +340,9 @@ export default function HistorysPage() {
       {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex items-center gap-2'>
+          <div className='relative w-full max-w-sm'>
             <div className='relative w-full max-w-sm'>
-              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
               <Input
                 placeholder='Tìm kiếm...'
                 value={searchTerm}
@@ -354,31 +350,29 @@ export default function HistorysPage() {
                   setSearchTerm(e.target.value)
                   setCurrentPage(1)
                 }}
-                className='pl-8 w-full'
+                className='w-full pl-8 pr-8'
                 type='search'
               />
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('')
+                    setCurrentPage(1)
+                  }}
+                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                >
+                  <X className='h-4 w-4' />
+                </button>
+              )}
+              <style>
+                {`
+                  input[type="search"]::-webkit-search-cancel-button {
+                    -webkit-appearance: none;
+                    display: none;
+                  }
+                `}
+              </style>
             </div>
-            <div className='flex items-center space-x-2'>
-              <div className='flex items-center space-x-2'>
-                <Input
-                  type='date'
-                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
-                  className='w-[150px]'
-                />
-                <span className='text-muted-foreground'>đến</span>
-                <Input
-                  type='date'
-                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
-                  className='w-[150px]'
-                />
-              </div>
-              <div className='flex items-center space-x-2'></div>
-            </div>
-            <Button variant='outline' size='sm' onClick={handleClearFilters}>
-              Xóa bộ lọc
-            </Button>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
@@ -392,6 +386,24 @@ export default function HistorysPage() {
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
               Cập nhật
+            </Button>
+            <div className='flex items-center space-x-2'>
+              <Input
+                type='date'
+                value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
+                className='w-[150px]'
+              />
+              <span className='text-muted-foreground'>đến</span>
+              <Input
+                type='date'
+                value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
+                className='w-[150px]'
+              />
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Xóa bộ lọc
             </Button>
           </div>
         </div>
@@ -548,11 +560,11 @@ export default function HistorysPage() {
               Đóng
             </Button>
             <Button onClick={() => selectedVaccination && handlePrintCertificate(selectedVaccination)}>
-              <FileText className='mr-2 h-4 w-4' />
+              <Printer className='mr-2 h-4 w-4' />
               In chứng nhận
             </Button>
             <Button onClick={() => selectedVaccination && handleDownloadInvoice(selectedVaccination)}>
-              <Printer className='mr-2 h-4 w-4' />
+              <Download className='mr-2 h-4 w-4' />
               Tải chứng nhận
             </Button>
           </DialogFooter>

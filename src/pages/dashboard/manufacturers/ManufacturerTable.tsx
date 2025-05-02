@@ -10,12 +10,13 @@ export interface Manufacturer {
   contactInfo: string
 }
 
-interface ManufacturerTableProps {
+export interface ManufacturerTableProps {
   manufacturers: Manufacturer[]
   currentPage: number
   rowsPerPage: number
   onEdit: (manufacturer: Manufacturer) => void
   onDelete: (id: string) => void
+  onView: (manufacturer: Manufacturer) => void
   isLoading: boolean
 }
 
@@ -25,6 +26,7 @@ export function ManufacturerTable({
   rowsPerPage,
   onEdit,
   onDelete,
+  onView,
   isLoading
 }: ManufacturerTableProps) {
   if (isLoading) {
@@ -37,30 +39,30 @@ export function ManufacturerTable({
   return (
     <div>
       {manufacturers.length === 0 ? (
-        <div className='p-4 text-center text-muted-foreground'>Không tìm thấy nhà sản xuất.</div>
+        <div className='p-4 text-center text-muted-foreground'>
+          Không tìm thấy nhà sản xuất phù hợp với các bộ lọc hiện tại.
+        </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>STT</TableHead>
-              <TableHead>Tên nhà sản xuất</TableHead>
-              <TableHead>Quốc gia</TableHead>
-              <TableHead>Thông tin liên hệ</TableHead>
-              <TableHead className='w-[100px]'>Hành động</TableHead>
+              <TableHead className='w-[45px]'>STT</TableHead>
+              <TableHead className='w-[550px]'>Tên nhà sản xuất</TableHead>
+              <TableHead className='w-[480px]' >Địa chỉ</TableHead>
+              <TableHead className='w-[160px]'>Số điện thoại</TableHead>
+              <TableHead className='w-[80px]'>Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {manufacturers.map((manufacturer, index) => (
-              <TableRow key={manufacturer.id} className='cursor-pointer hover:bg-muted/50'>
+              <TableRow key={manufacturer.id}>
                 <TableCell>{(currentPage - 1) * rowsPerPage + index + 1}</TableCell>
                 <TableCell>
-                  <div className='flex items-center gap-3'>
+                  <div className='flex items-center gap-3 cursor-pointer' onClick={() => onView(manufacturer)}>
                     <div className='h-10 w-10 rounded-md bg-muted flex items-center justify-center'>
                       <Home className='h-5 w-5 text-muted-foreground' />
                     </div>
-                    <div>
-                      <div className='font-medium'>{manufacturer.name}</div>
-                    </div>
+                    <div className='font-medium'>{manufacturer.name}</div>
                   </div>
                 </TableCell>
                 <TableCell>

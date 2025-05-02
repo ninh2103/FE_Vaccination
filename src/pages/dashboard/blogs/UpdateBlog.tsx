@@ -50,9 +50,9 @@ export function UpdateBlog({ open, onOpenChange, onSubmit, blog }: UpdateBlogPro
   const form = useForm<BlogBodyType>({
     resolver: zodResolver(BlogBodySchema),
     defaultValues: {
-      title: blog.title,
-      content: blog.content,
-      tagId: blog.tagId
+      title: blog?.title,
+      content: blog?.content,
+      tagId: blog?.tagId
     }
   })
 
@@ -61,7 +61,7 @@ export function UpdateBlog({ open, onOpenChange, onSubmit, blog }: UpdateBlogPro
     if (editorRef.current && blog.content) {
       editorRef.current.innerHTML = blog.content
     }
-  }, [blog.content])
+  }, [blog?.content])
 
   // Hàm thực thi lệnh định dạng văn bản
   const execCommand = (command: string, value = '') => {

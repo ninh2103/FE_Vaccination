@@ -56,7 +56,9 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='name'>Tên nhà sản xuất *</Label>
+            <Label htmlFor='name'>
+              Tên nhà sản xuất <span className='text-red-500'>*</span>
+            </Label>
             <Input
               id='name'
               {...form.register('name')}
@@ -66,7 +68,9 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='country'>Quốc gia *</Label>
+            <Label htmlFor='country'>
+              Quốc gia <span className='text-red-500'>*</span>
+            </Label>
             <Input
               id='country'
               {...form.register('country')}
@@ -78,11 +82,13 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
+            <Label htmlFor='contactInfo'>
+              Số điện thoại <span className='text-red-500'>*</span>
+            </Label>
             <Input
               id='contactInfo'
               {...form.register('contactInfo')}
-              placeholder='Nhập thông tin liên hệ'
+              placeholder='Nhập số điện thoại'
               className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
             />
             {form.formState.errors.contactInfo && (

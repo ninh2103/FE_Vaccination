@@ -17,6 +17,7 @@ import { ManufacturerBody, ManufacturerBodyType } from '@/schemaValidator/manufa
 import { useDetailManufacturerQuery, useUpdateManufacturerQuery } from '@/queries/useManufacturer'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
+
 interface UpdateManufacturerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -79,7 +80,9 @@ export const UpdateManufacturer = ({
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='name'>Tên nhà sản xuất *</Label>
+            <Label htmlFor='name'>
+              Tên nhà sản xuất <span className='text-red-500'>*</span>
+            </Label>
             <Input
               id='name'
               {...form.register('name')}
@@ -90,7 +93,9 @@ export const UpdateManufacturer = ({
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='country'>Quốc gia *</Label>
+            <Label htmlFor='country'>
+              Quốc gia <span className='text-red-500'>*</span>
+            </Label>
             <Input
               id='country'
               {...form.register('country')}
@@ -101,7 +106,9 @@ export const UpdateManufacturer = ({
             )}
           </div>
           <div className='space-y-2'>
-            <Label htmlFor='contactInfo'>Thông tin liên hệ *</Label>
+            <Label htmlFor='contactInfo'>
+              Số điện thoại <span className='text-red-500'>*</span>
+            </Label>
             <Input id='contactInfo' {...form.register('contactInfo')} />
             {form.formState.errors.contactInfo && (
               <p className='text-sm text-destructive text-red-500'>{form.formState.errors.contactInfo.message}</p>

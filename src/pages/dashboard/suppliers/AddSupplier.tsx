@@ -82,7 +82,7 @@ export function AddSupplier({ onAdd, onCancel }: AddSupplierProps) {
 
         <div className='space-y-2'>
           <Label htmlFor='contactInfo'>
-            Thông tin liên hệ <span className='text-red-500'>*</span>
+            Số điện thoại <span className='text-red-500'>*</span>
           </Label>
           <Input
             id='contactInfo'

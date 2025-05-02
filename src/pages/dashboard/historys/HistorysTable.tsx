@@ -1,17 +1,9 @@
 import { format } from 'date-fns'
-import { MoreHorizontal, FileText, Calendar, Phone, Clock, Printer } from 'lucide-react'
+import { Download, Printer, Calendar, Phone, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 
 interface Patient {
   name: string
@@ -42,6 +34,7 @@ interface HistorysTableProps {
   onDownloadInvoice: (vaccination: Vaccination) => void
   onViewDetails: (vaccination: Vaccination) => void
 }
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'COMPLETED':
@@ -75,13 +68,9 @@ export function HistorysTable({
       </TableHeader>
       <TableBody>
         {vaccinations.map((vaccination, index) => (
-          <TableRow
-            key={vaccination.id}
-            className='cursor-pointer transition-colors hover:bg-muted/50'
-            onClick={() => onViewDetails(vaccination)}
-          >
+          <TableRow key={vaccination.id} className='transition-colors hover:bg-muted/50'>
             <TableCell>{(currentPage - 1) * rowsPerPage + index + 1}</TableCell>
-            <TableCell>
+            <TableCell onClick={() => onViewDetails(vaccination)} className='cursor-pointer'>
               <div className='flex items-center gap-2'>
                 <Avatar className='h-8 w-8'>
                   <AvatarImage src={vaccination.patient.avatar} alt={vaccination.patient.name} />
@@ -115,26 +104,14 @@ export function HistorysTable({
             <TableCell>{vaccination.location}</TableCell>
             <TableCell>{getStatusBadge(vaccination.status)}</TableCell>
             <TableCell className='text-center' onClick={(e) => e.stopPropagation()}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant='ghost' size='icon'>
-                    <MoreHorizontal className='h-4 w-4' />
-                    <span className='sr-only'>Mở menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end'>
-                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onPrintCertificate(vaccination)}>
-                    <FileText className='mr-2 h-4 w-4' />
-                    In chứng nhận
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onDownloadInvoice(vaccination)}>
-                    <Printer className='mr-2 h-4 w-4' />
-                    Tải chứng nhận
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className='flex items-center justify-center gap-2'>
+                <Button variant='ghost' size='icon' onClick={() => onPrintCertificate(vaccination)} className='h-8 w-8'>
+                  <Printer className='h-4 w-4' />
+                </Button>
+                <Button variant='ghost' size='icon' onClick={() => onDownloadInvoice(vaccination)} className='h-8 w-8'>
+                  <Download className='h-4 w-4' />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

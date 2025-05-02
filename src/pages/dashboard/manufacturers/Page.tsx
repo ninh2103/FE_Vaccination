@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import { Plus, Download, RefreshCw, Search } from 'lucide-react'
+import { Plus, Download, RefreshCw, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,26 +13,20 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { ManufacturerTable } from './ManufacturerTable'
+import { ManufacturerTable, Manufacturer } from './ManufacturerTable'
 import { AddManufacturer } from './AddManufacturer'
-import { UpdateManufacturer } from './UpdateManufacturer'
+import { UpdateManufacturer } from './UpdateManufacturer' // Verify this import
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   useListManufacturerQuery,
   useCreateManufacturerQuery,
   useUpdateManufacturerQuery,
-  useDeleteManufacturerQuery
+  useDeleteManufacturerQuery,
+  useDetailManufacturerQuery
 } from '@/queries/useManufacturer'
 import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
-
-interface Manufacturer {
-  id: string
-  name: string
-  country: string
-  contactInfo: string
-}
 
 const ROWS_PER_PAGE = 10
 
@@ -40,12 +34,15 @@ export default function ManufacturersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
   const [selectedManufacturer, setSelectedManufacturer] = useState<Manufacturer | null>(null)
+  const [manufacturerToView, setManufacturerToView] = useState<Manufacturer | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([])
+  const [filteredManufacturers, setFilteredManufacturers] = useState<Manufacturer[]>([])
 
   const {
     data: manufacturersData,
@@ -56,16 +53,37 @@ export default function ManufacturersPage() {
     items_per_page: ROWS_PER_PAGE,
     search: searchTerm
   })
+
   const { mutate: createManufacturer } = useCreateManufacturerQuery()
   const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
   const { mutate: deleteManufacturer } = useDeleteManufacturerQuery()
+  const { data: manufacturerDetail, isLoading: isLoadingDetail } = useDetailManufacturerQuery(
+    manufacturerToView?.id ?? ''
+  )
 
   // Update manufacturers state when data changes
   useEffect(() => {
     if (manufacturersData?.data) {
       setManufacturers(manufacturersData.data)
+    } else {
+      setManufacturers([])
     }
   }, [manufacturersData])
+
+  // Apply frontend filtering as a fallback
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredManufacturers(manufacturers)
+    } else {
+      const lowerSearchTerm = searchTerm.toLowerCase()
+      const filtered = manufacturers.filter(
+        (manufacturer) =>
+          manufacturer.name.toLowerCase().includes(lowerSearchTerm) ||
+          manufacturer.contactInfo.toLowerCase().includes(lowerSearchTerm)
+      )
+      setFilteredManufacturers(filtered)
+    }
+  }, [manufacturers, searchTerm])
 
   const handleExport = () => {
     setIsExporting(true)
@@ -85,9 +103,7 @@ export default function ManufacturersPage() {
       onSuccess: (response) => {
         setOpenAddDialog(false)
         toast.success('Nhà sản xuất đã được thêm thành công.')
-        // Optimistically update the local state
         setManufacturers((prev) => [response, ...prev])
-        // Reset to first page to show the new item
         setCurrentPage(1)
         refetch()
       }
@@ -131,6 +147,11 @@ export default function ManufacturersPage() {
     setIsEditMode(true)
   }
 
+  const handleViewManufacturer = (manufacturer: Manufacturer) => {
+    setManufacturerToView(manufacturer)
+    setOpenViewDialog(true)
+  }
+
   const handleRefresh = () => {
     setIsRefreshing(true)
     refetch().finally(() => {
@@ -157,16 +178,38 @@ export default function ManufacturersPage() {
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='relative w-full max-w-sm'>
-            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input
-              placeholder='Tìm kiếm...'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-              }}
-              className='w-full'
-              type='search'
-            />
+            <div className='relative w-full max-w-sm'>
+              <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Tìm theo tên nhà sản xuất ...'
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className='w-full pl-8 pr-8'
+                type='search'
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('')
+                    setCurrentPage(1)
+                  }}
+                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                >
+                  <X className='h-4 w-4' />
+                </button>
+              )}
+              <style>
+                {`
+                  input[type="search"]::-webkit-search-cancel-button {
+                    -webkit-appearance: none;
+                    display: none;
+                  }
+                `}
+              </style>
+            </div>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
@@ -185,12 +228,11 @@ export default function ManufacturersPage() {
         </div>
 
         {/* Table */}
-
         <Card>
           <CardContent className='p-0'>
             <ManufacturerTable
               isLoading={isLoading}
-              manufacturers={manufacturers}
+              manufacturers={filteredManufacturers}
               currentPage={currentPage}
               rowsPerPage={ROWS_PER_PAGE}
               onEdit={handleEditManufacturer}
@@ -198,6 +240,7 @@ export default function ManufacturersPage() {
                 setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
                 setOpenDeleteDialog(true)
               }}
+              onView={handleViewManufacturer}
             />
           </CardContent>
         </Card>
@@ -207,7 +250,8 @@ export default function ManufacturersPage() {
           <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
               Hiển thị từ {(currentPage - 1) * ROWS_PER_PAGE + 1} đến{' '}
-              {Math.min(currentPage * ROWS_PER_PAGE, manufacturersData.total)} của {manufacturersData.total} bản ghi
+              {Math.min(currentPage * ROWS_PER_PAGE, filteredManufacturers.length)} của {filteredManufacturers.length}{' '}
+              bản ghi
             </div>
             <div className='flex items-center space-x-2'>
               <Button
@@ -219,7 +263,7 @@ export default function ManufacturersPage() {
                 Trang trước
               </Button>
               <div className='flex items-center gap-1'>
-                {Array.from({ length: Math.ceil(manufacturersData.total / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
+                {Array.from({ length: Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
                   (page) => (
                     <Button
                       key={page}
@@ -237,9 +281,9 @@ export default function ManufacturersPage() {
                 variant='outline'
                 size='sm'
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(manufacturersData.total / ROWS_PER_PAGE)))
+                  setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)))
                 }
-                disabled={currentPage >= Math.ceil(manufacturersData.total / ROWS_PER_PAGE)}
+                disabled={currentPage >= Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)}
               >
                 Trang tiếp
               </Button>
@@ -254,13 +298,54 @@ export default function ManufacturersPage() {
       {/* Update Manufacturer Dialog */}
       <UpdateManufacturer
         open={isEditMode}
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
           setIsEditMode(open)
           if (!open) setSelectedManufacturer(null)
         }}
         onSubmit={handleUpdateManufacturer}
         manufacturer={selectedManufacturer}
       />
+
+      {/* View Manufacturer Dialog */}
+      <Dialog
+        open={openViewDialog}
+        onOpenChange={(open: boolean) => {
+          setOpenViewDialog(open)
+          if (!open) setManufacturerToView(null)
+        }}
+      >
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Chi tiết nhà cung cấp</DialogTitle>
+            <DialogDescription>Thông tin chi tiết của nhà cung cấp.</DialogDescription>
+          </DialogHeader>
+          {isLoadingDetail ? (
+            <div className='flex items-center justify-center py-4'>
+              <span className='text-muted-foreground'>Đang tải...</span>
+            </div>
+          ) : (
+            <div className='space-y-4'>
+              <div className='space-y-1'>
+                <label className='text-sm font-medium'>Tên nhà cung cấp</label>
+                <p className='text-sm'>{manufacturerDetail?.name || 'N/A'}</p>
+              </div>
+              <div className='space-y-1'>
+                <label className='text-sm font-medium'>Địa chỉ</label>
+                <p className='text-sm'>{manufacturerDetail?.country || 'N/A'}</p>
+              </div>
+              <div className='space-y-1'>
+                <label className='text-sm font-medium'>Số điện thoại</label>
+                <p className='text-sm'>{manufacturerDetail?.contactInfo || 'N/A'}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
