@@ -11,7 +11,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,7 +32,7 @@ import {
   AlignRight,
   Heading1,
   Heading2,
-  Link,
+  Link
 } from 'lucide-react'
 
 interface UpdateBlogProps {
@@ -52,8 +52,8 @@ export function UpdateBlog({ open, onOpenChange, onSubmit, blog }: UpdateBlogPro
     defaultValues: {
       title: blog.title,
       content: blog.content,
-      tagId: blog.tagId,
-    },
+      tagId: blog.tagId
+    }
   })
 
   // Cập nhật nội dung trình soạn thảo khi blog thay đổi
@@ -93,7 +93,7 @@ export function UpdateBlog({ open, onOpenChange, onSubmit, blog }: UpdateBlogPro
             updatedAt: new Date().toISOString(),
             userId: blog.userId,
             tagId: data.tagId,
-            tag: tags?.data?.find((tag) => tag.id === data.tagId) ?? { id: data.tagId, name: 'Unknown' },
+            tag: tags?.data?.find((tag) => tag.id === data.tagId) ?? { id: data.tagId, name: 'Unknown' }
           }
           onSubmit(updatedPost)
 
@@ -106,7 +106,7 @@ export function UpdateBlog({ open, onOpenChange, onSubmit, blog }: UpdateBlogPro
         },
         onError: (error) => {
           toast.error('Có lỗi xảy ra khi cập nhật bài viết: ' + error.message)
-        },
+        }
       }
     )
   }
