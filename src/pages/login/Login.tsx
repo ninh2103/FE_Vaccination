@@ -39,7 +39,7 @@ export default function FormLogin() {
           setAccessTokenToLS(access_token)
           setRefreshTokenToLS(refresh_token)
 
-          toast.success('Login success!')
+          toast.success('Đăng nhập thành công!')
           navigate(path.home)
         }
       },

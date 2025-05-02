@@ -106,7 +106,7 @@ export default function VaccinesPage() {
   const handleRefresh = () => {
     setIsRefreshing(true)
     refetch()
-    toast.success('Dữ liệu đã được cập nhật')
+    toast.success('Dữ liệu mới đã được cập nhật')
     setTimeout(() => {
       setIsRefreshing(false)
     }, 1000)
@@ -192,7 +192,7 @@ export default function VaccinesPage() {
           </Button>
           <Button size='sm' onClick={() => setOpenAddDialog(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Thêm vaccine
+            Thêm mới
           </Button>
         </div>
       </div>

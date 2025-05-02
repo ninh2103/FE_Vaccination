@@ -84,7 +84,7 @@ export default function ManufacturersPage() {
     createManufacturer(newManufacturer, {
       onSuccess: (response) => {
         setOpenAddDialog(false)
-        toast.success('Nhà sản xuất đã được thêm thành công')
+        toast.success('Nhà sản xuất đã được thêm thành công.')
         // Optimistically update the local state
         setManufacturers((prev) => [response, ...prev])
         // Reset to first page to show the new item
@@ -100,7 +100,7 @@ export default function ManufacturersPage() {
         onSuccess: () => {
           setOpenDeleteDialog(false)
           setSelectedManufacturer(null)
-          toast.success('Nhà sản xuất đã được xóa thành công')
+          toast.success('Nhà sản xuất đã được xóa thành công.')
           refetch()
         },
         onError: (error) => {
@@ -118,7 +118,7 @@ export default function ManufacturersPage() {
           onSuccess: () => {
             setIsEditMode(false)
             setSelectedManufacturer(null)
-            toast.success('Nhà sản xuất đã được cập nhật thành công')
+            toast.success('Nhà sản xuất đã được cập nhật thành công.')
             refetch()
           }
         }
@@ -137,7 +137,7 @@ export default function ManufacturersPage() {
       setSearchTerm('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Dữ liệu đã được cập nhật.')
+      toast.success('Dữ liệu mới đã được cập nhật.')
     })
   }
 
@@ -179,7 +179,7 @@ export default function ManufacturersPage() {
             </Button>
             <Button size='sm' onClick={() => setOpenAddDialog(true)}>
               <Plus className='mr-2 h-4 w-4' />
-              Thêm nhà sản xuất
+              Thêm mới
             </Button>
           </div>
         </div>

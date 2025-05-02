@@ -60,7 +60,7 @@ export const UpdateManufacturer = ({
         {
           onSuccess: () => {
             onOpenChange(false)
-            toast.success('Nhà sản xuất đã được cập nhật thành công')
+            toast.success('Nhà sản xuất đã được cập nhật thành công.')
           },
           onError: (error) => {
             handleErrorApi({ error, setError: form.setError, duration: 3000 })

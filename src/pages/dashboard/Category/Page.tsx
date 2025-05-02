@@ -88,11 +88,6 @@ export const CategoryPage: React.FC = () => {
     setIsUpdateDialogOpen(true)
   }
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
-  }
-
   const handleExportExcel = () => {
     setIsExporting(true)
     setTimeout(() => {
@@ -106,7 +101,7 @@ export const CategoryPage: React.FC = () => {
       XLSX.utils.book_append_sheet(wb, ws, 'Categories')
       XLSX.writeFile(wb, 'categories.xlsx')
       setIsExporting(false)
-      toast.success('Danh mục đã được xuất ra Excel thành công.')
+      toast.success('Xuất dữ liệu thành công.')
     }, 1000)
   }
 
@@ -116,7 +111,7 @@ export const CategoryPage: React.FC = () => {
       setSearchQuery('')
       setCurrentPage(1)
       setIsRefreshing(false)
-      toast.success('Dữ liệu đã được cập nhật thành công.')
+      toast.success('Dữ liệu mới đã được cập nhật.')
     })
   }
 
@@ -162,7 +157,7 @@ export const CategoryPage: React.FC = () => {
           </Button>
           <Button size='sm' onClick={() => setIsAddDialogOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            Thêm danh mục
+            Thêm mới
           </Button>
         </div>
       </div>

@@ -142,7 +142,7 @@ export default function PaymentsPage() {
       setCurrentPage(1)
       setIsRefreshing(false)
       refetch()
-      toast.success('Đã làm mới dữ liệu')
+      toast.success('Dữ liệu mới đã được cập nhật')
     }, 1000)
   }
 
@@ -346,7 +346,7 @@ export default function PaymentsPage() {
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport}>
               <Download className='mr-2 h-4 w-4' />
-              Xuất
+              Xuất dữ liệu
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (

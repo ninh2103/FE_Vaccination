@@ -212,9 +212,9 @@ export default function AppointmentsPage() {
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments')
       XLSX.writeFile(workbook, `appointments_${format(new Date(), 'yyyyMMdd')}.xlsx`)
-      toast.success('Xuất file thành công')
+      toast.success('Xuất dữ liệu thành công')
     } catch (error) {
-      toast.error('Lỗi khi xuất file')
+      toast.error('Lỗi khi xuất dữ liệu')
     } finally {
       setIsExporting(false)
     }
@@ -226,7 +226,7 @@ export default function AppointmentsPage() {
       refetch()
       refetchDaily()
       setSearchTerm('')
-      toast.success('Dữ liệu đã được cập nhật')
+      toast.success('Dữ liệu mới đã được cập nhật')
       setIsRefreshing(false)
     }, 1000)
   }, [refetch, refetchDaily])
@@ -310,7 +310,7 @@ export default function AppointmentsPage() {
             </div>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
               {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-              Xuất file
+              Xuất dữ liệu
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (

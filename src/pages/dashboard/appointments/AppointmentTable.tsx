@@ -76,16 +76,7 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
       {
         onSuccess: () => {
           toast.success(`Lịch hẹn ${newStatus === 'CONFIRMED' ? 'đã được xác nhận' : 'đã bị hủy'} thành công`)
-          // Update the local state without triggering the dialog
-          const updatedAppointment = {
-            ...appointment,
-            status: newStatus
-          }
-          // Replace the appointment in the list
-          const index = appointments.findIndex((a) => a.id === appointment.id)
-          if (index !== -1) {
-            appointments[index] = updatedAppointment
-          }
+          // The React Query cache will be automatically invalidated and refetched
           setUpdatingId(null)
         },
         onError: () => {
@@ -185,15 +176,15 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => onViewDetails(appointment)}>
                         <Edit className='mr-2 h-4 w-4' />
-                        Edit
+                        Sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem className='text-red-600' onClick={() => onDeleteAppointment(appointment)}>
                         <Trash className='mr-2 h-4 w-4' />
-                        Delete
+                        Xóa
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
