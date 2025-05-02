@@ -69,10 +69,15 @@ export type PaymentListResponseType = z.infer<typeof paymentListSchema>
 export const paymentHistorySchema = z.object({
   paymentId: z.string(),
   bookingId: z.string(),
+  appointmentDate: z.string().datetime(),
+  vaccinationQuantity: z.number(),
   totalAmount: z.number(),
   createdAt: z.string().datetime(),
   status: z.enum(['COMPLETED', 'PENDING', 'FAILED']).optional(),
-  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER', 'CASH']).optional()
+  paymentMethod: z.enum(['CREDIT_CARD', 'MOMO', 'BANK_TRANSFER', 'CASH']).optional(),
+  vaccination: z.object({
+    vaccineName: z.string()
+  })
 })
 
 export const paymentHistoryResponseSchema = z.object({

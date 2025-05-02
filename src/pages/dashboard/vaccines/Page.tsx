@@ -35,6 +35,7 @@ export default function VaccinesPage() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineType | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [vaccines, setVaccines] = useState<VaccineType[]>([])
   const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
@@ -50,30 +51,34 @@ export default function VaccinesPage() {
     refetch,
     isLoading
   } = useListVaccinationQuery({
+    search: debouncedSearchTerm,
     page: currentPage,
-    items_per_page: ITEMS_PER_PAGE,
-    search: debouncedSearchTerm
+    items_per_page: ITEMS_PER_PAGE
   })
 
   const { mutate: deleteVaccine, isPending: isDeletingVaccine } = useDeleteVaccinationQuery()
   const { data: categories } = useListCategoryQuery()
 
   // Filter vaccines by category on the frontend
-  const filteredVaccines = useMemo(() => {
-    if (!vaccineData?.data) return []
+  useEffect(() => {
+    if (vaccineData?.data) {
+      let filteredVaccines = vaccineData.data
 
-    return vaccineData.data.filter((vaccine) => {
-      if (selectedCategory === 'all') return true
-      return vaccine.CategoryVaccination.id === selectedCategory
-    })
+      // Apply tag filter if a specific tag is selected
+      if (selectedCategory !== 'all') {
+        filteredVaccines = filteredVaccines.filter((vaccine) => vaccine.categoryVaccinationId === selectedCategory)
+      }
+
+      setVaccines(filteredVaccines)
+    }
   }, [vaccineData?.data, selectedCategory])
 
   // Get current page items
   const currentPageVaccines = useMemo(() => {
-    return vaccineData?.data || []
-  }, [vaccineData?.data])
+    return vaccines
+  }, [vaccines])
 
-  const totalPages = Math.ceil((vaccineData?.total ?? 0) / ITEMS_PER_PAGE)
+  const totalPages = Math.max(1, Math.ceil((vaccineData?.total ?? 0) / ITEMS_PER_PAGE))
   const totalItems = vaccineData?.total ?? 0
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
@@ -198,7 +203,7 @@ export default function VaccinesPage() {
       </div>
 
       {/* Stock Alert */}
-      {filteredVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
+      {currentPageVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
         <Alert variant='destructive' className='bg-red-50 border-red-200'>
           <AlertCircle className='h-4 w-4' />
           <AlertTitle>Cảnh báo tồn kho</AlertTitle>
@@ -224,10 +229,10 @@ export default function VaccinesPage() {
       />
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {vaccines.length > 0 && (
         <div className='flex items-center justify-between px-2'>
           <div className='flex-1 text-sm text-muted-foreground'>
-            Hiển thị {startIndex} đến {endIndex} của {totalItems} bài viết
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} vaccine
           </div>
           <div className='flex items-center space-x-2'>
             <Button
