@@ -122,7 +122,7 @@ export function UserTable({
         <TableHeader>
           <TableRow>
             <TableHead className='w-[60px]'>No.</TableHead>
-            <TableHead>{tab === 'patients' ? 'Bệnh nhân' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
+            <TableHead>{tab === 'patients' ? 'Khách hàng' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
             <TableHead>Liên hệ</TableHead>
             {tab !== 'patients' && <TableHead>Vai trò</TableHead>}
             <TableHead>Trạng thái</TableHead>
@@ -196,7 +196,7 @@ export function UserTable({
       <Tabs defaultValue='all' className='w-full'>
         <TabsList className='grid w-full max-w-md grid-cols-3'>
           <TabsTrigger value='all'>Tất cả người dùng</TabsTrigger>
-          <TabsTrigger value='patients'>Bệnh nhân</TabsTrigger>
+          <TabsTrigger value='patients'>Khách hàng</TabsTrigger>
           <TabsTrigger value='staff'>Nhân viên</TabsTrigger>
         </TabsList>
         <TabsContent value='all' className='mt-4'>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,39 +9,37 @@ import { ChevronUp, ChevronDown, Search, Calendar, Tag } from 'lucide-react'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useListCategoryQuery } from '@/queries/useCategory'
+import { VaccineType } from '@/schemaValidator/vaccination.schema'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
-  const searchInputRef = useRef<HTMLInputElement>(null)
 
   // State for search, filtering, sorting and pagination
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
   const [sortBy, setSortBy] = useState<'vaccineName' | 'price'>('vaccineName')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [vaccines, setVaccines] = useState<VaccineType[]>([])
   const itemsPerPage = 9
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
-    page: currentPage,
-    items_per_page: itemsPerPage,
-    search: debouncedSearch
+    page: 1,
+    items_per_page: 1000 // Fetch all items at once
   })
   const { data: categories } = useListCategoryQuery()
 
   useEffect(() => {
-    setIsSearching(true)
-    const delayInputTimeoutId = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
-      setIsSearching(false)
-      // Maintain focus after debounce
-      if (searchInputRef.current) {
-        searchInputRef.current.focus()
+    if (vaccinationList?.data) {
+      let filteredVaccines = vaccinationList.data
+
+      // Apply tag filter if a specific tag is selected
+      if (filter !== 'all') {
+        filteredVaccines = filteredVaccines.filter((vaccine) => vaccine.categoryVaccinationId === filter)
       }
-    }, 500)
-    return () => clearTimeout(delayInputTimeoutId)
-  }, [searchTerm])
+
+      setVaccines(filteredVaccines)
+    }
+  }, [vaccinationList?.data, filter])
 
   // Format currency for displaying price
   const formatCurrency = (amount: number) => {
@@ -77,18 +75,18 @@ export default function ListVaccination() {
     navigate(`/vaccination/${id}`)
   }
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
-
   // Filter, sort and paginate vaccines
   const filteredAndSortedVaccines = useMemo(() => {
     if (!vaccinationList?.data) return []
 
-    // First, filter by search term
+    // First, filter by search term and category
     let result = vaccinationList.data.filter((vaccine) => {
-      const matchesSearch = vaccine.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesSearch
+      const matchesSearch =
+        searchTerm === '' ||
+        vaccine.vaccineName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vaccine.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = filter === 'all' || vaccine.categoryVaccinationId === filter
+      return matchesSearch && matchesCategory
     })
 
     result = [...result].sort((a, b) => {
@@ -102,16 +100,18 @@ export default function ListVaccination() {
     })
 
     return result
-  }, [vaccinationList?.data, searchTerm, sortBy, sortDirection])
+  }, [vaccinationList?.data, searchTerm, sortBy, sortDirection, filter])
 
   // Get current page items
   const currentVaccines = useMemo(() => {
-    return filteredAndSortedVaccines
-  }, [filteredAndSortedVaccines])
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return filteredAndSortedVaccines.slice(startIndex, endIndex)
+  }, [filteredAndSortedVaccines, currentPage, itemsPerPage])
 
-  // Calculate total pages based on API total
-  const totalPages = Math.ceil((vaccinationList?.total ?? 0) / itemsPerPage)
-  const totalItems = vaccinationList?.total ?? 0
+  // Calculate total pages based on filtered results
+  const totalPages = Math.ceil(filteredAndSortedVaccines.length / itemsPerPage)
+  const totalItems = filteredAndSortedVaccines.length
   const startIndex = (currentPage - 1) * itemsPerPage + 1
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems)
 
@@ -148,17 +148,13 @@ export default function ListVaccination() {
             <div className='relative w-full'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
               <Input
-                ref={searchInputRef}
                 placeholder='Tìm kiếm vaccine...'
                 value={searchTerm}
-                onChange={handleSearch}
-                className='pl-10 pr-3 w-full'
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                }}
+                type='search'
               />
-              {isSearching && (
-                <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
-                  <LoadingSpinner className='h-4 w-4' />
-                </div>
-              )}
             </div>
           </>
         )}

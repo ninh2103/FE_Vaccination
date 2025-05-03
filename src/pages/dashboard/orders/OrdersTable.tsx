@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import { Trash, Calendar, Clock } from 'lucide-react'
+import { Trash, Calendar, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -19,6 +19,10 @@ interface Booking {
   vaccinationDate: string
   confirmationTime: string
   appointmentDate: string
+  user: {
+    name: string
+    email: string
+  }
 }
 
 interface OrdersTableProps {
@@ -66,11 +70,11 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
             <TableRow>
               <TableHead className='w-[60px] text-center'>STT</TableHead>
               <TableHead>Mã đơn hàng</TableHead>
+              <TableHead>Khách hàng</TableHead>
               <TableHead>Số lượng</TableHead>
               <TableHead>Giá</TableHead>
               <TableHead>Tổng tiền</TableHead>
               <TableHead>Ngày</TableHead>
-              <TableHead>Giờ</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead className=' text-center'>Hành động</TableHead>
             </TableRow>
@@ -80,6 +84,15 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
               <TableRow key={booking.id} className='cursor-pointer hover:bg-muted/50'>
                 <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                 <TableCell className='font-medium'>#{booking.id.slice(0, 8)}</TableCell>
+                <TableCell>
+                  <div>
+                    <div className='font-medium'>{booking.user.name}</div>
+                    <div className='text-sm text-muted-foreground flex items-center'>
+                      <Mail className='h-3 w-3 mr-1' />
+                      {booking.user.email}
+                    </div>
+                  </div>
+                </TableCell>
                 <TableCell>{booking.vaccinationQuantity}</TableCell>
                 <TableCell>{formatVND(booking.vaccinationPrice)}</TableCell>
                 <TableCell>{formatVND(booking.totalAmount)}</TableCell>
@@ -87,12 +100,6 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
                   <div className='flex items-center'>
                     <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
                     {format(parseISO(booking.appointmentDate), 'dd/MM/yyyy')}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className='flex items-center'>
-                    <Clock className='h-4 w-4 mr-1 text-muted-foreground' />
-                    {format(parseISO(booking.appointmentDate), 'HH:mm')}
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(booking.status)}</TableCell>

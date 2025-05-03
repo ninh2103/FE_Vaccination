@@ -53,12 +53,14 @@ export const RegisterBody = z
         message: 'Mật khẩu không được chỉ chứa khoảng trắng'
       }),
     phone: z
-      .string()
-      .min(1, 'Số điện thoại là bắt buộc')
-      .max(10, 'Số điện thoại phải có tối đa 10 số')
+      .string({ message: 'Số điện thoại là bắt buộc' })
+      .min(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+      .max(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+      .regex(/^\d{10}$/, { message: 'Số điện thoại phải là số' })
       .refine((value) => value.trim().length > 0, {
         message: 'Số điện thoại không được chỉ chứa khoảng trắng'
-      }),
+      })
+      .optional(),
     role: z.enum(['USER', 'ADMIN', 'DOCTOR', 'EMPLOYEE']).optional()
   })
   .refine((data) => data.password === data.confirmPassword, {

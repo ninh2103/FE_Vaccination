@@ -1,4 +1,15 @@
-import { MoreHorizontal, Receipt, QrCode, DollarSign, Calendar, Printer, Download, Trash, Edit } from 'lucide-react'
+import {
+  MoreHorizontal,
+  Receipt,
+  QrCode,
+  DollarSign,
+  Calendar,
+  Printer,
+  Download,
+  Trash,
+  Edit,
+  Mail
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -146,7 +157,15 @@ export function PaymentTable({
                       >
                         <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                         <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                        <TableCell>{payment.user.name}</TableCell>
+                        <TableCell>
+                          <div>
+                            <div className='font-medium'>{payment.user.name}</div>
+                            <div className='text-sm text-muted-foreground flex items-center'>
+                              <Mail className='h-3 w-3 mr-1' />
+                              {payment.user.email}
+                            </div>
+                          </div>
+                        </TableCell>
                         <TableCell>{formatCurrency(payment.amount)}</TableCell>
                         <TableCell>
                           <div className='flex items-center'>
@@ -270,7 +289,15 @@ export function PaymentTable({
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                           <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                          <TableCell>{payment.user.name}</TableCell>
+                          <TableCell>
+                            <div>
+                              <div className='font-medium'>{payment.user.name}</div>
+                              <div className='text-sm text-muted-foreground flex items-center'>
+                                <Mail className='h-3 w-3 mr-1' />
+                                {payment.user.email}
+                              </div>
+                            </div>
+                          </TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
                             <div className='flex items-center'>
@@ -373,7 +400,15 @@ export function PaymentTable({
                         >
                           <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                           <TableCell className='font-medium'>#{payment.id.slice(0, 8)}</TableCell>
-                          <TableCell>{payment.user.name}</TableCell>
+                          <TableCell>
+                            <div>
+                              <div className='font-medium'>{payment.user.name}</div>
+                              <div className='text-sm text-muted-foreground flex items-center'>
+                                <Mail className='h-3 w-3 mr-1' />
+                                {payment.user.email}
+                              </div>
+                            </div>
+                          </TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
                           <TableCell>
                             <div className='flex items-center'>

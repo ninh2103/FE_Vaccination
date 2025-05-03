@@ -224,8 +224,11 @@ export default function Profile() {
                   <Input
                     id='name'
                     {...formUpdate.register('name')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={formUpdate.formState.errors.name ? 'border-red-500' : ''}
                   />
+                  {formUpdate.formState.errors.name && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.name.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -237,8 +240,11 @@ export default function Profile() {
                     type='tel'
                     {...formUpdate.register('phone')}
                     placeholder='Số điện thoại'
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={formUpdate.formState.errors.phone ? 'border-red-500' : ''}
                   />
+                  {formUpdate.formState.errors.phone && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.phone.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -248,8 +254,11 @@ export default function Profile() {
                   <Input
                     id='address'
                     {...formUpdate.register('address')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={formUpdate.formState.errors.address ? 'border-red-500' : ''}
                   />
+                  {formUpdate.formState.errors.address && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.address.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -260,8 +269,11 @@ export default function Profile() {
                     id='date_of_birth'
                     type='date'
                     {...formUpdate.register('date_of_birth')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={formUpdate.formState.errors.date_of_birth ? 'border-red-500' : ''}
                   />
+                  {formUpdate.formState.errors.date_of_birth && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.date_of_birth.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -271,8 +283,11 @@ export default function Profile() {
                   <Input
                     id='country'
                     {...formUpdate.register('country')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className={formUpdate.formState.errors.country ? 'border-red-500' : ''}
                   />
+                  {formUpdate.formState.errors.country && (
+                    <p className='text-red-500 text-sm '>{formUpdate.formState.errors.country.message}</p>
+                  )}
                 </div>
 
                 <Button

@@ -7,6 +7,7 @@ interface ListVaccinationQuery {
   page?: number
   items_per_page?: number
   search?: string
+  category_id?: string
 }
 
 export const useListVaccinationQuery = (query: ListVaccinationQuery = {}) => {

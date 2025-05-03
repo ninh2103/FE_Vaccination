@@ -3,7 +3,15 @@ import { z } from 'zod'
 export const UserResponseSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  phone: z.string().nullable(),
+  phone: z
+    .string({ message: 'Số điện thoại là bắt buộc' })
+    .min(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+    .max(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+    .regex(/^\d{10}$/, { message: 'Số điện thoại phải là số' })
+    .refine((value) => value.trim().length > 0, {
+      message: 'Số điện thoại không được chỉ chứa khoảng trắng'
+    })
+    .nullable(),
   address: z.string().nullable(),
   avatar: z.string().nullable(),
   name: z.string(),
@@ -25,12 +33,20 @@ export const UpdateMeBody = z
   .object({
     name: z.string().min(2),
     address: z.string().optional(),
-    phone: z.string().optional(),
-    country: z.string({ required_error: 'Country is required' }),
+    phone: z
+      .string({ message: 'Số điện thoại là bắt buộc' })
+      .min(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+      .max(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+      .regex(/^\d{10}$/, { message: 'Số điện thoại phải là số' })
+      .refine((value) => value.trim().length > 0, {
+        message: 'Số điện thoại không được chỉ chứa khoảng trắng'
+      })
+      .optional(),
+    country: z.string({ required_error: 'Tên quốc gia là bắt buộc' }),
     date_of_birth: z.string().optional(),
-    role: z.string({ required_error: 'Role is required' }).optional(),
+    role: z.string({ required_error: 'Vai trò là bắt buộc' }).optional(),
     avatar: z.string().optional(),
-    email: z.string().email({ message: 'Invalid email address' }).optional()
+    email: z.string().email({ message: 'Email không hợp lệ' }).optional()
   })
   .strict()
 
@@ -46,13 +62,13 @@ export const UserResponseListSchema = z.object({
 export type UserResponseListType = z.infer<typeof UserResponseListSchema>
 
 export const UpdateRoleBody = z.object({
-  roleId: z.string({ required_error: 'Role is required' })
+  roleId: z.string({ required_error: 'Vai trò là bắt buộc' })
 })
 
 export type UpdateRoleBodyType = z.TypeOf<typeof UpdateRoleBody>
 
 export const UploadAvatarBody = z.object({
-  avatar: z.instanceof(File, { message: 'Avatar is required' })
+  avatar: z.instanceof(File, { message: 'Ảnh đại diện là bắt buộc' })
 })
 
 export type UploadAvatarBodyType = z.TypeOf<typeof UploadAvatarBody>
