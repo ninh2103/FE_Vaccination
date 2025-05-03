@@ -7,21 +7,22 @@ import { FingerprintIcon } from 'lucide-react'
 const featuresData = [
   {
     color: 'bg-blue-500',
-    title: 'Safe & Effective',
+    title: 'An toàn & Hiệu quả',
     icon: ShieldCheckIcon,
-    description: 'All vaccines go through rigorous testing to ensure they are safe and effective for public use.'
+    description:
+      '  Tất cả vắc-xin đều phải trải qua quá trình thử nghiệm nghiêm ngặt để đảm bảo chúng an toàn và hiệu quả khi sử dụng cho công chúng.'
   },
   {
     color: 'bg-green-500',
-    title: 'Free for Everyone',
+    title: 'Miễn phí cho mọi người',
     icon: SyringeIcon,
-    description: 'Vaccines are provided at no cost in many countries to ensure everyone has access to protection.'
+    description: 'Vắc-xin được cung cấp miễn phí ở nhiều quốc gia để đảm bảo mọi người đều được bảo vệ.'
   },
   {
     color: 'bg-red-500',
-    title: 'Protect Your Community',
+    title: 'Bảo vệ cộng đồng ',
     icon: HeartPulseIcon,
-    description: 'Getting vaccinated helps build herd immunity, protecting those who cannot get vaccinated.'
+    description: 'Tiêm vắc-xin giúp xây dựng khả năng miễn dịch cộng đồng, bảo vệ những người không thể tiêm vắc-xin.'
   }
 ]
 
@@ -44,12 +45,11 @@ export default function Feature() {
           <div className='mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-900 p-2 text-center shadow-lg'>
             <FingerprintIcon className='h-8 w-8 text-white' />
           </div>
-          <h3 className='mb-3 text-2xl font-bold text-gray-900'>Vaccination Saves Lives</h3>
+          <h3 className='mb-3 text-2xl font-bold text-gray-900'>Bảo vệ một người, là bảo vệ cả thế giới</h3>
           <p className='mb-8 text-gray-500'>
-            Vaccines protect you and your loved ones from serious diseases. Stay safe and contribute to a healthier
-            future. Get vaccinated today!
+            Vắc-xin bảo vệ bạn và những người thân yêu của bạn khỏi các bệnh nghiêm trọng. Hãy luôn an toàn và góp phần
+            vào một tương lai khỏe mạnh hơn. Hãy tiêm vắc-xin ngay hôm nay!
           </p>
-          <Button>Learn More</Button>
         </div>
         <div className='mx-auto mt-24 flex w-full justify-center px-4 md:w-4/12 lg:mt-0'>
           <Card className='shadow-lg border rounded-lg'>
@@ -61,11 +61,13 @@ export default function Feature() {
               />
             </CardHeader>
             <CardContent>
-              <p className='text-sm dark:text-white'>Public Health</p>
-              <h5 className='mb-3 mt-2 text-lg font-bold dark:text-white'>Your Health, Our Priority</h5>
+              <p className='text-sm dark:text-white'>Vì sức khỏe cộng đồng</p>
+              <h5 className='mb-3 mt-2 text-lg font-bold dark:text-white'>
+                Sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi
+              </h5>
               <p className='text-gray-500'>
-                Immunization is the best way to protect against preventable diseases. Be responsible, get vaccinated,
-                and help build a healthier world.
+                Tiêm chủng là biện pháp hiệu quả nhất để phòng ngừa các bệnh truyền nhiễm. Hãy chủ động tiêm vắc-xin để
+                bảo vệ bản thân, gia đình và cùng nhau xây dựng một cộng đồng khỏe mạnh hơn.
               </p>
             </CardContent>
           </Card>

@@ -118,14 +118,14 @@ export function AddAppointment({ onAdd, onCancel }: AddAppointmentProps) {
               <SelectValue placeholder='Select vaccine' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='COVID-19 Vaccine'>COVID-19 Vaccine</SelectItem>
-              <SelectItem value='Flu Vaccine'>Flu Vaccine</SelectItem>
-              <SelectItem value='Hepatitis B Vaccine'>Hepatitis B Vaccine</SelectItem>
-              <SelectItem value='Tetanus Vaccine'>Tetanus Vaccine</SelectItem>
-              <SelectItem value='MMR Vaccine'>MMR Vaccine</SelectItem>
-              <SelectItem value='HPV Vaccine'>HPV Vaccine</SelectItem>
-              <SelectItem value='Pneumococcal Vaccine'>Pneumococcal Vaccine</SelectItem>
-              <SelectItem value='Varicella Vaccine'>Varicella Vaccine</SelectItem>
+              <SelectItem value='Vắc-xin COVID-19'>Vắc-xin COVID-19</SelectItem>
+              <SelectItem value='Vắc-xin cúm'>Vắc-xin cúm</SelectItem>
+              <SelectItem value='Vắc-xin viêm gan B'>Vắc-xin viêm gan B</SelectItem>
+              <SelectItem value='Vắc-xin uốn ván'>Vắc-xin uốn ván</SelectItem>
+              <SelectItem value='Vắc-xin MMR'>Vắc-xin MMR</SelectItem>
+              <SelectItem value='Vắc-xin HPV'>Vắc-xin HPV</SelectItem>
+              <SelectItem value='Vắc-xin phế cầu khuẩn'>Vắc-xin phế cầu khuẩn</SelectItem>
+              <SelectItem value='Vắc-xin vắc-xin thủy đậu'>Vắc-xin vắc-xin thủy đậu</SelectItem>
             </SelectContent>
           </Select>
         </div>

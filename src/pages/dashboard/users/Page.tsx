@@ -142,12 +142,9 @@ export default function UsersPage() {
     <div className='flex flex-col gap-6 p-4'>
       {/* Header Section */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Người dùng
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi tài khoản người dùng trong hệ thống.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Người dùng
+        </h1>
       </div>
 
       {/* Search and Filters Section */}

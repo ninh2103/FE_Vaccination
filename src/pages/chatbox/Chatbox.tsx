@@ -122,7 +122,7 @@ export default function Chatbox() {
   }, [messages, displayText])
 
   return (
-    <div className='fixed bottom-4 right-4 z-50'>
+    <div className=' relative z-50'>
       <AnimatePresence mode='wait'>
         {isOpen ? (
           <motion.div

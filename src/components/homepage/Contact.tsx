@@ -9,19 +9,19 @@ export default function ContactSection() {
   return (
     <section className='px-8 py-16'>
       <div className='container mx-auto mb-20 text-center'>
-        <h1 className='text-3xl font-bold dark:text-white'>Vaccination Appointment</h1>
+        <h1 className='text-3xl font-bold dark:text-white'>Đặt Lịch Tiêm Chủng</h1>
         <p className='mx-auto mt-4 w-full dark:text-white lg:w-5/12'>
-          Book your vaccination appointment today. Fill in the form below, and our team will contact you with the
-          details.
+          Đặt lịch tiêm chủng ngay hôm nay. Điền vào biểu mẫu bên dưới, và đội ngũ của chúng tôi sẽ liên hệ với bạn để
+          cung cấp thông tin chi tiết.
         </p>
       </div>
       <div>
         <Card className='container mx-auto border border-gray-200'>
           <CardContent className='grid grid-cols-1 md:gap-10 p-6 lg:grid-cols-7'>
             <div className='col-span-3 rounded-lg bg-gray-900 py-8 px-5 text-white md:px-16'>
-              <h2 className='text-xl font-semibold'>Contact Information</h2>
+              <h2 className='text-xl font-semibold'>Thông Tin Liên Hệ</h2>
               <p className='mt-2 text-gray-400'>
-                Our healthcare team is ready to assist you. Book your vaccination appointment now.
+                Đội ngũ chăm sóc sức khỏe của chúng tôi sẵn sàng hỗ trợ bạn. Đặt lịch tiêm chủng ngay bây giờ.
               </p>
               <div className='mt-4 flex items-center gap-4'>
                 <PhoneIcon className='h-6 w-6' />
@@ -33,39 +33,39 @@ export default function ContactSection() {
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <CalendarIcon className='h-6 w-6' />
-                <span>Schedule an Appointment</span>
+                <span>Lên lịch cuộc hẹn</span>
               </div>
             </div>
             <div className='col-span-4 mt-8 md:mt-0 md:px-10'>
               <form>
                 <div className='grid gap-4 lg:grid-cols-2'>
                   <div>
-                    <Label>First Name</Label>
-                    <Input placeholder='e.g. John' />
+                    <Label>Họ</Label>
+                    <Input placeholder='Ví dụ: John' />
                   </div>
                   <div>
-                    <Label>Last Name</Label>
-                    <Input placeholder='e.g. Doe' />
+                    <Label>Tên</Label>
+                    <Input placeholder='Ví dụ: Doe' />
                   </div>
                 </div>
                 <div className='mt-4'>
                   <Label>Email</Label>
-                  <Input placeholder='e.g. john.doe@mail.com' />
+                  <Input placeholder='Ví dụ: john.doe@mail.com' />
                 </div>
                 <div className='mt-4'>
-                  <Label>Preferred Date</Label>
-                  <Input type='date' />
+                  <Label>Số điện thoại</Label>
+                  <Input placeholder='Ví dụ: 0901234567' />
                 </div>
                 <div className='mt-4'>
-                  <Label>Vaccine Type</Label>
-                  <Input placeholder='e.g. COVID-19, Flu, Hepatitis B' />
+                  <Label>Loại Vắc-xin</Label>
+                  <Input placeholder='Ví dụ: COVID-19, Cúm, Viêm gan B' />
                 </div>
                 <div className='mt-6'>
-                  <Label>Additional Notes</Label>
-                  <Textarea placeholder='Any health concerns or special requests...' />
+                  <Label>Ghi Chú Thêm</Label>
+                  <Textarea placeholder='Mối lo ngại về sức khỏe hoặc yêu cầu đặc biệt...' />
                 </div>
                 <div className='mt-6 flex justify-end'>
-                  <Button className='w-full md:w-auto'>Book Appointment</Button>
+                  <Button className='w-full md:w-auto'>Đặt Lịch</Button>
                 </div>
               </form>
             </div>

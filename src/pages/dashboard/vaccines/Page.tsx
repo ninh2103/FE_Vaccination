@@ -34,7 +34,7 @@ export default function VaccinesPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineType | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedCategory, setSelectedCategory] = useState('all') // Default to 'all'
   const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
@@ -63,22 +63,20 @@ export default function VaccinesPage() {
     if (!vaccineData?.data) return []
 
     return vaccineData.data.filter((vaccine) => {
+      // If 'selectedCategory' is 'all', show all vaccines
       if (selectedCategory === 'all') return true
+
+      // Otherwise, filter by category id
       return vaccine.CategoryVaccination.id === selectedCategory
     })
   }, [vaccineData?.data, selectedCategory])
 
   // Get current page items
-  const currentPageVaccines = useMemo(() => {
-    return vaccineData?.data || []
-  }, [vaccineData?.data])
 
   const totalPages = Math.ceil((vaccineData?.total ?? 0) / ITEMS_PER_PAGE)
   const totalItems = vaccineData?.total ?? 0
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
-
-  // Debug logging
 
   const toggleDescription = (vaccineId: string) => {
     setExpandedDescriptions((prev) => {
@@ -137,19 +135,16 @@ export default function VaccinesPage() {
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value)
-    setCurrentPage(1)
+    setCurrentPage(1) // Reset to first page when category changes
   }
 
   return (
-    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+    <div className='flex flex-col gap-4 px-6 pt-4 pb-6'>
       {/* Title and Action Buttons */}
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Vaccines
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi vaccine trong hệ thống.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Vaccines
+        </h1>
       </div>
 
       {/* Search and Filters */}
@@ -160,9 +155,7 @@ export default function VaccinesPage() {
             <Input
               placeholder='Tìm kiếm...'
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className='w-full'
               type='search'
             />
@@ -199,18 +192,20 @@ export default function VaccinesPage() {
 
       {/* Stock Alert */}
       {filteredVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
-        <Alert variant='destructive' className='bg-red-50 border-red-200'>
-          <AlertCircle className='h-4 w-4' />
-          <AlertTitle>Cảnh báo tồn kho</AlertTitle>
-          <AlertDescription>
-            Một số vaccine đã hết hàng hoặc tồn kho thấp. Kiểm tra kho hàng và xem xét cung cấp lại.
-          </AlertDescription>
+        <Alert variant='destructive' className='bg-red-50 border-red-200 p-2'>
+          <div className='flex items-center space-x-2'>
+            <AlertCircle className='h-3 w-3' />
+            <AlertTitle className='text-sm font-semibold text-red-700'>Cảnh báo tồn kho</AlertTitle>
+            <AlertDescription className='text-xs'>
+              Một số vaccine đã hết hàng hoặc tồn kho thấp. Kiểm tra kho hàng và xem xét cung cấp lại.
+            </AlertDescription>
+          </div>
         </Alert>
       )}
 
       {/* Vaccine Table */}
       <VaccineTable
-        vaccines={currentPageVaccines}
+        vaccines={filteredVaccines} // Pass filtered vaccines here
         currentPage={currentPage}
         itemsPerPage={ITEMS_PER_PAGE}
         expandedDescriptions={expandedDescriptions}

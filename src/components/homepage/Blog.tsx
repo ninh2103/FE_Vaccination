@@ -11,7 +11,7 @@ export default function Blog() {
 
   return (
     <div className='mx-auto max-w-none px-5 sm:max-w-[90%] sm:px-0 2xl:max-w-8xl'>
-      <h2 className='text-balance text-3xl font-bold xl:text-center'>Latest Blog Posts</h2>
+      <h2 className='text-balance text-3xl font-bold xl:text-center'>Bài Viết Mới Nhất</h2>
       <div className='pt-6 lg:pt-8'>
         <div className='relative'>
           <Carousel>
@@ -20,7 +20,7 @@ export default function Blog() {
                 return (
                   <CarouselItem key={post.id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4'>
                     <Link to={`${path.blog}/${post.id}`}>
-                      <figure className='flex h-full flex-col  dark:border-green-500 rounded-lg shadow-lg p-8 border-2 border-green-500'>
+                      <figure className='flex h-full flex-col dark:border-gray-700 rounded-lg shadow-lg p-8 border-2 border-gray-200'>
                         <div className='flex flex-col h-full'>
                           <div className='flex items-center justify-between mb-4'>
                             <span className='text-sm dark:text-white'>
@@ -57,8 +57,8 @@ export default function Blog() {
         </div>
       </div>
       <div className='flex justify-center mt-8'>
-        <Link to={path.blog} className='text-green-600 hover:text-green-700 flex items-center gap-2'>
-          View All Posts <ArrowRightIcon className='w-4 h-4' />
+        <Link to={path.blog} className='text-gray-600 hover:text-gray-700 flex items-center gap-2'>
+          Xem tất cả <ArrowRightIcon className='w-4 h-4' />
         </Link>
       </div>
     </div>

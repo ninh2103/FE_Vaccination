@@ -22,16 +22,18 @@ export const CategoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
   const {
     data: categoriesData,
     isLoading: isLoadingCategories,
+    isError,
     refetch
   } = useListCategoryQuery({
     page: currentPage,
     items_per_page: rowsPerPage,
     search: searchQuery
   })
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { mutate: deleteCategory } = useDeleteCategoryMutation()
 
@@ -71,26 +73,15 @@ export const CategoryPage: React.FC = () => {
         setOpenDeleteDialog(false)
         setSelectedCategory(null)
         toast.success('Danh mục đã được xóa thành công.')
+      },
+      onError: () => {
+        toast.error('Xóa danh mục thất bại, vui lòng thử lại.')
       }
     })
   }
-
-  const handleViewCategory = (id: string) => {
-    const category = categoriesData?.data.find((c) => c.id === id)
-    if (category) {
-      setSelectedCategory(category)
-      setIsUpdateDialogOpen(true)
-    }
-  }
-
   const handleEditCategory = (category: Category) => {
     setSelectedCategory(category)
     setIsUpdateDialogOpen(true)
-  }
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
   }
 
   const handleExportExcel = () => {
@@ -125,15 +116,16 @@ export const CategoryPage: React.FC = () => {
   const startIndex = (currentPage - 1) * rowsPerPage + 1
   const endIndex = Math.min(startIndex + rowsPerPage - 1, totalItems)
 
+  if (isError) {
+    toast.error('Không thể tải danh mục, vui lòng thử lại sau.')
+  }
+
   return (
     <div className='p-6'>
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Danh mục
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi danh mục trong hệ thống.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Danh mục
+        </h1>
       </div>
 
       <div className='mb-6 py-6 flex items-center justify-between'>
@@ -143,9 +135,7 @@ export const CategoryPage: React.FC = () => {
             <Input
               placeholder='Tìm kiếm...'
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className='w-full'
               type='search'
             />
@@ -170,7 +160,6 @@ export const CategoryPage: React.FC = () => {
       <div className='space-y-4'>
         <CategoryTable
           categories={categories}
-          onView={handleViewCategory}
           onEdit={handleEditCategory}
           onDelete={handleDeleteCategory}
           isLoading={isLoadingCategories}

@@ -1,94 +1,57 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+// src/pages/ListVaccination.tsx
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ChevronUp, ChevronDown, Search, Calendar, Tag } from 'lucide-react'
+import { Calendar, Tag } from 'lucide-react'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useListCategoryQuery } from '@/queries/useCategory'
 
 export default function ListVaccination() {
   const navigate = useNavigate()
-  const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // State for search, filtering, sorting and pagination
-  const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
   const [sortBy, setSortBy] = useState<'vaccineName' | 'price'>('vaccineName')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 9
+
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: currentPage,
-    items_per_page: itemsPerPage,
-    search: debouncedSearch
+    items_per_page: itemsPerPage
   })
   const { data: categories } = useListCategoryQuery()
 
-  useEffect(() => {
-    setIsSearching(true)
-    const delayInputTimeoutId = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
-      setIsSearching(false)
-      // Maintain focus after debounce
-      if (searchInputRef.current) {
-        searchInputRef.current.focus()
-      }
-    }, 500)
-    return () => clearTimeout(delayInputTimeoutId)
-  }, [searchTerm])
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
 
-  // Format currency for displaying price
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
-  }
-
-  // Get status color for badges
   const getStatusColor = (quantity: number) => {
     if (quantity > 10) return 'bg-green-100 text-green-800'
     if (quantity > 0) return 'bg-yellow-100 text-yellow-800'
     return 'bg-red-100 text-red-800'
   }
 
-  // Get status text for badges
   const getStatusText = (quantity: number) => {
     if (quantity > 5) return 'Còn hàng'
     if (quantity > 0) return 'Sắp hết hàng'
     return 'Hết hàng'
   }
 
-  // Toggle sort direction
-  const toggleSort = (field: 'vaccineName' | 'price') => {
-    if (sortBy === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(field)
-      setSortDirection('asc')
-    }
-  }
-
-  // Navigate to detail page when clicking on a vaccine card
   const handleCardClick = (id: string) => {
     navigate(`/vaccination/${id}`)
   }
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
-
-  // Filter, sort and paginate vaccines
   const filteredAndSortedVaccines = useMemo(() => {
     if (!vaccinationList?.data) return []
 
-    // First, filter by search term
-    let result = vaccinationList.data.filter((vaccine) => {
-      const matchesSearch = vaccine.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesSearch
+    // console.log('filter', filter)
+    let result = vaccinationList.data.filter((vaccine: any) => {
+      // console.log('vaccine', vaccine)
+      const matchesCategory = filter === 'all' || vaccine?.CategoryVaccination.id?.toString() === filter
+      return matchesCategory
     })
 
     result = [...result].sort((a, b) => {
@@ -102,118 +65,63 @@ export default function ListVaccination() {
     })
 
     return result
-  }, [vaccinationList?.data, searchTerm, sortBy, sortDirection])
+  }, [vaccinationList?.data, filter, sortBy, sortDirection])
 
-  // Get current page items
-  const currentVaccines = useMemo(() => {
-    return filteredAndSortedVaccines
-  }, [filteredAndSortedVaccines])
-
-  // Calculate total pages based on API total
+  const currentVaccines = useMemo(() => filteredAndSortedVaccines, [filteredAndSortedVaccines])
   const totalPages = Math.ceil((vaccinationList?.total ?? 0) / itemsPerPage)
   const totalItems = vaccinationList?.total ?? 0
   const startIndex = (currentPage - 1) * itemsPerPage + 1
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems)
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, filter, sortBy, sortDirection])
+  }, [filter, sortBy, sortDirection])
 
   if (isLoading) {
     return (
       <div className='flex-1 h-screen overflow-y-auto scrollbar-hide flex items-center justify-center'>
-        <div className='max-w-4xl mx-auto py-8 px-6'>
-          <div className='flex items-center justify-center text-muted-foreground'>
-            <LoadingSpinner className='mr-2 h-10 w-10' />
-          </div>
-        </div>
+        <LoadingSpinner className='h-10 w-10' />
       </div>
     )
   }
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-6'>Danh sách vaccine</h1>
+      <h1 className='text-3xl font-bold mb-6'>Danh sách Vắc Xin </h1>
 
-      {/* Search and Filter Section */}
-      <div className='grid gap-4 mb-6 md:grid-cols-3'>
-        {isLoading ? (
-          <div className='flex items-center justify-center p-8'>
-            <LoadingSpinner className='h-8 w-8' />
-          </div>
-        ) : (
-          <>
-            {/* Search input */}
-            <div className='relative w-full'>
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
-              <Input
-                ref={searchInputRef}
-                placeholder='Tìm kiếm vaccine...'
-                value={searchTerm}
-                onChange={handleSearch}
-                className='pl-10 pr-3 w-full'
-              />
-              {isSearching && (
-                <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
-                  <LoadingSpinner className='h-4 w-4' />
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* Filter dropdown */}
-        <Select value={filter} onValueChange={(value: string) => setFilter(value)}>
-          <SelectTrigger>
-            <SelectValue placeholder='Lọc theo danh mục' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='all'>Tất cả danh mục</SelectItem>
-            {categories?.data.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Sorting buttons */}
-        <div className='flex gap-2'>
-          <Button
-            variant='outline'
-            onClick={() => toggleSort('vaccineName')}
-            className='flex-1 dark:text-white dark:bg-gray-900'
+      {/* Filter + Sort Dropdown */}
+      <div className='flex justify-end mb-6'>
+        <div className='w-[250px]'>
+          <Select
+            onValueChange={(value) => {
+              if (value.startsWith('filter-')) {
+                setFilter(value.replace('filter-', ''))
+              } else if (value.startsWith('sort-')) {
+                const [, field, direction] = value.split('-')
+                setSortBy(field as 'vaccineName' | 'price')
+                setSortDirection(direction as 'asc' | 'desc')
+              }
+            }}
           >
-            Tên vaccine
-            {sortBy === 'vaccineName' &&
-              (sortDirection === 'asc' ? (
-                <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
-              ) : (
-                <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
+            <SelectTrigger>
+              <SelectValue placeholder='Lọc hoặc sắp xếp' />
+            </SelectTrigger>
+            <SelectContent>
+              <div className='px-3 py-1 text-sm text-muted-foreground'>Lọc theo danh mục</div>
+              <SelectItem value='filter-all'>Tất cả danh mục</SelectItem>
+              {categories?.data.map((category) => (
+                <SelectItem key={category.id} value={`filter-${category.id}`}>
+                  {category.name}
+                </SelectItem>
               ))}
-          </Button>
-          <Button
-            variant='outline'
-            onClick={() => toggleSort('price')}
-            className='flex-1 dark:text-white dark:bg-gray-900'
-          >
-            Giá
-            {sortBy === 'price' &&
-              (sortDirection === 'asc' ? (
-                <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
-              ) : (
-                <ChevronDown className='ml-1 h-4 w-4 dark:text-white' />
-              ))}
-          </Button>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Results count */}
-
-      {/* Vaccines grid */}
+      {/* Vaccine Grid */}
       {currentVaccines.length > 0 ? (
-        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 '>
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
           {currentVaccines.map((vaccine) => (
             <Card
               key={vaccine.id}
@@ -267,7 +175,6 @@ export default function ListVaccination() {
           <Button
             variant='outline'
             onClick={() => {
-              setSearchTerm('')
               setFilter('all')
             }}
             className='mt-4'
@@ -293,50 +200,17 @@ export default function ListVaccination() {
               Trang trước
             </Button>
             <div className='flex items-center gap-1'>
-              {/* Always show first page */}
-              <Button
-                variant={currentPage === 1 ? 'default' : 'outline'}
-                size='sm'
-                onClick={() => setCurrentPage(1)}
-                className='min-w-[2.5rem]'
-              >
-                1
-              </Button>
-
-              {/* Show ellipsis if needed */}
-              {currentPage > 3 && <span className='px-2'>...</span>}
-
-              {/* Show pages around current page */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = Math.max(2, Math.min(currentPage - 2 + i, totalPages - 1))
-                if (page === 1 || page === totalPages) return null
-                return (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? 'default' : 'outline'}
-                    size='sm'
-                    onClick={() => setCurrentPage(page)}
-                    className='min-w-[2.5rem]'
-                  >
-                    {page}
-                  </Button>
-                )
-              })}
-
-              {/* Show ellipsis if needed */}
-              {currentPage < totalPages - 2 && <span className='px-2'>...</span>}
-
-              {/* Always show last page if there's more than one page */}
-              {totalPages > 1 && (
+              {Array.from({ length: totalPages }, (_, i) => (
                 <Button
-                  variant={currentPage === totalPages ? 'default' : 'outline'}
+                  key={i + 1}
+                  variant={currentPage === i + 1 ? 'default' : 'outline'}
                   size='sm'
-                  onClick={() => setCurrentPage(totalPages)}
+                  onClick={() => setCurrentPage(i + 1)}
                   className='min-w-[2.5rem]'
                 >
-                  {totalPages}
+                  {i + 1}
                 </Button>
-              )}
+              ))}
             </div>
             <Button
               variant='outline'

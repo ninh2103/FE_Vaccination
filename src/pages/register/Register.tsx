@@ -78,9 +78,11 @@ export default function FormRegister() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-blue-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
-            Create your Vax-Box account
+            Tạo tài khoản vax-box của bạn
           </CardTitle>
-          <CardDescription className='text-gray-400 text-center'>Join our vaccination community today!</CardDescription>
+          <CardDescription className='text-gray-400 text-center'>
+            Hãy tham gia cộng đồng tiêm chủng của chúng tôi ngay hôm nay!
+          </CardDescription>
         </CardHeader>
         <Form {...form}>
           <form className='space-y-4' onSubmit={form.handleSubmit(handleSubmit)}>
@@ -90,11 +92,11 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Full Name</Label>
+                    <Label>Họ Và Tên</Label>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder='Enter your full name'
+                        placeholder='Nhập đầy đủ tên của bạn'
                         className='dark:bg-gray-700 border-gray-600'
                       />
                     </FormControl>
@@ -113,7 +115,7 @@ export default function FormRegister() {
                       <Input
                         {...field}
                         type='email'
-                        placeholder='Enter your email'
+                        placeholder='Nhập email của bạn'
                         className='dark:bg-gray-700 border-gray-600'
                       />
                     </FormControl>
@@ -127,13 +129,13 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Password</Label>
+                    <Label>Mật Khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Input
                           {...field}
                           type={showPassword ? 'text' : 'password'}
-                          placeholder='Create a password'
+                          placeholder='Tạo mật khẩu'
                           className='pr-10 dark:bg-gray-700 border-gray-600'
                         />
                         <button
@@ -155,13 +157,13 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Confirm Password</Label>
+                    <Label>Xác Nhận Mật Khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Input
                           {...field}
                           type={showConfirmPassword ? 'text' : 'password'}
-                          placeholder='Confirm your password'
+                          placeholder='Xác nhận mật khẩu của bạn'
                           className='pr-10 dark:bg-gray-700 border-gray-600'
                         />
                         <button
@@ -182,7 +184,7 @@ export default function FormRegister() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Phone</Label>
+                    <Label>Số Điện Thoại</Label>
                     <FormControl>
                       <Input
                         {...field}
@@ -201,12 +203,12 @@ export default function FormRegister() {
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
               >
-                Create Account
+                Đăng Ký
               </Button>
               <div className='text-sm text-center text-gray-400'>
-                Already have an account?{' '}
+                Tôi Đã Có Tài Khoản ?{' '}
                 <Link to={path.login} className='text-green-400 hover:text-green-300'>
-                  Sign in
+                  Đăng Nhập
                 </Link>
               </div>
             </CardFooter>

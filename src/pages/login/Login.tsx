@@ -39,7 +39,7 @@ export default function FormLogin() {
           setAccessTokenToLS(access_token)
           setRefreshTokenToLS(refresh_token)
 
-          toast.success('Login success!')
+          toast.success('Đăng nhập thành công!')
           navigate(path.home)
         }
       },
@@ -77,10 +77,10 @@ export default function FormLogin() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r dark:from-blue-400 dark:to-green-500 dark:text-transparent bg-clip-text'>
-            Welcome back to Vax-Box
+            Chào mừng bạn trở lại Vax-Box
           </CardTitle>
           <CardDescription className='text-gray-400 text-center'>
-            Enter your credentials to access your account
+            Nhập thông tin đăng nhập của bạn để truy cập tài khoản của bạn
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +98,7 @@ export default function FormLogin() {
                         <Input
                           {...field}
                           id='email'
-                          placeholder='Enter your email'
+                          placeholder='Nhập email của bạn'
                           type='email'
                           className='pl-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
                         />
@@ -114,7 +114,7 @@ export default function FormLogin() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label htmlFor='password'>Password</Label>
+                    <Label htmlFor='password'>Mật Khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
@@ -122,7 +122,7 @@ export default function FormLogin() {
                           {...field}
                           id='password'
                           type={showPassword ? 'text' : 'password'}
-                          placeholder='Enter your password'
+                          placeholder='Nhập mật khẩu của bạn'
                           className='pl-10 pr-10 dark:bg-gray-700 border-gray-600 placeholder-gray-400'
                         />
                         <button
@@ -142,7 +142,7 @@ export default function FormLogin() {
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
               >
-                Sign In
+                Đăng Nhập
               </Button>
             </form>
           </Form>
@@ -152,20 +152,20 @@ export default function FormLogin() {
             variant='secondary'
             className='w-full  items-center bg-gradient-to-r dark:bg-gray-700 border-gray-600 placeholder-gray-400  hover:from-blue-600 hover:to-green-600'
           >
-            Sign in with Google
+            Đăng Nhập Bằng Google
           </Button>
           <div className='text-sm text-center text-gray-400'>
-            Don't have an account?{' '}
+            Bạn Chưa Có Tài Khoản ?{' '}
             <Link to={path.register} className='text-green-400 hover:text-green-300'>
-              Sign up
+              Đăng Ký
             </Link>
           </div>
           <div className='flex flex-col gap-2 justify-center'>
             <Link to={path.forgotPassword} className='text-sm text-center text-green-400 hover:text-green-300'>
-              Forgot your password ?
+              Quên Mật Khẩu ?
             </Link>
             <Link to={path.reSendVerifyEmail} className='text-sm text-center text-green-400 hover:text-green-300'>
-              Resend verify email !
+              Gửi Lại Email Xác Nhận !
             </Link>
           </div>
         </CardFooter>

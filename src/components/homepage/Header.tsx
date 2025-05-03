@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme/theme-toogle'
 import Chatbox from '@/pages/chatbox/Chatbox'
 import { useGetMeQuery } from '@/queries/useUser'
+import Messenger from '@/pages/Messenger/messenger'
+
 import {
   setUserToLS,
   removeAccessTokenFromLS,
@@ -145,7 +147,7 @@ export default function Header() {
                     <Link to={path.login}>
                       <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
                         <LogOut className='mr-2 h-4 w-4' />
-                        <span>Sign out</span>
+                        <span>Đăng Xuất</span>
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuContent>
@@ -157,12 +159,12 @@ export default function Header() {
                       variant='ghost'
                       className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
                     >
-                      Log in
+                      Đăng Nhập
                     </Button>
                   </Link>
                   <Link to={path.register}>
                     <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'>
-                      Sign up
+                      Đăng Ký
                     </Button>
                   </Link>
                 </>
@@ -205,7 +207,7 @@ export default function Header() {
                     className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                     onClick={handleSignOut}
                   >
-                    Sign out
+                    Đăng Xuất
                   </Button>
                 </>
               ) : (
@@ -215,12 +217,12 @@ export default function Header() {
                       variant='ghost'
                       className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                     >
-                      Log in
+                      Đăng Nhập
                     </Button>
                   </Link>
                   <Link to={path.register} className='w-full'>
                     <Button className='w-full mt-2 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-600 hover:to-blue-600 text-white'>
-                      Sign up
+                      Đăng Ký
                     </Button>
                   </Link>
                 </>
@@ -240,7 +242,10 @@ export default function Header() {
         </Button>
       )}
 
-      <Chatbox />
+      <div className='fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50'>
+        <Messenger />
+        <Chatbox />
+      </div>
     </div>
   )
 }

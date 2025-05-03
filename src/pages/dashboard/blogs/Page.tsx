@@ -89,25 +89,10 @@ export const BlogPage: React.FC = () => {
       }
     })
   }
-
-  const handleViewPost = (id: string) => {
-    const post = blogs?.data.find((blog) => blog.id === id)
-    if (post) {
-      setSelectedPost(post)
-      setIsUpdateDialogOpen(true)
-    }
-  }
-
   const handleEditPost = (post: BlogPost) => {
     setSelectedPost(post)
     setIsUpdateDialogOpen(true)
   }
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
-  }
-
   const handleTagChange = (value: string) => {
     setSelectedTag(value)
     setCurrentPage(1)
@@ -153,12 +138,9 @@ export const BlogPage: React.FC = () => {
   return (
     <div className='p-6'>
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Blogs
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi blog trong hệ thống của bạn.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Blogs
+        </h1>
       </div>
 
       <div className='mb-6 py-6 flex items-center justify-between'>
@@ -206,13 +188,7 @@ export const BlogPage: React.FC = () => {
       </div>
 
       <div className='space-y-4'>
-        <BlogTable
-          posts={posts}
-          onView={handleViewPost}
-          onEdit={handleEditPost}
-          onDelete={handleDeletePost}
-          isLoading={isLoadingBlogs}
-        />
+        <BlogTable posts={posts} onEdit={handleEditPost} onDelete={handleDeletePost} isLoading={isLoadingBlogs} />
 
         {totalPages > 1 && (
           <div className='flex items-center justify-between px-2'>

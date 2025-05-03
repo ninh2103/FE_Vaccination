@@ -2,19 +2,11 @@ import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
-import { Download, RefreshCw, Printer, Search } from 'lucide-react'
+import { Download, RefreshCw, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
 import { PaymentTable } from './PaymentTable'
 import { UpdatePaymentDialog } from './UpdatePayment'
 import { format } from 'date-fns'
@@ -45,7 +37,6 @@ interface Filters {
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -320,12 +311,9 @@ export default function PaymentsPage() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Thanh toán
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi thanh toán trong hệ thống của bạn.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Thanh toán
+        </h1>
       </div>
 
       {/* Search and filters */}
@@ -361,12 +349,14 @@ export default function PaymentsPage() {
 
         {/* Alert */}
         {filteredPayments.some((p) => p.status === 'PENDING' || p.status === 'FAILED') && (
-          <Alert variant='destructive' className='bg-red-50 border-red-200'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Cảnh báo thanh toán</AlertTitle>
-            <AlertDescription>
-              Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
-            </AlertDescription>
+          <Alert variant='destructive' className='bg-red-50 border-red-200 p-2'>
+            <div className='flex items-center space-x-2'>
+              <AlertCircle className='h-3 w-3' />
+              <AlertTitle className='text-sm font-semibold text-red-700'>Cảnh báo thanh toán</AlertTitle>
+              <AlertDescription className='text-xs'>
+                Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
+              </AlertDescription>
+            </div>
           </Alert>
         )}
 
@@ -375,10 +365,6 @@ export default function PaymentsPage() {
           payments={filteredPayments as Payment[]}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          onViewDetails={(payment) => {
-            setSelectedPayment(payment as Payment)
-            setOpenDetailsDialog(true)
-          }}
           onDownloadReceipt={(payment) => handleDownloadReceipt(payment as Payment)}
           onPrintReceipt={(payment) => handlePrintReceipt(payment as Payment)}
           onEdit={(payment) => {
@@ -391,91 +377,6 @@ export default function PaymentsPage() {
           itemsPerPage={paymentsData?.itemsPerPage || 10}
         />
       </div>
-
-      {/* Payment details dialog */}
-      <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
-        <DialogContent className='sm:max-w-[550px]'>
-          <DialogHeader>
-            <DialogTitle>Chi tiết thanh toán</DialogTitle>
-            <DialogDescription>Xem thông tin thanh toán đầy đủ.</DialogDescription>
-          </DialogHeader>
-          {selectedPayment && (
-            <div className='grid gap-4 py-4'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-4'>
-                  <div className='h-12 w-12 rounded-full bg-muted flex items-center justify-center'>
-                    <h3 className='font-medium text-xl ml-14'>#{selectedPayment.id.slice(0, 8)}</h3>
-                  </div>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <span className='text-sm font-medium'>Trạng thái:</span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      selectedPayment.status === 'COMPLETED'
-                        ? 'bg-green-100 text-green-800'
-                        : selectedPayment.status === 'PENDING'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : selectedPayment.status === 'FAILED'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
-                    }`}
-                  >
-                    {selectedPayment.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className='rounded-lg border p-4'>
-                <div className='flex justify-between'>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Mã đơn hàng</h4>
-                    <p className='font-medium'>#{selectedPayment.bookingId?.slice(0, 8)}</p>
-                  </div>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Số tiền</h4>
-                    <p className='text-xl font-bold'>{formatCurrency(selectedPayment.amount)}</p>
-                  </div>
-                </div>
-
-                <div className='mt-4 flex justify-between'>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Ngày</h4>
-                    <p>{format(new Date(selectedPayment.createdAt), 'dd/MM/yyyy')}</p>
-                  </div>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Phương thức thanh toán</h4>
-                    <p>{selectedPayment.paymentMethod}</p>
-                  </div>
-                </div>
-
-                <div className='mt-4 flex justify-between'>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground'>Mã thanh toán</h4>
-                    <p>#{selectedPayment.id.slice(0, 8)}</p>
-                  </div>
-                  <div>
-                    <h4 className='text-sm font-medium text-muted-foreground '>Người dùng</h4>
-                    <p>{selectedPayment.user.name}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
-              Đóng
-            </Button>
-            <Button onClick={() => handlePrintReceipt(selectedPayment)}>
-              <Printer className='mr-2 h-4 w-4' />
-              In
-            </Button>
-            <Button variant='outline' onClick={() => handleDownloadReceipt(selectedPayment)}>
-              <Download className='mr-2 h-4 w-4' />
-              Tải hóa đơn
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Update Payment Dialog */}
       <UpdatePaymentDialog

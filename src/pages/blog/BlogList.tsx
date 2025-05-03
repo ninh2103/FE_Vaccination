@@ -11,7 +11,19 @@ import { useListBlogQuery } from '@/queries/useBlog'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 const ITEMS_PER_PAGE = 10
-const SEARCH_DEBOUNCE = 500 // 500ms delay
+const SEARCH_DEBOUNCE = 500
+
+const highlightText = (text: string, keyword: string) => {
+  if (!keyword) return text
+  const regex = new RegExp(`(${keyword})`, 'gi')
+  return (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-600 px-1">$1</mark>')
+      }}
+    />
+  )
+}
 
 const BlogList: React.FC = () => {
   const location = useLocation()
@@ -21,7 +33,7 @@ const BlogList: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
   const {
-    data: blogs,
+    data: blogResponse,
     isLoading,
     error
   } = useListBlogQuery({
@@ -33,14 +45,13 @@ const BlogList: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery)
-      setCurrentPage(1) // Reset to first page when searching
+      setCurrentPage(1)
     }, SEARCH_DEBOUNCE)
-
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  const blogPosts = blogs?.data || []
-  const totalItems = blogs?.total || 0
+  const blogPosts = blogResponse?.data || []
+  const totalItems = blogResponse?.total || 0
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
 
   const handlePreviousPage = () => {
@@ -56,43 +67,57 @@ const BlogList: React.FC = () => {
   }
 
   return (
-    <div className='w-80 border-r border-green-500 h-screen overflow-y-auto flex flex-col scrollbar-hide'>
-      <div className='p-4 sticky top-0 dark:bg-gray-900/80  bg-background border-b dark:border-green-500 z-10 '>
-        <h1 className='text-xl font-bold mb-4 dark:text-green-500'>Blog Posts</h1>
+    <div className='w-80 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto flex flex-col scrollbar-hide'>
+      {/* Header */}
+      <div className='p-4 sticky top-0 dark:bg-gray-900/80 bg-background border-b dark:border-gray-700 z-10'>
+        <h1 className='text-xl font-bold mb-4 dark:text-white'>Các bài viết blog</h1>
         <div className='relative'>
           <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-          <Input placeholder='Search...' value={searchQuery} onChange={handleSearch} className='pl-8' />
+          <Input
+            placeholder='Tìm kiếm...'
+            value={searchQuery}
+            onChange={handleSearch}
+            className='pl-8'
+            aria-label='Tìm kiếm bài viết'
+          />
         </div>
       </div>
-      <div className='flex-1 divide-y divide-border dark:bg-gray-900/80 dark:divide-green-500 *:dark:* overflow-y-auto scrollbar-hide'>
+
+      {/* Blog content */}
+      <div className='flex-1 divide-y divide-border dark:bg-gray-900/80 dark:divide-gray-700 *:dark:* overflow-y-auto scrollbar-hide'>
         {isLoading ? (
           <div className='flex items-center justify-center p-8'>
             <LoadingSpinner className='h-8 w-8' />
           </div>
         ) : error ? (
-          <div className='p-4 text-center text-destructive'>Error loading blog posts. Please try again.</div>
+          <div className='p-4 text-center text-destructive'>Lỗi khi tải bài viết. Vui lòng thử lại.</div>
         ) : blogPosts.length === 0 ? (
           <div className='p-4 text-center text-muted-foreground'>
-            {debouncedSearch ? 'No posts found matching your search.' : 'No blog posts available.'}
+            {debouncedSearch ? 'Không tìm thấy bài viết phù hợp với tìm kiếm.' : 'Không có bài viết nào.'}
           </div>
         ) : (
           blogPosts.map((post) => (
             <Link
               to={`/blog/${post.id}`}
               key={post.id}
-              className={cn('block transition-colors hover:bg-accent/50', currentPostId === post.id && 'bg-accent')}
+              className={cn(
+                'block transition-colors hover:bg-accent/50',
+                String(currentPostId) === String(post.id) && 'bg-accent'
+              )}
             >
-              <Card className='border-0 shadow-none  dark:bg-gray-900/80 hover:shadow-none rounded-none dark:border-green-500'>
+              <Card className='border-0 shadow-none dark:bg-gray-900/80 hover:shadow-none rounded-none dark:border-gray-700'>
                 <CardHeader className='p-4 pb-2'>
-                  <CardTitle className='text-base line-clamp-2'>{post.title}</CardTitle>
+                  <CardTitle className='text-base  truncate'>{highlightText(post.title, debouncedSearch)}</CardTitle>
                 </CardHeader>
                 <CardContent className='p-4 pt-0'>
                   <div className='flex items-center gap-2'>
-                    <Badge variant='default' className='text-xs dark:bg-green-500 dark:text-white'>
-                      {post.tag?.name}
-                    </Badge>
+                    {post.tag?.name && (
+                      <Badge variant='default' className='text-xs dark:bg-gray-600 dark:text-white'>
+                        {post.tag.name}
+                      </Badge>
+                    )}
                     <span className='text-xs text-muted-foreground'>
-                      {post.createdAt ? format(new Date(post.createdAt), 'MMM d') : 'No date'}
+                      {post.createdAt ? format(new Date(post.createdAt), 'dd/MM/yyyy') : 'Chưa có ngày'}
                     </span>
                   </div>
                 </CardContent>
@@ -101,19 +126,33 @@ const BlogList: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Pagination */}
       {!isLoading && !error && blogPosts.length > 0 && (
-        <div className='p-4 border-t dark:bg-gray-900/80 bg-background border-t-green-500 sticky bottom-0'>
-          <div className='flex items-center justify-between dark:text-green-500'>
-            <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
-              <ChevronLeft className='h-4 w-4 mr-2 dark:text-green-500 dark:hover:text-green-500' />
-              Previous
+        <div className='p-4 border-t dark:bg-gray-900/80 bg-background border-t-gray-200 dark:border-t-gray-700 sticky bottom-0'>
+          <div className='flex items-center justify-between dark:text-white'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              aria-label='Trang trước'
+            >
+              <ChevronLeft className='h-4 w-4 mr-2' />
+              Trang trước
             </Button>
             <span className='text-sm text-muted-foreground'>
-              Page {currentPage} of {totalPages}
+              Trang {currentPage} của {totalPages}
             </span>
-            <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
-              Next
-              <ChevronRight className='h-4 w-4 ml-2 dark:text-green-500 dark:hover:text-green-500' />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              aria-label='Trang tiếp theo'
+            >
+              Tiếp theo
+              <ChevronRight className='h-4 w-4 ml-2' />
             </Button>
           </div>
         </div>

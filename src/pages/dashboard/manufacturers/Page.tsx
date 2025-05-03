@@ -145,12 +145,9 @@ export default function ManufacturersPage() {
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Nhà sản xuất
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi nhà sản xuất trong hệ thống của bạn.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Nhà sản xuất
+        </h1>
       </div>
 
       {/* Search */}

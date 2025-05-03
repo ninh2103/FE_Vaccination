@@ -101,12 +101,9 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
   return (
     <div className='grid gap-6'>
       <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Nhà cung cấp
-          </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi nhà cung cấp trong hệ thống.</p>
-        </div>
+        <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+          Nhà cung cấp
+        </h1>
       </div>
 
       {/* Search Bar */}
