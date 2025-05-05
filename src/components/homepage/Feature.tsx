@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/core/lib/utils'
 import { FingerprintIcon } from 'lucide-react'
 
-const featuresData = [
+export const featuresData = [
   {
     color: 'bg-blue-500',
     title: 'Safe & Effective',

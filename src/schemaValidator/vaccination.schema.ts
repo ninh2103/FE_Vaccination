@@ -118,13 +118,9 @@ export const VaccineUpdateBodySchema = z.object({
       invalid_type_error: 'Giá vaccine phải là số'
     })
     .gt(0, 'Giá vaccine phải lớn hơn 0'),
-  expirationDate: z.coerce
-    .date({
-      invalid_type_error: 'Ngày hạn sử dụng vaccine phải là ngày hợp lệ'
-    })
-    .refine((value) => value >= new Date(), {
-      message: 'Ngày hạn sử dụng vaccine phải là ngày hiện tại trở lên'
-    }),
+  expirationDate: z.coerce.date({
+    invalid_type_error: 'Ngày hạn sử dụng vaccine phải là ngày hợp lệ'
+  }),
   manufacturerId: z.string().min(1, 'Nhà sản xuất vaccine không được để trống'),
   supplierId: z.string().min(1, 'Nhà cung cấp vaccine không được để trống'),
   categoryVaccinationId: z.string().min(1, 'Danh mục vaccine không được để trống'),
