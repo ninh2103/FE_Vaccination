@@ -3,9 +3,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { Edit, Trash } from 'lucide-react'
+import { Edit, MoreHorizontal, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useState } from 'react'
 
 export interface BlogPost {
@@ -29,8 +30,18 @@ interface BlogTableProps {
   isLoading: boolean
 }
 
+const POSTS_PER_PAGE = 10
+
 export function BlogTable({ posts, onEdit, onDelete, isLoading }: BlogTableProps) {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE
+  const currentPosts = posts.slice(startIndex, startIndex + POSTS_PER_PAGE)
+
+  const handlePrev = () => setCurrentPage((p) => Math.max(p - 1, 1))
+  const handleNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages))
 
   if (isLoading) {
     return (
@@ -47,94 +58,84 @@ export function BlogTable({ posts, onEdit, onDelete, isLoading }: BlogTableProps
           {posts.length === 0 ? (
             <div className='p-4 text-center text-muted-foreground'>Không tìm thấy bài viết.</div>
           ) : (
-            <div className='overflow-y-auto max-h-[400px]'>
-              {' '}
-              {/* Đảm bảo bảng có thể cuộn theo chiều dọc */}
-              <Table>
+            <>
+              <Table className='text-sm'>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tiêu đề</TableHead>
-                    <TableHead>Nội dung</TableHead>
-                    <TableHead>Tag</TableHead>
-                    <TableHead>Ngày tạo</TableHead>
-                    <TableHead>Ngày cập nhật</TableHead>
-                    <TableHead className='text-center'>Hành động</TableHead>
+                    <TableHead className='px-1 w-[30px] text-center'>STT</TableHead>
+                    <TableHead className='px-2 w-[150px]'>Tiêu đề</TableHead>
+                    <TableHead className='px-2 w-[300px]'>Nội dung</TableHead>
+                    <TableHead className='px-2 w-[100px]'>Tag</TableHead>
+                    <TableHead className='px-2 w-[120px] whitespace-nowrap'>Ngày tạo</TableHead>
+                    <TableHead className='px-2 w-[120px] whitespace-nowrap'>Ngày cập nhật</TableHead>
+                    <TableHead className='px-2 w-[120px] text-center'>Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {posts.map((post, index) => (
-                    <TableRow key={post.id} className='whitespace-nowrap'>
-                      <TableCell className='max-w-[50px] truncate'>{index + 1}</TableCell>
-
-                      {/* Tiêu đề bài viết, khi click sẽ hiển thị chi tiết */}
+                  {currentPosts.map((post, index) => (
+                    <TableRow key={post.id} className='hover:bg-muted/50 text-sm'>
+                      <TableCell className='px-1 text-center'>
+                        {(currentPage - 1) * POSTS_PER_PAGE + index + 1}
+                      </TableCell>
                       <TableCell
-                        className='px-2 truncate whitespace-nowrap max-w-[120px] font-semibold text-black hover:underline cursor-pointer'
+                        className='px-2 max-w-[150px] font-semibold text-black truncate hover:underline cursor-pointer'
                         onClick={() => setSelectedPost(post)}
                       >
                         {post.title}
                       </TableCell>
+                      <TableCell className='px-2 max-w-[300px] truncate'>
+                        {post.content || 'Không có nội dung'}
+                      </TableCell>
+                      <TableCell className='px-2'>{post.tag?.name || 'N/A'}</TableCell>
+                      <TableCell className='px-2'>
+                        {new Date(post.createdAt).toLocaleDateString('vi-VN')}
+                      </TableCell>
+                      <TableCell className='px-2'>
+                        {new Date(post.updatedAt).toLocaleDateString('vi-VN')}
+                      </TableCell>
+                      <TableCell className='px-2 text-center space-x-2'>
+  <Button
+    variant='ghost'
+    size='icon'
+    onClick={() => onEdit(post)}
+  >
+    <Edit className='h-4 w-4' />
+  </Button>
+  <Button
+    variant='ghost'
+    size='icon'
+    onClick={() => onDelete(post.id)}
+  >
+    <Trash className='h-4 w-4 text-red-500' />
+  </Button>
+</TableCell>
 
-                      <TableCell className='max-w-[300px] truncate'>{post.content}</TableCell>
-                      <TableCell className='max-w-[150px] truncate'>{post.tag.name}</TableCell>
-                      <TableCell className='max-w-[140px] truncate'>
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className='max-w-[140px] truncate'>
-                        {new Date(post.updatedAt).toLocaleDateString()}
-                      </TableCell>
-
-                      {/* Nút hành động: Sửa và Xoá */}
-                      <TableCell className='text-center sticky top-0 bg-white z-10'>
-                        {' '}
-                        {/* Dùng sticky để các nút luôn hiển thị */}
-                        <div className='flex justify-center gap-2'>
-                          <Button variant='outline' size='sm' onClick={() => onEdit(post)}>
-                            <Edit className='mr-2 h-4 w-4' />
-                            Sửa
-                          </Button>
-                          <Button variant='destructive' size='sm' onClick={() => onDelete(post.id)}>
-                            <Trash className='mr-2 h-4 w-4' />
-                            Xoá
-                          </Button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
-            </div>
+              </Table> 
+            </>
           )}
         </CardContent>
       </Card>
 
       {/* Dialog chi tiết bài viết */}
-      {selectedPost && (
-        <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
-          <DialogContent className='overflow-y-auto max-h-[80vh] sm:max-w-[600px] w-full'>
-            <DialogHeader>
-              <DialogTitle>Chi tiết bài viết</DialogTitle>
-            </DialogHeader>
-            <div className='flex-1 overflow-y-auto'>
-              <p>
-                <strong>Tiêu đề:</strong> {selectedPost.title}
-              </p>
-              <p>
-                <strong>Nội dung:</strong> {selectedPost.content}
-              </p>
-              <p>
-                <strong>Tag:</strong> {selectedPost.tag.name}
-              </p>
-              <p>
-                <strong>Ngày tạo:</strong> {new Date(selectedPost.createdAt).toLocaleDateString('vi-VN')}
-              </p>
-              <p>
-                <strong>Ngày cập nhật:</strong> {new Date(selectedPost.updatedAt).toLocaleString()}
-              </p>
+      <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+        <DialogContent className='overflow-y-auto max-h-[80vh] sm:max-w-[600px] w-full'>
+          <DialogHeader>
+            <DialogTitle>Chi tiết bài viết</DialogTitle>
+          </DialogHeader>
+          {selectedPost && (
+            <div className='space-y-2 text-sm'>
+              <p><strong>Tiêu đề:</strong> {selectedPost.title}</p>
+              <p><strong>Nội dung:</strong> {selectedPost.content}</p>
+              <p><strong>Tag:</strong> {selectedPost.tag?.name}</p>
+              <p><strong>Ngày tạo:</strong> {new Date(selectedPost.createdAt).toLocaleDateString('vi-VN')}</p>
+              <p><strong>Ngày cập nhật:</strong> {new Date(selectedPost.updatedAt).toLocaleString()}</p>
             </div>
-          </DialogContent>
-        </Dialog>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

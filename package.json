@@ -47,7 +47,7 @@
     "@tinymce/tinymce-react": "^6.1.0",
     "@types/lodash": "^4.17.15",
     "antd": "^5.24.0",
-    "axios": "^1.7.9",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "cloudinary-react": "^1.8.1",

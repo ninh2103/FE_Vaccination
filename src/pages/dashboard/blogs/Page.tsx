@@ -191,7 +191,7 @@ export const BlogPage: React.FC = () => {
         <BlogTable posts={posts} onEdit={handleEditPost} onDelete={handleDeletePost} isLoading={isLoadingBlogs} />
 
         {totalPages > 1 && (
-          <div className='flex items-center justify-between px-2'>
+            <div className='flex items-center justify-between px-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
               Hiển thị {startIndex} đến {endIndex} của {totalItems} bài viết
             </div>

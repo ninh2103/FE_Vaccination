@@ -13,7 +13,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BlogBodyType, BlogBodySchema } from '@/schemaValidator/blog.schema'
-import { useUpdateBlogMutation, useGetBlogByIdQuery } from '@/queries/useBlog'
+import { useUpdateBlogMutation, useGetBlogByIdQuery, useDeleteBlogMutation } from '@/queries/useBlog'
 import { useListTagQuery } from '@/queries/useTag'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEffect } from 'react'
@@ -28,8 +28,9 @@ interface UpdateBlogProps {
 
 export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
   const { mutate: updateBlog } = useUpdateBlogMutation()
+  const { mutate: deleteBlog } = useDeleteBlogMutation() // Thêm chức năng xóa
   const { data: tags } = useListTagQuery()
-  const { data: post } = useGetBlogByIdQuery(id)
+  const { data: post, isLoading: postLoading } = useGetBlogByIdQuery(id)
 
   const form = useForm<BlogBodyType>({
     resolver: zodResolver(BlogBodySchema),
@@ -40,7 +41,7 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
     }
   })
 
-  // Update form values when post data is loaded
+  // Cập nhật giá trị form khi dữ liệu bài viết được tải về
   useEffect(() => {
     if (post) {
       form.reset({
@@ -74,6 +75,20 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
     form.setValue('content', content, { shouldValidate: true })
   }
 
+  const handleDelete = () => {
+    if (post) {
+      deleteBlog(post.id, {
+        onSuccess: () => {
+          toast.success('Bài viết blog đã được xoá')
+          onOpenChange(false)
+        },
+        onError: (error: any) => {
+          toast.error(`Xoá thất bại: ${error.message || 'Đã có lỗi xảy ra'}`)
+        }
+      })
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px] max-h-[80vh] flex flex-col'>
@@ -82,60 +97,67 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
           <DialogDescription>Cập nhật bài viết blog bằng cách sửa đổi biểu mẫu bên dưới.</DialogDescription>
         </DialogHeader>
         <div className='flex-1 overflow-y-auto'>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
-            <div className='grid gap-2'>
-              <Label htmlFor='title'>Tiêu đề bài viết *</Label>
-              <Input
-                id='title'
-                {...form.register('title')}
-                placeholder='Nhập tiêu đề bài viết blog'
-                className={form.formState.errors.title ? 'border-red-500' : ''}
-              />
-              {form.formState.errors.title && (
-                <p className='text-sm text-red-500'>{form.formState.errors.title.message}</p>
-              )}
-            </div>
-            <div className='grid gap-2'>
-              <Label htmlFor='content'>Nội dung bài viết *</Label>
-              <InputEditor
-                label='Mô tả'
-                value={form.watch('content') || ''} // Pass the raw content string
-                setValue={(content: string) => handleEditorChange(content)} // Directly update content
-              />
-              {form.formState.errors.content && (
-                <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
-              )}
-            </div>
-            <div className='grid gap-2'>
-              <Label htmlFor='tagId'>Tag *</Label>
-              <Select
-                value={form.watch('tagId')}
-                onValueChange={(value) => form.setValue('tagId', value, { shouldValidate: true })}
-              >
-                <SelectTrigger className={form.formState.errors.tagId ? 'border-red-500' : ''}>
-                  <SelectValue placeholder='Chọn một tag' />
-                </SelectTrigger>
-                <SelectContent>
-                  {tags?.data.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      {tag.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.tagId && (
-                <p className='text-sm text-red-500'>{form.formState.errors.tagId.message}</p>
-              )}
-            </div>
-            <DialogFooter className='sticky bottom-0 bg-white pt-4'>
-              <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
-                Hủy bỏ
-              </Button>
-              <Button disabled={form.formState.isSubmitting} type='submit'>
-                {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật bài viết'}
-              </Button>
-            </DialogFooter>
-          </form>
+          {postLoading ? (
+            <div className='flex justify-center p-4'>Đang tải bài viết...</div> // Hiển thị trạng thái tải
+          ) : (
+            <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
+              <div className='grid gap-2'>
+                <Label htmlFor='title'>Tiêu đề bài viết *</Label>
+                <Input
+                  id='title'
+                  {...form.register('title')}
+                  placeholder='Nhập tiêu đề bài viết blog'
+                  className={form.formState.errors.title ? 'border-red-500' : ''}
+                />
+                {form.formState.errors.title && (
+                  <p className='text-sm text-red-500'>{form.formState.errors.title.message}</p>
+                )}
+              </div>
+              <div className='grid gap-2'>
+                <Label htmlFor='content'>Nội dung bài viết *</Label>
+                <InputEditor
+                  label='Mô tả'
+                  value={form.watch('content') || ''} // Truyền chuỗi nội dung thô
+                  setValue={(content: string) => handleEditorChange(content)} // Cập nhật nội dung trực tiếp
+                />
+                {form.formState.errors.content && (
+                  <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
+                )}
+              </div>
+              <div className='grid gap-2'>
+                <Label htmlFor='tagId'>Tag *</Label>
+                <Select
+                  value={form.watch('tagId')}
+                  onValueChange={(value) => form.setValue('tagId', value, { shouldValidate: true })}
+                >
+                  <SelectTrigger className={form.formState.errors.tagId ? 'border-red-500' : ''}>
+                    <SelectValue placeholder='Chọn một tag' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tags?.data.map((tag) => (
+                      <SelectItem key={tag.id} value={tag.id}>
+                        {tag.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.tagId && (
+                  <p className='text-sm text-red-500'>{form.formState.errors.tagId.message}</p>
+                )}
+              </div>
+              <DialogFooter className='sticky bottom-0 bg-white pt-4'>
+                <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
+                  Hủy bỏ
+                </Button>
+                <Button disabled={form.formState.isSubmitting} type='submit'>
+                  {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật bài viết'}
+                </Button>
+                <Button variant='outline' className='ml-2' onClick={handleDelete}>
+                  Xoá bài viết
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -69,14 +69,23 @@ export function CategoryTable({ categories, onEdit, onDelete, isLoading }: Categ
                         ? `${category.description.substring(0, 100)}...`
                         : category.description}
                     </TableCell>
-                    <TableCell className='flex items-center gap-2'>
-                      <Button variant='outline' size='sm' onClick={() => onEdit(category)}>
-                        <Edit className='mr-2 h-4 w-4' />
-                      </Button>
-                      <Button variant='destructive' size='sm' onClick={() => onDelete(category.id)}>
-                        <Trash className='mr-2 h-4 w-4' />
-                      </Button>
-                    </TableCell>
+                    <TableCell className='flex items-center justify-center gap-2'>
+  <Button
+    variant='ghost'
+    size='icon'
+    onClick={() => onEdit(category)}
+  >
+    <Edit className='h-4 w-4' />
+  </Button>
+  <Button
+    variant='ghost'
+    size='icon'
+    onClick={() => onDelete(category.id)}
+  >
+    <Trash className='h-4 w-4 text-red-500' />
+  </Button>
+</TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
