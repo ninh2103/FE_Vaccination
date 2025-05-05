@@ -17,48 +17,48 @@ import { formatVND } from '@/core/lib/utils'
 import { toast } from 'sonner'
 // Adjusted sample data
 const vaccinationData = [
-  { month: 'Jan', doses: 1200 },
-  { month: 'Feb', doses: 1300 },
-  { month: 'Mar', doses: 1400 },
-  { month: 'Apr', doses: 1350 },
-  { month: 'May', doses: 1250 },
-  { month: 'Jun', doses: 1500 },
-  { month: 'Jul', doses: 2000 },
-  { month: 'Aug', doses: 1600 },
-  { month: 'Sep', doses: 1450 },
-  { month: 'Oct', doses: 1300 },
-  { month: 'Nov', doses: 1550 },
-  { month: 'Dec', doses: 1600 }
+  { month: 'Tháng 1', doses: 1200 },
+  { month: 'Tháng 2', doses: 1300 },
+  { month: 'Tháng 3', doses: 1400 },
+  { month: 'Tháng 4', doses: 1350 },
+  { month: 'Tháng 5', doses: 1250 },
+  { month: 'Tháng 6', doses: 1500 },
+  { month: 'Tháng 7', doses: 2000 },
+  { month: 'Tháng 8', doses: 1600 },
+  { month: 'Tháng 9', doses: 1450 },
+  { month: 'Tháng 10', doses: 1300 },
+  { month: 'Tháng 11', doses: 1550 },
+  { month: 'Tháng 12', doses: 1600 }
 ] // Total: 17,000 doses
 
 const appointmentData = [
-  { month: 'Jan', appointments: 240 },
-  { month: 'Feb', appointments: 260 },
-  { month: 'Mar', appointments: 280 },
-  { month: 'Apr', appointments: 270 },
-  { month: 'May', appointments: 250 },
-  { month: 'Jun', appointments: 300 },
-  { month: 'Jul', appointments: 400 },
-  { month: 'Aug', appointments: 320 },
-  { month: 'Sep', appointments: 290 },
-  { month: 'Oct', appointments: 260 },
-  { month: 'Nov', appointments: 310 },
-  { month: 'Dec', appointments: 320 }
+  { month: 'Tháng 1', appointments: 240 },
+  { month: 'Tháng 2', appointments: 260 },
+  { month: 'Tháng 3', appointments: 280 },
+  { month: 'Tháng 4', appointments: 270 },
+  { month: 'Tháng 5', appointments: 250 },
+  { month: 'Tháng 6', appointments: 300 },
+  { month: 'Tháng 7', appointments: 400 },
+  { month: 'Tháng 8', appointments: 320 },
+  { month: 'Tháng 9', appointments: 290 },
+  { month: 'Tháng 10', appointments: 260 },
+  { month: 'Tháng 11', appointments: 310 },
+  { month: 'Tháng 12', appointments: 320 }
 ] // Total: 3,400 appointments
 
 const revenueData = [
-  { month: 'Jan', revenue: 600000000 },
-  { month: 'Feb', revenue: 650000000 },
-  { month: 'Mar', revenue: 700000000 },
-  { month: 'Apr', revenue: 675000000 },
-  { month: 'May', revenue: 625000000 },
-  { month: 'Jun', revenue: 750000000 },
-  { month: 'Jul', revenue: 1000000000 },
-  { month: 'Aug', revenue: 800000000 },
-  { month: 'Sep', revenue: 725000000 },
-  { month: 'Oct', revenue: 650000000 },
-  { month: 'Nov', revenue: 775000000 },
-  { month: 'Dec', revenue: 800000000 }
+  { month: 'Tháng 1', revenue: 600000000 },
+  { month: 'Tháng 2', revenue: 650000000 },
+  { month: 'Tháng 3', revenue: 700000000 },
+  { month: 'Tháng 4', revenue: 675000000 },
+  { month: 'Tháng 5', revenue: 625000000 },
+  { month: 'Tháng 6', revenue: 750000000 },
+  { month: 'Tháng 7', revenue: 1000000000 },
+  { month: 'Tháng 8', revenue: 800000000 },
+  { month: 'Tháng 9', revenue: 725000000 },
+  { month: 'Tháng 10', revenue: 650000000 },
+  { month: 'Tháng 11', revenue: 775000000 },
+  { month: 'Tháng 12', revenue: 800000000 }
 ] // Total: 8,500,000,000 VND
 
 const General: React.FC = () => {
@@ -75,12 +75,14 @@ const General: React.FC = () => {
 
   const totalPrice = userPaymentTotalPrice?.data?.reduce((acc, curr) => acc + curr.amount, 0)
 
+  const vaccineInventoriesFilter = vaccineInventories?.data.filter((vaccine) => vaccine.totalQuantity < 10)
+
   const downloadReport = () => {
     setIsExporting(true)
     setTimeout(() => {
       const reportData = [
         ['Vaccination Dashboard Report'],
-        ['Month', 'Vaccine Doses', 'Appointments', 'Revenue (VND)'],
+        ['Tháng', 'Số liều vaccine', 'Số lượng lịch hẹn', 'Tổng doanh thu (VND)'],
         ...vaccinationData.map((item, index) => [
           item.month,
           item.doses,
@@ -88,7 +90,7 @@ const General: React.FC = () => {
           revenueData[index].revenue
         ]),
         [
-          'Total',
+          'Tổng',
           vaccinationData.reduce((sum, item) => sum + item.doses, 0),
           appointmentData.reduce((sum, item) => sum + item.appointments, 0),
           revenueData.reduce((sum, item) => sum + item.revenue, 0)
@@ -97,8 +99,9 @@ const General: React.FC = () => {
 
       const ws = XLSX.utils.aoa_to_sheet(reportData)
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Vaccination Report')
-      XLSX.writeFile(wb, `Vaccination_Report_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo tổng quan')
+      XLSX.writeFile(wb, `Báo cáo tổng quan_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      toast.success('Dữ liệu thông kê đã được xuất ra thành công.')
       setIsExporting(false)
     }, 1500)
   }
@@ -108,7 +111,7 @@ const General: React.FC = () => {
     setTimeout(() => {
       setIsLoading(false)
       refetchUserPaymentTotalPrice()
-      toast.success('Refresh successfully')
+      toast.success('Làm mới dữ liệu thành công .')
     }, 1000)
   }
 
@@ -117,16 +120,16 @@ const General: React.FC = () => {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          General
+          Thống kê tổng quan
         </h1>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={downloadReport} disabled={isExporting}>
             {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-            Export
+            Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoading}>
             {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-            Refresh
+            Cập nhật
           </Button>
         </div>
       </div>
@@ -135,7 +138,7 @@ const General: React.FC = () => {
       <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'>
         <Card className='transition-all hover:shadow-md'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium'>Vaccine Doses</CardTitle>
+            <CardTitle className='text-sm font-medium'>Số liều vaccine</CardTitle>
             <Syringe className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -144,7 +147,7 @@ const General: React.FC = () => {
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+12.5%</span>
-                <span className='ml-1'>from last month</span>
+                <span className='ml-1'>từ tháng trước</span>
               </div>
             </div>
           </CardContent>
@@ -152,7 +155,7 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium'>Appointments</CardTitle>
+            <CardTitle className='text-sm font-medium'>Số lượng lịch hẹn</CardTitle>
             <Calendar className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -161,7 +164,7 @@ const General: React.FC = () => {
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowDownRight className='h-4 w-4 text-red-500' />
                 <span className='text-red-500 font-medium'>-3.1%</span>
-                <span className='ml-1'>from last week</span>
+                <span className='ml-1'>từ tuần trước</span>
               </div>
             </div>
           </CardContent>
@@ -169,7 +172,7 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium'>Registered Users</CardTitle>
+            <CardTitle className='text-sm font-medium'>Số lượng người dùng</CardTitle>
             <Users className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -178,7 +181,7 @@ const General: React.FC = () => {
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+8.2%</span>
-                <span className='ml-1'>from last month</span>
+                <span className='ml-1'>từ tháng trước</span>
               </div>
             </div>
           </CardContent>
@@ -186,7 +189,7 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium'>Total Revenue</CardTitle>
+            <CardTitle className='text-sm font-medium'>Tổng doanh thu</CardTitle>
             <DollarSign className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -195,7 +198,7 @@ const General: React.FC = () => {
               <div className='flex items-center text-sm text-muted-foreground'>
                 <ArrowUpRight className='h-4 w-4 text-green-500' />
                 <span className='text-green-500 font-medium'>+15.3%</span>
-                <span className='ml-1'>from last month</span>
+                <span className='ml-1'>từ tháng trước</span>
               </div>
             </div>
           </CardContent>
@@ -206,8 +209,8 @@ const General: React.FC = () => {
       <div className='grid gap-6 grid-cols-1 lg:grid-cols-2'>
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Vaccine Doses</CardTitle>
-            <CardDescription>Monthly vaccine administration</CardDescription>
+            <CardTitle>Số liều vaccine</CardTitle>
+            <CardDescription>Biểu đồ thống kê số liều vaccine theo tháng</CardDescription>
           </CardHeader>
           <CardContent>
             <BarChart width={600} height={300} data={vaccinationData} className='w-full max-w-full'>
@@ -222,8 +225,8 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Appointments</CardTitle>
-            <CardDescription>Monthly appointment trends</CardDescription>
+            <CardTitle>Số lượng lịch hẹn</CardTitle>
+            <CardDescription>Biểu đồ thống kê số lượng lịch hẹn theo tháng</CardDescription>
           </CardHeader>
           <CardContent>
             <LineChart width={600} height={300} data={appointmentData} className='w-full max-w-full'>
@@ -235,39 +238,23 @@ const General: React.FC = () => {
             </LineChart>
           </CardContent>
         </Card>
-
-        <Card className='transition-all hover:shadow-md w-full lg:col-span-2'>
-          <CardHeader>
-            <CardTitle>Revenue</CardTitle>
-            <CardDescription>Monthly revenue from vaccinations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChart width={1200} height={300} data={revenueData} className='w-full max-w-full'>
-              <CartesianGrid strokeDasharray='3 3' />
-              <XAxis dataKey='month' />
-              <YAxis />
-              <Tooltip formatter={(value: number) => `${value.toLocaleString()} VND`} />
-              <Bar dataKey='revenue' fill='#ffc658' animationDuration={1000} />
-            </BarChart>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Vaccine Inventory with Custom Progress Bar */}
       <div className='grid gap-6 grid-cols-1'>
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Vaccine Inventory</CardTitle>
-            <CardDescription>Current stock levels</CardDescription>
+            <CardTitle>Tồn kho vaccine</CardTitle>
+            <CardDescription>Biểu đồ thống kê tồn kho vaccine theo tháng</CardDescription>
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              {vaccineInventories?.data.map((vaccine, index) => (
+              {vaccineInventoriesFilter?.map((vaccine, index) => (
                 <div key={index} className='space-y-2'>
                   <div className='flex items-center justify-between text-sm'>
                     <div className='font-medium'>{vaccine.nameVaccine}</div>
                     <div className='text-muted-foreground'>
-                      {vaccine.totalQuantity}% ({vaccine.totalQuantity} doses)
+                      {vaccine.totalQuantity}% ({vaccine.totalQuantity} liều)
                     </div>
                   </div>
                   <div className='w-full h-2 bg-gray-200 rounded-none'>
@@ -287,16 +274,16 @@ const General: React.FC = () => {
       <div className='grid gap-6 grid-cols-1 lg:grid-cols-2'>
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Top Suppliers</CardTitle>
-            <CardDescription>Suppliers with highest vaccination counts</CardDescription>
+            <CardTitle>Top Nhà cung cấp</CardTitle>
+            <CardDescription>Nhà cung cấp có số liều vaccine cao nhất</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Contact Information</TableHead>
-                  <TableHead>Address</TableHead>
+                  <TableHead>Nhà cung cấp</TableHead>
+                  <TableHead>Thông tin liên hệ</TableHead>
+                  <TableHead>Địa chỉ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -314,18 +301,18 @@ const General: React.FC = () => {
 
         <Card className='transition-all hover:shadow-md w-full'>
           <CardHeader>
-            <CardTitle>Recent Appointments</CardTitle>
-            <CardDescription>Latest scheduled vaccinations</CardDescription>
+            <CardTitle>Lịch hẹn gần đây</CardTitle>
+            <CardDescription>Lịch hẹn gần đây nhất</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Khách hàng</TableHead>
+                  <TableHead>Số tiền</TableHead>
+                  <TableHead>Ngày</TableHead>
+                  <TableHead>Trạng thái</TableHead>
                 </TableRow>
               </TableHeader>
               {appointmentCount?.data?.map((appointment) => (
@@ -336,7 +323,7 @@ const General: React.FC = () => {
                     <TableCell>{formatVND(appointment.vaccination.price)}</TableCell>
                     <TableCell>{formatDate(appointment.createdAt, 'dd/MM/yyyy')}</TableCell>
                     <TableCell>
-                      <Badge className='bg-green-500 hover:bg-green-600 text-white'>Completed</Badge>
+                      <Badge className='bg-green-500 hover:bg-green-600 text-white'>Đã hoàn thành</Badge>
                     </TableCell>
                   </TableRow>
                 </TableBody>

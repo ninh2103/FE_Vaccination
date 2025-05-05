@@ -22,7 +22,6 @@ export const SupplierBody = z.object({
   name: z
     .string()
     .min(1, 'Tên không được để trống')
-    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
     .refine((value) => value.trim().length > 0, {
       message: 'Tên không được chỉ chứa khoảng trắng'
     }),

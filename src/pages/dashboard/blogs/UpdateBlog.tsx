@@ -19,6 +19,8 @@ import { useListTagQuery } from '@/queries/useTag'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import InputEditor from '@/hooks/inputEditor'
+import { handleEditorChange } from '@/core/lib/utils'
 
 interface UpdateBlogProps {
   open: boolean
@@ -63,7 +65,7 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className='sm:max-w-[800px]'>
         <DialogHeader>
           <DialogTitle>Cập nhật bài viết blog</DialogTitle>
           <DialogDescription>Cập nhật bài viết blog bằng cách sửa đổi biểu mẫu bên dưới.</DialogDescription>
@@ -83,6 +85,11 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
           </div>
           <div className='grid gap-2'>
             <Label htmlFor='content'>Nội dung bài viết *</Label>
+            <InputEditor
+              label=''
+              value={form.watch('content') || ''}
+              setValue={(content: string) => handleEditorChange(content, form)}
+            />
             <Textarea
               id='content'
               {...form.register('content')}

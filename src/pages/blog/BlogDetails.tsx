@@ -31,7 +31,7 @@ const BlogDetails: React.FC = () => {
     return (
       <div className='flex-1 h-screen overflow-y-auto scrollbar-hide flex items-center justify-center'>
         <div className='max-w-4xl mx-auto py-8 px-6'>
-          <div className='text-center text-muted-foreground'>No blog post found.</div>
+          <div className='text-center text-muted-foreground'>Không tìm thấy bài viết.</div>
         </div>
       </div>
     )
@@ -50,11 +50,11 @@ const BlogDetails: React.FC = () => {
                 </Badge>
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   <Calendar className='h-4 w-4' />
-                  {blogPost.createdAt ? format(new Date(blogPost.createdAt), 'MMMM d, yyyy') : 'No date'}
+                  {blogPost.createdAt ? format(new Date(blogPost.createdAt), 'dd/MM/yyyy') : 'Không có ngày'}
                 </div>
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   <User className='h-4 w-4' />
-                  {blogPost.user?.name || 'Anonymous'}
+                  {blogPost.user?.name || 'Không có tên'}
                 </div>
               </div>
               <div className='h-px bg-border' />

@@ -31,8 +31,20 @@ export type UserResponseType = z.infer<typeof UserResponseSchema>
 
 export const UpdateMeBody = z
   .object({
-    name: z.string().min(2),
-    address: z.string().optional(),
+    name: z
+      .string()
+      .min(2, { message: 'Tên là bắt buộc' })
+      .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+      .refine((value) => value.trim().length > 0, {
+        message: 'Tên không được chỉ chứa khoảng trắng'
+      }),
+    address: z
+      .string()
+      .min(1, { message: 'Địa chỉ là bắt buộc' })
+      .refine((value) => value.trim().length > 0, {
+        message: 'Địa chỉ không được chỉ chứa khoảng trắng'
+      })
+      .optional(),
     phone: z
       .string({ message: 'Số điện thoại là bắt buộc' })
       .min(10, 'Số điện thoại là bắt buộc và phải có 10 số')
@@ -42,7 +54,12 @@ export const UpdateMeBody = z
         message: 'Số điện thoại không được chỉ chứa khoảng trắng'
       })
       .optional(),
-    country: z.string({ required_error: 'Tên quốc gia là bắt buộc' }),
+    country: z
+      .string({ required_error: 'Tên quốc gia là bắt buộc' })
+      .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên quốc gia chỉ được chứa chữ cái')
+      .refine((value) => value.trim().length > 0, {
+        message: 'Tên quốc gia không được chỉ chứa khoảng trắng'
+      }),
     date_of_birth: z.string().optional(),
     role: z.string({ required_error: 'Vai trò là bắt buộc' }).optional(),
     avatar: z.string().optional(),

@@ -28,17 +28,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const navigate = useNavigate()
 
   const sidebarItems: SidebarItem[] = [
-    { name: 'General', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
-    { name: 'Category', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
-    { name: 'Vaccines', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
-    { name: 'Users', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
-    { name: 'Payments', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
-    { name: 'Orders', icon: <ShoppingCart className='h-5 w-5' />, path: '/admin/order' },
-    { name: 'Appointment', icon: <Clock10 className='h-5 w-5' />, path: '/admin/appointments' },
-    { name: 'Manufacturers', icon: <BuildingOfficeIcon className='h-5 w-5' />, path: '/admin/manufacturers' },
-    { name: 'Suppliers', icon: <MdOutlineEmojiTransportation className='h-5 w-5' />, path: '/admin/suppliers' },
-    { name: 'Blogs', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' },
-    { name: 'History', icon: <FolderClock className='h-5 w-5' />, path: '/admin/history' }
+    { name: 'Tổng quan', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
+    { name: 'Danh mục', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
+    { name: 'Vắc xin', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
+    { name: 'Người dùng', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
+    { name: 'Thanh toán', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
+    { name: 'Đơn hàng', icon: <ShoppingCart className='h-5 w-5' />, path: '/admin/order' },
+    { name: 'Lịch hẹn', icon: <Clock10 className='h-5 w-5' />, path: '/admin/appointments' },
+    { name: 'Nhà sản xuất', icon: <BuildingOfficeIcon className='h-5 w-5' />, path: '/admin/manufacturers' },
+    { name: 'Nhà cung cấp', icon: <MdOutlineEmojiTransportation className='h-5 w-5' />, path: '/admin/suppliers' },
+    { name: 'Bài viết', icon: <PencilSquareIcon className='h-5 w-5' />, path: '/admin/post' },
+    { name: 'Lịch sử', icon: <FolderClock className='h-5 w-5' />, path: '/admin/history' }
   ]
 
   const handleItemClick = (itemName: string, path?: string) => {

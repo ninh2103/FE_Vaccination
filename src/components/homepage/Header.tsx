@@ -18,14 +18,15 @@ import {
   getRefreshTokenFromLS
 } from '@/core/shared/storage'
 import { useLogoutMutation } from '@/queries/useAuth'
+import MessengerButton from '@/pages/Messenger/messenger'
 
 const navItems = [
-  { name: 'Home', href: '#home' },
-  { name: 'Features', href: '#features' },
-  { name: 'Vaccines', href: '#vaccines' },
-  { name: 'Doctor', href: '#doctor' },
-  { name: 'Blog', href: '#blog' },
-  { name: 'Contact', href: '#contact' }
+  { name: 'Trang chủ', href: '#home' },
+  { name: 'Tính năng', href: '#features' },
+  { name: 'Vắc xin', href: '#vaccines' },
+  { name: 'Bác sĩ', href: '#doctor' },
+  { name: 'Tin tức', href: '#blog' },
+  { name: 'Liên hệ', href: '#contact' }
 ]
 
 export default function Header() {
@@ -67,7 +68,7 @@ export default function Header() {
   }, [scrollY])
 
   const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
+    const section = document.getElementById(sectionId.replace('#', ''))
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
     }
@@ -111,14 +112,14 @@ export default function Header() {
                   key={index}
                   variant='ghost'
                   className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                  onClick={() => scrollToSection(item.name.toLowerCase())}
+                  onClick={() => scrollToSection(item.href)}
                 >
                   {item.name}
                 </Button>
               ))}
             </nav>
             <div className='grid w-1/2 max-w-xs items-center gap-1.5'>
-              <Input type='search' id='search' placeholder='Search' className='w-full text-sm p-2 text-blue-400' />
+              <Input type='search' id='search' placeholder='Tìm kiếm...' className='w-full text-sm p-2 text-blue-400' />
             </div>
 
             <div className='hidden md:flex items-center space-x-4'>
@@ -145,7 +146,7 @@ export default function Header() {
                     <Link to={path.login}>
                       <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
                         <LogOut className='mr-2 h-4 w-4' />
-                        <span>Sign out</span>
+                        <span>Đăng xuất</span>
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuContent>
@@ -157,12 +158,12 @@ export default function Header() {
                       variant='ghost'
                       className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
                     >
-                      Log in
+                      Đăng nhập
                     </Button>
                   </Link>
                   <Link to={path.register}>
                     <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'>
-                      Sign up
+                      Đăng ký
                     </Button>
                   </Link>
                 </>
@@ -185,7 +186,7 @@ export default function Header() {
                   variant='ghost'
                   className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                   onClick={() => {
-                    scrollToSection(item.name.toLowerCase())
+                    scrollToSection(item.href)
                     setIsMenuOpen(false)
                   }}
                 >
@@ -205,7 +206,7 @@ export default function Header() {
                     className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                     onClick={handleSignOut}
                   >
-                    Sign out
+                    Đăng xuất
                   </Button>
                 </>
               ) : (
@@ -215,12 +216,12 @@ export default function Header() {
                       variant='ghost'
                       className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                     >
-                      Log in
+                      Đăng nhập
                     </Button>
                   </Link>
                   <Link to={path.register} className='w-full'>
                     <Button className='w-full mt-2 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-600 hover:to-blue-600 text-white'>
-                      Sign up
+                      Đăng ký
                     </Button>
                   </Link>
                 </>
@@ -240,7 +241,10 @@ export default function Header() {
         </Button>
       )}
 
-      <Chatbox />
+      <div className='fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50'>
+        <MessengerButton />
+        <Chatbox />
+      </div>
     </div>
   )
 }

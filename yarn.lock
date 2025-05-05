@@ -641,11 +641,6 @@
     "@ckeditor/ckeditor5-utils" "44.3.0"
     ckeditor5 "44.3.0"
 
-"@ckeditor/ckeditor5-integrations-common@^2.2.2":
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-integrations-common/-/ckeditor5-integrations-common-2.2.3.tgz#41c9fdb25f29b2f1c60bd85bd4a9a0b68fd51100"
-  integrity sha512-92kQWQj1wiABF7bY1+J79Ze+WHr7pwVBufn1eeJLWcTXbPQq4sAolfKv8Y8Ka9g69mdyE9+GPWmGFYDeQJVPDg==
-
 "@ckeditor/ckeditor5-language@44.3.0":
   version "44.3.0"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-language/-/ckeditor5-language-44.3.0.tgz#fd33839e582109ec6b51e308fb004355b296e4b4"
@@ -770,13 +765,6 @@
     "@ckeditor/ckeditor5-core" "44.3.0"
     "@ckeditor/ckeditor5-engine" "44.3.0"
     ckeditor5 "44.3.0"
-
-"@ckeditor/ckeditor5-react@^9.5.0":
-  version "9.5.0"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-react/-/ckeditor5-react-9.5.0.tgz#c539b8d2013573254619b62b9ccbcbf870abeebf"
-  integrity sha512-0NEBg3EDQaQDwj9xswC34qspDiNgXMIn41lZ3pjNx915NWRabqQDnR5a8TisPaOlx3gHnIdOXJ0BH1wRHsJxhQ==
-  dependencies:
-    "@ckeditor/ckeditor5-integrations-common" "^2.2.2"
 
 "@ckeditor/ckeditor5-remove-format@44.3.0":
   version "44.3.0"
@@ -2193,6 +2181,13 @@
   integrity sha512-u/n2HsQeH1vpZIOzB/w2lqKlXUDUKo6BxTdGXSMvNzIq5MHYFckRMVuFABp+QB7RN8LFXWV6X1/oSkuDq+MPIA==
   dependencies:
     "@tanstack/query-core" "5.67.3"
+
+"@tinymce/tinymce-react@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-6.1.0.tgz#1c53bc9790f46e5f0502764c2c421562b03176c2"
+  integrity sha512-K0MP3yYVKe8+etUwsg6zyRq+q9TGLaVf005WiBHiB8JZEomAwbBPERGunhU9uOqNQ5gJs8yVOPZ68Xcd1UHclA==
+  dependencies:
+    prop-types "^15.6.2"
 
 "@types/babel__core@^7.20.5":
   version "7.20.5"

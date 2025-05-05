@@ -161,12 +161,12 @@ export default function PaymentsPage() {
     // Add header
     pdf.setFontSize(18)
     pdf.setFont('times', 'bold')
-    pdf.text('VAXBOT Vaccine Joint Stock Company', pageWidth / 2, y, { align: 'center' })
+    pdf.text('Công ty cổ phần Vaccine', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     pdf.setFontSize(12)
     pdf.setFont('times', 'normal')
-    pdf.text(`Receipt #${payment.id}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Hóa đơn #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
     y += 10
