@@ -12,6 +12,12 @@ const API_BOOKING_URL = '/api/bookings'
 const API_BOOKING_CONFIRM_URL = '/api/bookings/confirm'
 const API_BOOKING_CREATE_URL = '/api/bookings/admin'
 
+// Định nghĩa kiểu dữ liệu cho cập nhật đơn hàng
+interface BookingUpdateBodyType {
+  status?: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'SUCCESS' | 'WAITING_PAYMENT'
+  appointmentDate?: string
+}
+
 interface ListBookingQuery {
   page?: number
   items_per_page?: number
@@ -36,6 +42,9 @@ const bookingService = {
   },
   deleteBooking(id: string) {
     return axiosClient.delete(`${API_BOOKING_URL}/${id}`)
+  },
+  updateBooking(id: string, data: BookingUpdateBodyType): Promise<BookingDetailResponseType> {
+    return axiosClient.patch(`${API_BOOKING_URL}/${id}`, data)
   }
 }
 

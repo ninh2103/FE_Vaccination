@@ -79,7 +79,7 @@ export function HistorysTable({
                 <div>
                   <div className='font-medium'>{vaccination.patient.name}</div>
                   <div className='text-sm text-muted-foreground flex items-center'>
-                    <Phone className='h-3 w-3 mr-1' />
+                    {/* <Phone className='h-3 w-3 mr-1' /> */}
                     {vaccination.patient.phone}
                   </div>
                 </div>
@@ -88,13 +88,13 @@ export function HistorysTable({
             <TableCell>{vaccination.vaccine}</TableCell>
             <TableCell>
               <div className='flex items-center'>
-                <Calendar className='h-4 w-4 mr-1 text-muted-foreground' />
+                {/* <Calendar className='h-4 w-4 mr-1 text-muted-foreground' /> */}
                 {format(new Date(vaccination.date), 'MM/dd/yyyy')}
               </div>
-              <div className='text-sm text-muted-foreground flex items-center'>
+              {/* <div className='text-sm text-muted-foreground flex items-center'>
                 <Clock className='h-3 w-3 mr-1' />
                 {vaccination.time}
-              </div>
+              </div> */}
             </TableCell>
             <TableCell>
               <Badge variant='outline' className='text-center'>

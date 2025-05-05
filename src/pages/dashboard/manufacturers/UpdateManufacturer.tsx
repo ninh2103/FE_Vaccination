@@ -9,28 +9,29 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Manufacturer } from './ManufacturerTable'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
-import { ManufacturerBody, ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
+import { Manufacturer, ManufacturerBody, ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
 import { useDetailManufacturerQuery, useUpdateManufacturerQuery } from '@/queries/useManufacturer'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
+import { RefreshCw } from 'lucide-react'
 
 interface UpdateManufacturerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (manufacturer: Manufacturer) => void
+  onSubmit: (data: ManufacturerBodyType) => void // Sửa kiểu của onSubmit
   manufacturer: Manufacturer | null
 }
 
 export const UpdateManufacturer = ({
   open,
   onOpenChange,
+  onSubmit,
   manufacturer
 }: UpdateManufacturerProps): React.ReactElement => {
-  const form = useForm<Omit<Manufacturer, 'id'>>({
+  const form = useForm<ManufacturerBodyType>({
     resolver: zodResolver(ManufacturerBody),
     defaultValues: {
       name: '',
@@ -39,7 +40,7 @@ export const UpdateManufacturer = ({
     }
   })
   const { data: manufacturerDetail } = useDetailManufacturerQuery(manufacturer?.id ?? '')
-  const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
+  const { mutate: updateManufacturer, isPending } = useUpdateManufacturerQuery()
 
   useEffect(() => {
     if (manufacturerDetail) {
@@ -61,6 +62,7 @@ export const UpdateManufacturer = ({
         {
           onSuccess: () => {
             onOpenChange(false)
+            onSubmit(data) // Gọi onSubmit với dữ liệu từ form
             toast.success('Nhà sản xuất đã được cập nhật thành công.')
           },
           onError: (error) => {
@@ -115,7 +117,16 @@ export const UpdateManufacturer = ({
             )}
           </div>
           <DialogFooter>
-            <Button type='submit'>Cập nhật</Button>
+            <Button type='submit' disabled={isPending}>
+              {isPending ? (
+                <>
+                  <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+                  Đang cập nhật...
+                </>
+              ) : (
+                'Cập nhật'
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

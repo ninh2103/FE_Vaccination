@@ -1,3 +1,4 @@
+// AddManufacturer.tsx
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Manufacturer } from './ManufacturerTable'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCreateManufacturerQuery } from '@/queries/useManufacturer'
@@ -17,15 +17,16 @@ import { ManufacturerBody, ManufacturerBodyType } from '@/schemaValidator/manufa
 import { handleErrorApi } from '@/core/lib/utils'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+
 interface AddManufacturerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (manufacturer: Omit<Manufacturer, 'id'>) => void
+  onSubmit: (manufacturer: ManufacturerBodyType) => void // Update to use ManufacturerBodyType
 }
 
-export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
+export function AddManufacturer({ open, onOpenChange, onSubmit }: AddManufacturerProps) {
   const { mutate: createManufacturer, isPending } = useCreateManufacturerQuery()
-  const form = useForm<Omit<Manufacturer, 'id'>>({
+  const form = useForm<ManufacturerBodyType>({
     resolver: zodResolver(ManufacturerBody),
     defaultValues: {
       name: '',
@@ -38,6 +39,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
     createManufacturer(data, {
       onSuccess: () => {
         onOpenChange(false)
+        onSubmit(data) // Call the onSubmit prop with the data
         toast.success('Manufacturer created successfully')
         form.reset()
       },

@@ -3,19 +3,7 @@ import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import {
-  Calendar,
-  RefreshCw,
-  Search,
-  Download,
-  Printer,
-  Phone,
-  Clock,
-  MapPin,
-  User,
-  Loader2,
-  X
-} from 'lucide-react'
+import { Calendar, RefreshCw, Search, Download, Printer, Phone, Clock, MapPin, User, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -121,7 +109,7 @@ const generateInvoicePDF = async (vaccination: Vaccination) => {
   printWindow.document.open()
   printWindow.document.write(htmlContent)
   printWindow.document.close()
-  await new Promise(resolve => setTimeout(resolve, 100)) // Wait for content to load
+  await new Promise((resolve) => setTimeout(resolve, 100)) // Wait for content to load
   const canvas = await html2canvas(printWindow.document.body)
   const imgData = canvas.toDataURL('image/png')
   const pdf = new jsPDF({

@@ -6,7 +6,12 @@ const ManufacturerSchema = z.object({
   country: z.string(),
   contactInfo: z.string()
 })
-
+export interface Manufacturer {
+  id: string
+  name: string
+  country: string
+  contactInfo: string
+}
 export type ManufacturerType = z.infer<typeof ManufacturerSchema>
 const ManufacturerResponseSchema = z.object({
   data: z.array(ManufacturerSchema),

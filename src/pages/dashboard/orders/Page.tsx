@@ -1,26 +1,26 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
-import { format, parseISO, isBefore } from 'date-fns'
+import { useState, useMemo, useCallback } from 'react'
+import { format, parseISO } from 'date-fns'
 import * as XLSX from 'xlsx'
-import { Download, RefreshCw, Plus, Loader2, Search } from 'lucide-react'
+import { Download, RefreshCw, Loader2, Search, X, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { OrdersTable } from './OrdersTable'
 import { AddOrder } from './AddOrder'
 import { UpdateOrder } from './UpdateOrder'
 import { useDeleteBookingQuery, useListBookingQuery } from '@/queries/useBooking'
+import { useListPaymentQuery } from '@/queries/useMomo'
 import { toast } from 'sonner'
+import { formatVND } from '@/core/lib/utils'
 
 interface Booking {
   id: string
@@ -36,18 +36,44 @@ interface Booking {
   appointmentDate: string
 }
 
+interface Payment {
+  id: string
+  orderId: string
+  amount: number
+  userId: string
+  bookingId: string | null
+  appointmentDate: string | null
+  createdAt: string
+  updatedAt: string
+  status: 'PENDING' | 'COMPLETED' | 'FAILED'
+  paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CREDIT_CARD' | 'CASH'
+  user: {
+    id: string
+    name: string
+    email: string
+    phone: string
+  }
+}
+
+interface BookingQueryResult {
+  data: Booking[]
+  total: number
+  itemsPerPage: number
+}
+
+interface PaymentQueryResult {
+  data: Payment[]
+  total: number
+  itemsPerPage: number
+}
+
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [tabPages, setTabPages] = useState<Record<string, number>>({
-    all: 1,
-    confirmed: 1,
-    pending: 1
-  })
-  const [, setTotalItems] = useState(0)
-  const [rowsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Booking | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -58,36 +84,41 @@ export default function OrdersPage() {
     from: undefined,
     to: undefined
   })
-  const [activeTab, setActiveTab] = useState('all')
+  const [currentTab, setCurrentTab] = useState('all')
+  const ITEMS_PER_PAGE = 10
 
-  const { data: bookingData, isLoading: isLoadingBookings } = useListBookingQuery({
-    page: 1,
-    items_per_page: 100, // Fetch more items to handle frontend pagination
-    search: '' // Remove search from backend since we're doing it in frontend
+  const { data: bookingData, isLoading: isBookingLoading } = useListBookingQuery({
+    page: currentPage,
+    items_per_page: ITEMS_PER_PAGE,
+    search: searchTerm
   })
 
-  const { mutate: deleteBooking } = useDeleteBookingQuery()
+  const { data: paymentData, isLoading: isPaymentLoading } = useListPaymentQuery({
+    page: 1,
+    items_per_page: 1000,
+    search: ''
+  })
+
+  const { mutate: deleteBooking, isPending: isDeleting } = useDeleteBookingQuery()
 
   const bookingsData = useMemo(() => bookingData?.data || [], [bookingData])
-
-  useEffect(() => {
-    if (bookingData?.total) {
-      setTotalItems(bookingData.total)
-    }
-  }, [bookingData?.total])
+  const paymentsData = useMemo(() => paymentData?.data || [], [paymentData])
+  const totalBookings = bookingData?.total || 0
 
   const filteredBookings = useMemo(() => {
     return bookingsData.filter((booking: Booking) => {
+      const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
         searchTerm === '' ||
-        booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.vaccinationId.toLowerCase().includes(searchTerm.toLowerCase())
+        booking.id.toLowerCase().includes(searchLower) ||
+        booking.vaccinationId.toLowerCase().includes(searchLower)
 
-      const bookingDate = parseISO(booking.appointmentDate)
-      const fromDate = dateRange.from ? parseISO(format(dateRange.from, 'yyyy-MM-dd')) : null
-      const toDate = dateRange.to ? parseISO(format(dateRange.to, 'yyyy-MM-dd')) : null
-      const matchesDateRange =
-        (!fromDate || !isBefore(bookingDate, fromDate)) && (!toDate || !isBefore(toDate, bookingDate))
+      const appointmentDate = parseISO(booking.appointmentDate)
+      const fromDate = dateRange.from ? new Date(dateRange.from) : null
+      const toDate = dateRange.to ? new Date(dateRange.to) : null
+      if (toDate) toDate.setHours(23, 59, 59, 999)
+
+      const matchesDateRange = (!fromDate || appointmentDate >= fromDate) && (!toDate || appointmentDate <= toDate)
 
       return matchesSearch && matchesDateRange
     })
@@ -108,95 +139,71 @@ export default function OrdersPage() {
   const getPaginatedBookings = useCallback(
     (tab: string) => {
       const tabFilteredBookings = getTabFilteredBookings(tab)
-      const startIndex = (tabPages[tab] - 1) * rowsPerPage
-      const endIndex = startIndex + rowsPerPage
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+      const endIndex = startIndex + ITEMS_PER_PAGE
       return tabFilteredBookings.slice(startIndex, endIndex)
     },
-    [getTabFilteredBookings, tabPages, rowsPerPage]
+    [getTabFilteredBookings, currentPage]
   )
 
-  const getTotalPages = useCallback(
-    (tab: string) => {
-      const tabFilteredBookings = getTabFilteredBookings(tab)
-      return Math.max(1, Math.ceil(tabFilteredBookings.length / rowsPerPage))
-    },
-    [getTabFilteredBookings, rowsPerPage]
-  )
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      setTabPages((prev) => ({
-        ...prev,
-        [activeTab]: page
-      }))
-    },
-    [activeTab]
-  )
-
-  const handlePreviousPage = useCallback(() => {
-    setTabPages((prev) => ({
-      ...prev,
-      [activeTab]: Math.max(prev[activeTab] - 1, 1)
-    }))
-  }, [activeTab])
-
-  const handleNextPage = useCallback(() => {
-    const totalPages = getTotalPages(activeTab)
-    setTabPages((prev) => ({
-      ...prev,
-      [activeTab]: Math.min(prev[activeTab] + 1, totalPages)
-    }))
-  }, [activeTab, getTotalPages])
-
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true)
-    setTimeout(() => {
-      setSearchTerm('')
-      setTabPages({
-        all: 1,
-        confirmed: 1,
-        pending: 1
-      })
-      setDateRange({
-        from: undefined,
-        to: undefined
-      })
-      toast.success('Dữ liệu mới đã được cập nhật')
-      setIsRefreshing(false)
-    }, 1000)
+  const handleClearFilters = useCallback(() => {
+    setDateRange({ from: undefined, to: undefined })
+    setSearchTerm('')
+    setCurrentPage(1)
+    toast.success('Đã xóa bộ lọc')
   }, [])
 
-  const handleExport = useCallback(async () => {
+  const handleExport = useCallback(() => {
     setIsExporting(true)
     try {
-      const exportData = getTabFilteredBookings(activeTab).map((booking: Booking) => ({
-        'Order ID': booking.id,
-        'Vaccination ID': booking.vaccinationId,
-        'User ID': booking.userId,
-        Quantity: booking.vaccinationQuantity,
-        Price: booking.vaccinationPrice,
-        'Total Amount': booking.totalAmount,
-        'Created At': booking.createdAt,
-        Status: booking.status,
-        'Vaccination Date': booking.vaccinationDate,
-        'Confirmation Time': booking.confirmationTime,
-        'Appointment Date': booking.appointmentDate
-      }))
+      const paymentMap = new Map<string, Payment>()
+      paymentsData.forEach((payment) => {
+        if (payment.bookingId) {
+          paymentMap.set(payment.bookingId, payment)
+        }
+      })
+
+      const exportData = getTabFilteredBookings(currentTab).map((booking: Booking) => {
+        const payment = paymentMap.get(booking.id)
+        return {
+          'Order ID': booking.id,
+          'Payment ID': payment ? payment.id : '-',
+          Customer: payment ? payment.user.name : '-',
+          'Vaccination ID': booking.vaccinationId,
+          'User ID': booking.userId,
+          Quantity: booking.vaccinationQuantity,
+          Price: formatVND(booking.vaccinationPrice),
+          'Total Amount': formatVND(booking.totalAmount),
+          'Created At': format(parseISO(booking.createdAt), 'dd/MM/yyyy HH:mm'),
+          Status: booking.status,
+          'Vaccination Date': booking.vaccinationDate,
+          'Confirmation Time': booking.confirmationTime,
+          'Appointment Date': format(parseISO(booking.appointmentDate), 'dd/MM/yyyy HH:mm')
+        }
+      })
+
       const worksheet = XLSX.utils.json_to_sheet(exportData)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders')
       XLSX.writeFile(workbook, `orders_${format(new Date(), 'yyyyMMdd')}.xlsx`)
       toast.success('Xuất dữ liệu thành công.')
     } catch (error) {
+      console.error('Export error:', error)
       toast.error('Xuất dữ liệu thất bại.')
     } finally {
       setIsExporting(false)
     }
-  }, [activeTab, getTabFilteredBookings])
+  }, [currentTab, getTabFilteredBookings, paymentsData])
 
-  const handleUpdateOrder = useCallback(() => {
-    toast.success(`Đã cập nhật trạng thái đơn hàng thành công.`)
-    setOpenUpdateDialog(false)
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setSearchTerm('')
+      setCurrentPage(1)
+      setDateRange({ from: undefined, to: undefined })
+      toast.success('Dữ liệu mới đã được cập nhật')
+      setIsRefreshing(false)
+    }, 1000)
   }, [])
 
   const handleDeleteOrder = useCallback((order: Booking) => {
@@ -206,40 +213,42 @@ export default function OrdersPage() {
 
   const handleConfirmDelete = useCallback(() => {
     if (!selectedOrder) return
-    toast.success('Đã xóa đơn hàng thành công.')
-    setOpenDeleteDialog(false)
     deleteBooking(selectedOrder.id, {
       onSuccess: () => {
         toast.success('Đã xóa đơn hàng thành công.')
+        setOpenDeleteDialog(false)
+        setSelectedOrder(null)
+        setCurrentPage(1)
       },
       onError: () => {
-        toast.error('Đã xóa đơn hàng thất bại.')
+        toast.error('Xóa đơn hàng thất bại.')
       }
     })
-  }, [selectedOrder])
+  }, [selectedOrder, deleteBooking])
 
   const handleViewDetails = useCallback((order: Booking) => {
+    setSelectedOrder(order)
+    setOpenDetailsDialog(true)
+  }, [])
+
+  const handleEditOrder = useCallback((order: Booking) => {
     setSelectedOrder(order)
     setOpenUpdateDialog(true)
   }, [])
 
-  const handleClearFilters = useCallback(() => {
-    setSearchTerm('')
-    setTabPages({
-      all: 1,
-      confirmed: 1,
-      pending: 1
-    })
-    setDateRange({
-      from: undefined,
-      to: undefined
-    })
-    toast.success('Đã xóa bộ lọc.')
-  }, [setSearchTerm, setTabPages, setDateRange])
+  const handleUpdateOrder = useCallback((updatedOrder: Booking) => {
+    toast.success('Cập nhật đơn hàng thành công.')
+    setOpenUpdateDialog(false)
+    setSelectedOrder(null)
+  }, [])
+
+  const handleAddOrder = useCallback(() => {
+    setOpenAddDialog(false)
+    toast.success('Thêm đơn hàng thành công.')
+  }, [])
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
-      {/* Title and action buttons */}
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
@@ -249,48 +258,39 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Search and filters */}
       <div className='grid gap-6'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex items-center gap-2'>
-            <div className='relative w-full max-w-sm'>
-              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder='Tìm kiếm...'
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                  setTabPages({
-                    all: 1,
-                    confirmed: 1,
-                    pending: 1
-                  })
+          <div className='relative w-full max-w-sm'>
+            <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Tìm kiếm...'
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
+              className='w-full pl-8 pr-8'
+              type='search'
+            />
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('')
+                  setCurrentPage(1)
                 }}
-                className='pl-8 w-full'
-                type='search'
-              />
-            </div>
-            <div className='flex items-center space-x-2'>
-              <div className='flex items-center space-x-2'>
-                <Input
-                  type='date'
-                  value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, from: new Date(e.target.value) }))}
-                  className='w-[150px]'
-                />
-                <span className='text-muted-foreground'>đến</span>
-                <Input
-                  type='date'
-                  value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, to: new Date(e.target.value) }))}
-                  className='w-[150px]'
-                />
-              </div>
-              <div className='flex items-center space-x-2'></div>
-            </div>
-            <Button variant='outline' size='sm' onClick={handleClearFilters}>
-              Xóa bộ lọc
-            </Button>
+                className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground'
+              >
+                <X className='h-4 w-4' />
+              </button>
+            )}
+            <style>
+              {`
+                input[type="search"]::-webkit-search-cancel-button {
+                  -webkit-appearance: none;
+                  display: none;
+                }
+              `}
+            </style>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
@@ -299,31 +299,48 @@ export default function OrdersPage() {
             </Button>
             <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
               {isRefreshing ? (
-                <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : (
                 <RefreshCw className='mr-2 h-4 w-4' />
               )}
               Cập nhật
             </Button>
-            <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-              <DialogTrigger asChild>
-                <Button size='sm' className='h-9'>
-                  <Plus className='mr-2 h-4 w-4' />
-                  Thêm mới
-                </Button>
-              </DialogTrigger>
-              <AddOrder
-                onAdd={() => {
-                  setOpenAddDialog(false)
-                }}
-                onCancel={() => setOpenAddDialog(false)}
+            <div className='flex items-center space-x-2'>
+              <Input
+                type='date'
+                value={dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                onChange={(e) =>
+                  setDateRange((prev) => ({
+                    ...prev,
+                    from: e.target.value ? new Date(e.target.value) : undefined
+                  }))
+                }
+                className='w-[150px]'
               />
-            </Dialog>
+              <span className='text-muted-foreground'>đến</span>
+              <Input
+                type='date'
+                value={dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                onChange={(e) =>
+                  setDateRange((prev) => ({
+                    ...prev,
+                    to: e.target.value ? new Date(e.target.value) : undefined
+                  }))
+                }
+                className='w-[150px]'
+              />
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Xóa bộ lọc
+            </Button>
+            <Button size='sm' className='h-9' onClick={() => setOpenAddDialog(true)}>
+              <Plus className='mr-2 h-4 w-4' />
+              Thêm mới
+            </Button>
           </div>
         </div>
 
-        {/* Tabs and data table */}
-        <Tabs defaultValue='all' className='w-full' onValueChange={setActiveTab}>
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className='w-full'>
           <TabsList className='grid w-full max-w-md grid-cols-3'>
             <TabsTrigger value='all'>Tất cả đơn hàng</TabsTrigger>
             <TabsTrigger value='confirmed'>Đã xác nhận</TabsTrigger>
@@ -332,69 +349,105 @@ export default function OrdersPage() {
           <TabsContent value='all' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                <OrdersTable
-                  onUpdateOrder={handleUpdateOrder}
-                  onDeleteOrder={handleDeleteOrder}
-                  onViewDetails={handleViewDetails}
-                  currentPage={tabPages.all}
-                  itemsPerPage={rowsPerPage}
-                  bookings={getPaginatedBookings('all')}
-                  isLoading={isLoadingBookings}
-                />
+                {isBookingLoading || isPaymentLoading ? (
+                  <div className='p-8 flex justify-center items-center'>
+                    <Loader2 className='h-6 w-6 animate-spin' />
+                  </div>
+                ) : getPaginatedBookings('all').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    Không tìm thấy đơn hàng phù hợp với bộ lọc hiện tại.
+                  </div>
+                ) : (
+                  <OrdersTable
+                    onDeleteOrder={handleDeleteOrder}
+                    onViewDetails={handleViewDetails}
+                    onEdit={handleEditOrder}
+                    currentPage={currentPage}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    bookings={getPaginatedBookings('all')}
+                    payments={paymentsData}
+                    isLoading={isBookingLoading || isPaymentLoading}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value='confirmed' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                <OrdersTable
-                  onUpdateOrder={handleUpdateOrder}
-                  onDeleteOrder={handleDeleteOrder}
-                  onViewDetails={handleViewDetails}
-                  currentPage={tabPages.confirmed}
-                  itemsPerPage={rowsPerPage}
-                  bookings={getPaginatedBookings('confirmed')}
-                  isLoading={isLoadingBookings}
-                />
+                {isBookingLoading || isPaymentLoading ? (
+                  <div className='p-8 flex justify-center items-center'>
+                    <Loader2 className='h-6 w-6 animate-spin' />
+                  </div>
+                ) : getPaginatedBookings('confirmed').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    Không tìm thấy đơn hàng phù hợp với bộ lọc hiện tại.
+                  </div>
+                ) : (
+                  <OrdersTable
+                    onDeleteOrder={handleDeleteOrder}
+                    onViewDetails={handleViewDetails}
+                    onEdit={handleEditOrder}
+                    currentPage={currentPage}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    bookings={getPaginatedBookings('confirmed')}
+                    payments={paymentsData}
+                    isLoading={isBookingLoading || isPaymentLoading}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value='pending' className='mt-4'>
             <Card>
               <CardContent className='p-0'>
-                <OrdersTable
-                  onUpdateOrder={handleUpdateOrder}
-                  onDeleteOrder={handleDeleteOrder}
-                  onViewDetails={handleViewDetails}
-                  currentPage={tabPages.pending}
-                  itemsPerPage={rowsPerPage}
-                  bookings={getPaginatedBookings('pending')}
-                  isLoading={isLoadingBookings}
-                />
+                {isBookingLoading || isPaymentLoading ? (
+                  <div className='p-8 flex justify-center items-center'>
+                    <Loader2 className='h-6 w-6 animate-spin' />
+                  </div>
+                ) : getPaginatedBookings('pending').length === 0 ? (
+                  <div className='p-4 text-center text-muted-foreground'>
+                    Không tìm thấy đơn hàng phù hợp với bộ lọc hiện tại.
+                  </div>
+                ) : (
+                  <OrdersTable
+                    onDeleteOrder={handleDeleteOrder}
+                    onViewDetails={handleViewDetails}
+                    onEdit={handleEditOrder}
+                    currentPage={currentPage}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    bookings={getPaginatedBookings('pending')}
+                    payments={paymentsData}
+                    isLoading={isBookingLoading || isPaymentLoading}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
-        {/* Pagination */}
-        {getTotalPages(activeTab) > 1 && (
-          <div className='flex items-center justify-between px-2'>
+        {!isBookingLoading && totalBookings > 0 && (
+          <div className='flex items-center justify-between p-2'>
             <div className='flex-1 text-sm text-muted-foreground'>
-              Hiển thị {(tabPages[activeTab] - 1) * rowsPerPage + 1} đến{' '}
-              {Math.min(tabPages[activeTab] * rowsPerPage, getTabFilteredBookings(activeTab).length)} của{' '}
-              {getTabFilteredBookings(activeTab).length} mục
+              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1} đến{' '}
+              {Math.min(currentPage * ITEMS_PER_PAGE, totalBookings)} trong tổng số {totalBookings} đơn hàng
             </div>
             <div className='flex items-center space-x-2'>
-              <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={tabPages[activeTab] === 1}>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
                 Trang trước
               </Button>
               <div className='flex items-center gap-1'>
-                {Array.from({ length: getTotalPages(activeTab) }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: Math.ceil(totalBookings / ITEMS_PER_PAGE) }, (_, i) => i + 1).map((page) => (
                   <Button
                     key={page}
-                    variant={tabPages[activeTab] === page ? 'default' : 'outline'}
+                    variant={currentPage === page ? 'default' : 'outline'}
                     size='sm'
-                    onClick={() => handlePageChange(page)}
+                    onClick={() => setCurrentPage(page)}
                     className='min-w-[2.5rem]'
                   >
                     {page}
@@ -404,8 +457,8 @@ export default function OrdersPage() {
               <Button
                 variant='outline'
                 size='sm'
-                onClick={handleNextPage}
-                disabled={tabPages[activeTab] === getTotalPages(activeTab)}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(totalBookings / ITEMS_PER_PAGE)))}
+                disabled={currentPage === Math.ceil(totalBookings / ITEMS_PER_PAGE)}
               >
                 Trang tiếp
               </Button>
@@ -414,28 +467,106 @@ export default function OrdersPage() {
         )}
       </div>
 
-      {/* Update Order Dialog */}
+      <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+        <AddOrder onAdd={handleAddOrder} onCancel={() => setOpenAddDialog(false)} />
+      </Dialog>
+
+      <Dialog open={openDetailsDialog} onOpenChange={setOpenDetailsDialog}>
+        {selectedOrder && (
+          <DialogContent className='sm:max-w-[550px]'>
+            <DialogHeader>
+              <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+              <DialogDescription>Xem thông tin chi tiết về đơn hàng này.</DialogDescription>
+            </DialogHeader>
+            <div className='grid gap-4 py-4'>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Mã đơn hàng</h4>
+                  <p>#{selectedOrder.id.slice(0, 8)}</p>
+                </div>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Trạng thái</h4>
+                  <p>{selectedOrder.status}</p>
+                </div>
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Mã vacxin</h4>
+                  <p>{selectedOrder.vaccinationId}</p>
+                </div>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Số lượng</h4>
+                  <p>{selectedOrder.vaccinationQuantity}</p>
+                </div>
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Giá</h4>
+                  <p>{formatVND(selectedOrder.vaccinationPrice)}</p>
+                </div>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Tổng tiền</h4>
+                  <p>{formatVND(selectedOrder.totalAmount)}</p>
+                </div>
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Ngày</h4>
+                  <p>{format(parseISO(selectedOrder.appointmentDate), 'dd/MM/yyyy')}</p>
+                </div>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Giờ</h4>
+                  <p>{format(parseISO(selectedOrder.appointmentDate), 'HH:mm')}</p>
+                </div>
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Mã thanh toán</h4>
+                  <p>
+                    {paymentsData.find((payment) => payment.bookingId === selectedOrder.id)?.id.slice(0, 8) || '-'}
+                  </p>
+                </div>
+                <div>
+                  <h4 className='text-sm font-medium text-muted-foreground'>Khách hàng</h4>
+                  <p>
+                    {paymentsData.find((payment) => payment.bookingId === selectedOrder.id)?.user.name || '-'}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <h4 className='text-sm font-medium text-muted-foreground'>Ngày tạo</h4>
+                <p>{format(parseISO(selectedOrder.createdAt), 'dd/MM/yyyy HH:mm')}</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant='outline' onClick={() => setOpenDetailsDialog(false)}>
+                Đóng
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+
       <Dialog open={openUpdateDialog} onOpenChange={setOpenUpdateDialog}>
         {selectedOrder && (
           <UpdateOrder order={selectedOrder} onUpdate={handleUpdateOrder} onCancel={() => setOpenUpdateDialog(false)} />
         )}
       </Dialog>
 
-      {/* Delete Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn hàng {selectedOrder?.id}? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa đơn hàng {selectedOrder?.id.slice(0, 8)}? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isDeleting}>
               Hủy bỏ
             </Button>
-            <Button variant='destructive' onClick={handleConfirmDelete} disabled={!selectedOrder}>
-              Xóa
+            <Button variant='destructive' onClick={handleConfirmDelete} disabled={isDeleting || !selectedOrder}>
+              {isDeleting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -13,9 +13,9 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { ManufacturerTable, Manufacturer } from './ManufacturerTable'
+import { ManufacturerTable } from './ManufacturerTable'
 import { AddManufacturer } from './AddManufacturer'
-import { UpdateManufacturer } from './UpdateManufacturer' // Verify this import
+import { UpdateManufacturer } from './UpdateManufacturer'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   useListManufacturerQuery,
@@ -24,7 +24,7 @@ import {
   useDeleteManufacturerQuery,
   useDetailManufacturerQuery
 } from '@/queries/useManufacturer'
-import { ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
+import { Manufacturer, ManufacturerBodyType } from '@/schemaValidator/manufacturer.schema'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
 
@@ -51,7 +51,7 @@ export default function ManufacturersPage() {
   } = useListManufacturerQuery({
     page: currentPage,
     items_per_page: ROWS_PER_PAGE,
-    search: searchTerm
+    search: '' // Không gửi searchTerm lên BE, xử lý lọc phía client
   })
 
   const { mutate: createManufacturer } = useCreateManufacturerQuery()
@@ -70,15 +70,16 @@ export default function ManufacturersPage() {
     }
   }, [manufacturersData])
 
-  // Apply frontend filtering as a fallback
+  // Apply frontend filtering for search (case-insensitive by name, country, contactInfo)
   useEffect(() => {
     if (!searchTerm) {
       setFilteredManufacturers(manufacturers)
     } else {
-      const lowerSearchTerm = searchTerm.toLowerCase()
+      const lowerSearchTerm = searchTerm.toLowerCase().trim()
       const filtered = manufacturers.filter(
         (manufacturer) =>
           manufacturer.name.toLowerCase().includes(lowerSearchTerm) ||
+          manufacturer.country.toLowerCase().includes(lowerSearchTerm) ||
           manufacturer.contactInfo.toLowerCase().includes(lowerSearchTerm)
       )
       setFilteredManufacturers(filtered)
@@ -164,7 +165,6 @@ export default function ManufacturersPage() {
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
-      {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
@@ -174,123 +174,125 @@ export default function ManufacturersPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className='grid gap-6'>
-        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='relative w-full max-w-sm'>
-            <div className='relative w-full max-w-sm'>
-              <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder='Tìm theo tên nhà sản xuất ...'
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value)
+      {/* Search Bar */}
+      <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+        <div className='relative w-full max-w-sm'>
+          <div className='relative'>
+            <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Tìm kiếm nhà sản xuất...'
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1) // Reset về trang 1 khi tìm kiếm
+              }}
+              className='w-full pl-8 pr-8'
+              type='search'
+            />
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('')
                   setCurrentPage(1)
                 }}
-                className='w-full pl-8 pr-8'
-                type='search'
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => {
-                    setSearchTerm('')
-                    setCurrentPage(1)
-                  }}
-                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground'
-                >
-                  <X className='h-4 w-4' />
-                </button>
-              )}
-              <style>
-                {`
-                  input[type="search"]::-webkit-search-cancel-button {
-                    -webkit-appearance: none;
-                    display: none;
-                  }
-                `}
-              </style>
-            </div>
+                className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground'
+              >
+                <X className='h-4 w-4' />
+              </button>
+            )}
+            <style>
+              {`
+                input[type="search"]::-webkit-search-cancel-button {
+                  -webkit-appearance: none;
+                  display: none;
+                }
+              `}
+            </style>
           </div>
-          <div className='flex items-center gap-2'>
-            <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
-              {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
-              Xuất dữ liệu
+        </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleExport} disabled={isExporting}>
+            {isExporting ? <RefreshCw className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
+            {isExporting ? 'Đang xuất...' : 'Xuất dữ liệu'}
+          </Button>
+          <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+            ) : (
+              <RefreshCw className='mr-2 h-4 w-4' />
+            )}
+            {isRefreshing ? 'Đang cập nhật...' : 'Cập nhật'}
+          </Button>
+          <Button size='sm' onClick={() => setOpenAddDialog(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            Thêm mới
+          </Button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <Card>
+        <CardContent className='p-0'>
+          <ManufacturerTable
+            isLoading={isLoading}
+            manufacturers={filteredManufacturers}
+            currentPage={currentPage}
+            rowsPerPage={ROWS_PER_PAGE}
+            onEdit={handleEditManufacturer}
+            onDelete={(id: string) => {
+              setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
+              setOpenDeleteDialog(true)
+            }}
+            onView={handleViewManufacturer}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Pagination */}
+      {manufacturersData?.total && manufacturersData.total > ROWS_PER_PAGE && (
+        <div className='flex items-center justify-between px-2'>
+          <div className='flex-1 text-sm text-muted-foreground'>
+            Hiển thị {(currentPage - 1) * ROWS_PER_PAGE + 1} đến{' '}
+            {Math.min(currentPage * ROWS_PER_PAGE, filteredManufacturers.length)} của {filteredManufacturers.length} bản
+            ghi
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Trang trước
             </Button>
-            <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isRefreshing}>
-              {isRefreshing ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
-              Cập nhật
-            </Button>
-            <Button size='sm' onClick={() => setOpenAddDialog(true)}>
-              <Plus className='mr-2 h-4 w-4' />
-              Thêm mới
+            <div className='flex items-center gap-1'>
+              {Array.from({ length: Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setCurrentPage(page)}
+                    className='min-w-[2.5rem]'
+                  >
+                    {page}
+                  </Button>
+                )
+              )}
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)))
+              }
+              disabled={currentPage >= Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)}
+            >
+              Trang tiếp
             </Button>
           </div>
         </div>
-
-        {/* Table */}
-        <Card>
-          <CardContent className='p-0'>
-            <ManufacturerTable
-              isLoading={isLoading}
-              manufacturers={filteredManufacturers}
-              currentPage={currentPage}
-              rowsPerPage={ROWS_PER_PAGE}
-              onEdit={handleEditManufacturer}
-              onDelete={(id) => {
-                setSelectedManufacturer(manufacturers.find((m) => m.id === id) || null)
-                setOpenDeleteDialog(true)
-              }}
-              onView={handleViewManufacturer}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Pagination */}
-        {manufacturersData?.total && manufacturersData.total > ROWS_PER_PAGE && (
-          <div className='flex items-center justify-between px-2'>
-            <div className='flex-1 text-sm text-muted-foreground'>
-              Hiển thị từ {(currentPage - 1) * ROWS_PER_PAGE + 1} đến{' '}
-              {Math.min(currentPage * ROWS_PER_PAGE, filteredManufacturers.length)} của {filteredManufacturers.length}{' '}
-              bản ghi
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Trang trước
-              </Button>
-              <div className='flex items-center gap-1'>
-                {Array.from({ length: Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE) }, (_, i) => i + 1).map(
-                  (page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? 'default' : 'outline'}
-                      size='sm'
-                      onClick={() => setCurrentPage(page)}
-                      className='min-w-[2.5rem]'
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
-              </div>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)))
-                }
-                disabled={currentPage >= Math.ceil(filteredManufacturers.length / ROWS_PER_PAGE)}
-              >
-                Trang tiếp
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Add Manufacturer Dialog */}
       <AddManufacturer open={openAddDialog} onOpenChange={setOpenAddDialog} onSubmit={handleAddManufacturer} />
@@ -316,8 +318,8 @@ export default function ManufacturersPage() {
       >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Chi tiết nhà cung cấp</DialogTitle>
-            <DialogDescription>Thông tin chi tiết của nhà cung cấp.</DialogDescription>
+            <DialogTitle>Chi tiết nhà sản xuất</DialogTitle>
+            <DialogDescription>Thông tin chi tiết của nhà sản xuất.</DialogDescription>
           </DialogHeader>
           {isLoadingDetail ? (
             <div className='flex items-center justify-center py-4'>
@@ -326,11 +328,11 @@ export default function ManufacturersPage() {
           ) : (
             <div className='space-y-4'>
               <div className='space-y-1'>
-                <label className='text-sm font-medium'>Tên nhà cung cấp</label>
-                <p className='text-sm'>{manufacturerDetail?.name || 'N/A'}</p>
+                <label className='text-sm font-medium'>Tên nhà sản xuất</label>
+                <p className='text-sm font-medium'>{manufacturerDetail?.name || 'N/A'}</p>
               </div>
               <div className='space-y-1'>
-                <label className='text-sm font-medium'>Địa chỉ</label>
+                <label className='text-sm font-medium'>Quốc gia</label>
                 <p className='text-sm'>{manufacturerDetail?.country || 'N/A'}</p>
               </div>
               <div className='space-y-1'>
@@ -359,7 +361,7 @@ export default function ManufacturersPage() {
           <div className='py-4'>
             {selectedManufacturer && (
               <p className='text-sm font-medium'>
-                Bạn đang xóa: <span className='font-bold'>{selectedManufacturer.name}</span>
+                Bạn đang xóa: <span className='font-medium'>{selectedManufacturer.name}</span>
               </p>
             )}
           </div>

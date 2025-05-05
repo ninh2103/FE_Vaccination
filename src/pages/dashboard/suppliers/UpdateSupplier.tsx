@@ -101,9 +101,15 @@ export function UpdateSupplier({ supplier, onUpdate, onCancel }: UpdateSupplierP
 
         <div className='space-y-2'>
           <Label htmlFor='contactInfo'>
-            Số điện thoại <span className='text-red-500'>*</span>
+          Thông tin liên hệ <span className='text-red-500'>*</span>
           </Label>
-          <Input
+          {/* <Input
+            id='contactInfo'
+            {...form.register('contactInfo')}
+            placeholder='Nhập thông tin liên hệ'
+            className={form.formState.errors.contactInfo ? 'border-red-500' : ''}
+          /> */}
+          <Textarea
             id='contactInfo'
             {...form.register('contactInfo')}
             placeholder='Nhập thông tin liên hệ'
