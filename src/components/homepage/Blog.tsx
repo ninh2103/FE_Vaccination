@@ -11,7 +11,8 @@ export default function Blog() {
 
   return (
     <div className='mx-auto max-w-none px-5 sm:max-w-[90%] sm:px-0 2xl:max-w-8xl'>
-      <h2 className='text-balance text-3xl font-bold xl:text-center'>Latest Blog Posts</h2>
+      <h2 className='text-balance text-3xl font-bold xl:text-center'>Bài Viết Mới Nhất</h2>
+      <p className='text-gray-500 text-center'>Cập nhật tin tức và thông tin mới nhất từ chúng tôi</p>
       <div className='pt-6 lg:pt-8'>
         <div className='relative'>
           <Carousel>
@@ -24,7 +25,7 @@ export default function Blog() {
                         <div className='flex flex-col h-full'>
                           <div className='flex items-center justify-between mb-4'>
                             <span className='text-sm dark:text-white'>
-                              {format(new Date(post.createdAt), 'MMM d, yyyy')}
+                              {format(new Date(post.createdAt), 'dd/MM/yyyy')}
                             </span>
                             <span className='px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full'>
                               {post.tag.name}
@@ -58,7 +59,7 @@ export default function Blog() {
       </div>
       <div className='flex justify-center mt-8'>
         <Link to={path.blog} className='text-green-600 hover:text-green-700 flex items-center gap-2'>
-          View All Posts <ArrowRightIcon className='w-4 h-4' />
+          Xem Tất Cả <ArrowRightIcon className='w-4 h-4' />
         </Link>
       </div>
     </div>

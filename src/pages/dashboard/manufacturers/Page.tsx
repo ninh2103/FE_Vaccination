@@ -60,7 +60,6 @@ export default function ManufacturersPage() {
   const { mutate: updateManufacturer } = useUpdateManufacturerQuery()
   const { mutate: deleteManufacturer } = useDeleteManufacturerQuery()
 
-  // Update manufacturers state when data changes
   useEffect(() => {
     if (manufacturersData?.data) {
       setManufacturers(manufacturersData.data)
@@ -85,9 +84,7 @@ export default function ManufacturersPage() {
       onSuccess: (response) => {
         setOpenAddDialog(false)
         toast.success('Nhà sản xuất đã được thêm thành công.')
-        // Optimistically update the local state
         setManufacturers((prev) => [response, ...prev])
-        // Reset to first page to show the new item
         setCurrentPage(1)
         refetch()
       }

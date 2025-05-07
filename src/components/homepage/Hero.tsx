@@ -35,30 +35,30 @@ export default function Hero() {
         >
           <h1 className='text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-6 leading-tight'>
             <span className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-              Protect Your Health
+              Bảo Vệ Sức Khỏe Của Bạn
             </span>
             <br />
-            <span className='text-gray-900 dark:text-white'>Get Vaccinated Today</span>
+            <span className='text-gray-900 dark:text-white'>Tiêm Chủng Ngay Hôm Nay</span>
           </h1>
           <p className='text-gray-700 dark:text-gray-300 mb-8 text-lg md:text-xl leading-relaxed max-w-2xl'>
-            Vaccination is the key to a healthier future. Safeguard yourself and your community against preventable
-            diseases with safe and effective vaccines recommended by experts.
+            Tiêm chủng là chìa khóa cho một tương lai khỏe mạnh hơn. Bảo vệ bản thân và cộng đồng của bạn khỏi các bệnh
+            có thể phòng ngừa bằng các loại vắc-xin an toàn và hiệu quả được các chuyên gia khuyến nghị.
           </p>
           <div className='flex flex-col sm:flex-row gap-4'>
-            <Link to={path.home}>
+            <Link to={path.list}>
               <Button
                 size='lg'
                 className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
               >
-                Book Appointment
+                Đặt Lịch Hẹn Ngay
               </Button>
             </Link>
-            <Link to={path.home}>
+            <Link to={path.list}>
               <Button
                 size='lg'
                 className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
               >
-                Contact US
+                Xem Thông tin Văc-xin
               </Button>
             </Link>
           </div>
@@ -73,7 +73,7 @@ export default function Hero() {
             <div className='absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-950 to-blue-500 rounded-2xl filter blur-3xl opacity-30 animate-pulse'></div>
             <img
               src='https://images.unsplash.com/photo-1647853042468-a152e59ab9b2'
-              alt='Vaccination'
+              alt='Tiêm Chủng'
               width={500}
               height={350}
               className='rounded-2xl shadow-2xl relative z-10 w-full h-auto transform hover:scale-105 transition-transform duration-300'

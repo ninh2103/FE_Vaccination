@@ -5,48 +5,43 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
-
-const VACCINATION_INFO = [
-  {
-    img: 'https://images.unsplash.com/photo-1618015359417-89be02e0089f',
-    title: 'COVID-19 Vaccine',
-    desc: 'Provides protection against COVID-19 and its variants, helping to reduce the spread of the virus.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1625833017043-21a7642b9152',
-    title: 'Flu Vaccine',
-    desc: 'Annual vaccination to protect against influenza viruses and reduce flu-related complications.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1625831152157-2b0e2ca79efa',
-    title: 'Hepatitis B Vaccine',
-    desc: 'Recommended for infants and adults at risk, preventing serious liver infections caused by hepatitis B virus.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1625831152275-fa582de8188e',
-    title: 'MMR Vaccine',
-    desc: 'Protects against measles, mumps, and rubella, essential for childhood immunization schedules.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1611694416641-519e808b2cbb',
-    title: 'Polio Vaccine',
-    desc: 'Prevents poliomyelitis, a potentially life-threatening disease that can cause paralysis.'
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1633158829551-54d618c269bd',
-    title: 'HPV Vaccine',
-    desc: 'Protects against human papillomavirus, reducing the risk of cervical and other cancers.'
-  }
-]
+import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function Vaccines() {
+  const { data: vaccinationList, isLoading } = useListVaccinationQuery({
+    page: 1,
+    items_per_page: 6
+  })
+
+  const renderSkeletons = () => {
+    return Array(3)
+      .fill(0)
+      .map((_, index) => (
+        <SwiperSlide key={`skeleton-${index}`} className='p-4'>
+          <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center h-[400px]'>
+            <Card className='shadow-none w-full h-full'>
+              <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
+                <Skeleton className='h-full w-full' />
+              </CardHeader>
+              <CardContent className='p-0'>
+                <Skeleton className='h-6 w-3/4 mx-auto mb-2' />
+                <Skeleton className='h-4 w-full mb-6' />
+                <Skeleton className='h-9 w-24 mx-auto' />
+              </CardContent>
+            </Card>
+          </div>
+        </SwiperSlide>
+      ))
+  }
+
   return (
     <section className='py-28 px-8'>
       <div className='container mx-auto mb-10 text-center'>
-        <h2 className='text-3xl font-bold dark:text-white'>Vaccination Information</h2>
+        <h2 className='text-3xl font-bold dark:text-white'>Thông tin về tiêm chủng</h2>
         <p className='mx-auto w-full px-4 dark:text-white lg:w-6/12'>
-          Stay protected with the latest vaccines available. Here are some essential vaccinations to ensure your health
-          and well-being.
+          Bảo vệ sức khỏe của bạn với các vắc-xin mới nhất. Dưới đây là một số vắc-xin cần thiết để đảm bảo sức khỏe và
+          tốt nhất.
         </p>
       </div>
       <div className='container mx-auto'>
@@ -63,28 +58,41 @@ export function Vaccines() {
           modules={[Autoplay, Pagination]}
           className='w-full'
         >
-          {VACCINATION_INFO.map((vaccine, index) => (
-            <SwiperSlide key={index} className='p-4'>
-              <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center'>
-                <Card className='shadow-none w-full'>
-                  <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
-                    <img src={vaccine.img} alt={vaccine.title} className='h-full w-full object-cover' />
-                  </CardHeader>
-                  <CardContent className='p-0'>
-                    <a href='#' className='text-gray-900 transition-colors hover:text-gray-800'>
-                      <h5 className='mb-2 text-lg font-semibold dark:text-white'>{vaccine.title}</h5>
-                    </a>
-                    <p className='mb-6 text-sm text-gray-500 dark:text-white'>{vaccine.desc}</p>
-                    <Link to={path.list}>
-                      <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
-                        See more
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </div>
-            </SwiperSlide>
-          ))}
+          {isLoading
+            ? renderSkeletons()
+            : vaccinationList?.data.map((vaccine, index) => (
+                <SwiperSlide key={index} className='p-4'>
+                  <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center h-[400px]'>
+                    <Card className='shadow-none w-full h-full'>
+                      <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
+                        <img
+                          src={
+                            isLoading
+                              ? 'https://static.vecteezy.com/system/resources/previews/016/916/479/original/placeholder-icon-design-free-vector.jpg'
+                              : vaccine.image ||
+                                'https://static.vecteezy.com/system/resources/previews/016/916/479/original/placeholder-icon-design-free-vector.jpg'
+                          }
+                          alt={vaccine.vaccineName}
+                          className='h-full w-full object-cover'
+                        />
+                      </CardHeader>
+                      <CardContent className='p-0'>
+                        <a href='#' className='text-gray-900 transition-colors hover:text-gray-800'>
+                          <h5 className='mb-2 text-lg font-semibold dark:text-white line-clamp-1'>
+                            {vaccine.vaccineName}
+                          </h5>
+                        </a>
+                        <p className='mb-6 text-sm text-gray-500 dark:text-white line-clamp-3'>{vaccine.description}</p>
+                        <Link to={path.list}>
+                          <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
+                            Xem Thêm
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </SwiperSlide>
+              ))}
         </Swiper>
       </div>
     </section>

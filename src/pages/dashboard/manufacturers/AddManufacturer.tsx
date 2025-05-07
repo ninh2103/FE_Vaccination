@@ -38,7 +38,7 @@ export function AddManufacturer({ open, onOpenChange }: AddManufacturerProps) {
     createManufacturer(data, {
       onSuccess: () => {
         onOpenChange(false)
-        toast.success('Manufacturer created successfully')
+        toast.success('Thêm nhà sản xuất thành công .')
         form.reset()
       },
       onError: (error) => {

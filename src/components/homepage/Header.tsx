@@ -22,7 +22,7 @@ import MessengerButton from '@/pages/Messenger/messenger'
 
 const navItems = [
   { name: 'Trang chủ', href: '#home' },
-  { name: 'Tính năng', href: '#features' },
+  { name: 'Giới thiệu', href: '#features' },
   { name: 'Vắc xin', href: '#vaccines' },
   { name: 'Bác sĩ', href: '#doctor' },
   { name: 'Tin tức', href: '#blog' },

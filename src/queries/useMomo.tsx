@@ -87,7 +87,7 @@ export const useDeletePaymentMutation = () => {
   return useMutation({
     mutationFn: (id: string) => momoService.deletePayment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment-list'] })
+      queryClient.invalidateQueries({ queryKey: ['listPayment'] })
     }
   })
 }
