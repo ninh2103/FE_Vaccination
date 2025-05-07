@@ -55,12 +55,27 @@ export const UpdateMeBody = z
       })
       .optional(),
     country: z
-      .string({ required_error: 'Tên quốc gia là bắt buộc' })
-      .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên quốc gia chỉ được chứa chữ cái')
+      .string({ required_error: 'Tên thành phố là bắt buộc' })
+      .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên thành phố chỉ được chứa chữ cái')
       .refine((value) => value.trim().length > 0, {
-        message: 'Tên quốc gia không được chỉ chứa khoảng trắng'
+        message: 'Tên thành phố không được chỉ chứa khoảng trắng'
       }),
-    date_of_birth: z.string().optional(),
+    date_of_birth: z
+      .string()
+      .optional()
+      .refine(
+        (value) => {
+          if (!value) return true
+          const inputDate = new Date(value)
+          const today = new Date()
+          inputDate.setHours(0, 0, 0, 0)
+          today.setHours(0, 0, 0, 0)
+          return inputDate <= today
+        },
+        {
+          message: 'Ngày sinh không được lớn hơn ngày hiện tại'
+        }
+      ),
     role: z.string({ required_error: 'Vai trò là bắt buộc' }).optional(),
     avatar: z.string().optional(),
     email: z.string().email({ message: 'Email không hợp lệ' }).optional()

@@ -13,7 +13,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { useDetailPaymentQuery, useUpdateStatusPaymentMutation } from '@/queries/useMomo'
+import { useUpdateStatusPaymentMutation } from '@/queries/useMomo'
 import { cn } from '@/core/lib/utils'
 import {
   PaymentResponseType,
@@ -30,7 +30,6 @@ interface UpdatePaymentDialogProps {
 
 export function UpdatePaymentDialog({ open, onOpenChange, isLoading, selectedPayment }: UpdatePaymentDialogProps) {
   const { mutate: updateStatusPayment } = useUpdateStatusPaymentMutation()
-  const { data: payment } = useDetailPaymentQuery(selectedPayment?.id ?? '')
 
   const form = useForm<UpdateStatusPaymentBodyType>({
     resolver: zodResolver(updateStatusPaymentBodySchema),

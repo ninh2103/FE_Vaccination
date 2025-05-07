@@ -21,6 +21,8 @@ import { format } from 'date-fns'
 
 export default function Profile() {
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const navigate = useNavigate()
 
@@ -278,7 +280,7 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='country' className='dark:text-green-300'>
-                    Quốc tịch
+                    Thành Phố
                   </Label>
                   <Input
                     id='country'
@@ -345,14 +347,30 @@ export default function Profile() {
                   <Label htmlFor='new-password' className='dark:text-green-300'>
                     Mật khẩu mới
                   </Label>
-                  <Input
-                    {...form.register('password')}
-                    id='new-password'
-                    type='password'
-                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                      form.formState.errors.password ? 'border-red-500' : ''
-                    }`}
-                  />
+                  <div className='relative'>
+                    <Input
+                      {...form.register('password')}
+                      id='new-password'
+                      type={showNewPassword ? 'text' : 'password'}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.password ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className={`absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent ${
+                        form.formState.errors.password ? 'border-red-500' : ''
+                      }`}
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className='h-4 w-4 dark:text-green-400' />
+                      ) : (
+                        <Eye className='h-4 w-4 dark:text-green-400' />
+                      )}
+                    </Button>
+                  </div>
                   {form.formState.errors.password && (
                     <p className='text-red-500 text-sm'>{form.formState.errors.password.message}</p>
                   )}
@@ -362,14 +380,30 @@ export default function Profile() {
                   <Label htmlFor='confirm-password' className='dark:text-green-300'>
                     Xác nhận mật khẩu mới
                   </Label>
-                  <Input
-                    {...form.register('confirm_password')}
-                    id='confirm-password'
-                    type='password'
-                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                      form.formState.errors.confirm_password ? 'border-red-500' : ''
-                    }`}
-                  />
+                  <div className='relative'>
+                    <Input
+                      {...form.register('confirm_password')}
+                      id='confirm-password'
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.confirm_password ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className={`absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent ${
+                        form.formState.errors.confirm_password ? 'border-red-500' : ''
+                      }`}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className='h-4 w-4 dark:text-green-400' />
+                      ) : (
+                        <Eye className='h-4 w-4 dark:text-green-400' />
+                      )}
+                    </Button>
+                  </div>
                   {form.formState.errors.confirm_password && (
                     <p className='text-red-500 text-sm'>{form.formState.errors.confirm_password.message}</p>
                   )}

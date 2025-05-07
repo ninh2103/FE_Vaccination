@@ -124,10 +124,9 @@ export function UserTable({
             <TableHead className='w-[60px]'>No.</TableHead>
             <TableHead>{tab === 'patients' ? 'Khách hàng' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
             <TableHead>Liên hệ</TableHead>
-            {tab !== 'patients' && <TableHead>Vai trò</TableHead>}
+            <TableHead>Vai trò</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Ngày đăng ký</TableHead>
-            {tab !== 'patients' && <TableHead>Lần đăng nhập cuối</TableHead>}
             <TableHead className='w-[80px]'>Hành động</TableHead>
           </TableRow>
         </TableHeader>
@@ -156,10 +155,9 @@ export function UserTable({
                   </div>
                 </div>
               </TableCell>
-              {tab !== 'patients' && <TableCell>{getRoleBadge(user.role)}</TableCell>}
+              <TableCell>{getRoleBadge(user.role)}</TableCell>
               <TableCell>{getStatusBadge(user.status)}</TableCell>
               <TableCell> {convertDateFormat(user.registeredDate)}</TableCell>
-              {tab !== 'patients' && <TableCell> {convertDateFormat(user.lastLogin)}</TableCell>}
               <TableCell>
                 <div className='flex items-center gap-2'>
                   <Button

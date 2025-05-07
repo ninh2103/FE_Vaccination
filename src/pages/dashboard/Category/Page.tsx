@@ -32,6 +32,7 @@ export const CategoryPage: React.FC = () => {
     search: searchQuery
   })
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
 
   const { mutate: deleteCategory } = useDeleteCategoryMutation()
 
@@ -79,7 +80,7 @@ export const CategoryPage: React.FC = () => {
     const category = categoriesData?.data.find((c) => c.id === id)
     if (category) {
       setSelectedCategory(category)
-      setIsUpdateDialogOpen(true)
+      setOpenViewDialog(true)
     }
   }
 
@@ -125,9 +126,9 @@ export const CategoryPage: React.FC = () => {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Danh mục
+            Loại vắc xin
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi danh mục trong hệ thống.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi loại vắc xin trong hệ thống.</p>
         </div>
       </div>
 
@@ -214,6 +215,33 @@ export const CategoryPage: React.FC = () => {
       <AddCategory open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSubmit={handleAddCategory} />
 
       <UpdateCategory open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} id={selectedCategory?.id ?? ''} />
+
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Chi tiết loại vắc xin</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedCategory && (
+              <div className='space-y-4'>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Tên</h3>
+                  <p className='text-lg font-medium'>{selectedCategory.name}</p>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Mô tả</h3>
+                  <p className='text-lg'>{selectedCategory.description}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>

@@ -235,13 +235,13 @@ export default function AppointmentsPage() {
     (appointment: Appointment) => {
       deleteAppointment(appointment.id, {
         onSuccess: () => {
-          toast.success('Đã xóa lịch hẹn thành công')
+          toast.success('Đã xóa lịch hẹn thành công.')
           refetch()
           refetchDaily()
           setOpenDeleteDialog(false)
         },
         onError: () => {
-          toast.error('Lỗi khi xóa lịch hẹn')
+          toast.error('Không thể xóa lịch hẹn.')
         }
       })
     },
@@ -337,9 +337,7 @@ export default function AppointmentsPage() {
                     <Loader2 className='h-6 w-6 animate-spin' />
                   </div>
                 ) : filteredAppointments.length === 0 ? (
-                  <div className='p-4 text-center text-muted-foreground'>
-                    Không tìm thấy lịch hẹn phù hợp với bộ lọc hiện tại.
-                  </div>
+                  <div className='p-4 text-center text-muted-foreground'>Không tìm thấy lịch hẹn ngày hôm nay.</div>
                 ) : (
                   <AppointmentTable
                     appointments={filteredAppointments}

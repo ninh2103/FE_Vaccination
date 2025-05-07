@@ -19,8 +19,8 @@ export const VaccineSchema = z.object({
   updatedAt: z.string().datetime(),
   remainingQuantity: z.number(),
   expirationDate: z.coerce.date({
-    required_error: 'Expiration date is required',
-    invalid_type_error: 'Expiration date must be a valid date'
+    required_error: 'Ngày hạn sử dụng vaccine không được để trống',
+    invalid_type_error: 'Ngày hạn sử dụng vaccine phải là ngày hợp lệ'
   }),
   manufacturerId: z.string().uuid().nullable(),
   supplierId: z.string().uuid(),

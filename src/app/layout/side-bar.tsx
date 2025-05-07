@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
 
   const sidebarItems: SidebarItem[] = [
     { name: 'Tổng quan', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
-    { name: 'Danh mục', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
+    { name: 'Loại vắc xin', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
     { name: 'Vắc xin', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
     { name: 'Người dùng', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
     { name: 'Thanh toán', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },

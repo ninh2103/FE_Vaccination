@@ -213,7 +213,7 @@ export default function OrdersPage() {
         toast.success('Đã xóa đơn hàng thành công.')
       },
       onError: () => {
-        toast.error('Đã xóa đơn hàng thất bại.')
+        toast.error('Không thể xóa đơn hàng.')
       }
     })
   }, [selectedOrder])

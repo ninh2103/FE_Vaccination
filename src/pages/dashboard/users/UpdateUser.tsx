@@ -68,9 +68,7 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
           <div className='flex flex-col gap-2'>
             <Label htmlFor='role'>Vai trò</Label>
             <Select value={form.watch('roleId')} onValueChange={(value) => form.setValue('roleId', value)}>
-              <SelectTrigger>
-                {roles?.data.find((role) => role.id === form.watch('roleId'))?.name || user?.role.name}
-              </SelectTrigger>
+              <SelectTrigger>{user?.role.name}</SelectTrigger>
 
               <SelectContent>
                 {roles?.data.map((role) => (
