@@ -5,6 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MessageCircle, Send, X, CircleStop } from 'lucide-react'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { trainingData } from './training'
+import { useListVaccinationQuery } from '@/queries/useVaccination'
 
 const apiKey = 'AIzaSyAJF8hoEIF2n-iVsaqGrv1M0WS1KvOPmAY'
 const genAI = new GoogleGenerativeAI(apiKey)
@@ -29,6 +31,17 @@ interface Message {
 }
 
 export default function Chatbox() {
+  const { data: vaccinationList } = useListVaccinationQuery({
+    items_per_page: 100
+  })
+  const [vaccination, setVaccination] = useState<any[]>([])
+
+  useEffect(() => {
+    if (vaccinationList) {
+      setVaccination(vaccinationList.data)
+    }
+  }, [vaccinationList])
+
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<Message[]>([
@@ -44,6 +57,47 @@ export default function Chatbox() {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const [isRendering, setIsRendering] = useState(false)
+
+  const findMatchingAnswer = (question: string): { answer: string | null; data: any[] } => {
+    const normalizedQuestion = question.toLowerCase().trim()
+
+    // First check training data
+    const trainingMatch = trainingData.find((item) => item.question.toLowerCase().trim() === normalizedQuestion)
+
+    if (trainingMatch) {
+      return { answer: trainingMatch.answer, data: [] }
+    }
+
+    // Check for vaccine-related keywords
+    const vaccineKeywords = ['vắc-xin', 'vaccine', 'tiêm', 'chủng ngừa', 'vaccination']
+    const isVaccineQuestion = vaccineKeywords.some((keyword) => normalizedQuestion.includes(keyword.toLowerCase()))
+
+    if (isVaccineQuestion && vaccination.length > 0) {
+      // Search for matching vaccines in the API data
+      const matchingVaccines = vaccination.filter(
+        (vaccine) =>
+          vaccine.name.toLowerCase().includes(normalizedQuestion) ||
+          vaccine.title.toLowerCase().includes(normalizedQuestion)
+      )
+
+      if (matchingVaccines.length > 0) {
+        const vaccineInfo = matchingVaccines.map((vaccine) => ({
+          id: vaccine.id,
+          title: vaccine.title,
+          name: vaccine.name,
+          amout: vaccine.price?.toString() || 'Liên hệ',
+          redirectlink: `/vaccination/${vaccine.id}`
+        }))
+
+        return {
+          answer: `Tôi tìm thấy ${matchingVaccines.length} vắc-xin phù hợp với yêu cầu của bạn:`,
+          data: vaccineInfo
+        }
+      }
+    }
+
+    return { answer: null, data: [] }
+  }
 
   const typeMessage = async (text: string) => {
     let currentText = ''
@@ -65,40 +119,84 @@ export default function Chatbox() {
         { id: Date.now() + 1, sender: 'bot', text: 'Đợi tôi chút...', data: [] }
       ])
 
-      const chatSession = model.startChat({
-        generationConfig,
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: userMessage }]
-          }
-        ]
-      })
+      // Check for matching answer in training data or vaccination list
+      const { answer, data } = findMatchingAnswer(userMessage)
 
-      const result = await chatSession.sendMessage(userMessage)
-      const responseText = result.response.text()
+      if (answer) {
+        // If we have a matching answer, use it directly
+        await typeMessage(answer)
+        setMessages((prev) => [...prev.slice(0, -1), { id: Date.now() + 1, sender: 'bot', text: answer, data }])
+      } else {
+        // If no matching answer, use the AI model
+        const chatSession = model.startChat({
+          generationConfig,
+          history: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: `Bạn là một người tư vấn giỏi. Với dữ liệu được lấy từ database của tôi: ${JSON.stringify({ vaccination })}. Người dùng sẽ hỏi những câu như ví dụ: "Tôi đang tìm hiểu về vắc xin cho trẻ 2 tuổi, nên tiêm loại nào?" hoặc "Người lớn có cần tiêm nhắc lại không?" Bạn sẽ tư vấn họ theo kiểu dễ thương nhưng nghiêm túc, nội dung rõ ràng, dễ hiểu và có thể kèm theo đường link thông tin vắc xin phù hợp. Đường link sẽ là: http://localhost:4000/vaccination/{id} (với id được lấy từ trong database). Nếu câu hỏi không liên quan đến y tế hoặc vắc xin, bạn sẽ lịch sự từ chối vì không nằm trong phạm vi chuyên môn của bạn. Các câu nhỏ như cảm ơn, chào hỏi thì bạn vẫn có thể trả lời nhẹ nhàng, thân thiện. Bạn hãy trả lời bằng đoạn văn bình thường, KHÔNG sử dụng định dạng JSON hoặc bất kỳ ký tự đặc biệt nào như \`\`\`json hoặc { "message": ". Chỉ trả lời bằng văn bản thuần túy.`
+                }
+              ]
+            },
+            {
+              role: 'model',
+              parts: [
+                {
+                  text: `Tôi hiểu rõ yêu cầu của bạn. Tôi sẽ đóng vai một tư vấn viên vắc xin "dễ thương nhưng nghiêm túc", sử dụng dữ liệu từ database của bạn để đưa ra lời khuyên và cung cấp đường link vắc xin phù hợp. Tôi sẽ trả lời bằng văn bản thuần túy, không sử dụng bất kỳ định dạng JSON hay ký tự đặc biệt nào. Khi người dùng hỏi các câu hỏi không liên quan đến y tế hoặc vắc xin, tôi sẽ lịch sự từ chối.`
+                }
+              ]
+            }
+          ]
+        })
 
-      let botReply
-      try {
-        botReply = JSON.parse(responseText)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
-        botReply = { messages: responseText, data: [] }
+        const result = await chatSession.sendMessage(userMessage)
+        const responseText = result.response.text()
+
+        // Clean up any potential JSON formatting that might still appear
+        const cleanResponse = responseText
+          .replace(/```json\s*{/g, '')
+          .replace(/}\s*```/g, '')
+          .replace(/\{\s*"message"\s*:\s*"/g, '')
+          .replace(/"\s*\}\s*$/g, '')
+          .trim()
+
+        // Extract any URLs from the response
+        const urlRegex = /http:\/\/localhost:4000\/vaccination\/\d+/g
+        const urls = cleanResponse.match(urlRegex) || []
+
+        // Extract vaccine IDs from URLs
+        const vaccineData = urls
+          .map((url) => {
+            const id = url.split('/').pop()
+            const vaccine = vaccination.find((v) => v.id === id)
+            if (!vaccine) return null
+            return {
+              id: String(vaccine.id),
+              title: String(vaccine.title),
+              name: String(vaccine.name),
+              amout: String(vaccine.price || 'Liên hệ'),
+              redirectlink: `/vaccination/${vaccine.id}`
+            }
+          })
+          .filter(
+            (item): item is { id: string; title: string; name: string; amout: string; redirectlink: string } =>
+              item !== null
+          )
+
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { id: Date.now() + 1, sender: 'bot', text: cleanResponse, data: vaccineData }
+        ])
+
+        await typeMessage(cleanResponse)
+
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { id: Date.now() + 1, sender: 'bot', text: cleanResponse, data: vaccineData }
+        ])
       }
-
-      setMessages((prev) => [
-        ...prev.slice(0, -1),
-        { id: Date.now() + 1, sender: 'bot', text: '', data: botReply.data }
-      ])
-
-      await typeMessage(botReply.messages)
-
-      setMessages((prev) => [
-        ...prev.slice(0, -1),
-        { id: Date.now() + 1, sender: 'bot', text: botReply.messages, data: botReply.data }
-      ])
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(error)
     } finally {
       setIsLoading(false)

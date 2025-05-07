@@ -15,8 +15,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Banknote, CreditCard, HandCoins } from 'lucide-react'
+import { Banknote, CreditCard, HandCoins, ArrowLeft } from 'lucide-react'
 import { path } from '@/core/constants/path'
+import { UserBody, UserBodyType } from '@/schemaValidator/user.schema'
 
 const CheckOutPagePageMain = () => {
   const navigate = useNavigate()
@@ -39,41 +40,20 @@ const CheckOutPagePageMain = () => {
       vaccinationId: id as string
     }
   })
-  const [vaccineForm, setVaccineForm] = useState({
-    fullName: '',
-    dob: '',
-    gender: '',
-    phone: '',
-    email: '',
-    relationship: '',
-    province: '',
-    district: '',
-    ward: '',
-    address: ''
+
+  const formUser = useForm<UserBodyType>({
+    resolver: zodResolver(UserBody),
+    defaultValues: {
+      fullName: '',
+      date_of_birth: '',
+      gender: '',
+      phone: '',
+      email: '',
+      relationship: '',
+      address: ''
+    }
   })
 
-  const [errors, setErrors] = useState({ phone: '' })
-
-  const handleVaccineChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setVaccineForm((prev) => ({ ...prev, [name]: value }))
-
-    if (name === 'phone') {
-      const numericValue = value.replace(/\D/g, '')
-      if (numericValue.length > 10) return
-      setVaccineForm((prev) => ({ ...prev, [name]: numericValue }))
-      const validVNPhone = /^(03|05|07|08|09)\d{8}$/
-      if (numericValue.length === 0) {
-        setErrors((prev) => ({ ...prev, phone: 'Số điện thoại là bắt buộc.' }))
-      } else if (numericValue.length !== 10) {
-        setErrors((prev) => ({ ...prev, phone: 'Số điện thoại phải có đúng 10 chữ số.' }))
-      } else if (!validVNPhone.test(numericValue)) {
-        setErrors((prev) => ({ ...prev, phone: 'Số điện thoại không hợp lệ.' }))
-      } else {
-        setErrors((prev) => ({ ...prev, phone: '' }))
-      }
-    }
-  }
   useEffect(() => {
     if (userDetail) {
       const today = new Date()
@@ -162,6 +142,14 @@ const CheckOutPagePageMain = () => {
   }
   return (
     <div className='container mx-auto px-4 py-8 lg:py-12'>
+      <Button
+        variant='ghost'
+        className='mb-4 hover:bg-blue-50 transition-colors duration-200 border border-gray-200 hover:border-blue-200 hover:text-blue-600'
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className='w-4 h-4' />
+        Quay lại trang trước
+      </Button>
       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8'>
         {/* Main Form Section */}
         <div className='lg:col-span-2'>
@@ -176,9 +164,8 @@ const CheckOutPagePageMain = () => {
                       Họ và tên <span className='text-red-500'>*</span>
                     </Label>
                     <Input
-                      name='fullName'
-                      value={vaccineForm.fullName}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('fullName')}
+                      {...formUser.register('fullName')}
                       placeholder='Họ và tên'
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                     />
@@ -188,9 +175,8 @@ const CheckOutPagePageMain = () => {
                       Mối quan hệ <span className='text-red-500'>*</span>
                     </Label>
                     <select
-                      name='relationship'
-                      value={vaccineForm.relationship}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('relationship')}
+                      {...formUser.register('relationship')}
                       className='w-full border border-green-500 focus:border-green-400 focus:ring-green-400 dark:bg-gray-800 px-3 py-2  rounded-md'
                     >
                       <option value=''>Chọn mối quan hệ</option>
@@ -206,9 +192,8 @@ const CheckOutPagePageMain = () => {
                     </Label>
                     <Input
                       type='date'
-                      name='dob'
-                      value={vaccineForm.dob}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('date_of_birth')}
+                      {...formUser.register('date_of_birth')}
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                     />
                   </div>
@@ -220,20 +205,18 @@ const CheckOutPagePageMain = () => {
                       <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
                         <input
                           type='radio'
-                          name='gender'
                           value='male'
-                          onChange={handleVaccineChange}
-                          checked={vaccineForm.gender === 'male'}
+                          {...formUser.register('gender')}
+                          checked={formUser.watch('gender') === 'male'}
                         />
                         Nam
                       </label>
                       <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
                         <input
                           type='radio'
-                          name='gender'
                           value='female'
-                          onChange={handleVaccineChange}
-                          checked={vaccineForm.gender === 'female'}
+                          {...formUser.register('gender')}
+                          checked={formUser.watch('gender') === 'female'}
                         />
                         Nữ
                       </label>
@@ -245,13 +228,14 @@ const CheckOutPagePageMain = () => {
                     </Label>
                     <Input
                       type='tel'
-                      name='phone'
-                      value={vaccineForm.phone}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('phone')}
+                      {...formUser.register('phone')}
                       placeholder='Số điện thoại'
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                     />
-                    {errors.phone && <p className='text-red-500 text-sm'>{errors.phone}</p>}
+                    {formUser.formState.errors.phone && (
+                      <p className='text-red-500 text-sm'>{formUser.formState.errors.phone.message}</p>
+                    )}
                     <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
                       Nếu người được tiêm chưa có SĐT, vui lòng điền SĐT của cha/mẹ hoặc người giám hộ.
                     </p>
@@ -261,9 +245,8 @@ const CheckOutPagePageMain = () => {
                     <Label>Email</Label>
                     <Input
                       type='email'
-                      name='email'
-                      value={vaccineForm.email}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('email')}
+                      {...formUser.register('email')}
                       placeholder='Email'
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                     />
@@ -274,9 +257,8 @@ const CheckOutPagePageMain = () => {
                       Địa chỉ <span className='text-red-500'>*</span>
                     </Label>
                     <Input
-                      name='address'
-                      value={vaccineForm.address}
-                      onChange={handleVaccineChange}
+                      value={formUser.watch('address')}
+                      {...formUser.register('address')}
                       placeholder='Số nhà, tên đường (Theo hộ khẩu/CMND)'
                       className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                     />
@@ -284,7 +266,6 @@ const CheckOutPagePageMain = () => {
                 </div>
               </div>
 
-              {/* 👉 FORM: THÔNG TIN ĐẶT LỊCH & THANH TOÁN */}
               <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>
                 <h2 className='text-xl font-semibold text-gray-900 dark:text-white'> Chọn Thời Gian Mong Muốn Tiêm </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

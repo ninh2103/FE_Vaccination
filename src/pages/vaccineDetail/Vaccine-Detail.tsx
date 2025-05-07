@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { Calendar, Tag, Info, Building, FingerprintIcon } from 'lucide-react'
+import { Calendar, Tag, Info, Building, FingerprintIcon, ArrowLeft } from 'lucide-react'
 import { path } from '@/core/constants/path'
 import { useGetVaccinationByIdQuery } from '@/queries/useVaccination'
 
@@ -28,7 +28,7 @@ export default function VaccineDetail() {
   }
 
   if (!vaccineDetail) {
-    return <div className='p-8'>Không tìm thấy vaccine</div>
+    return <div className='p-8 text-center'>Không tìm thấy vaccine</div>
   }
 
   const formatCurrency = (amount: number) => {
@@ -50,6 +50,15 @@ export default function VaccineDetail() {
   return (
     <div className='min-h-[calc(100vh-4rem)]'>
       <div className='container mx-auto p-6'>
+        <Link to={path.list}>
+          <Button
+            variant='ghost'
+            className='mb-4 hover:bg-blue-50 transition-colors duration-200 border border-gray-200 hover:border-blue-200 hover:text-blue-600'
+          >
+            <ArrowLeft className='mr-2 h-4 w-4' />
+            Quay lại trang trước
+          </Button>
+        </Link>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           {/* Left column - Image */}
           <div className='md:col-span-1'>

@@ -112,3 +112,15 @@ export const CountUserResponse = z.object({
 })
 
 export type CountUserResponseType = z.TypeOf<typeof CountUserResponse>
+
+export const UserBody = z.object({
+  fullName: z.string({ required_error: 'Họ và tên là bắt buộc' }),
+  date_of_birth: z.string({ required_error: 'Ngày sinh là bắt buộc' }),
+  gender: z.string({ required_error: 'Giới tính là bắt buộc' }),
+  phone: z.string({ required_error: 'Số điện thoại là bắt buộc' }),
+  email: z.string({ required_error: 'Email là bắt buộc' }),
+  relationship: z.string({ required_error: 'Mối quan hệ là bắt buộc' }),
+  address: z.string({ required_error: 'Địa chỉ là bắt buộc' })
+})
+
+export type UserBodyType = z.TypeOf<typeof UserBody>
