@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Search, Download, RefreshCw } from 'lucide-react'
@@ -11,6 +11,7 @@ import { useDeleteCategoryMutation, useListCategoryQuery } from '@/queries/useCa
 import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
+import debounce from 'lodash/debounce'
 
 export const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
@@ -22,6 +23,17 @@ export const CategoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value)
+      setCurrentPage(1)
+    }, 300),
+    []
+  )
+
   const {
     data: categoriesData,
     isLoading: isLoadingCategories,
@@ -31,8 +43,6 @@ export const CategoryPage: React.FC = () => {
     items_per_page: rowsPerPage,
     search: searchQuery
   })
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [openViewDialog, setOpenViewDialog] = useState(false)
 
   const { mutate: deleteCategory } = useDeleteCategoryMutation()
 
@@ -137,11 +147,8 @@ export const CategoryPage: React.FC = () => {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Tìm kiếm...'
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-              }}
+              placeholder='Tìm kiếm theo tên...'
+              onChange={(e) => debouncedSearch(e.target.value)}
               className='w-full'
               type='search'
             />
