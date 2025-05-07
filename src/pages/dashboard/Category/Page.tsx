@@ -219,7 +219,7 @@ export const CategoryPage: React.FC = () => {
       <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
         <DialogContent className='sm:max-w-[600px]'>
           <DialogHeader>
-            <DialogTitle>Chi tiết loại vắc xin</DialogTitle>
+            <DialogTitle>Xem chi tiết loại vắc xin</DialogTitle>
           </DialogHeader>
           <div className='py-4'>
             {selectedCategory && (

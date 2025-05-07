@@ -5,14 +5,7 @@ import { Download, RefreshCw, Loader2, CalendarIcon, Search } from 'lucide-react
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
+import { Dialog } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AppointmentTable } from './AppointmentTable'
 import { UpdateAppointment } from './UpdateAppointment'
@@ -76,7 +69,6 @@ interface Appointment {
 export default function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -238,7 +230,6 @@ export default function AppointmentsPage() {
           toast.success('Đã xóa lịch hẹn thành công.')
           refetch()
           refetchDaily()
-          setOpenDeleteDialog(false)
         },
         onError: () => {
           toast.error('Không thể xóa lịch hẹn.')
@@ -430,33 +421,6 @@ export default function AppointmentsPage() {
             onCancel={() => setOpenUpdateDialog(false)}
           />
         )}
-      </Dialog>
-
-      {/* Delete Dialog */}
-      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa lịch hẹn này? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Hủy bỏ
-            </Button>
-            <Button
-              variant='destructive'
-              onClick={() => {
-                setSelectedAppointment(null)
-                setOpenDeleteDialog(false)
-              }}
-              disabled={!selectedAppointment}
-            >
-              Xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
       </Dialog>
     </div>
   )

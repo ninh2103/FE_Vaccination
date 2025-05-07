@@ -25,6 +25,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { format } from 'date-fns'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 
 interface Payment {
   id: string
@@ -72,6 +81,25 @@ export function PaymentTable({
   total = 0,
   itemsPerPage = 10
 }: PaymentTableProps) {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const handleDeleteClick = (payment: Payment) => {
+    setPaymentToDelete(payment)
+    setOpenDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (paymentToDelete) {
+      setIsDeleting(true)
+      onDelete(paymentToDelete.id)
+      setOpenDeleteDialog(false)
+      setPaymentToDelete(null)
+      setIsDeleting(false)
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const variants: {
       [key: string]: { variant: 'default' | 'destructive' | 'outline' | 'secondary'; className?: string }
@@ -233,7 +261,7 @@ export function PaymentTable({
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    onDelete(payment.id)
+                                    handleDeleteClick(payment)
                                   }}
                                   className='text-destructive'
                                 >
@@ -515,6 +543,38 @@ export function PaymentTable({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa thanh toán này? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          {paymentToDelete && (
+            <div className='py-4'>
+              <div className='flex items-center gap-4'>
+                <div>
+                  <p className='font-medium'>Mã thanh toán: #{paymentToDelete.id.slice(0, 8)}</p>
+                  <p className='text-sm text-muted-foreground'>Khách hàng: {paymentToDelete.user.name}</p>
+                  <p className='text-sm text-muted-foreground'>Số tiền: {formatCurrency(paymentToDelete.amount)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isDeleting}>
+              Hủy bỏ
+            </Button>
+            <Button variant='destructive' onClick={handleConfirmDelete} disabled={isDeleting}>
+              {isDeleting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isDeleting ? 'Đang xóa...' : 'Xóa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

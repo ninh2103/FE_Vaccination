@@ -427,7 +427,7 @@ export default function OrdersPage() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn hàng {selectedOrder?.id}? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa đơn hàng #{selectedOrder?.id.slice(0, 8)}? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -20,6 +20,7 @@ import { useDetailUserQuery } from '@/queries/useUser'
 import type { User } from './UserTable'
 import { cn } from '@/core/lib/utils'
 import { getUserFromLocalStorage } from '@/core/shared/storage'
+import { useEffect } from 'react'
 
 interface UpdateUserDialogProps {
   open: boolean
@@ -39,6 +40,10 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
       roleId: roles?.data.find((role) => role.name === user?.role.name)?.id ?? ''
     }
   })
+  useEffect(() => {
+    form.setValue('roleId', roles?.data.find((role) => role.name === user?.role.name)?.id ?? '')
+  }, [user])
+
   const userRole = getUserFromLocalStorage()
 
   const onSubmit = (data: UpdateRoleBodyType) => {
@@ -66,11 +71,12 @@ export function UpdateUserDialog({ open, onOpenChange, isLoading, selectedUser }
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='role'>Vai trò</Label>
-            <Select value={form.watch('roleId')} onValueChange={(value) => form.setValue('roleId', value)}>
-              <SelectTrigger>{user?.role.name}</SelectTrigger>
-
-              <SelectContent>
+            <Label htmlFor='roleId'>Vai trò</Label>
+            <Select value={form.watch('roleId')} onValueChange={(value) => form.setValue('roleId', value as string)}>
+              <SelectTrigger>
+                {roles?.data.find((role) => role.id === form.watch('roleId'))?.name || 'Chọn vai trò'}
+              </SelectTrigger>
+              <SelectContent className='cursor-pointer'>
                 {roles?.data.map((role) => (
                   <SelectItem key={role.id} value={role.id}>
                     {role.name}

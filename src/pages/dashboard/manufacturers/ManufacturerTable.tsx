@@ -2,6 +2,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button'
 import { Edit, Trash, Home, MapPin, Phone } from 'lucide-react'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { useState } from 'react'
 
 export interface Manufacturer {
   id: string
@@ -27,6 +29,14 @@ export function ManufacturerTable({
   onDelete,
   isLoading
 }: ManufacturerTableProps) {
+  const [openViewDialog, setOpenViewDialog] = useState(false)
+  const [selectedManufacturer, setSelectedManufacturer] = useState<Manufacturer | null>(null)
+
+  const handleViewManufacturer = (manufacturer: Manufacturer) => {
+    setSelectedManufacturer(manufacturer)
+    setOpenViewDialog(true)
+  }
+
   if (isLoading) {
     return (
       <div className='flex items-center justify-center p-8'>
@@ -51,7 +61,11 @@ export function ManufacturerTable({
           </TableHeader>
           <TableBody>
             {manufacturers.map((manufacturer, index) => (
-              <TableRow key={manufacturer.id} className='cursor-pointer hover:bg-muted/50'>
+              <TableRow
+                key={manufacturer.id}
+                className='cursor-pointer hover:bg-muted/50'
+                onClick={() => handleViewManufacturer(manufacturer)}
+              >
                 <TableCell>{(currentPage - 1) * rowsPerPage + index + 1}</TableCell>
                 <TableCell>
                   <div className='flex items-center gap-3'>
@@ -76,7 +90,7 @@ export function ManufacturerTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className='flex items-center gap-2'>
+                  <div className='flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
                     <Button variant='ghost' size='icon' onClick={() => onEdit(manufacturer)}>
                       <Edit className='h-4 w-4' />
                     </Button>
@@ -90,6 +104,43 @@ export function ManufacturerTable({
           </TableBody>
         </Table>
       )}
+
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Xem chi tiết nhà sản xuất</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedManufacturer && (
+              <div className='space-y-6'>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Tên nhà sản xuất</h3>
+                  <p className='text-lg font-medium'>{selectedManufacturer.name}</p>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Quốc gia</h3>
+                  <div className='flex items-center gap-1 mt-1'>
+                    <MapPin className='h-4 w-4 text-muted-foreground' />
+                    <p>{selectedManufacturer.country}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Thông tin liên hệ</h3>
+                  <div className='flex items-center gap-1 mt-1'>
+                    <Phone className='h-4 w-4 text-muted-foreground' />
+                    <p>{selectedManufacturer.contactInfo}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

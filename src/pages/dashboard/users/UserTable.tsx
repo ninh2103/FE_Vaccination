@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Edit, Trash, Mail, Phone, Shield, ShieldAlert, ShieldCheck } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Edit, Trash, Mail, Phone, Shield, ShieldAlert, ShieldCheck, CircleCheck, CircleX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { numberConstants } from '@/configs/consts'
 import { convertDateFormat } from '@/core/lib/utils'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+
 export type User = {
   id: string
   name: string
@@ -43,6 +45,14 @@ export function UserTable({
   onDeleteClick,
   totalItems = 0
 }: UserTableProps) {
+  const [openViewDialog, setOpenViewDialog] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user)
+    setOpenViewDialog(true)
+  }
+
   const filteredUsers = useMemo(() => {
     return users
   }, [users])
@@ -54,9 +64,19 @@ export function UserTable({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Active':
-        return <Badge variant='default'>Active</Badge>
+        return (
+          <Badge variant='default' className='flex items-center gap-1'>
+            <CircleCheck className='h-3.5 w-3.5 text-green-500' />
+            Đã xác thực
+          </Badge>
+        )
       case 'Inactive':
-        return <Badge variant='secondary'>Inactive</Badge>
+        return (
+          <Badge variant='secondary' className='flex items-center gap-1'>
+            <CircleX className='h-3.5 w-3.5 text-red-500' />
+            Chưa xác thực
+          </Badge>
+        )
       default:
         return <Badge>{status}</Badge>
     }
@@ -86,7 +106,7 @@ export function UserTable({
           </Badge>
         )
       default:
-        return <Badge variant='outline'>{role}</Badge>
+        return <Badge variant='outline'>User</Badge>
     }
   }
 
@@ -121,7 +141,7 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-[60px]'>No.</TableHead>
+            <TableHead className='w-[60px]'>STT</TableHead>
             <TableHead>{tab === 'patients' ? 'Khách hàng' : tab === 'staff' ? 'Nhân viên' : 'Người dùng'}</TableHead>
             <TableHead>Liên hệ</TableHead>
             <TableHead>Vai trò</TableHead>
@@ -132,7 +152,7 @@ export function UserTable({
         </TableHeader>
         <TableBody>
           {filteredUsers.map((user, index) => (
-            <TableRow key={user.id} className='cursor-pointer hover:bg-muted/50' onClick={() => onEditClick(user)}>
+            <TableRow key={user.id} className='cursor-pointer hover:bg-muted/50' onClick={() => handleViewUser(user)}>
               <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
               <TableCell>
                 <div className='flex items-center gap-2'>
@@ -159,25 +179,11 @@ export function UserTable({
               <TableCell>{getStatusBadge(user.status)}</TableCell>
               <TableCell> {convertDateFormat(user.registeredDate)}</TableCell>
               <TableCell>
-                <div className='flex items-center gap-2'>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onEditClick(user)
-                    }}
-                  >
+                <div className='flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
+                  <Button variant='ghost' size='icon' onClick={() => onEditClick(user)}>
                     <Edit className='h-4 w-4' />
                   </Button>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDeleteClick(user)
-                    }}
-                  >
+                  <Button variant='ghost' size='icon' onClick={() => onDeleteClick(user)}>
                     <Trash className='h-4 w-4 text-destructive text-red-500' />
                   </Button>
                 </div>
@@ -213,6 +219,66 @@ export function UserTable({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View User Dialog */}
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Xem chi tiết người dùng</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedUser && (
+              <div className='space-y-6'>
+                <div className='flex items-center gap-4'>
+                  <Avatar className='h-16 w-16'>
+                    <AvatarImage src={selectedUser.avatar} alt={selectedUser.name} />
+                    <AvatarFallback>{selectedUser.initials}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className='text-lg font-medium'>{selectedUser.name}</h3>
+                    <p className='text-sm text-muted-foreground'>{selectedUser.email}</p>
+                  </div>
+                </div>
+                <div className='grid gap-4 grid-cols-2'>
+                  <div>
+                    <h3 className='text-sm font-medium text-muted-foreground'>Thông tin liên hệ</h3>
+                    <div className='mt-2 space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <Mail className='h-4 w-4 text-muted-foreground' />
+                        <span>{selectedUser.email}</span>
+                      </div>
+                      <div className='flex items-center gap-2'>
+                        <Phone className='h-4 w-4 text-muted-foreground' />
+                        <span>{selectedUser.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className='text-sm font-medium text-muted-foreground'>Vai trò</h3>
+                    <div className='mt-2 flex items-center gap-2'>{getRoleBadge(selectedUser.role)}</div>
+                  </div>
+                  <div>
+                    <h3 className='text-sm font-medium text-muted-foreground'>Trạng thái</h3>
+                    <div className='mt-2 flex items-center gap-2'>{getStatusBadge(selectedUser.status)}</div>
+                  </div>
+                  <div>
+                    <h3 className='text-sm font-medium text-muted-foreground'>Thông tin tài khoản</h3>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm text-muted-foreground'>Ngày đăng ký:</span>
+                      <p>{convertDateFormat(selectedUser.registeredDate)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Pagination */}
       {totalPages > 1 && (

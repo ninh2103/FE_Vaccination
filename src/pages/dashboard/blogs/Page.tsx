@@ -36,6 +36,7 @@ export const BlogPage: React.FC = () => {
     search: searchQuery
   })
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
 
   const { mutate: deleteBlog } = useDeleteBlogMutation()
 
@@ -94,7 +95,7 @@ export const BlogPage: React.FC = () => {
     const post = blogs?.data.find((blog) => blog.id === id)
     if (post) {
       setSelectedPost(post)
-      setIsUpdateDialogOpen(true)
+      setOpenViewDialog(true)
     }
   }
 
@@ -253,8 +254,43 @@ export const BlogPage: React.FC = () => {
 
       <UpdateBlog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} id={selectedPost?.id ?? ''} />
 
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[800px]'>
+          <DialogHeader>
+            <DialogTitle>Xem chi tiết bài viết</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedPost && (
+              <div className='space-y-4'>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Tên</h3>
+                  <p className='text-lg font-medium'>{selectedPost.title}</p>
+                </div>
+                <div>
+                  <p className='text-sm text-muted-foreground mb-2'>Tag: {selectedPost.tag.name}</p>
+                  <p className='text-sm text-muted-foreground mb-2'>
+                    Ngày tạo: {new Date(selectedPost.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>
+                    Ngày cập nhật: {new Date(selectedPost.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className='border-t pt-4'>
+                  <p className='whitespace-pre-wrap'>{selectedPost.content}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent className='sm:max-w-[425px]'>
+        <DialogContent className='sm:max-w-[800px]'>
           <DialogHeader>
             <DialogTitle>Xóa bài viết</DialogTitle>
             <DialogDescription>
