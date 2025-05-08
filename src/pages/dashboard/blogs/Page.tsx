@@ -255,7 +255,7 @@ export const BlogPage: React.FC = () => {
       <UpdateBlog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} id={selectedPost?.id ?? ''} />
 
       <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
-        <DialogContent className='sm:max-w-[800px]'>
+        <DialogContent className='sm:max-w-[1000px] max-h-[80vh] overflow-y-auto'>
           <DialogHeader>
             <DialogTitle>Xem chi tiết bài viết</DialogTitle>
           </DialogHeader>
@@ -276,7 +276,7 @@ export const BlogPage: React.FC = () => {
                   </p>
                 </div>
                 <div className='border-t pt-4'>
-                  <p className='whitespace-pre-wrap'>{selectedPost.content}</p>
+                  <p className='whitespace-pre-wrap text-sm'>{selectedPost.content}</p>
                 </div>
               </div>
             )}

@@ -77,7 +77,7 @@ export default function FormLogin() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r dark:from-blue-400 dark:to-green-500 dark:text-transparent bg-clip-text'>
-            Chào mừng trở lại Vax-Box
+            Chào mừng trở lại Vax-Bot
           </CardTitle>
           <CardDescription className='text-gray-400 text-center'>
             Nhập thông tin để truy cập tài khoản của bạn

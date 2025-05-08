@@ -20,7 +20,7 @@ export default function ListVaccination() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [vaccines, setVaccines] = useState<VaccineType[]>([])
+  const [, setVaccines] = useState<VaccineType[]>([])
   const itemsPerPage = 9
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: 1,
@@ -133,7 +133,7 @@ export default function ListVaccination() {
   }
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='container mx-auto px-4 py-8 mt-12'>
       <h1 className='text-3xl font-bold mb-6'>Danh sách vaccine</h1>
 
       {/* Search and Filter Section */}

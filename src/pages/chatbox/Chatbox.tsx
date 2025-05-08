@@ -7,6 +7,7 @@ import { MessageCircle, Send, X, CircleStop } from 'lucide-react'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { trainingData } from './training'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
+import { toast } from 'sonner'
 
 const apiKey = 'AIzaSyAJF8hoEIF2n-iVsaqGrv1M0WS1KvOPmAY'
 const genAI = new GoogleGenerativeAI(apiKey)
@@ -197,7 +198,7 @@ export default function Chatbox() {
         ])
       }
     } catch (error) {
-      console.error(error)
+      toast.error('Lỗi khi tư vấn')
     } finally {
       setIsLoading(false)
       setDisplayText('')

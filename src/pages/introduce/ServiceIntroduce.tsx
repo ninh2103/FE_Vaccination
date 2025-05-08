@@ -29,11 +29,11 @@ const ServiceIntro: React.FC = () => {
             Trong bối cảnh thế giới đang gánh chịu những dịch bệnh phức tạp, ảnh hưởng trực tiếp và sâu sắc đến đời sống
             con người. Vắc xin và tiêm chủng là biện pháp phòng ngừa hiệu quả nhất để giảm tỷ lệ mắc bệnh và tử vong do
             các bệnh truyền nhiễm trong nhân loại. Năm 2020, khi đại dịch covid-19 đang diễn biến phức tạp trên toàn
-            cầu, Vax-box ra đời như một xu hướng phát triển tất yếu, với mục tiêu góp phần đẩy lùi và xóa bỏ dịch bệnh
+            cầu, Vax-Bot ra đời như một xu hướng phát triển tất yếu, với mục tiêu góp phần đẩy lùi và xóa bỏ dịch bệnh
             trong thời điểm hiện tại, cũng như nâng cao chất lượng cuộc sống cho người dân Việt Nam trong tương lai.
           </p>
           <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text  text-center'>
-            HỆ THỐNG TIÊM CHỦNG VAX-BOX: AN TOÀN, UY TÍN, CHẤT LƯỢNG
+            HỆ THỐNG TIÊM CHỦNG VAX-BOT: AN TOÀN, UY TÍN, CHẤT LƯỢNG
           </h2>
 
           <img
@@ -43,18 +43,18 @@ const ServiceIntro: React.FC = () => {
           />
 
           <p className='text-lg text-gray-700 leading-relaxed mb-4 mt-6'>
-            Là đơn vị tiên phong trong lĩnh vực dịch vụ tiêm chủng tại Việt Nam. Hệ thống tiêm chủng Vax-box đã không
+            Là đơn vị tiên phong trong lĩnh vực dịch vụ tiêm chủng tại Việt Nam. Hệ thống tiêm chủng Vax-Bot đã không
             ngừng nỗ lực và đạt được nhiều thành tựu nổi bật trong hoạt động tiêm chủng, phòng chống dịch bệnh, và đã
-            nhận được sự tin tưởng, yêu mến của hàng chục triệu người dân trên cả nước khi sử dụng dịch vụ. Vax-box đã
+            nhận được sự tin tưởng, yêu mến của hàng chục triệu người dân trên cả nước khi sử dụng dịch vụ. Vax-Bot đã
             vinh dự được xếp hạng số 1 trong top 10 công ty dược phẩm uy tín Việt Nam (2023, 2024), trong lĩnh vực phân
             phối và kinh doanh dược phẩm, thiết bị y tế, và đã vinh dự nhận được Bằng khen của Thủ tướng Chính phủ về
             những đóng góp xuất sắc trong công tác phòng chống dịch bệnh. Sau gần 10 năm đồng hành cùng hệ thống y tế dự
             phòng của đất nước vượt qua mọi khó khăn, đẩy mạnh phát triển hệ thống đến mọi miền tổ quốc, đặc biệt là
-            vùng sâu vùng xa, tăng cơ hội tiếp cận và tỷ lệ tiêm chủng trong cộng đồng, Vax-box hiện có hàng trăm trung
+            vùng sâu vùng xa, tăng cơ hội tiếp cận và tỷ lệ tiêm chủng trong cộng đồng, Vax-Bot hiện có hàng trăm trung
             tâm tiêm chủng trên toàn quốc, phấn đấu tăng tỷ lệ bao phủ vắc xin để bảo vệ sức khỏe cho trẻ em và người
             lớn với hơn 11 triệu liều vắc xin các loại, phòng ngừa hơn 40 bệnh truyền nhiễm nguy hiểm. Đáng chú ý là nỗ
             lực đẩy mạnh truyền thông và giáo dục cộng đồng về vai trò của tiêm chủng cho trẻ lớn, người lớn, người cao
-            tuổi, người có bệnh nền, bệnh mãn tính của hệ thống tiêm chủng Vax-box. Đến nay, tỷ lệ người từ 18 tuổi trở
+            tuổi, người có bệnh nền, bệnh mãn tính của hệ thống tiêm chủng Vax-bot. Đến nay, tỷ lệ người từ 18 tuổi trở
             lên được tiêm đầy đủ các loại vắc xin đã đạt trên 40% tổng số khách hàng, góp phần quan trọng trong việc
             chăm sóc và bảo vệ sức khỏe cho người lao động và người cao tuổi trong cộng đồng.
           </p>
@@ -66,7 +66,7 @@ const ServiceIntro: React.FC = () => {
             Quy Trình Tiêm Chủng Đạt Chuẩn
           </h2>
           <p className='text-lg text-gray-700 leading-relaxed mb-6 text-left'>
-            Trung tâm Tiêm chủng VAX-BOX áp dụng quy trình tiêm chủng chuẩn hóa, tuân thủ nghiêm ngặt các quy định y tế,
+            Trung tâm Tiêm chủng VAX-BOT áp dụng quy trình tiêm chủng chuẩn hóa, tuân thủ nghiêm ngặt các quy định y tế,
             và là lựa chọn phù hợp cho mọi đối tượng. Người dân sẽ được thực hiện đầy đủ các bước quan trọng trong quy
             trình tiêm chủng, bao gồm:
           </p>
@@ -152,14 +152,14 @@ const ServiceIntro: React.FC = () => {
             Người Lớn
           </h2>
           <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            Hệ thống trung tâm tiêm chủng Vax-box có hơn 50 loại vắc xin để phòng ngừa hơn 40 bệnh truyền nhiễm nguy
+            Hệ thống trung tâm tiêm chủng Vax-Bot có hơn 50 loại vắc xin để phòng ngừa hơn 40 bệnh truyền nhiễm nguy
             hiểm cho người lớn, bao gồm cả vắc xin thế hệ mới và những loại thường khan hiếm trên thị trường.
           </p>
           <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            Với uy tín và nhiều năm kinh nghiệm trong triển khai tiêm chủng, Vax-box đã trở thành đối tác chiến lược
+            Với uy tín và nhiều năm kinh nghiệm trong triển khai tiêm chủng, Vax-Bot đã trở thành đối tác chiến lược
             chính thức, toàn diện và quan trọng với các công ty vắc xin lớn trên thế giới như Glaxosmithkline - Bỉ
             (GSK), Sanofi Pasteur (Pháp), Pfizer (Mỹ), Merck Sharp and Dohme (Mỹ), AstraZeneca (Anh), Sanofi (Pháp),
-            Abbott (Hà Lan), Takeda (Nhật Bản)... Do đó, Vax-box có quyền trực tiếp đàm phán và nhập khẩu tất cả các
+            Abbott (Hà Lan), Takeda (Nhật Bản)... Do đó, Vax-Bot có quyền trực tiếp đàm phán và nhập khẩu tất cả các
             loại vắc xin cho trẻ em và người lớn, giúp người dân có đầy đủ cơ hội tiếp cận với vắc xin thế hệ mới, vắc
             xin khan hiếm và dịch vụ tiêm chủng an toàn với giá cả hợp lý, góp phần tăng tỷ lệ tiêm chủng, bảo vệ sức
             khỏe người lớn và tương lai của trẻ em.
@@ -183,7 +183,7 @@ const ServiceIntro: React.FC = () => {
           </h2>
 
           <p className='text-lg text-gray-700 leading-relaxed mb-4'>
-            Hệ thống trung tâm tiêm chủng Vax-box là đơn vị tiêm chủng tại Việt Nam thực hiện quy trình tiêm chủng an
+            Hệ thống trung tâm tiêm chủng Vax-Bot là đơn vị tiêm chủng tại Việt Nam thực hiện quy trình tiêm chủng an
             toàn 8 bước khép kín, đảm bảo tất cả các bước tiêm chủng được thực hiện đúng và được kiểm soát chặt chẽ để
             đảm bảo an toàn tối đa.
           </p>
@@ -216,10 +216,10 @@ const ServiceIntro: React.FC = () => {
           </p>
         </section>
 
-        {/* Why choose Vax-box section */}
+        {/* Why choose Vax-Bot section */}
         <section className='bg-white rounded-2xl shadow-2xl p-12 mb-10 w-full max-w-6xl mx-auto'>
           <h2 className='text-3xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text text-center mb-8'>
-            Tại Sao Nên Chọn Trung Tâm Tiêm Chủng VAX-BOX?
+            Tại Sao Nên Chọn Trung Tâm Tiêm Chủng Vax-Bot?
           </h2>
 
           <ul className='list-none grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6'>

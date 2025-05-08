@@ -50,7 +50,7 @@ export default function Feature() {
           </div>
           <h3 className='mb-3 text-2xl font-bold text-gray-900'>Giới Thiệu</h3>
           <p className='mb-8 text-gray-500'>
-            Trung tâm Tiêm chủng VAX-BOX áp dụng quy trình tiêm chủng chuẩn hóa, tuân thủ nghiêm ngặt các quy định y tế,
+            Trung tâm Tiêm chủng VAX-BOT áp dụng quy trình tiêm chủng chuẩn hóa, tuân thủ nghiêm ngặt các quy định y tế,
             và là lựa chọn phù hợp cho mọi đối tượng. Người dân sẽ được thực hiện đầy đủ các bước quan trọng trong quy
             trình tiêm chủng.
           </p>

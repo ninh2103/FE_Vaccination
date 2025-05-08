@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useListBlogQuery } from '@/queries/useBlog'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 6
 
 const BlogList: React.FC = () => {
   const location = useLocation()
@@ -38,11 +38,12 @@ const BlogList: React.FC = () => {
   }
 
   return (
-    <div className='w-80 border-r border-green-500 h-screen overflow-y-auto flex flex-col scrollbar-hide'>
-      <div className='p-4 sticky top-0 dark:bg-gray-900/80  bg-background border-b dark:border-green-500 z-10 '>
-        <h1 className='text-xl font-bold mb-4 dark:text-green-500 text-center'>Danh sách bài viết</h1>
+    <div className='w-96 border-r border-border/50 h-screen flex flex-col scrollbar-hide mt-12 bg-background/95 backdrop-blur-sm'>
+      <div className='p-6 bg-background/80 backdrop-blur-sm border-b border-border/50 z-10 sticky top-0'>
+        <h1 className='text-2xl font-bold mb-2 text-foreground text-center tracking-tight'>Danh sách bài viết</h1>
+        <p className='text-sm text-muted-foreground text-center'>Khám phá các bài viết mới nhất</p>
       </div>
-      <div className='flex-1 divide-y divide-border dark:bg-gray-900/80 dark:divide-green-500 *:dark:* overflow-y-auto scrollbar-hide'>
+      <div className='flex-1 overflow-y-auto divide-y divide-border/50 *:scrollbar-hide'>
         {isLoading ? (
           <div className='flex items-center justify-center p-8'>
             <LoadingSpinner className='h-8 w-8' />
@@ -56,18 +57,21 @@ const BlogList: React.FC = () => {
             <Link
               to={`/blog/${post.id}`}
               key={post.id}
-              className={cn('block transition-colors hover:bg-accent/50', currentPostId === post.id && 'bg-accent')}
+              className={cn(
+                'block transition-all duration-200 hover:bg-accent/30',
+                currentPostId === post.id && 'bg-accent/50'
+              )}
             >
-              <Card className='border-0 shadow-none  dark:bg-gray-900/80 hover:shadow-none rounded-none dark:border-green-500'>
-                <CardHeader className='p-4 pb-2'>
-                  <CardTitle className='text-base line-clamp-2'>{post.title}</CardTitle>
+              <Card className='border-0 shadow-none hover:shadow-sm rounded-none transition-all duration-200'>
+                <CardHeader className='p-5 pb-2'>
+                  <CardTitle className='text-base font-semibold line-clamp-2 tracking-tight'>{post.title}</CardTitle>
                 </CardHeader>
-                <CardContent className='p-4 pt-0'>
-                  <div className='flex items-center gap-2'>
-                    <Badge variant='default' className='text-xs dark:bg-green-500 dark:text-white'>
+                <CardContent className='p-5 pt-2'>
+                  <div className='flex items-center gap-3'>
+                    <Badge variant='secondary' className='text-xs px-2.5 py-1 font-medium'>
                       {post.tag?.name}
                     </Badge>
-                    <span className='text-xs text-muted-foreground'>
+                    <span className='text-xs text-muted-foreground font-medium'>
                       {post.createdAt ? format(new Date(post.createdAt), 'MMM d') : 'No date'}
                     </span>
                   </div>
@@ -78,18 +82,30 @@ const BlogList: React.FC = () => {
         )}
       </div>
       {!isLoading && !error && blogPosts.length > 0 && (
-        <div className='p-4 border-t dark:bg-gray-900/80 bg-background border-t-green-500 sticky bottom-0'>
-          <div className='flex items-center justify-between dark:text-green-500'>
-            <Button variant='outline' size='sm' onClick={handlePreviousPage} disabled={currentPage === 1}>
-              <ChevronLeft className='h-4 w-4 mr-2 dark:text-green-500 dark:hover:text-green-500' />
+        <div className='p-5 border-t bg-background/80 backdrop-blur-sm border-t-border/50 sticky bottom-0 pb-16'>
+          <div className='flex items-center justify-between'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className='hover:bg-accent transition-colors'
+            >
+              <ChevronLeft className='h-4 w-4 mr-2' />
               Trang trước
             </Button>
-            <span className='text-sm text-muted-foreground'>
+            <span className='text-sm font-medium text-muted-foreground'>
               {currentPage}/{totalPages}
             </span>
-            <Button variant='outline' size='sm' onClick={handleNextPage} disabled={currentPage === totalPages}>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className='hover:bg-accent transition-colors'
+            >
               Trang tiếp
-              <ChevronRight className='h-4 w-4 ml-2 dark:text-green-500 dark:hover:text-green-500' />
+              <ChevronRight className='h-4 w-4 ml-2' />
             </Button>
           </div>
         </div>

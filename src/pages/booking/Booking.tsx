@@ -141,7 +141,7 @@ const CheckOutPagePageMain = () => {
     })
   }
   return (
-    <div className='container mx-auto px-4 py-8 lg:py-12'>
+    <div className='container mx-auto px-4 py-8 lg:py-12 mt-12'>
       <Button
         variant='ghost'
         className='mb-4 hover:bg-blue-50 transition-colors duration-200 border border-gray-200 hover:border-blue-200 hover:text-blue-600'

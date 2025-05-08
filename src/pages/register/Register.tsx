@@ -78,7 +78,7 @@ export default function FormRegister() {
       <Card className='w-full max-w-md z-10 dark:bg-gray-800 border-gray-700'>
         <CardHeader className='space-y-1'>
           <CardTitle className='text-2xl font-bold text-center dark:bg-gradient-to-r from-blue-400 to-green-500 dark:text-transparent dark:bg-clip-text'>
-            Tạo tài khoản Vax-Box
+            Tạo tài khoản Vax-Bot
           </CardTitle>
           <CardDescription className='text-gray-400 text-center'>
             Tham gia cộng đồng tiêm chủng ngay hôm nay!

@@ -76,18 +76,22 @@ export function Vaccines() {
                           className='h-full w-full object-cover'
                         />
                       </CardHeader>
-                      <CardContent className='p-0'>
+                      <CardContent className='p-0 flex flex-col h-[calc(100%-192px)]'>
+                        {' '}
+                        {/* 192px = header height (48) + padding & spacing */}
                         <a href='#' className='text-gray-900 transition-colors hover:text-gray-800'>
                           <h5 className='mb-2 text-lg font-semibold dark:text-white line-clamp-1'>
                             {vaccine.vaccineName}
                           </h5>
                         </a>
-                        <p className='mb-6 text-sm text-gray-500 dark:text-white line-clamp-3'>{vaccine.description}</p>
-                        <Link to={path.list}>
-                          <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
-                            Xem Thêm
-                          </Button>
-                        </Link>
+                        <p className='text-sm text-gray-500 dark:text-white line-clamp-3 mb-4'>{vaccine.description}</p>
+                        <div className='mt-auto'>
+                          <Link to={path.list}>
+                            <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
+                              Xem Thêm
+                            </Button>
+                          </Link>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>

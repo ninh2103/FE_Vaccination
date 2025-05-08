@@ -101,10 +101,7 @@ export default function Header() {
         <div className='container mx-auto px-4 py-4'>
           <div className='flex items-center justify-between'>
             <Link to={path.home} className='flex items-center space-x-2'>
-              <Icons.Syringe className='h-8 w-8 text-blue-400' />
-              <span className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-                VAX-BOX
-              </span>
+              <img src={'/logo33.png'} alt='logo' className='w-24 h-20' />
             </Link>
             <nav className='hidden md:flex space-x-6'>
               {navItems.map((item, index) => (

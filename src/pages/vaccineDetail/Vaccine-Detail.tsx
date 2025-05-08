@@ -49,7 +49,7 @@ export default function VaccineDetail() {
 
   return (
     <div className='min-h-[calc(100vh-4rem)]'>
-      <div className='container mx-auto p-6'>
+      <div className='container mx-auto p-6 mt-12'>
         <Link to={path.list}>
           <Button
             variant='ghost'
@@ -194,7 +194,7 @@ export default function VaccineDetail() {
           </div>
         </div>
       </div>
-      <div className='container mx-auto mt-12'>
+      <div className='container mx-auto mt-12 mb-12'>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           <Card className='p-6 hover:shadow-lg transition-shadow duration-300'>
             <div className='bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mb-4'>

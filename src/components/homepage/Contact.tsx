@@ -75,7 +75,7 @@ export default function ContactSection() {
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <EnvelopeIcon className='h-6 w-6' />
-                <span>vaxbox@gmail.com</span>
+                <span>vaxbot@gmail.com</span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <CalendarIcon className='h-6 w-6' />

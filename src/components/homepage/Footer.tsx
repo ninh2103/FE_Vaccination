@@ -77,7 +77,7 @@ export default function Footer() {
             <h4 className='font-semibold mb-4 dark:text-white'>Liên hệ chúng tôi</h4>
             <p className='dark:text-gray-400 mb-2'>Trung tâm Y tế</p>
             <p className='dark:text-gray-400 mb-2'>Đà Nẵng</p>
-            <p className='dark:text-gray-400'>vaxbox@gmail.com</p>
+            <p className='dark:text-gray-400'>vaxbot@gmail.com</p>
           </div>
         </div>
         <div className='border-t border-gray-800 pt-8 mt-8 text-center'>
@@ -92,7 +92,7 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} Vaxbox. Tất cả quyền được bảo lưu.</p>
+          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} Vax-Bot. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     </footer>

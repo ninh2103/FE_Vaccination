@@ -21,7 +21,6 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [language, setLanguage] = useState('EN')
   const logoutMutation = useLogoutMutation()
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
@@ -45,10 +44,6 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
   }
 
   // Language Options
-  const languages = [
-    { code: 'ENG', label: 'English' },
-    { code: 'VIE', label: 'Tiếng Việt' }
-  ]
 
   const handleLogout = () => {
     logoutMutation.mutate({ params: { refresh_token: getRefreshTokenFromLS() } })
@@ -60,9 +55,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
     <div className='w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 shadow-sm'>
       {/* Left Section: Logo and Collapse Button */}
       <div className='flex items-center space-x-4'>
-        <span className='ml-[2rem] text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          VAXBOT
-        </span>
+        <img src={'/logo33.png'} alt='logo' className='w-24 h-20' />
         <button
           onClick={onToggleSidebar}
           className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center'
