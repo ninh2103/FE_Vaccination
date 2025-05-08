@@ -70,10 +70,20 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
           image: imageUrl
         }
       }
-      await createVaccination(body)
-      toast.success('Vaccine đã được tạo thành công')
-      onOpenChange(false)
-      form.reset()
+      await createVaccination(body, {
+        onSuccess: () => {
+          toast.success('Vaccine đã được tạo thành công!')
+          onOpenChange(false)
+          form.reset()
+        },
+        onError: (error) => {
+          handleErrorApi({
+            error: error as any,
+            setError: form.setError,
+            duration: 3000
+          })
+        }
+      })
     } catch (error) {
       handleErrorApi({
         error: error as any,
