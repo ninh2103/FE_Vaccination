@@ -13,6 +13,8 @@ import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import parse from 'html-react-parser';
+
 
 export const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -276,7 +278,7 @@ export const BlogPage: React.FC = () => {
                   </p>
                 </div>
                 <div className='border-t pt-4'>
-                  <p className='whitespace-pre-wrap text-sm'>{selectedPost.content}</p>
+                  <p className='whitespace-pre-wrap text-sm'>{parse(selectedPost.content)}</p>
                 </div>
               </div>
             )}

@@ -366,13 +366,15 @@ export default function PaymentsPage() {
 
         {/* Alert */}
         {filteredPayments.some((p) => p.status === 'PENDING' || p.status === 'FAILED') && (
-          <Alert variant='destructive' className='bg-red-50 border-red-200'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Cảnh báo thanh toán</AlertTitle>
-            <AlertDescription>
-              Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
-            </AlertDescription>
-          </Alert>
+         <Alert variant='destructive' className='bg-red-50 border-red-200 p-2'>
+         <div className='flex items-center space-x-2'>
+           <AlertCircle className='h-3 w-3' />
+           <AlertTitle className='text-sm font-semibold text-red-700'>Cảnh báo thanh toán</AlertTitle>
+           <AlertDescription className='text-xs'>
+             Một số thanh toán đang chờ hoặc thất bại. Kiểm tra và xử lý theo yêu cầu.
+           </AlertDescription>
+         </div>
+       </Alert>
         )}
 
         {/* Payment Table */}
