@@ -59,26 +59,26 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Cập nhật danh mục</DialogTitle>
-          <DialogDescription>Cập nhật danh mục bằng cách sửa đổi form dưới đây.</DialogDescription>
+          <DialogTitle>Cập nhật loại vắc xin</DialogTitle>
+          <DialogDescription>Cập nhật loại vắc xin bằng cách sửa đổi form dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
-            <Label htmlFor='name'>Tên danh mục *</Label>
+            <Label htmlFor='name'>Tên loại vắc xin *</Label>
             <Input
               id='name'
               {...form.register('name')}
-              placeholder='Nhập tên danh mục'
+              placeholder='Nhập tên loại vắc xin'
               className={form.formState.errors.name ? 'border-red-500' : ''}
             />
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='description'>Mô tả danh mục *</Label>
+            <Label htmlFor='description'>Mô tả loại vắc xin *</Label>
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='Nhập mô tả danh mục'
+              placeholder='Nhập mô tả loại vắc xin'
               className={form.formState.errors.description ? 'border-red-500' : ''}
             />
             {form.formState.errors.description && (
@@ -91,7 +91,7 @@ export function UpdateCategory({ open, onOpenChange, id }: UpdateCategoryProps) 
               Hủy bỏ
             </Button>
             <Button disabled={form.formState.isSubmitting} type='submit'>
-              {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật danh mục'}
+              {form.formState.isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
             </Button>
           </DialogFooter>
         </form>
