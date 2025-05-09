@@ -48,26 +48,26 @@ export function AddCategory({ open, onOpenChange }: AddCategoryProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Thêm danh mục mới</DialogTitle>
-          <DialogDescription>Tạo mới danh mục bằng cách điền vào form dưới đây.</DialogDescription>
+          <DialogTitle>Thêm loại vắc xin mới</DialogTitle>
+          <DialogDescription>Tạo mới loại vắc xin bằng cách điền vào form dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
           <div className='grid gap-2'>
-            <Label htmlFor='name'>Tên danh mục *</Label>
+            <Label htmlFor='name'>Tên loại vắc xin *</Label>
             <Input
               id='name'
               {...form.register('name')}
-              placeholder='Nhập tên danh mục'
+              placeholder='Nhập tên loại vắc xin'
               className={form.formState.errors.name ? 'border-red-500' : ''}
             />
             {form.formState.errors.name && <p className='text-sm text-red-500'>{form.formState.errors.name.message}</p>}
           </div>
           <div className='grid gap-2'>
-            <Label htmlFor='description'>Mô tả danh mục *</Label>
+            <Label htmlFor='description'>Mô tả loại vắc xin *</Label>
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='Nhập mô tả danh mục'
+              placeholder='Nhập mô tả loại vắc xin'
               className={form.formState.errors.description ? 'border-red-500' : ''}
             />
             {form.formState.errors.description && (
@@ -80,7 +80,7 @@ export function AddCategory({ open, onOpenChange }: AddCategoryProps) {
               Hủy bỏ
             </Button>
             <Button type='submit' disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Đang tạo...' : 'Tạo danh mục'}
+              {form.formState.isSubmitting ? 'Đang tạo...' : 'Tạo loại vắc xin'}
             </Button>
           </DialogFooter>
         </form>
