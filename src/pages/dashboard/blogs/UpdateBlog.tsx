@@ -89,13 +89,7 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
               label=''
               value={form.watch('content') || ''}
               setValue={(content: string) => handleEditorChange(content, form)}
-            />
-            <Textarea
-              id='content'
-              {...form.register('content')}
-              placeholder='Nhập nội dung bài viết blog'
-              className={form.formState.errors.content ? 'border-red-500' : ''}
-            />
+            />      
             {form.formState.errors.content && (
               <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
             )}
