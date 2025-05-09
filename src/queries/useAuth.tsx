@@ -1,5 +1,8 @@
 import { authApi } from '@/core/services/auth.service'
 import { userApi } from '@/core/services/user.service'
+import { removeAccessTokenFromLS } from '@/core/shared/storage'
+import { removeRefreshTokenFromLS } from '@/core/shared/storage'
+import { removeUserFromLS } from '@/core/shared/storage'
 import { ResetPassword } from '@/models/interface/auth.interface'
 import { LogoutBodyType } from '@/schemaValidator/auth.schema'
 import { UpdateRoleBodyType } from '@/schemaValidator/user.schema'
@@ -46,8 +49,15 @@ export const useUpdateRoleMutation = () => {
   })
 }
 export const useLogoutMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ params }: { params: LogoutBodyType }) => authApi.logout(params)
+    mutationFn: ({ params }: { params: LogoutBodyType }) => authApi.logout(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-list'] })
+      removeUserFromLS()
+      removeAccessTokenFromLS()
+      removeRefreshTokenFromLS()
+    }
   })
 }
 export const useResendVerificationEmailMutation = () => {

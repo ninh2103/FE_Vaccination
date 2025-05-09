@@ -14,70 +14,70 @@ export default function Footer() {
       <div className='container mx-auto px-4'>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4 dark:text-white'>About Vaccination</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Về Vắc xin</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Why Vaccinate?
+                  Tại sao nên tiêm chủng?
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  How It Works
+                  Cách tiêm chủng
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Our Mission
+                  Các loại vắc xin
                 </Link>
               </li>
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4 dark:text-white'>Resources</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Tài nguyên</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Vaccine Types
+                  Các loại vắc xin
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Side Effects & Safety
+                  Tác dụng phụ và an toàn
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  FAQs
+                  Câu hỏi thường gặp
                 </Link>
               </li>
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4 dark:text-white'>Legal</h4>
+            <h4 className='font-semibold mb-4 dark:text-white'>Pháp luật</h4>
             <ul className='space-y-2'>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Terms of Service
+                  Điều khoản dịch vụ
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Privacy Policy
+                  Chính sách bảo mật
                 </Link>
               </li>
               <li>
                 <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
-                  Data Protection
+                  Bảo mật dữ liệu
                 </Link>
               </li>
             </ul>
           </div>
           <div className='mx-auto'>
-            <h4 className='font-semibold mb-4 dark:text-white'>Contact Us</h4>
-            <p className='dark:text-gray-400 mb-2'>Health Street</p>
-            <p className='dark:text-gray-400 mb-2'>Wellness City</p>
-            <p className='dark:text-gray-400'>support@vaccinecare.com</p>
+            <h4 className='font-semibold mb-4 dark:text-white'>Liên hệ chúng tôi</h4>
+            <p className='dark:text-gray-400 mb-2'>Trung tâm Y tế</p>
+            <p className='dark:text-gray-400 mb-2'>Đà Nẵng</p>
+            <p className='dark:text-gray-400'>vaxbot@gmail.com</p>
           </div>
         </div>
         <div className='border-t border-gray-800 pt-8 mt-8 text-center'>
@@ -92,7 +92,7 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} VaccineCare. All rights reserved.</p>
+          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} Vax-Bot. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     </footer>

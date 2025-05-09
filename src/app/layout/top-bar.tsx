@@ -8,6 +8,7 @@ import {
   getRefreshTokenFromLS,
   removeAccessTokenFromLS,
   removeRefreshTokenFromLS,
+  removeUserFromLS,
   setUserToLS
 } from '@/core/shared/storage'
 import { useGetMeQuery } from '@/queries/useUser'
@@ -21,7 +22,6 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [language, setLanguage] = useState('EN')
   const logoutMutation = useLogoutMutation()
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
@@ -30,7 +30,8 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
       id: user?.id,
       name: user?.name,
       email: user?.email,
-      role: user?.role.name
+      role: user?.role.name,
+      isVerified: user?.isVerified
     })
   }
 
@@ -45,24 +46,25 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
   }
 
   // Language Options
-  const languages = [
-    { code: 'ENG', label: 'English' },
-    { code: 'VIE', label: 'Tiếng Việt' }
-  ]
 
   const handleLogout = () => {
-    logoutMutation.mutate({ params: { refresh_token: getRefreshTokenFromLS() } })
-    removeAccessTokenFromLS()
-    removeRefreshTokenFromLS()
+    logoutMutation.mutate(
+      { params: { refresh_token: getRefreshTokenFromLS() } },
+      {
+        onSuccess: () => {
+          removeAccessTokenFromLS()
+          removeRefreshTokenFromLS()
+          removeUserFromLS()
+        }
+      }
+    )
   }
 
   return (
     <div className='w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 shadow-sm'>
       {/* Left Section: Logo and Collapse Button */}
       <div className='flex items-center space-x-4'>
-        <span className='ml-[2rem] text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          VAXBOT
-        </span>
+        <img src={'/logo33.png'} alt='logo' className='w-24 h-20' />
         <button
           onClick={onToggleSidebar}
           className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center'
@@ -91,36 +93,6 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
           )}
         </button>
 
-        {/* Language Dropdown */}
-        {/* <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <button
-              className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center'
-              aria-label='Change language'
-            >
-              <span className='text-sm font-medium text-gray-700 dark:text-gray-200'>{language}</span>
-            </button>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content
-              className='min-w-[120px] bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1'
-              sideOffset={5}
-            >
-              {languages.map((lang) => (
-                <DropdownMenu.Item
-                  key={lang.code}
-                  onSelect={() => setLanguage(lang.code)}
-                  className='px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer outline-none'
-                >
-                  {lang.label}
-                </DropdownMenu.Item>
-              ))}
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root> */}
-
-        {/* Account Dropdown */}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
@@ -128,7 +100,7 @@ const Topbar: React.FC<TopbarProps> = ({ isSidebarCollapsed, onToggleSidebar }) 
               aria-label='Account menu'
             >
               <Avatar>
-                <AvatarImage src={user?.avatar || ''} />
+                <AvatarImage src={user?.avatar || 'https://github.com/shadcn.png'} alt='@shadcn' />
                 <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <span className='ml-2 text-sm font-medium text-gray-700 dark:text-gray-200 hidden md:inline'>

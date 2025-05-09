@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Search, Download, RefreshCw } from 'lucide-react'
@@ -11,6 +11,7 @@ import { useDeleteCategoryMutation, useListCategoryQuery } from '@/queries/useCa
 import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
+import debounce from 'lodash/debounce'
 
 export const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
@@ -22,6 +23,17 @@ export const CategoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value)
+      setCurrentPage(1)
+    }, 300),
+    []
+  )
+
   const {
     data: categoriesData,
     isLoading: isLoadingCategories,
@@ -31,7 +43,6 @@ export const CategoryPage: React.FC = () => {
     items_per_page: rowsPerPage,
     search: searchQuery
   })
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { mutate: deleteCategory } = useDeleteCategoryMutation()
 
@@ -79,7 +90,7 @@ export const CategoryPage: React.FC = () => {
     const category = categoriesData?.data.find((c) => c.id === id)
     if (category) {
       setSelectedCategory(category)
-      setIsUpdateDialogOpen(true)
+      setOpenViewDialog(true)
     }
   }
 
@@ -125,9 +136,9 @@ export const CategoryPage: React.FC = () => {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Danh mục
+            Loại vắc xin
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi danh mục trong hệ thống.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi loại vắc xin trong hệ thống.</p>
         </div>
       </div>
 
@@ -136,11 +147,8 @@ export const CategoryPage: React.FC = () => {
           <div className='relative w-full max-w-sm'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Tìm kiếm...'
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-              }}
+              placeholder='Tìm kiếm theo tên...'
+              onChange={(e) => debouncedSearch(e.target.value)}
               className='w-full'
               type='search'
             />
@@ -214,6 +222,33 @@ export const CategoryPage: React.FC = () => {
       <AddCategory open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSubmit={handleAddCategory} />
 
       <UpdateCategory open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} id={selectedCategory?.id ?? ''} />
+
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Xem chi tiết loại vắc xin</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedCategory && (
+              <div className='space-y-4'>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Tên</h3>
+                  <p className='text-lg font-medium'>{selectedCategory.name}</p>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Mô tả</h3>
+                  <p className='text-lg'>{selectedCategory.description}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>

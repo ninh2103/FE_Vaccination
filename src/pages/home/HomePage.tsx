@@ -7,6 +7,7 @@ import ContactSection from '@/components/homepage/Contact'
 import Doctor from '@/components/homepage/Doctor'
 import Vaccines from '@/components/homepage/Vaccines'
 import Blog from '@/components/homepage/Blog'
+
 export default function HomePage() {
   const [, setScrollY] = useState(0)
 
@@ -18,7 +19,6 @@ export default function HomePage() {
 
   return (
     <div className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white'>
-      <div className="fixed inset-0 bg-[url('/bg-pattern.svg')] opacity-5 z-0"></div>
       <div className='relative z-10'>
         <Header />
         <main>

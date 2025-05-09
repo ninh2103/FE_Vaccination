@@ -64,7 +64,7 @@ export function HistorysTable({
       <TableHeader>
         <TableRow>
           <TableHead className='w-[60px]'>STT</TableHead>
-          <TableHead>Bệnh nhân</TableHead>
+          <TableHead>Khách hàng</TableHead>
           <TableHead>Vaccine</TableHead>
           <TableHead>Ngày</TableHead>
           <TableHead>Số liều</TableHead>

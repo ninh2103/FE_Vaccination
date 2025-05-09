@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
-import { UseFormSetError } from 'react-hook-form'
+import { UseFormReturn, UseFormSetError } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { Path } from 'react-hook-form'
@@ -56,4 +56,7 @@ export function convertDateFormat(inputDate: string): string {
 
   const [year, month, day] = dateParts
   return `${day}/${month}/${year}`
+}
+export const handleEditorChange = (content: string, form: UseFormReturn<any>) => {
+  form.setValue('content', content, { shouldValidate: true })
 }

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Eye, Edit, Trash } from 'lucide-react'
+import { Edit, Trash } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
@@ -46,16 +46,17 @@ export function CategoryTable({ categories, onView, onEdit, onDelete, isLoading 
             </TableHeader>
             <TableBody>
               {categories.map((category, index) => (
-                <TableRow key={category.id}>
+                <TableRow
+                  key={category.id}
+                  className='cursor-pointer hover:bg-muted/50'
+                  onClick={() => onView(category.id)}
+                >
                   <TableCell className='font-medium'>{index + 1}</TableCell>
                   <TableCell className='font-medium'>{category.name}</TableCell>
                   <TableCell>{category.description.substring(0, 100)}...</TableCell>
 
                   <TableCell>
-                    <div className='flex items-center gap-2'>
-                      <Button variant='ghost' size='icon' onClick={() => onView(category.id)}>
-                        <Eye className='h-4 w-4' />
-                      </Button>
+                    <div className='flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
                       <Button variant='ghost' size='icon' onClick={() => onEdit(category)}>
                         <Edit className='h-4 w-4' />
                       </Button>

@@ -9,6 +9,31 @@ export default defineConfig({
     open: true
   },
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'react-vendor'
+            if (id.includes('html2canvas')) return 'html2canvas'
+            if (id.includes('purify')) return 'purify'
+            return 'vendor'
+          }
+
+          if (id.includes('/src/pages/')) {
+            return 'pages'
+          }
+
+          if (id.includes('/src/components/')) {
+            return 'components'
+          }
+          if (id.includes('lodash')) return 'lodash'
+          if (id.includes('chart.js')) return 'charts'
+          if (id.includes('chartjs-plugin-datalabels')) return 'charts'
+        }
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

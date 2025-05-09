@@ -3,7 +3,7 @@ import LayoutClient from '@/app/layout/LayoutClient'
 import LayoutMain from '@/app/layout/LayoutMain'
 import { path } from '@/core/constants/path'
 import PageNotFound from '@/pages/404/PageNotFound'
-import General from '@/pages/dashboard/General' // Import General thay vì Dashboard
+import General from '@/pages/dashboard/General'
 import HomePage from '@/pages/home/HomePage'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
@@ -31,12 +31,20 @@ import HistorysPage from '@/pages/dashboard/historys/Page'
 import ProfilePage from '@/pages/profile-admin/profile'
 import { CategoryPage } from '@/pages/dashboard/Category/Page'
 import ResendVerifyEmail from '@/pages/resendEmail/resend-verify-email'
+import { AdminRoute, ProtectedRoute } from '@/hooks/ProtectedRoute'
 export default function useRoutesElements() {
   const location = useLocation()
 
   const routeElements = useRoutes(
     [
-      { path: path.home, element: <HomePage /> },
+      {
+        path: path.home,
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        )
+      },
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
       { path: path.resetPassword, element: <ResetPassword /> },
@@ -45,164 +53,212 @@ export default function useRoutesElements() {
       { path: path.otp, element: <OTPInput /> },
 
       {
-        path: path.admin.dashboard, // Giả định là "/admin/dashboard"
+        path: path.admin.dashboard,
         element: (
-          <LayoutMain>
-            <General /> {/* Thay Dashboard bằng General */}
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <General />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.category, // "/Manufacturers"
+        path: path.admin.category,
         element: (
-          <LayoutMain>
-            <CategoryPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <CategoryPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.vaccines, // "/vaccines"
+        path: path.admin.vaccines,
         element: (
-          <LayoutMain>
-            <VaccinesPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <VaccinesPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.post, // "/posts"
+        path: path.admin.post,
         element: (
-          <LayoutMain>
-            <BlogPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <BlogPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.suppliers, // "/suppliers"
+        path: path.admin.suppliers,
         element: (
-          <LayoutMain>
-            <SuppliersPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <SuppliersPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.manufacturers, // "/Manufacturers"
+        path: path.admin.manufacturers,
         element: (
-          <LayoutMain>
-            <ManufacturersPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <ManufacturersPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.users, // "/Users "
+        path: path.admin.users,
         element: (
-          <LayoutMain>
-            <UsersPage />
-          </LayoutMain>
+          <AdminRoute allowedRoles={['ADMIN']}>
+            <LayoutMain>
+              <UsersPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.payments, // "/Payments "
+        path: path.admin.payments,
         element: (
-          <LayoutMain>
-            <PaymentsPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <PaymentsPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.history, // "/History "
+        path: path.admin.history,
         element: (
-          <LayoutMain>
-            <HistorysPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <HistorysPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.appointments, // "/Appointments "
+        path: path.admin.appointments,
         element: (
-          <LayoutMain>
-            <AppointmentsPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <AppointmentsPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
-        path: path.admin.order, // "/Order "
+        path: path.admin.order,
         element: (
-          <LayoutMain>
-            <OrdersPage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <OrdersPage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
         path: path.blog,
         element: (
-          <LayoutClient>
-            <BlogLayout />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <BlogLayout />
+            </LayoutClient>
+          </ProtectedRoute>
         ),
         children: [
           {
             path: ':id',
-            element: <BlogDetails />
+            element: (
+              <ProtectedRoute>
+                <BlogDetails />
+              </ProtectedRoute>
+            )
           },
           {
             path: '',
-            element: <BlogDetails />
+            element: (
+              <ProtectedRoute>
+                <BlogDetails />
+              </ProtectedRoute>
+            )
           }
         ]
       },
       {
         path: path.admin.profile,
         element: (
-          <LayoutMain>
-            <ProfilePage />
-          </LayoutMain>
+          <AdminRoute>
+            <LayoutMain>
+              <ProfilePage />
+            </LayoutMain>
+          </AdminRoute>
         )
       },
       {
         path: path.profile,
         element: (
-          <LayoutClient>
-            <Profile />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <Profile />
+            </LayoutClient>
+          </ProtectedRoute>
         )
       },
       {
         path: path.pricelist,
         element: (
-          <LayoutClient>
-            <VaccinePrices />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <VaccinePrices />
+            </LayoutClient>
+          </ProtectedRoute>
         )
       },
       {
         path: path.list,
         element: (
-          <LayoutClient>
-            <ListVaccination />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <ListVaccination />
+            </LayoutClient>
+          </ProtectedRoute>
         )
       },
       {
         path: path.detail,
         element: (
-          <LayoutClient>
-            <VaccineDetail />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <VaccineDetail />
+            </LayoutClient>
+          </ProtectedRoute>
         )
       },
 
       {
         path: path.booking,
         element: (
-          <LayoutClient>
-            <CheckOutPagePageMain />
-          </LayoutClient>
+          <ProtectedRoute>
+            <LayoutClient>
+              <CheckOutPagePageMain />
+            </LayoutClient>
+          </ProtectedRoute>
         )
       },
 
       {
         path: path.introduce,
-        element: <ServiceIntro />
+        element: (
+          <ProtectedRoute>
+            <ServiceIntro />
+          </ProtectedRoute>
+        )
       },
       { path: '*', element: <PageNotFound /> }
     ],

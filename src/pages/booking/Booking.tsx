@@ -15,8 +15,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Banknote, CreditCard, HandCoins } from 'lucide-react'
+import { Banknote, CreditCard, HandCoins, ArrowLeft } from 'lucide-react'
 import { path } from '@/core/constants/path'
+import { UserBody, UserBodyType } from '@/schemaValidator/user.schema'
 
 const CheckOutPagePageMain = () => {
   const navigate = useNavigate()
@@ -40,6 +41,19 @@ const CheckOutPagePageMain = () => {
     }
   })
 
+  const formUser = useForm<UserBodyType>({
+    resolver: zodResolver(UserBody),
+    defaultValues: {
+      fullName: '',
+      date_of_birth: '',
+      gender: '',
+      phone: '',
+      email: '',
+      relationship: '',
+      address: ''
+    }
+  })
+
   useEffect(() => {
     if (userDetail) {
       const today = new Date()
@@ -57,7 +71,6 @@ const CheckOutPagePageMain = () => {
       date.setMinutes(parseInt(minutes, 10))
       date.setSeconds(0)
       date.setMilliseconds(0)
-
       const isoDateTime = date.toISOString()
       form.setValue('appointmentDate', isoDateTime)
     }
@@ -127,19 +140,137 @@ const CheckOutPagePageMain = () => {
       }
     })
   }
-
   return (
-    <div className='container mx-auto px-4 py-8 lg:py-12'>
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+    <div className='container mx-auto px-4 py-8 lg:py-12 mt-12'>
+      <Button
+        variant='ghost'
+        className='mb-4 hover:bg-blue-50 transition-colors duration-200 border border-gray-200 hover:border-blue-200 hover:text-blue-600'
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className='w-4 h-4' />
+        Quay lại trang chi tiết vắc xin
+      </Button>
+      <div className='grid grid-cols-1 lg:grid-cols-3  gap-8'>
         {/* Main Form Section */}
         <div className='lg:col-span-2'>
           <Card className='dark:bg-gray-900 h-full'>
             <CardContent className='p-6 space-y-6'>
-              <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>Thông tin đặt lịch hẹn</h2>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
+              {/* 👉 THÔNG TIN NGƯỜI TIÊM TÁCH KHỎI FORM */}
+              <div className='space-y-4'>
+                <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông Tin Người Tiêm</h2>
+                <div className='grid md:grid-cols-2 gap-6'>
+                  <div>
+                    <Label>
+                      Họ và tên <span className='text-red-500'>*</span>
+                    </Label>
+                    <Input
+                      value={formUser.watch('fullName')}
+                      {...formUser.register('fullName')}
+                      placeholder='Họ và tên'
+                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    />
+                  </div>
+                  <div>
+                    <Label>
+                      Mối quan hệ <span className='text-red-500'>*</span>
+                    </Label>
+                    <select
+                      value={formUser.watch('relationship')}
+                      {...formUser.register('relationship')}
+                      className='w-full border border-green-500 focus:border-green-400 focus:ring-green-400 dark:bg-gray-800 px-3 py-2  rounded-md'
+                    >
+                      <option value=''>Chọn mối quan hệ</option>
+                      <option value='parent'>Cha/Mẹ</option>
+                      <option value='child'>Con</option>
+                      <option value='sibling'>Anh/Chị/Em</option>
+                      <option value='other'>Khác</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label>
+                      Ngày sinh <span className='text-red-500'>*</span>
+                    </Label>
+                    <Input
+                      type='date'
+                      value={formUser.watch('date_of_birth')}
+                      {...formUser.register('date_of_birth')}
+                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    />
+                  </div>
+                  <div>
+                    <Label>
+                      Giới tính <span className='text-red-500'>*</span>
+                    </Label>
+                    <div className='flex items-center gap-4 mt-2'>
+                      <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
+                        <input
+                          type='radio'
+                          value='male'
+                          {...formUser.register('gender')}
+                          checked={formUser.watch('gender') === 'male'}
+                        />
+                        Nam
+                      </label>
+                      <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
+                        <input
+                          type='radio'
+                          value='female'
+                          {...formUser.register('gender')}
+                          checked={formUser.watch('gender') === 'female'}
+                        />
+                        Nữ
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>
+                      Số điện thoại <span className='text-red-500'>*</span>
+                    </Label>
+                    <Input
+                      type='tel'
+                      value={formUser.watch('phone')}
+                      {...formUser.register('phone')}
+                      placeholder='Số điện thoại'
+                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    />
+                    {formUser.formState.errors.phone && (
+                      <p className='text-red-500 text-sm'>{formUser.formState.errors.phone.message}</p>
+                    )}
+                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                      Nếu người được tiêm chưa có SĐT, vui lòng điền SĐT của cha/mẹ hoặc người giám hộ.
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label>Email</Label>
+                    <Input
+                      type='email'
+                      value={formUser.watch('email')}
+                      {...formUser.register('email')}
+                      placeholder='Email'
+                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    />
+                  </div>
+
+                  <div className='md:col-span-2'>
+                    <Label>
+                      Địa chỉ <span className='text-red-500'>*</span>
+                    </Label>
+                    <Input
+                      value={formUser.watch('address')}
+                      {...formUser.register('address')}
+                      placeholder='Số nhà, tên đường (Theo hộ khẩu/CMND)'
+                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>
+                <h2 className='text-xl font-semibold text-gray-900 dark:text-white'> Chọn Thời Gian Mong Muốn Tiêm </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <Label htmlFor='appointmentDate'>Ngày hẹn tiêm</Label>
+                    <Label htmlFor='appointmentDate'>Ngày đặt lịch hẹn</Label>
                     <Input
                       id='appointmentDate'
                       type='date'
@@ -150,6 +281,9 @@ const CheckOutPagePageMain = () => {
                         form.formState.errors.appointmentDate ? 'border-red-500' : ''
                       }`}
                     />
+                    {form.formState.errors.appointmentDate && (
+                      <p className='text-sm text-red-500'>{form.formState.errors.appointmentDate.message}</p>
+                    )}
                   </div>
                   <div className='space-y-2'>
                     <Label htmlFor='appointmentTime'>Giờ hẹn tiêm</Label>
@@ -163,31 +297,25 @@ const CheckOutPagePageMain = () => {
                         form.formState.errors.appointmentDate ? 'border-red-500' : ''
                       }`}
                     />
-                    <p className='text-sm text-gray-500 dark:text-gray-400'>
-                      Thời gian khả dụng: 8:00 - 17:00 (30 phút)
-                    </p>
+                    <p className='text-sm text-gray-500 dark:text-gray-400'>Giờ hẹn tiêm: 8:00 - 17:00 (30 phút)</p>
+                  </div>
+                  <div className='space-y-2'>
+                    <Label htmlFor='vaccinationQuantity'>Số liều vắc xin</Label>
+                    <Input
+                      id='vaccinationQuantity'
+                      type='number'
+                      {...form.register('vaccinationQuantity', { valueAsNumber: true })}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.vaccinationQuantity ? 'border-red-500' : ''
+                      }`}
+                    />
+                    {form.formState.errors.vaccinationQuantity && (
+                      <p className='text-sm text-red-500'>{form.formState.errors.vaccinationQuantity.message}</p>
+                    )}
                   </div>
                 </div>
-                {form.formState.errors.appointmentDate && (
-                  <p className='text-sm text-red-500'>{form.formState.errors.appointmentDate.message}</p>
-                )}
 
-                <div className='space-y-2'>
-                  <Label htmlFor='vaccinationQuantity'>Số liệu pháp</Label>
-                  <Input
-                    id='vaccinationQuantity'
-                    type='number'
-                    {...form.register('vaccinationQuantity', { valueAsNumber: true })}
-                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                      form.formState.errors.vaccinationQuantity ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {form.formState.errors.vaccinationQuantity && (
-                    <p className='text-sm text-red-500'>{form.formState.errors.vaccinationQuantity.message}</p>
-                  )}
-                </div>
-
-                <div className='space-y-4 '>
+                <div className='space-y-4'>
                   <div className='pt-4 flex items-center space-x-2 border-t border-green-500 dark:border-green-700'>
                     <Banknote className='w-6 h-6 text-gray-900 dark:text-white' />
                     <Label className='text-gray-900 dark:text-white text-lg font-bold'>Phương thức thanh toán</Label>
@@ -238,23 +366,22 @@ const CheckOutPagePageMain = () => {
             </CardContent>
           </Card>
         </div>
-
         {/* Sidebar Section */}
         <div className='lg:col-span-1'>
-          <Card className='dark:bg-gray-900 sticky top-8 h-full'>
-            <CardContent className='p-6 space-y-6'>
+          <Card className='dark:bg-gray-900 sticky top-8'>
+            <CardContent className='p-6 space-y-4'>
               <div className='flex flex-col space-y-4'>
-                <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông tin vaccine</h3>
+                <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông tin vắc xin</h3>
                 <div className='rounded-lg overflow-hidden'>
                   <img
                     alt={vaccineDetail?.vaccineName}
-                    className='w-full h-48 object-cover'
+                    className=' cursor-pointer  w-full h-60 object-cover transition-transform duration-300 hover:scale-105'
                     src={vaccineDetail?.image}
                   />
                 </div>
                 <div className='space-y-2'>
                   <h4 className='font-semibold text-gray-900 dark:text-white'>{vaccineDetail?.vaccineName}</h4>
-                  <p className='text-sm text-gray-600 dark:text-gray-300'>{vaccineDetail?.description}</p>
+                  <p className='text-sm text-gray-600 dark:text-gray-300 line-clamp-2'>{vaccineDetail?.description}</p>
                   <p className='text-sm text-gray-600 dark:text-gray-300'>
                     Số liệu pháp còn lại: {vaccineDetail?.remainingQuantity}
                   </p>
@@ -281,5 +408,4 @@ const CheckOutPagePageMain = () => {
     </div>
   )
 }
-
 export default CheckOutPagePageMain

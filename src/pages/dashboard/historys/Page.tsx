@@ -82,7 +82,7 @@ const generateCertificateContent = (vaccination: Vaccination) => `
         <p>Ngày: ${format(new Date(), 'dd/MM/yyyy')}</p>
       </div>
       <div class="info">
-        <h3>Thông tin bệnh nhân</h3>
+        <h3>Thông tin khách hàng</h3>
         <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
         <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone || ''}</div></div>
         <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email || ''}</div></div>
@@ -101,7 +101,7 @@ const generateCertificateContent = (vaccination: Vaccination) => `
         <div><span style="color: #4f46e5; font-weight: bold;">VERIFIED</span></div>
       </div>
       <div class="footer">
-        <p>Chứng nhận này xác nhận rằng bệnh nhân đã nhận tiêm chủng được chỉ định.</p>
+        <p>Chứng nhận này xác nhận rằng khách hàng đã nhận tiêm chủng được chỉ định.</p>
         <p>Để biết thêm thông tin, vui lòng liên hệ: 1900 1900</p>
       </div>
     </div>
@@ -124,7 +124,7 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
     .text(`Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
     .text(`Ngày: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
 
-  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin bệnh nhân', 20, 55)
+  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin khách hàng', 20, 55)
   pdf
     .setFontSize(12)
     .setFont('times', 'normal')

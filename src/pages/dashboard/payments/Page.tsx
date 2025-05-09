@@ -21,6 +21,7 @@ import { format } from 'date-fns'
 import { useDeletePaymentMutation, useListPaymentQuery } from '@/queries/useMomo'
 import { toast } from 'sonner'
 import { PaymentResponseType } from '@/schemaValidator/momo.schema'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 type Payment = PaymentResponseType
 
@@ -50,6 +51,7 @@ export default function PaymentsPage() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [filters, setFilters] = useState<Filters>({
     status: { completed: false, pending: false, failed: false, refunded: false },
     method: { qrMomo: false, cash: false },
@@ -161,12 +163,12 @@ export default function PaymentsPage() {
     // Add header
     pdf.setFontSize(18)
     pdf.setFont('times', 'bold')
-    pdf.text('VAXBOT Vaccine Joint Stock Company', pageWidth / 2, y, { align: 'center' })
+    pdf.text('Công ty cổ phần Vaccine', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     pdf.setFontSize(12)
     pdf.setFont('times', 'normal')
-    pdf.text(`Receipt #${payment.id}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Hóa đơn #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
     y += 10
@@ -312,10 +314,13 @@ export default function PaymentsPage() {
   const handleDeletePayment = (paymentId: string) => {
     deletePayment(paymentId, {
       onSuccess: () => {
+        setOpenDeleteDialog(false)
+        setSelectedPayment(null)
         toast.success('Thanh toán đã được xóa thành công')
       }
     })
   }
+
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Title and action buttons */}
@@ -472,6 +477,40 @@ export default function PaymentsPage() {
             <Button variant='outline' onClick={() => handleDownloadReceipt(selectedPayment)}>
               <Download className='mr-2 h-4 w-4' />
               Tải hóa đơn
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent className='sm:max-w-[800px]'>
+          <DialogHeader>
+            <DialogTitle>Xóa bài viết</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedPayment && (
+              <div className='flex items-center gap-4'>
+                <div>
+                  <p className='font-medium'>{selectedPayment.id}</p>
+                  <p className='text-sm text-muted-foreground'>{selectedPayment.user.name}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoading}>
+              Hủy bỏ
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={() => handleDeletePayment(selectedPayment?.id || '')}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+              {isLoading ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

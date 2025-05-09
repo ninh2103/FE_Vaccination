@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ChevronUp } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { UserCircle, LogOut } from 'lucide-react'
+import { UserCircle, LogOut, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
@@ -15,17 +15,20 @@ import {
   setUserToLS,
   removeAccessTokenFromLS,
   removeRefreshTokenFromLS,
-  getRefreshTokenFromLS
+  getRefreshTokenFromLS,
+  removeUserFromLS
 } from '@/core/shared/storage'
 import { useLogoutMutation } from '@/queries/useAuth'
+import MessengerButton from '@/pages/Messenger/messenger'
+import { useListVaccinationQuery } from '@/queries/useVaccination'
 
 const navItems = [
-  { name: 'Home', href: '#home' },
-  { name: 'Features', href: '#features' },
-  { name: 'Vaccines', href: '#vaccines' },
-  { name: 'Doctor', href: '#doctor' },
-  { name: 'Blog', href: '#blog' },
-  { name: 'Contact', href: '#contact' }
+  { name: 'Trang chủ', href: '#home' },
+  { name: 'Giới thiệu', href: '#features' },
+  { name: 'Vắc xin', href: '#vaccines' },
+  { name: 'Bác sĩ', href: '#doctor' },
+  { name: 'Tin tức', href: '#blog' },
+  { name: 'Liên hệ', href: '#contact' }
 ]
 
 export default function Header() {
@@ -34,6 +37,9 @@ export default function Header() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchResults, setShowSearchResults] = useState(false)
+
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
   if (user) {
@@ -41,10 +47,16 @@ export default function Header() {
       id: user?.id,
       name: user?.name,
       email: user?.email,
-      role: user?.role.name
+      role: user?.role.name,
+      isVerified: user?.isVerified
     })
   }
   const logoutMutation = useLogoutMutation()
+  const { data: vaccination } = useListVaccinationQuery({
+    page: 1,
+    items_per_page: 100,
+    search: searchQuery
+  })
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -67,7 +79,7 @@ export default function Header() {
   }, [scrollY])
 
   const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
+    const section = document.getElementById(sectionId.replace('#', ''))
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
     }
@@ -77,20 +89,33 @@ export default function Header() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleSignOut = () => {
-    const refreshToken = getRefreshTokenFromLS()
-    if (refreshToken) {
-      logoutMutation.mutate({ params: { refresh_token: refreshToken } })
-      removeAccessTokenFromLS()
-      removeRefreshTokenFromLS()
-      setIsLoggedIn(false)
-    }
+  const handleLogout = () => {
+    logoutMutation.mutate(
+      { params: { refresh_token: getRefreshTokenFromLS() } },
+      {
+        onSuccess: () => {
+          removeAccessTokenFromLS()
+          removeRefreshTokenFromLS()
+          removeUserFromLS()
+        }
+      }
+    )
   }
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
     setIsLoggedIn(!!token)
   }, [])
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setShowSearchResults(true)
+  }
+
+  const handleSearchResultClick = () => {
+    setShowSearchResults(false)
+    setSearchQuery('')
+  }
 
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
@@ -100,10 +125,7 @@ export default function Header() {
         <div className='container mx-auto px-4 py-4'>
           <div className='flex items-center justify-between'>
             <Link to={path.home} className='flex items-center space-x-2'>
-              <Icons.Syringe className='h-8 w-8 text-blue-400' />
-              <span className='text-2xl font-bold bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-transparent bg-clip-text'>
-                VAX-BOX
-              </span>
+              <img src={'/logo33.png'} alt='logo' className='w-24 h-20' />
             </Link>
             <nav className='hidden md:flex space-x-6'>
               {navItems.map((item, index) => (
@@ -111,14 +133,43 @@ export default function Header() {
                   key={index}
                   variant='ghost'
                   className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                  onClick={() => scrollToSection(item.name.toLowerCase())}
+                  onClick={() => scrollToSection(item.href)}
                 >
                   {item.name}
                 </Button>
               ))}
             </nav>
-            <div className='grid w-1/2 max-w-xs items-center gap-1.5'>
-              <Input type='search' id='search' placeholder='Search' className='w-full text-sm p-2 text-blue-400' />
+            <div className='relative w-1/2 max-w-xs'>
+              <div className='relative'>
+                <Input
+                  type='search'
+                  id='search'
+                  placeholder='Tìm kiếm vắc xin...'
+                  className='w-full text-sm p-2 text-blue-400 pl-10'
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  onFocus={() => setShowSearchResults(true)}
+                />
+                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+              </div>
+              {showSearchResults && searchQuery && (
+                <div className='absolute w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto z-50'>
+                  {vaccination?.data && vaccination.data.length > 0 ? (
+                    vaccination.data.map((vaccine) => (
+                      <Link
+                        key={vaccine.id}
+                        to={`/vaccination/${vaccine.id}`}
+                        onClick={handleSearchResultClick}
+                        className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200'
+                      >
+                        {vaccine.vaccineName}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className='px-4 py-2 text-sm text-gray-500 dark:text-gray-400'>Không tìm thấy kết quả</div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className='hidden md:flex items-center space-x-4'>
@@ -143,9 +194,9 @@ export default function Header() {
                       </DropdownMenuItem>
                     </Link>
                     <Link to={path.login}>
-                      <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
+                      <DropdownMenuItem className='flex items-center' onClick={handleLogout}>
                         <LogOut className='mr-2 h-4 w-4' />
-                        <span>Sign out</span>
+                        <span>Đăng xuất</span>
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuContent>
@@ -157,12 +208,12 @@ export default function Header() {
                       variant='ghost'
                       className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
                     >
-                      Log in
+                      Đăng nhập
                     </Button>
                   </Link>
                   <Link to={path.register}>
                     <Button className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'>
-                      Sign up
+                      Đăng ký
                     </Button>
                   </Link>
                 </>
@@ -185,7 +236,7 @@ export default function Header() {
                   variant='ghost'
                   className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                   onClick={() => {
-                    scrollToSection(item.name.toLowerCase())
+                    scrollToSection(item.href)
                     setIsMenuOpen(false)
                   }}
                 >
@@ -203,9 +254,9 @@ export default function Header() {
                   <Button
                     variant='ghost'
                     className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
-                    onClick={handleSignOut}
+                    onClick={handleLogout}
                   >
-                    Sign out
+                    Đăng xuất
                   </Button>
                 </>
               ) : (
@@ -215,12 +266,12 @@ export default function Header() {
                       variant='ghost'
                       className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
                     >
-                      Log in
+                      Đăng nhập
                     </Button>
                   </Link>
                   <Link to={path.register} className='w-full'>
                     <Button className='w-full mt-2 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-600 hover:to-blue-600 text-white'>
-                      Sign up
+                      Đăng ký
                     </Button>
                   </Link>
                 </>
@@ -240,7 +291,10 @@ export default function Header() {
         </Button>
       )}
 
-      <Chatbox />
+      <div className='fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50'>
+        <MessengerButton />
+        <Chatbox />
+      </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Eye, Edit, Trash } from 'lucide-react'
+import { Edit, Trash } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
@@ -35,14 +35,6 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
     )
   }
 
-  if (isLoading) {
-    return (
-      <div className='flex items-center justify-center p-8'>
-        <LoadingSpinner className='h-8 w-8' />
-      </div>
-    )
-  }
-
   return (
     <Card>
       <CardContent className='p-0'>
@@ -63,7 +55,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
             </TableHeader>
             <TableBody>
               {posts.map((post, index) => (
-                <TableRow key={post.id}>
+                <TableRow key={post.id} className='cursor-pointer hover:bg-muted/50' onClick={() => onView(post.id)}>
                   <TableCell className='font-medium'>{index + 1}</TableCell>
                   <TableCell className='font-medium'>{post.title}</TableCell>
                   <TableCell>{post.content.substring(0, 100)}...</TableCell>
@@ -71,10 +63,7 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
                   <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <div className='flex items-center gap-2'>
-                      <Button variant='ghost' size='icon' onClick={() => onView(post.id)}>
-                        <Eye className='h-4 w-4' />
-                      </Button>
+                    <div className='flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
                       <Button variant='ghost' size='icon' onClick={() => onEdit(post)}>
                         <Edit className='h-4 w-4' />
                       </Button>

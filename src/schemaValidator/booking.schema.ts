@@ -1,3 +1,4 @@
+import { UserSchema } from '@/schemaValidator/blog.schema'
 import { z } from 'zod'
 
 export const BookingSchema = z.object({
@@ -11,7 +12,8 @@ export const BookingSchema = z.object({
   status: z.enum(['PENDING', 'CONFIRMED', 'CANCELED', 'SUCCESS', 'WAITING_PAYMENT']),
   vaccinationDate: z.string().datetime(),
   confirmationTime: z.string().datetime(),
-  appointmentDate: z.string().datetime()
+  appointmentDate: z.string().datetime(),
+  user: UserSchema
 })
 
 export const BookingResponseSchema = z.object({
@@ -62,7 +64,7 @@ export const BookingBodySchema = (remainingQuantity: number) =>
           return appointmentDate > new Date(now.setHours(0, 0, 0, 0))
         },
         {
-          message: 'Ngày hẹn không được ở quá khứ hoặc trong giờ qua'
+          message: 'Ngày hẹn phải từ thời gian hiện tại trở về sau'
         }
       )
       .refine(

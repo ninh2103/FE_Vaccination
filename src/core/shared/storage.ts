@@ -34,6 +34,9 @@ export const removeRefreshTokenFromLS = () => {
   localStorage.removeItem('refresh_token')
 }
 
-export const setUserToLS = (user: { id: string; name: string; email: string; role: string }) => {
+export const setUserToLS = (user: { id: string; name: string; email: string; role: string; isVerified: boolean }) => {
   localStorage.setItem('user', JSON.stringify(user))
+}
+export const removeUserFromLS = () => {
+  localStorage.removeItem('user')
 }

@@ -3,6 +3,7 @@ export interface UserResponseType {
   name: string
   email: string
   role: string
+  isVerified: boolean
 }
 export interface UserUpdateType {
   name?: string

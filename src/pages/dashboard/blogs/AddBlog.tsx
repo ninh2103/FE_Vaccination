@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { BlogPost } from './BlogTable'
@@ -18,6 +17,8 @@ import { useListTagQuery } from '@/queries/useTag'
 import { BlogBodySchema, BlogBodyType } from '@/schemaValidator/blog.schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
+import InputEditor from '@/hooks/inputEditor'
+import { handleEditorChange } from '@/core/lib/utils'
 interface AddBlogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -49,7 +50,7 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className='sm:max-w-[800px]'>
         <DialogHeader>
           <DialogTitle>Thêm bài viết blog mới</DialogTitle>
           <DialogDescription>Tạo một bài viết blog mới bằng cách điền vào biểu mẫu bên dưới.</DialogDescription>
@@ -69,11 +70,10 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
           </div>
           <div className='grid gap-2'>
             <Label htmlFor='content'>Nội dung bài viết *</Label>
-            <Textarea
-              id='content'
-              {...form.register('content')}
-              placeholder='Nhập nội dung bài viết blog'
-              className={form.formState.errors.content ? 'border-red-500' : ''}
+            <InputEditor
+              label=''
+              value={form.watch('content') || ''}
+              setValue={(content: string) => handleEditorChange(content, form)}
             />
             {form.formState.errors.content && (
               <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>

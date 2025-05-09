@@ -125,8 +125,11 @@ export default function ProfilePage() {
                 id='name'
                 {...formUpdate.register('name')}
                 placeholder='Nhập họ và tên'
-                className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                className={formUpdate.formState.errors.name ? 'border-red-500' : ''}
               />
+              {formUpdate.formState.errors.name && (
+                <p className='text-red-500 text-sm'>{formUpdate.formState.errors.name.message}</p>
+              )}
             </div>
 
             <div className='grid gap-4 md:grid-cols-2'>
@@ -136,8 +139,11 @@ export default function ProfilePage() {
                   id='phone'
                   {...formUpdate.register('phone')}
                   placeholder='Nhập số điện thoại'
-                  className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                  className={formUpdate.formState.errors.phone ? 'border-red-500' : ''}
                 />
+                {formUpdate.formState.errors.phone && (
+                  <p className='text-red-500 text-sm'>{formUpdate.formState.errors.phone.message}</p>
+                )}
               </div>
               <div className='space-y-1'>
                 <Label htmlFor='date_of_birth'>Ngày sinh</Label>
@@ -145,8 +151,11 @@ export default function ProfilePage() {
                   id='date_of_birth'
                   type='date'
                   {...formUpdate.register('date_of_birth')}
-                  className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                  className={formUpdate.formState.errors.date_of_birth ? 'border-red-500' : ''}
                 />
+                {formUpdate.formState.errors.date_of_birth && (
+                  <p className='text-red-500 text-sm'>{formUpdate.formState.errors.date_of_birth.message}</p>
+                )}
               </div>
             </div>
 
@@ -156,8 +165,11 @@ export default function ProfilePage() {
                 id='address'
                 {...formUpdate.register('address')}
                 placeholder='Nhập địa chỉ'
-                className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                className={formUpdate.formState.errors.address ? 'border-red-500' : ''}
               />
+              {formUpdate.formState.errors.address && (
+                <p className='text-red-500 text-sm'>{formUpdate.formState.errors.address.message}</p>
+              )}
             </div>
 
             <div className='space-y-1'>
@@ -166,8 +178,11 @@ export default function ProfilePage() {
                 id='country'
                 {...formUpdate.register('country')}
                 placeholder='Nhập thành phố'
-                className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                className={formUpdate.formState.errors.country ? 'border-red-500' : ''}
               />
+              {formUpdate.formState.errors.country && (
+                <p className='text-red-500 text-sm'>{formUpdate.formState.errors.country.message}</p>
+              )}
             </div>
 
             <Button

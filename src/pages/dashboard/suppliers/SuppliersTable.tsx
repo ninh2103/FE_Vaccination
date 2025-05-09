@@ -35,6 +35,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [openViewDialog, setOpenViewDialog] = useState(false)
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -87,6 +88,11 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
   const handleEditSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
     setOpenEditDialog(true)
+  }
+
+  const handleViewSupplier = (supplier: Supplier) => {
+    setSelectedSupplier(supplier)
+    setOpenViewDialog(true)
   }
 
   const handleRefresh = () => {
@@ -183,7 +189,11 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
                 </TableHeader>
                 <TableBody>
                   {suppliersData?.data.map((supplier, index) => (
-                    <TableRow key={supplier.id} className='cursor-pointer hover:bg-muted/50'>
+                    <TableRow
+                      key={supplier.id}
+                      className='cursor-pointer hover:bg-muted/50'
+                      onClick={() => handleViewSupplier(supplier)}
+                    >
                       <TableCell>{(currentPage - 1) * ROWS_PER_PAGE + index + 1}</TableCell>
                       <TableCell>
                         <div className='flex items-center gap-3'>
@@ -208,7 +218,7 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
                           <Button
                             variant='ghost'
                             size='icon'
@@ -324,6 +334,43 @@ export function SuppliersTable({ onUpdateSuppliers }: SuppliersTableProps) {
               setSelectedSupplier(null)
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
+        <DialogContent className='sm:max-w-[600px]'>
+          <DialogHeader>
+            <DialogTitle>Xem chi tiết nhà cung cấp</DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            {selectedSupplier && (
+              <div className='space-y-6'>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Tên nhà cung cấp</h3>
+                  <p className='text-lg font-medium'>{selectedSupplier.name}</p>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Địa chỉ</h3>
+                  <div className='flex items-center gap-1 mt-1'>
+                    <MapPin className='h-4 w-4 text-muted-foreground' />
+                    <p>{selectedSupplier.address}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className='text-sm font-medium text-muted-foreground'>Thông tin liên hệ</h3>
+                  <div className='flex items-center gap-1 mt-1'>
+                    <Phone className='h-4 w-4 text-muted-foreground' />
+                    <p>{selectedSupplier.contactInfo}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setOpenViewDialog(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

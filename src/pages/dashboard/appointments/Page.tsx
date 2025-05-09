@@ -5,14 +5,7 @@ import { Download, RefreshCw, Loader2, CalendarIcon, Search } from 'lucide-react
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
+import { Dialog } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AppointmentTable } from './AppointmentTable'
 import { UpdateAppointment } from './UpdateAppointment'
@@ -76,7 +69,6 @@ interface Appointment {
 export default function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -235,13 +227,12 @@ export default function AppointmentsPage() {
     (appointment: Appointment) => {
       deleteAppointment(appointment.id, {
         onSuccess: () => {
-          toast.success('Đã xóa lịch hẹn thành công')
+          toast.success('Đã xóa lịch hẹn thành công.')
           refetch()
           refetchDaily()
-          setOpenDeleteDialog(false)
         },
         onError: () => {
-          toast.error('Lỗi khi xóa lịch hẹn')
+          toast.error('Không thể xóa lịch hẹn.')
         }
       })
     },
@@ -337,9 +328,7 @@ export default function AppointmentsPage() {
                     <Loader2 className='h-6 w-6 animate-spin' />
                   </div>
                 ) : filteredAppointments.length === 0 ? (
-                  <div className='p-4 text-center text-muted-foreground'>
-                    Không tìm thấy lịch hẹn phù hợp với bộ lọc hiện tại.
-                  </div>
+                  <div className='p-4 text-center text-muted-foreground'>Không tìm thấy lịch hẹn ngày hôm nay.</div>
                 ) : (
                   <AppointmentTable
                     appointments={filteredAppointments}
@@ -432,33 +421,6 @@ export default function AppointmentsPage() {
             onCancel={() => setOpenUpdateDialog(false)}
           />
         )}
-      </Dialog>
-
-      {/* Delete Dialog */}
-      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa lịch hẹn này? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
-              Hủy bỏ
-            </Button>
-            <Button
-              variant='destructive'
-              onClick={() => {
-                setSelectedAppointment(null)
-                setOpenDeleteDialog(false)
-              }}
-              disabled={!selectedAppointment}
-            >
-              Xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
       </Dialog>
     </div>
   )

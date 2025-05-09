@@ -10,29 +10,27 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidator/auth.schema'
 import { useChangePasswordMutation } from '@/queries/useAuth'
 import { toast } from 'sonner'
-import { handleErrorApi } from '@/core/lib/utils'
+import { formatVND, handleErrorApi } from '@/core/lib/utils'
 import { useGetMeQuery, useUpdateMeQuery, useUploadAvatarQuery } from '@/queries/useUser'
 import { UpdateMeBody, UpdateMeBodyType, UploadAvatarBodyType } from '@/schemaValidator/user.schema'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { useListBookingQuery } from '@/queries/useBooking'
 import { path } from '@/core/constants/path'
 import { useNavigate } from 'react-router-dom'
+import { useListUserPaymentQuery } from '@/queries/useMomo'
+import { format } from 'date-fns'
 
 export default function Profile() {
   const [showPassword, setShowPassword] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const [hasMore, setHasMore] = useState(true)
-  const itemsPerPage = 6
   const navigate = useNavigate()
 
   const changePasswordMutation = useChangePasswordMutation()
   const updateMeMutation = useUpdateMeQuery()
   const getMeQuery = useGetMeQuery()
   const uploadAvatarMutation = useUploadAvatarQuery()
-  const { data: bookingList, refetch } = useListBookingQuery({
-    page: currentPage,
-    items_per_page: itemsPerPage
-  })
+  const { data: paymentList, refetch } = useListUserPaymentQuery()
 
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
@@ -57,16 +55,15 @@ export default function Profile() {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
     if (scrollHeight - scrollTop <= clientHeight * 1.5 && !hasMore) {
-      setCurrentPage((prev) => prev + 1)
       refetch()
     }
   }
 
   useEffect(() => {
-    if (bookingList) {
-      setHasMore(bookingList.currentPage < Math.ceil(bookingList.total / bookingList.itemsPerPage))
+    if (paymentList) {
+      setHasMore(paymentList.data.length < Math.ceil(paymentList.total / 10))
     }
-  }, [bookingList])
+  }, [paymentList])
 
   useEffect(() => {
     if (getMeQuery.data) {
@@ -131,23 +128,13 @@ export default function Profile() {
     })
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
         return 'bg-yellow-500'
-      case 'CONFIRMED':
+      case 'COMPLETED':
         return 'bg-green-500'
-      case 'CANCELED':
+      case 'FAILED':
         return 'bg-red-500'
       default:
         return 'bg-gray-500'
@@ -239,8 +226,11 @@ export default function Profile() {
                   <Input
                     id='name'
                     {...formUpdate.register('name')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                   />
+                  {formUpdate.formState.errors.name && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.name.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -252,8 +242,11 @@ export default function Profile() {
                     type='tel'
                     {...formUpdate.register('phone')}
                     placeholder='Số điện thoại'
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                   />
+                  {formUpdate.formState.errors.phone && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.phone.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -263,8 +256,11 @@ export default function Profile() {
                   <Input
                     id='address'
                     {...formUpdate.register('address')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                   />
+                  {formUpdate.formState.errors.address && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.address.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
@@ -275,19 +271,25 @@ export default function Profile() {
                     id='date_of_birth'
                     type='date'
                     {...formUpdate.register('date_of_birth')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                   />
+                  {formUpdate.formState.errors.date_of_birth && (
+                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.date_of_birth.message}</p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
                   <Label htmlFor='country' className='dark:text-green-300'>
-                    Quốc tịch
+                    Thành Phố
                   </Label>
                   <Input
                     id='country'
                     {...formUpdate.register('country')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
                   />
+                  {formUpdate.formState.errors.country && (
+                    <p className='text-red-500 text-sm '>{formUpdate.formState.errors.country.message}</p>
+                  )}
                 </div>
 
                 <Button
@@ -304,7 +306,7 @@ export default function Profile() {
           <TabsContent value='password'>
             <Card className='dark:bg-gray-900 border-gray-700 shadow-xl'>
               <CardHeader>
-                <CardTitle className='text-2xl dark:text-green-400'>Change Password</CardTitle>
+                <CardTitle className='text-2xl dark:text-green-400'>Thay đổi mật khẩu</CardTitle>
                 <CardDescription className='text-gray-400'>
                   Cập nhật mật khẩu để bảo mật tài khoản của bạn.
                 </CardDescription>
@@ -345,14 +347,30 @@ export default function Profile() {
                   <Label htmlFor='new-password' className='dark:text-green-300'>
                     Mật khẩu mới
                   </Label>
-                  <Input
-                    {...form.register('password')}
-                    id='new-password'
-                    type='password'
-                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                      form.formState.errors.password ? 'border-red-500' : ''
-                    }`}
-                  />
+                  <div className='relative'>
+                    <Input
+                      {...form.register('password')}
+                      id='new-password'
+                      type={showNewPassword ? 'text' : 'password'}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.password ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className={`absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent ${
+                        form.formState.errors.password ? 'border-red-500' : ''
+                      }`}
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className='h-4 w-4 dark:text-green-400' />
+                      ) : (
+                        <Eye className='h-4 w-4 dark:text-green-400' />
+                      )}
+                    </Button>
+                  </div>
                   {form.formState.errors.password && (
                     <p className='text-red-500 text-sm'>{form.formState.errors.password.message}</p>
                   )}
@@ -362,14 +380,30 @@ export default function Profile() {
                   <Label htmlFor='confirm-password' className='dark:text-green-300'>
                     Xác nhận mật khẩu mới
                   </Label>
-                  <Input
-                    {...form.register('confirm_password')}
-                    id='confirm-password'
-                    type='password'
-                    className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                      form.formState.errors.confirm_password ? 'border-red-500' : ''
-                    }`}
-                  />
+                  <div className='relative'>
+                    <Input
+                      {...form.register('confirm_password')}
+                      id='confirm-password'
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.confirm_password ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className={`absolute right-0 top-0 h-full px-3 py-2 hover:dark:bg-transparent ${
+                        form.formState.errors.confirm_password ? 'border-red-500' : ''
+                      }`}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className='h-4 w-4 dark:text-green-400' />
+                      ) : (
+                        <Eye className='h-4 w-4 dark:text-green-400' />
+                      )}
+                    </Button>
+                  </div>
                   {form.formState.errors.confirm_password && (
                     <p className='text-red-500 text-sm'>{form.formState.errors.confirm_password.message}</p>
                   )}
@@ -396,58 +430,60 @@ export default function Profile() {
               </CardHeader>
               <CardContent>
                 <div className='max-h-[600px] overflow-y-auto space-y-4 pr-4' onScroll={handleScroll}>
-                  {bookingList?.data.map((booking) => (
+                  {paymentList?.data.map((payment) => (
                     <div
-                      key={booking.id}
+                      key={payment.paymentId}
                       className='p-4 rounded-lg border border-gray-700 dark:bg-gray-800 hover:bg-gray-750 transition-colors duration-200'
                     >
                       <div className='flex justify-between items-start mb-2'>
                         <div>
                           <h3 className='text-lg font-semibold dark:text-green-400'>
-                            Booking #{booking.id.slice(0, 8)}
+                            Mã đơn hàng: #{payment.bookingId.slice(0, 8)}
                           </h3>
-                          <p className='text-sm text-gray-400'>Created: {formatDate(booking.createdAt)}</p>
+                          <p className='text-sm text-gray-400'>
+                            Ngày tạo: {format(new Date(payment.createdAt), 'dd/MM/yyyy')}
+                          </p>
                         </div>
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(payment?.status || '')}`}
                         >
-                          {booking.status}
+                          {payment.status}
                         </span>
                       </div>
                       <div className='grid grid-cols-2 gap-4 mt-4'>
                         <div>
-                          <p className='text-sm text-gray-400'>Appointment Date</p>
-                          <p className='dark:text-white'>{formatDate(booking.appointmentDate)}</p>
+                          <p className='text-sm text-gray-400'>Ngày hẹn</p>
+                          <p className='dark:text-white'>{format(new Date(payment.appointmentDate), 'dd/MM/yyyy')}</p>
                         </div>
                         <div>
-                          <p className='text-sm text-gray-400'>Vaccination Date</p>
-                          <p className='dark:text-white'>{formatDate(booking.vaccinationDate)}</p>
+                          <p className='text-sm text-gray-400'>Ngày tiêm</p>
+                          <p className='dark:text-white'>{format(new Date(payment.appointmentDate), 'dd/MM/yyyy')}</p>
                         </div>
                         <div>
-                          <p className='text-sm text-gray-400'>Quantity</p>
-                          <p className='dark:text-white'>{booking.vaccinationQuantity} doses</p>
+                          <p className='text-sm text-gray-400'>Số lượng</p>
+                          <p className='dark:text-white'>{payment.vaccinationQuantity} liều</p>
                         </div>
                         <div>
-                          <p className='text-sm text-gray-400'>Total Amount</p>
-                          <p className='dark:text-white'>${booking.totalAmount}</p>
+                          <p className='text-sm text-gray-400'>Tổng tiền</p>
+                          <p className='dark:text-white'>{formatVND(payment.totalAmount)}</p>
                         </div>
                       </div>
                     </div>
                   ))}
-                  {!hasMore && (bookingList?.data?.length ?? 0) > 0 && (
-                    <div className='text-center py-4 text-gray-400'>No more bookings to load</div>
+                  {!hasMore && (paymentList?.data?.length ?? 0) > 0 && (
+                    <div className='text-center py-4 text-gray-400'>Hết đơn hàng</div>
                   )}
-                  {(bookingList?.data?.length ?? 0) === 0 && (
+                  {(paymentList?.data?.length ?? 0) === 0 && (
                     <div className='text-center py-8'>
                       <TicketCheck className='w-16 h-16 mx-auto dark:text-green-400 mb-4' />
-                      <p className='text-xl font-semibold mb-2 dark:text-green-300'>Booking List Empty</p>
-                      <p className='text-gray-400 mb-4'>You haven't made any vaccination appointments yet.</p>
+                      <p className='text-xl font-semibold mb-2 dark:text-green-300'>Danh sách đơn hàng trống</p>
+                      <p className='text-gray-400 mb-4'>Bạn chưa đặt lịch tiêm chủng nào.</p>
                       <Button
                         onClick={() => navigate(path.list)}
                         variant={'outline'}
                         className='dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
                       >
-                        Book a vaccination
+                        Đặt lịch tiêm chủng
                       </Button>
                     </div>
                   )}

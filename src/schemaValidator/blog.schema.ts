@@ -57,7 +57,6 @@ export const BlogBodySchema = z.object({
   title: z
     .string()
     .min(1, 'Tiêu đề không được để trống')
-    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tiêu đề chỉ được chứa chữ cái')
     .refine((value) => value.trim().length > 0, {
       message: 'Tiêu đề không được chỉ chứa khoảng trắng'
     }),
