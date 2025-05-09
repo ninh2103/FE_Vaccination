@@ -148,7 +148,7 @@ const CheckOutPagePageMain = () => {
         onClick={() => navigate(-1)}
       >
         <ArrowLeft className='w-4 h-4' />
-        Quay lại trang trước
+        Quay lại trang chi tiết vắc xin
       </Button>
       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8'>
         {/* Main Form Section */}

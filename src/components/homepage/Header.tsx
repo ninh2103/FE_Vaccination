@@ -15,7 +15,8 @@ import {
   setUserToLS,
   removeAccessTokenFromLS,
   removeRefreshTokenFromLS,
-  getRefreshTokenFromLS
+  getRefreshTokenFromLS,
+  removeUserFromLS
 } from '@/core/shared/storage'
 import { useLogoutMutation } from '@/queries/useAuth'
 import MessengerButton from '@/pages/Messenger/messenger'
@@ -46,7 +47,8 @@ export default function Header() {
       id: user?.id,
       name: user?.name,
       email: user?.email,
-      role: user?.role.name
+      role: user?.role.name,
+      isVerified: user?.isVerified
     })
   }
   const logoutMutation = useLogoutMutation()
@@ -87,14 +89,17 @@ export default function Header() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleSignOut = () => {
-    const refreshToken = getRefreshTokenFromLS()
-    if (refreshToken) {
-      logoutMutation.mutate({ params: { refresh_token: refreshToken } })
-      removeAccessTokenFromLS()
-      removeRefreshTokenFromLS()
-      setIsLoggedIn(false)
-    }
+  const handleLogout = () => {
+    logoutMutation.mutate(
+      { params: { refresh_token: getRefreshTokenFromLS() } },
+      {
+        onSuccess: () => {
+          removeAccessTokenFromLS()
+          removeRefreshTokenFromLS()
+          removeUserFromLS()
+        }
+      }
+    )
   }
 
   useEffect(() => {
@@ -189,7 +194,7 @@ export default function Header() {
                       </DropdownMenuItem>
                     </Link>
                     <Link to={path.login}>
-                      <DropdownMenuItem className='flex items-center' onClick={handleSignOut}>
+                      <DropdownMenuItem className='flex items-center' onClick={handleLogout}>
                         <LogOut className='mr-2 h-4 w-4' />
                         <span>Đăng xuất</span>
                       </DropdownMenuItem>
@@ -249,7 +254,7 @@ export default function Header() {
                   <Button
                     variant='ghost'
                     className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
-                    onClick={handleSignOut}
+                    onClick={handleLogout}
                   >
                     Đăng xuất
                   </Button>

@@ -56,7 +56,7 @@ export default function VaccineDetail() {
             className='mb-4 hover:bg-blue-50 transition-colors duration-200 border border-gray-200 hover:border-blue-200 hover:text-blue-600'
           >
             <ArrowLeft className='mr-2 h-4 w-4' />
-            Quay lại trang trước
+            Quay lại trang danh sách vắc xin
           </Button>
         </Link>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>

@@ -12,14 +12,14 @@ import { path } from '@/core/constants/path'
 import { useLoginMutation } from '@/queries/useAuth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginBody, LoginBodyType } from '@/schemaValidator/auth.schema'
-import { setAccessTokenToLS, setRefreshTokenToLS } from '@/core/shared/storage'
+import { setAccessTokenToLS, setRefreshTokenToLS, setUserToLS } from '@/core/shared/storage'
 import { toast } from 'sonner'
 import { LoginResponse } from '@/models/interface/auth.interface'
 import { handleErrorApi } from '@/core/lib/utils'
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = useState(false)
-  const loginMutation = useLoginMutation()
+  const { mutate: loginMutation } = useLoginMutation()
   const navigate = useNavigate()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -30,7 +30,7 @@ export default function FormLogin() {
   })
 
   const handleLogin = (body: LoginBodyType) => {
-    loginMutation.mutate(body, {
+    loginMutation(body, {
       onSuccess: (data: LoginResponse) => {
         const access_token = data.access_token
         const refresh_token = data.refresh_token
@@ -38,9 +38,22 @@ export default function FormLogin() {
         if (access_token && refresh_token) {
           setAccessTokenToLS(access_token)
           setRefreshTokenToLS(refresh_token)
+          setUserToLS({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            isVerified: data.user.isVerified
+          })
 
           toast.success('Đăng nhập thành công!')
-          navigate(path.home)
+
+          const userRole = data.user.role
+          if (userRole === 'ADMIN' || userRole === 'EMPLOYEE' || userRole === 'DOCTOR') {
+            navigate(path.admin.dashboard)
+          } else {
+            navigate(path.home)
+          }
         }
       },
       onError: (error: Error) => {

@@ -1,6 +1,6 @@
 // define the Login interface
 export interface LoginResponse {
-  user: { id: string; name: string; email: string; role: string }
+  user: { id: string; name: string; email: string; role: string; isVerified: boolean }
   access_token: string
   refresh_token: string
 }

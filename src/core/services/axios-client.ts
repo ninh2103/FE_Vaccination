@@ -64,10 +64,10 @@ axiosClient.interceptors.response.use(
         return axiosClient(originalRequest)
       }
     } catch (refreshError) {
-      await axios.post(`${config.baseUrl}/api/auth/logout`)
       removeAccessTokenFromLS()
       removeRefreshTokenFromLS()
       toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+      window.location.href = '/login'
       return Promise.reject(refreshError)
     }
 

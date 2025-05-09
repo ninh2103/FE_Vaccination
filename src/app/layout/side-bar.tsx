@@ -10,12 +10,14 @@ import { IconMedicalCross } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { MdOutlineEmojiTransportation } from 'react-icons/md'
 import { Clock10, FolderClock, ShieldPlus, ShoppingCart } from 'lucide-react'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 
 interface SidebarItem {
   name: string
   icon: React.ReactNode
   subItems?: { name: string; path: string }[]
   path?: string
+  isAdmin?: boolean
 }
 
 interface SidebarProps {
@@ -26,12 +28,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const [activeItem, setActiveItem] = useState<string | null>('General')
   const [activeSubItem, setActiveSubItem] = useState<string | null>(null)
   const navigate = useNavigate()
+  const user = getUserFromLocalStorage()
+  const isAdmin = user?.role === 'ADMIN'
 
   const sidebarItems: SidebarItem[] = [
     { name: 'Tổng quan', icon: <CogIcon className='h-5 w-5' />, path: '/admin/dashboard' },
     { name: 'Loại vắc xin', icon: <ShieldPlus className='h-5 w-5' />, path: '/admin/category' },
     { name: 'Vắc xin', icon: <IconMedicalCross className='h-5 w-5' />, path: '/admin/vaccines' },
-    { name: 'Người dùng', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users' },
+    { name: 'Người dùng', icon: <UserIcon className='h-5 w-5' />, path: '/admin/users', isAdmin: true },
     { name: 'Thanh toán', icon: <CurrencyDollarIcon className='h-5 w-5' />, path: '/admin/payments' },
     { name: 'Đơn hàng', icon: <ShoppingCart className='h-5 w-5' />, path: '/admin/order' },
     { name: 'Lịch hẹn', icon: <Clock10 className='h-5 w-5' />, path: '/admin/appointments' },
@@ -76,10 +80,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
         {sidebarItems.map((item, index) => (
           <div key={index} className='relative group'>
             <div
-              onClick={() => handleItemClick(item.name, item.path)}
-              className={`flex items-center p-3 mx-2 cursor-pointer rounded-lg transition-all duration-200 hover:bg-gray-100 ${
-                activeItem === item.name || activeSubItem === item.path ? 'bg-gray-100' : ''
-              }`}
+              onClick={() => {
+                if (!item.isAdmin || isAdmin) {
+                  handleItemClick(item.name, item.path)
+                }
+              }}
+              className={`flex items-center p-3 mx-2 cursor-pointer rounded-lg transition-all duration-200 
+    ${activeItem === item.name || activeSubItem === item.path ? 'bg-gray-100' : ''}
+    ${item.isAdmin && !isAdmin ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
             >
               <div
                 className={`flex items-center justify-center h-6 w-6 ${
