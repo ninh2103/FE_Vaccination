@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ChevronUp } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { UserCircle, LogOut } from 'lucide-react'
+import { UserCircle, LogOut, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
@@ -19,6 +19,7 @@ import {
 } from '@/core/shared/storage'
 import { useLogoutMutation } from '@/queries/useAuth'
 import MessengerButton from '@/pages/Messenger/messenger'
+import { useListVaccinationQuery } from '@/queries/useVaccination'
 
 const navItems = [
   { name: 'Trang chủ', href: '#home' },
@@ -35,6 +36,9 @@ export default function Header() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchResults, setShowSearchResults] = useState(false)
+
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
   if (user) {
@@ -46,6 +50,11 @@ export default function Header() {
     })
   }
   const logoutMutation = useLogoutMutation()
+  const { data: vaccination } = useListVaccinationQuery({
+    page: 1,
+    items_per_page: 100,
+    search: searchQuery
+  })
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -93,6 +102,16 @@ export default function Header() {
     setIsLoggedIn(!!token)
   }, [])
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setShowSearchResults(true)
+  }
+
+  const handleSearchResultClick = () => {
+    setShowSearchResults(false)
+    setSearchQuery('')
+  }
+
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
       <header
@@ -115,8 +134,37 @@ export default function Header() {
                 </Button>
               ))}
             </nav>
-            <div className='grid w-1/2 max-w-xs items-center gap-1.5'>
-              <Input type='search' id='search' placeholder='Tìm kiếm...' className='w-full text-sm p-2 text-blue-400' />
+            <div className='relative w-1/2 max-w-xs'>
+              <div className='relative'>
+                <Input
+                  type='search'
+                  id='search'
+                  placeholder='Tìm kiếm vắc xin...'
+                  className='w-full text-sm p-2 text-blue-400 pl-10'
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  onFocus={() => setShowSearchResults(true)}
+                />
+                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+              </div>
+              {showSearchResults && searchQuery && (
+                <div className='absolute w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto z-50'>
+                  {vaccination?.data && vaccination.data.length > 0 ? (
+                    vaccination.data.map((vaccine) => (
+                      <Link
+                        key={vaccine.id}
+                        to={`/vaccination/${vaccine.id}`}
+                        onClick={handleSearchResultClick}
+                        className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200'
+                      >
+                        {vaccine.vaccineName}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className='px-4 py-2 text-sm text-gray-500 dark:text-gray-400'>Không tìm thấy kết quả</div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className='hidden md:flex items-center space-x-4'>
