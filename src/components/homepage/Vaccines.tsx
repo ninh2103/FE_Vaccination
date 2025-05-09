@@ -1,6 +1,5 @@
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Pagination } from 'swiper/modules'
-import 'swiper/css'
+import { useCallback, useEffect, useState, useRef } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
@@ -9,16 +8,50 @@ import { useListVaccinationQuery } from '@/queries/useVaccination'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function Vaccines() {
+  const autoplayRef = useRef<NodeJS.Timeout | null>(null)
+  const [viewportRef, embla] = useEmblaCarousel({
+    loop: true,
+    align: 'start',
+    slidesToScroll: 1
+  })
+
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: 1,
     items_per_page: 6
   })
 
-  const renderSkeletons = () => {
-    return Array(3)
+  // Responsive slides per view
+  const [slidesPerView, setSlidesPerView] = useState(1)
+
+  const handleResize = useCallback(() => {
+    const width = window.innerWidth
+    if (width >= 1024) setSlidesPerView(3)
+    else if (width >= 640) setSlidesPerView(2)
+    else setSlidesPerView(1)
+  }, [])
+
+  useEffect(() => {
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [handleResize])
+
+  useEffect(() => {
+    if (embla) {
+      autoplayRef.current = setInterval(() => {
+        embla.scrollNext()
+      }, 2000)
+    }
+    return () => {
+      if (autoplayRef.current) clearInterval(autoplayRef.current)
+    }
+  }, [embla])
+
+  const renderSkeletons = () =>
+    Array(slidesPerView)
       .fill(0)
       .map((_, index) => (
-        <SwiperSlide key={`skeleton-${index}`} className='p-4'>
+        <div key={`skeleton-${index}`} className='embla__slide px-4 min-w-0'>
           <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center h-[400px]'>
             <Card className='shadow-none w-full h-full'>
               <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
@@ -31,9 +64,8 @@ export function Vaccines() {
               </CardContent>
             </Card>
           </div>
-        </SwiperSlide>
+        </div>
       ))
-  }
 
   return (
     <section className='py-28 px-8'>
@@ -45,59 +77,47 @@ export function Vaccines() {
         </p>
       </div>
       <div className='container mx-auto'>
-        <Swiper
-          spaceBetween={30}
-          slidesPerView={1}
-          breakpoints={{
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 }
-          }}
-          autoplay={{ delay: 2000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          loop={true}
-          modules={[Autoplay, Pagination]}
-          className='w-full'
-        >
-          {isLoading
-            ? renderSkeletons()
-            : vaccinationList?.data.map((vaccine, index) => (
-                <SwiperSlide key={index} className='p-4'>
-                  <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center h-[400px]'>
-                    <Card className='shadow-none w-full h-full'>
-                      <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
-                        <img
-                          src={
-                            isLoading
-                              ? 'https://static.vecteezy.com/system/resources/previews/016/916/479/original/placeholder-icon-design-free-vector.jpg'
-                              : vaccine.image ||
-                                'https://static.vecteezy.com/system/resources/previews/016/916/479/original/placeholder-icon-design-free-vector.jpg'
-                          }
-                          alt={vaccine.vaccineName}
-                          className='h-full w-full object-cover'
-                        />
-                      </CardHeader>
-                      <CardContent className='p-0 flex flex-col h-[calc(100%-192px)]'>
-                        {' '}
-                        {/* 192px = header height (48) + padding & spacing */}
-                        <a href='#' className='text-gray-900 transition-colors hover:text-gray-800'>
-                          <h5 className='mb-2 text-lg font-semibold dark:text-white line-clamp-1'>
-                            {vaccine.vaccineName}
-                          </h5>
-                        </a>
-                        <p className='text-sm text-gray-500 dark:text-white line-clamp-3 mb-4'>{vaccine.description}</p>
-                        <div className='mt-auto'>
-                          <Link to={path.list}>
-                            <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
-                              Xem Thêm
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
+        <div className='overflow-hidden' ref={viewportRef}>
+          <div className='flex embla__container -mx-4' style={{ gap: '1rem' }}>
+            {isLoading
+              ? renderSkeletons()
+              : vaccinationList?.data.map((vaccine, index) => (
+                  <div key={index} className='embla__slide px-4' style={{ flex: `0 0 ${100 / slidesPerView}%` }}>
+                    <div className='bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center h-[400px]'>
+                      <Card className='shadow-none w-full h-full'>
+                        <CardHeader className='mx-0 mt-0 mb-6 h-48 p-0'>
+                          <img
+                            src={
+                              vaccine.image ||
+                              'https://static.vecteezy.com/system/resources/previews/016/916/479/original/placeholder-icon-design-free-vector.jpg'
+                            }
+                            alt={vaccine.vaccineName}
+                            className='h-full w-full object-cover'
+                          />
+                        </CardHeader>
+                        <CardContent className='p-0 flex flex-col h-[calc(100%-192px)]'>
+                          <a href='#' className='text-gray-900 transition-colors hover:text-gray-800'>
+                            <h5 className='mb-2 text-lg font-semibold dark:text-white line-clamp-1'>
+                              {vaccine.vaccineName}
+                            </h5>
+                          </a>
+                          <p className='text-sm text-gray-500 dark:text-white line-clamp-3 mb-4'>
+                            {vaccine.description}
+                          </p>
+                          <div className='mt-auto'>
+                            <Link to={path.list}>
+                              <Button variant='outline' className='dark:bg-white dark:text-black' size='sm'>
+                                Xem Thêm
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
-                </SwiperSlide>
-              ))}
-        </Swiper>
+                ))}
+          </div>
+        </div>
       </div>
     </section>
   )

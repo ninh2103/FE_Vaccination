@@ -25,7 +25,7 @@ interface UpdateOrderProps {
   onCancel: () => void
 }
 
-export function UpdateOrder({ order, onUpdate, onCancel }: UpdateOrderProps) {
+export function UpdateOrder({ order }: UpdateOrderProps) {
   const [updatedOrder, setUpdatedOrder] = useState(order)
   const appointmentDate = parseISO(updatedOrder.appointmentDate)
   const [date, setDate] = useState(format(appointmentDate, 'yyyy-MM-dd'))

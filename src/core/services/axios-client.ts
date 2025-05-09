@@ -3,7 +3,6 @@ import {
   getAccessTokenFromLS,
   getRefreshTokenFromLS,
   setAccessTokenToLS,
-  setRefreshTokenToLS,
   removeAccessTokenFromLS,
   removeRefreshTokenFromLS
 } from '@/core/shared/storage'

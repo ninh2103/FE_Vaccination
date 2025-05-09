@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Book, Lightbulb, GraduationCap, Award, Rocket, Brain, Syringe } from 'lucide-react'
+import { Book, Lightbulb, Award, Rocket, Brain, Syringe } from 'lucide-react'
 
 export default function LazyLoading() {
   const [progress, setProgress] = useState(0)
