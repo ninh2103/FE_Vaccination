@@ -204,15 +204,15 @@ export default function VaccinesPage() {
 
       {/* Stock Alert */}
       {currentPageVaccines.some((v: VaccineType) => v.remainingQuantity <= 10) && (
-       <Alert variant='destructive' className='bg-red-50 border-red-200 p-2'>
-       <div className='flex items-center space-x-2'>
-         <AlertCircle className='h-3 w-3' />
-         <AlertTitle className='text-sm font-semibold text-red-700'>Cảnh báo tồn kho</AlertTitle>
-         <AlertDescription className='text-xs'>
-           Một số vaccine đã hết hàng hoặc tồn kho thấp. Kiểm tra kho hàng và xem xét cung cấp lại.
-         </AlertDescription>
-       </div>
-     </Alert>
+        <Alert variant='destructive' className='bg-red-50 border-red-200 p-2'>
+          <div className='flex items-center space-x-2'>
+            <AlertCircle className='h-3 w-3' />
+            <AlertTitle className='text-sm font-semibold text-red-700'>Cảnh báo tồn kho</AlertTitle>
+            <AlertDescription className='text-xs'>
+              Một số vaccine đã hết hàng hoặc tồn kho thấp. Kiểm tra kho hàng và xem xét cung cấp lại.
+            </AlertDescription>
+          </div>
+        </Alert>
       )}
 
       {/* Vaccine Table */}

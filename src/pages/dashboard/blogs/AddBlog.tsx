@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import InputEditor from '@/hooks/inputEditor'
 import { handleEditorChange } from '@/core/lib/utils'
+import parse from 'html-react-parser';
 interface AddBlogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -72,7 +73,7 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
             <Label htmlFor='content'>Nội dung bài viết *</Label>
             <InputEditor
               label=''
-              value={form.watch('content') || ''}
+              value=  {form.watch('content') || ''}
               setValue={(content: string) => handleEditorChange(content, form)}
             />
             {form.formState.errors.content && (
@@ -97,6 +98,14 @@ export function AddBlog({ open, onOpenChange }: AddBlogProps) {
               <p className='text-sm text-red-500'>{form.formState.errors.tagId.message}</p>
             )}
           </div>
+{form.watch('content') && (
+  <div className='mt-6 border-t pt-4'>
+    <h3 className='text-lg font-semibold mb-2'>Xem trước nội dung</h3>
+    <div className='prose max-w-none'>
+      {parse(form.watch('content'))}
+    </div>
+  </div>
+)}
 
           <DialogFooter>
             <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>

@@ -69,12 +69,8 @@ export function BlogTable({ posts, onView, onEdit, onDelete, isLoading }: BlogTa
                     </div>
                   </TableCell>
                   <TableCell className='text-left'>{post.tag.name}</TableCell>
-                  <TableCell className='text-center text-sm'>
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className='text-center text-sm'>
-                    {new Date(post.updatedAt).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell className='text-center text-sm'>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className='text-center text-sm'>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
                   <TableCell className='text-center'>
                     <div className='flex justify-center items-center gap-2' onClick={(e) => e.stopPropagation()}>
                       <Button variant='ghost' size='icon' onClick={() => onEdit(post)}>

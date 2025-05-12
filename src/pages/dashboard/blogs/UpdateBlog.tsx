@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
+
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BlogBodyType } from '@/schemaValidator/blog.schema'
@@ -89,7 +89,7 @@ export function UpdateBlog({ open, onOpenChange, id }: UpdateBlogProps) {
               label=''
               value={form.watch('content') || ''}
               setValue={(content: string) => handleEditorChange(content, form)}
-            />      
+            />
             {form.formState.errors.content && (
               <p className='text-sm text-red-500'>{form.formState.errors.content.message}</p>
             )}

@@ -170,7 +170,7 @@ export default function ListVaccination() {
               <SelectItem key={category.id} value={category.id}>
                 {category.name}
               </SelectItem>
-            ))} 
+            ))}
           </SelectContent>
         </Select>
 

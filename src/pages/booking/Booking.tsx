@@ -297,7 +297,9 @@ const CheckOutPagePageMain = () => {
                         form.formState.errors.appointmentDate ? 'border-red-500' : ''
                       }`}
                     />
-                    <p className='text-sm text-gray-500 dark:text-gray-400'>Giờ hẹn tiêm: 8:00 - 17:00 (Không nghỉ trưa)</p>
+                    <p className='text-sm text-gray-500 dark:text-gray-400'>
+                      Giờ hẹn tiêm: 8:00 - 17:00 (Không nghỉ trưa)
+                    </p>
                   </div>
                   <div className='space-y-2'>
                     <Label htmlFor='vaccinationQuantity'>Số liều vắc xin</Label>

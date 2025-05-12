@@ -13,8 +13,7 @@ import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import parse from 'html-react-parser';
-
+import parse from 'html-react-parser'
 
 export const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([])
