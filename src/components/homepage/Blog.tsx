@@ -4,6 +4,7 @@ import { useListBlogQuery } from '@/queries/useBlog'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
+import parse from 'html-react-parser'
 
 export default function Blog() {
   const { data: posts } = useListBlogQuery()
@@ -34,7 +35,7 @@ export default function Blog() {
                           <div className='flex-grow'>
                             <h3 className='text-xl font-semibold dark:text-white mb-2 line-clamp-2'>{post.title}</h3>
                             <blockquote className='text-balance text-[14px] leading-[23px] text-neutral-600 dark:text-neutral-400 sm:text-[15px] sm:leading-normal md:leading-[26px] lg:text-[16px] line-clamp-3'>
-                              {post.content}
+                              {parse(post.content)}
                             </blockquote>
                           </div>
                           <div className='mt-8'>
@@ -43,7 +44,7 @@ export default function Blog() {
                                 <span className='text-xs font-medium text-blue-600'>{post.user.name.charAt(0)}</span>
                               </div>
                               <p className='text-[13px] font-medium dark:text-neutral-300 xl:text-[14px]'>
-                                By {post.user.name}
+                                {post.user.name}
                               </p>
                             </figcaption>
                           </div>

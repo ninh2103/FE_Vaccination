@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DialogContent } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import parse from 'html-react-parser'
 
 export const BlogPage: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -276,7 +277,7 @@ export const BlogPage: React.FC = () => {
                   </p>
                 </div>
                 <div className='border-t pt-4'>
-                  <p className='whitespace-pre-wrap text-sm'>{selectedPost.content}</p>
+                  <p className='whitespace-pre-wrap text-sm'>{parse(selectedPost.content)}</p>
                 </div>
               </div>
             )}
@@ -294,19 +295,11 @@ export const BlogPage: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Xóa bài viết</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa bài viết <span className='font-bold'>{selectedPost?.title}</span> này không?
+              Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <div className='py-4'>
-            {selectedPost && (
-              <div className='flex items-center gap-4'>
-                <div>
-                  <p className='font-medium'>{selectedPost.title}</p>
-                  <p className='text-sm text-muted-foreground'>{selectedPost.content}</p>
-                </div>
-              </div>
-            )}
-          </div>
+
           <DialogFooter>
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoadingBlogs}>
               Hủy bỏ

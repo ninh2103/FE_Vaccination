@@ -1,20 +1,21 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts'
-import { Calendar, DollarSign, Download, Syringe, Users, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react'
+import { Calendar, DollarSign, Syringe, Users, RefreshCw, Loader2, Download } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import * as XLSX from 'xlsx'
 import { useCountUserQuery } from '@/queries/useUser'
-import { useInventoryVaccinationQuery, useListVaccinationQuery } from '@/queries/useVaccination'
+import { useInventoryVaccinationQuery } from '@/queries/useVaccination'
 import { useListAppointmentQuery } from '@/queries/useAppointment'
 import { useListPaymentQuery } from '@/queries/useMomo'
-import { formatDate } from 'date-fns'
+import { formatDate, isWithinInterval, parseISO, format } from 'date-fns'
 import { useListSupplierQuery } from '@/queries/useSupplier'
 import { formatVND } from '@/core/lib/utils'
 import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { DateRange } from 'react-day-picker'
 // Adjusted sample data
 const vaccinationData = [
   { month: 'Tháng 1', doses: 1200 },
@@ -64,16 +65,37 @@ const revenueData = [
 const General: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(new Date().getFullYear(), 0, 1),
+    to: new Date()
+  })
+
+  const handleDateRangeChange = (from: Date | undefined, to: Date | undefined) => {
+    setDateRange({ from, to })
+  }
+
   const { data: userCount } = useCountUserQuery()
   const { data: appointmentCount } = useListAppointmentQuery({ items_per_page: 5 })
-  const { data: vaccineCount } = useListVaccinationQuery()
   const { data: vaccineInventories } = useInventoryVaccinationQuery({ items_per_page: 5 })
   const { data: supplierCount } = useListSupplierQuery({ items_per_page: 5 })
   const { data: userPaymentTotalPrice, refetch: refetchUserPaymentTotalPrice } = useListPaymentQuery({
     items_per_page: 100
   })
 
-  const totalPrice = userPaymentTotalPrice?.data?.reduce((acc, curr) => acc + curr.amount, 0)
+  const filterDataByDateRange = (data: any[]) => {
+    if (!dateRange?.from || !dateRange?.to) return data
+
+    return data.filter((item) => {
+      const itemDate = parseISO(item.createdAt)
+      return isWithinInterval(itemDate, {
+        start: dateRange.from!,
+        end: dateRange.to!
+      })
+    })
+  }
+
+  const filteredAppointments = filterDataByDateRange(appointmentCount?.data || [])
+  const filteredPayments = filterDataByDateRange(userPaymentTotalPrice?.data || [])
 
   const vaccineInventoriesFilter = vaccineInventories?.data.filter((vaccine) => vaccine.totalQuantity < 10)
 
@@ -114,21 +136,54 @@ const General: React.FC = () => {
       toast.success('Làm mới dữ liệu thành công .')
     }, 1000)
   }
+  const handleClearFilters = useCallback(() => {
+    setDateRange({
+      from: undefined,
+      to: undefined
+    })
+    toast.success('Đã xóa bộ lọc')
+  }, [])
 
   return (
     <div className='flex flex-col gap-6 ml-[1cm] p-4'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-          Thống kê tổng quan
-        </h1>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center space-x-2'>
+          <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
+            Thống kê tổng quan
+          </h1>
+          <div className='flex items-center space-x-2'>
+            <div className='flex items-center space-x-2'>
+              <Input
+                type='date'
+                value={dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : ''}
+                onChange={(e) =>
+                  handleDateRangeChange(e.target.value ? new Date(e.target.value) : undefined, dateRange?.to)
+                }
+                className='w-[150px]'
+              />
+              <span className='text-muted-foreground'>đến</span>
+              <Input
+                type='date'
+                value={dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : ''}
+                onChange={(e) =>
+                  handleDateRangeChange(dateRange?.from, e.target.value ? new Date(e.target.value) : undefined)
+                }
+                className='w-[150px]'
+              />
+            </div>
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              Xóa bộ lọc
+            </Button>
+          </div>
+        </div>
+        <div className='flex items-center space-x-2'>
           <Button variant='outline' size='sm' className='h-9' onClick={downloadReport} disabled={isExporting}>
-            {isExporting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <Download className='mr-2 h-4 w-4' />}
+            {isExporting ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
             Xuất dữ liệu
           </Button>
           <Button variant='outline' size='sm' className='h-9' onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : <RefreshCw className='mr-2 h-4 w-4' />}
+            {isLoading ? <RefreshCw className='mr-2 h-4 w-4 animate-spin' /> : <RefreshCw className='mr-2 h-4 w-4' />}
             Cập nhật
           </Button>
         </div>
@@ -143,12 +198,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{vaccineCount?.total}</div>
-              <div className='flex items-center text-sm text-muted-foreground'>
-                <ArrowUpRight className='h-4 w-4 text-green-500' />
-                <span className='text-green-500 font-medium'>+12.5%</span>
-                <span className='ml-1'>từ tháng trước</span>
-              </div>
+              <div className='text-2xl font-bold'>{filteredAppointments.length}</div>
             </div>
           </CardContent>
         </Card>
@@ -160,12 +210,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{appointmentCount?.total}</div>
-              <div className='flex items-center text-sm text-muted-foreground'>
-                <ArrowDownRight className='h-4 w-4 text-red-500' />
-                <span className='text-red-500 font-medium'>-3.1%</span>
-                <span className='ml-1'>từ tuần trước</span>
-              </div>
+              <div className='text-2xl font-bold'>{filteredAppointments.length}</div>
             </div>
           </CardContent>
         </Card>
@@ -178,11 +223,6 @@ const General: React.FC = () => {
           <CardContent>
             <div className='flex items-center justify-between'>
               <div className='text-2xl font-bold'>{userCount?.data?.total || 0}</div>
-              <div className='flex items-center text-sm text-muted-foreground'>
-                <ArrowUpRight className='h-4 w-4 text-green-500' />
-                <span className='text-green-500 font-medium'>+8.2%</span>
-                <span className='ml-1'>từ tháng trước</span>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -194,11 +234,8 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{formatVND(totalPrice || 0)}</div>
-              <div className='flex items-center text-sm text-muted-foreground'>
-                <ArrowUpRight className='h-4 w-4 text-green-500' />
-                <span className='text-green-500 font-medium'>+15.3%</span>
-                <span className='ml-1'>từ tháng trước</span>
+              <div className='text-2xl font-bold'>
+                {formatVND(filteredPayments.reduce((acc, curr) => acc + curr.amount, 0) || 0)}
               </div>
             </div>
           </CardContent>
@@ -315,8 +352,8 @@ const General: React.FC = () => {
                   <TableHead>Trạng thái</TableHead>
                 </TableRow>
               </TableHeader>
-              {appointmentCount?.data?.map((appointment) => (
-                <TableBody>
+              {filteredAppointments.map((appointment) => (
+                <TableBody key={appointment.id}>
                   <TableRow className='cursor-pointer transition-colors hover:bg-muted/50'>
                     <TableCell>#{appointment.id.slice(0, 5)}</TableCell>
                     <TableCell>{appointment.user.name}</TableCell>
