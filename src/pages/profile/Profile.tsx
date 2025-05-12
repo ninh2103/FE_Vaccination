@@ -31,7 +31,6 @@ export default function Profile() {
   const getMeQuery = useGetMeQuery()
   const uploadAvatarMutation = useUploadAvatarQuery()
   const { data: paymentList, refetch } = useListUserPaymentQuery()
-  console.log(paymentList)
 
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
