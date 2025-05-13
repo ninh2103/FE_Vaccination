@@ -10,7 +10,7 @@ import Register from '@/pages/register/Register'
 import BlogDetails from '@/pages/blog/BlogDetails'
 import Profile from '@/pages/profile/Profile'
 import VaccinePrices from '@/pages/pricelist/PricelistDetails'
-import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
+import ServiceIntro from '@/pages/introduce/SiteIntroduction'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
 

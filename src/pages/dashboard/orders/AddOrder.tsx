@@ -71,6 +71,13 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
     }
   })
 
+  const resetFormAndState = () => {
+    form.reset()
+    setSelectedCategoryId('')
+    setSelectedVaccineId('')
+    setSelectedVaccine(null)
+  }
+
   const handleSubmit = (data: BookingCreateBodyType) => {
     if (selectedVaccine?.remainingQuantity === 0) {
       toast.error('Vacxin này đã hết hàng')
@@ -80,7 +87,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
     createBookingAdmin(data, {
       onSuccess: () => {
         toast.success('Đã tạo đơn hàng thành công')
-        form.reset()
+        resetFormAndState()
         onAdd(data as unknown as Booking)
         onCancel()
       },

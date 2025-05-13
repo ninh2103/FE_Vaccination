@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
+import timesFont from '../../../fonts/font-times-new-roman-normal';
 import {
   Calendar,
   RefreshCw,
@@ -108,52 +109,91 @@ const generateCertificateContent = (vaccination: Vaccination) => `
     <script>window.onload = function() { window.print(); }</script>
   </body>
   </html>
-`
+` 
 
-const generateInvoicePDF = (vaccination: Vaccination) => {
+const generateInvoicePDF = (vaccination:Vaccination) => {
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
-  })
+    format: 'a4',
+  });
 
-  pdf.setFontSize(16).setFont('times', 'bold').text(`CHỨNG NHẬN TIÊM CHỦNG`, 105, 20, { align: 'center' })
-  pdf
-    .setFontSize(12)
-    .setFont('times', 'normal')
-    .text(`Mã chứng nhận: CERT-${vaccination.id.slice(0, 8)}-${new Date().getFullYear()}`, 105, 30, { align: 'center' })
-    .text(`Ngày: ${format(new Date(), 'dd/MM/yyyy')}`, 105, 38, { align: 'center' })
+  // Thêm font Times New Roman vào jsPDF
+  pdf.addFileToVFS('times.ttf',timesFont); // Dữ liệu font từ file times.js
+  pdf.addFont('times.ttf', 'times', 'normal');
+  pdf.addFont('times.ttf', 'times', 'bold');
 
-  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin khách hàng', 20, 55)
+  const currentDate = new Date();
+  const formattedDate = format(currentDate, 'dd/MM/yyyy');
+  const fileNameDate = format(currentDate, 'yyyyMMdd');
+  const certificateCode = `CERT-${vaccination.id.slice(0, 8)}-${currentDate.getFullYear()}`;
+
+  // Tiêu đề (Using Times New Roman with Vietnamese support)
   pdf
-    .setFontSize(12)
+    .setFont('times', 'bold')
+    .setFontSize(16)
+    .text('CHỨNG NHẬN TIÊM CHỦNG', 105, 20, { align: 'center' });
+
+  // Mã chứng nhận & ngày
+  pdf
     .setFont('times', 'normal')
+    .setFontSize(12)
+    .text(`Mã chứng nhận: ${certificateCode}`, 105, 30, { align: 'center' })
+    .text(`Ngày: ${formattedDate}`, 105, 38, { align: 'center' });
+
+  // Thông tin khách hàng
+  pdf
+    .setFont('times', 'bold')
+    .setFontSize(14)
+    .text('Thông tin khách hàng', 20, 55);
+
+  pdf
+    .setFont('times', 'normal')
+    .setFontSize(12)
     .text(`Tên: ${vaccination.patient.name}`, 20, 65)
-    .text(`Email: ${vaccination.patient.email || ''}`, 20, 81)
-    .text(`SĐT: ${vaccination.patient.phone || ''}`, 20, 97)
+    .text(`Email: ${vaccination.patient.email || '...'}`, 20, 73)
+    .text(`SĐT: ${vaccination.patient.phone || '...'}`, 20, 81);
 
-  pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin tiêm chủng', 20, 95)
+  // Thông tin tiêm chủng
   pdf
-    .setFontSize(12)
+    .setFont('times', 'bold')
+    .setFontSize(14)
+    .text('Thông tin tiêm chủng', 20, 100);
+
+  pdf
     .setFont('times', 'normal')
-    .text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
-    .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
-    .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
-    .text(`Time: ${vaccination.time}`, 20, 129)
-    .text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
-    .text(`Location: ${vaccination.location}`, 20, 145)
+    .setFontSize(12)
+    .text(`Vaccine: ${vaccination.vaccine}`, 20, 110)
+    .text(`Số mũi: ${vaccination.doseNumber}`, 20, 118)
+    .text(`Ngày tiêm: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 126)
+    .text(`Giờ tiêm: ${vaccination.time}`, 20, 134)
+    .text(`Người tiêm: ${vaccination.administeredBy}`, 20, 142)
+    .text(`Địa điểm: ${vaccination.location}`, 20, 150);
 
+  // Ghi chú cuối
   pdf
+    .setFont('times', 'normal')
     .setFontSize(10)
     .setTextColor(100)
-    .text('Chứng nhận xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
-    .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' })
+    .text('Chứng nhận xác nhận dịch vụ tiêm chủng đã được cung cấp.', 105, 260, { align: 'center' })
+    .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' });
 
-  pdf.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
-  pdf.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })
+  // Dấu xác nhận
+  pdf
+    .setDrawColor(79, 70, 229)
+    .setLineWidth(1)
+    .circle(105, 200, 20); // Hình tròn "đã xác minh"
 
-  pdf.save(`vaccination_certificate_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
-}
+  pdf
+    .setFont('times', 'normal')
+    .setFontSize(12)
+    .setTextColor(79, 70, 229)
+    .text('VERIFIED', 105, 203, { align: 'center' });
+
+  // Lưu file
+  const fileName = `vaccination_certificate_${vaccination.patient.name}_${fileNameDate}.pdf`;
+  pdf.save(fileName);
+};
 
 // Sample data
 
