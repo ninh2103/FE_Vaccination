@@ -33,10 +33,9 @@ const CheckOutPagePageMain = () => {
   const { mutate: createPayment } = useCreatePaymentMutation()
   const { mutate: confirmBooking } = useConfirmBookingQuery()
   const form = useForm<BookingBodyType>({
-    resolver: zodResolver(BookingBodySchema(vaccineDetail?.remainingQuantity || 0)),
+    resolver: zodResolver(BookingBodySchema),
     defaultValues: {
       appointmentDate: '',
-      vaccinationQuantity: 1,
       vaccinationId: id as string
     }
   })
@@ -299,20 +298,6 @@ const CheckOutPagePageMain = () => {
                     />
                     <p className='text-sm text-gray-500 dark:text-gray-400'>Giờ hẹn tiêm: 8:00 - 17:00 (30 phút)</p>
                   </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='vaccinationQuantity'>Số liều vắc xin</Label>
-                    <Input
-                      id='vaccinationQuantity'
-                      type='number'
-                      {...form.register('vaccinationQuantity', { valueAsNumber: true })}
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
-                        form.formState.errors.vaccinationQuantity ? 'border-red-500' : ''
-                      }`}
-                    />
-                    {form.formState.errors.vaccinationQuantity && (
-                      <p className='text-sm text-red-500'>{form.formState.errors.vaccinationQuantity.message}</p>
-                    )}
-                  </div>
                 </div>
 
                 <div className='space-y-4'>
@@ -360,7 +345,7 @@ const CheckOutPagePageMain = () => {
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
                 >
-                  Xác nhận đặt mua vắc xin
+                  Xác nhận đặt lịch tiêm
                 </Button>
               </form>
             </CardContent>
@@ -396,7 +381,7 @@ const CheckOutPagePageMain = () => {
                   <div className='flex justify-between items-center mt-2'>
                     <span className='text-gray-600 dark:text-gray-300'>Tổng số tiền</span>
                     <span className='text-xl font-semibold text-gray-900 dark:text-white'>
-                      {formatVND(vaccineDetail?.price || 0 * (form.watch('vaccinationQuantity') || 1))}
+                      {formatVND(vaccineDetail?.price || 0)}
                     </span>
                   </div>
                 </div>
