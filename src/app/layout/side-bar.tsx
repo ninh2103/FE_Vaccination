@@ -46,26 +46,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   ]
 
   const handleItemClick = (itemName: string, path?: string) => {
-    // If the clicked item is already active, do nothing
     if (activeItem === itemName) {
       return
     }
 
-    // Otherwise, update the active item and navigate
     setActiveItem(itemName)
-    setActiveSubItem(null) // Reset sub-item khi click vào mục chính
+    setActiveSubItem(null)
     if (path) {
       navigate(path)
     }
   }
 
   const handleSubItemClick = (subItemPath: string) => {
-    // If the clicked sub-item is already active, do nothing
     if (activeSubItem === subItemPath) {
       return
     }
 
-    // Otherwise, update the active sub-item and navigate
     setActiveSubItem(subItemPath)
     navigate(subItemPath)
   }
@@ -87,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
               }}
               className={`flex items-center p-3 mx-2 cursor-pointer rounded-lg transition-all duration-200 
     ${activeItem === item.name || activeSubItem === item.path ? 'bg-gray-100' : ''}
-    ${item.isAdmin && !isAdmin ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+    ${item.isAdmin && !isAdmin ? 'hidden' : 'hover:bg-gray-100'}`}
             >
               <div
                 className={`flex items-center justify-center h-6 w-6 ${
