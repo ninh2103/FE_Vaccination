@@ -303,10 +303,16 @@ export default function ListVaccination() {
               {currentPage > 3 && <span className='px-2'>...</span>}
 
               {/* Show pages around current page */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = Math.max(2, Math.min(currentPage - 2 + i, totalPages - 1))
-                if (page === 1 || page === totalPages) return null
-                return (
+              {(() => {
+                const pages = new Set<number>()
+                const startPage = Math.max(2, currentPage - 2)
+                const endPage = Math.min(totalPages - 1, currentPage + 2)
+
+                for (let page = startPage; page <= endPage; page++) {
+                  pages.add(page)
+                }
+
+                return Array.from(pages).map((page) => (
                   <Button
                     key={page}
                     variant={currentPage === page ? 'default' : 'outline'}
@@ -316,8 +322,8 @@ export default function ListVaccination() {
                   >
                     {page}
                   </Button>
-                )
-              })}
+                ))
+              })()}
 
               {/* Show ellipsis if needed */}
               {currentPage < totalPages - 2 && <span className='px-2'>...</span>}
