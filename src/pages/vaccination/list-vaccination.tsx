@@ -24,7 +24,7 @@ export default function ListVaccination() {
   const itemsPerPage = 9
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: 1,
-    items_per_page: 10
+    items_per_page: 100
   })
   const { data: categories } = useListCategoryQuery()
 

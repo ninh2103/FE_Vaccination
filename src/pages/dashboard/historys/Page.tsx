@@ -84,8 +84,8 @@ const generateCertificateContent = (vaccination: Vaccination) => `
       <div class="info">
         <h3>Thông tin khách hàng</h3>
         <div class="info-row"><div class="info-label">Tên:</div><div>${vaccination.patient.name}</div></div>
-        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone || ''}</div></div>
-        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email || ''}</div></div>
+        <div class="info-row"><div class="info-label">SĐT:</div><div>${vaccination.patient.phone}</div></div>
+        <div class="info-row"><div class="info-label">Email:</div><div>${vaccination.patient.email}</div></div>
       </div>
       <div class="info">
         <h3>Thông tin tiêm chủng</h3>
@@ -93,8 +93,7 @@ const generateCertificateContent = (vaccination: Vaccination) => `
         <div class="info-row"><div class="info-label">Số liều:</div><div>${vaccination.doseNumber}</div></div>
         <div class="info-row"><div class="info-label">Ngày:</div><div>${format(new Date(vaccination.date), 'dd/MM/yyyy')}</div></div>
         <div class="info-row"><div class="info-label">Giờ:</div><div>${vaccination.time}</div></div>
-        <div class="info-row"><div class="info-label">Người tiêm:</div><div>${vaccination.administeredBy}</div></div>
-        <div class="info-row"><div class="info-label">Địa điểm:</div><div>${vaccination.location}</div></div>
+        <div class="info-row"><div class="info-label">Địa điểm:</div><div>${vaccination.location || 'Đà Nẵng'}</div></div>
       </div>
       <div class="seal">
         <p>Chữ ký</p>
@@ -130,7 +129,6 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
     .setFont('times', 'normal')
     .text(`Tên: ${vaccination.patient.name}`, 20, 65)
     .text(`Email: ${vaccination.patient.email || ''}`, 20, 81)
-    .text(`SĐT: ${vaccination.patient.phone || ''}`, 20, 97)
 
   pdf.setFontSize(14).setFont('times', 'bold').text('Thông tin tiêm chủng', 20, 95)
   pdf
@@ -140,8 +138,7 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
     .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
     .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
     .text(`Time: ${vaccination.time}`, 20, 129)
-    .text(`Administered By: ${vaccination.administeredBy}`, 20, 137)
-    .text(`Location: ${vaccination.location}`, 20, 145)
+    .text(`Location: ${vaccination.location || 'Đà Nẵng'}`, 20, 145)
 
   pdf
     .setFontSize(10)
@@ -154,8 +151,6 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
 
   pdf.save(`vaccination_certificate_${vaccination.patient.name}_${format(new Date(), 'yyyyMMdd')}.pdf`)
 }
-
-// Sample data
 
 export default function HistorysPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -190,13 +185,11 @@ export default function HistorysPage() {
         const appointmentDate = new Date(appointment.appointmentDate)
         const isCompleted = appointment.status === 'COMPLETED'
 
-        // Search by username or vaccine name
         const matchesSearch = searchTerm
           ? appointment.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             appointment.vaccination.vaccineName.toLowerCase().includes(searchTerm.toLowerCase())
           : true
 
-        // Date range filter
         const isInDateRange = (() => {
           if (!dateRange.from && !dateRange.to) return true
 

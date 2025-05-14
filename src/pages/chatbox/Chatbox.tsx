@@ -233,7 +233,7 @@ export default function Chatbox() {
           >
             {/* Chatbox Header */}
             <div className='relative border-b bg-primary/10 p-3 backdrop-blur-md dark:bg-gray-800'>
-              <h2 className='text-center text-sm font-medium text-gray-900 dark:text-white'>Trợ lý ảo - VaxBox ✨</h2>
+              <h2 className='text-center text-sm font-medium text-gray-900 dark:text-white'>Trợ lý ảo - VaxBot ✨</h2>
               <motion.button
                 className='absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-600 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-700'
                 onClick={() => setIsOpen(false)}

@@ -90,8 +90,6 @@ const CheckOutPagePageMain = () => {
     createBooking(body, {
       onSuccess: (response) => {
         refetchVaccine()
-        toast.success('Đặt lịch hẹn thành công')
-
         if (paymentMethod === 'MOMO') {
           createPayment(
             { bookingId: response.id },
@@ -113,8 +111,8 @@ const CheckOutPagePageMain = () => {
           confirmBooking(
             { bookingId: response.id },
             {
-              onSuccess: (data) => {
-                toast.success(data.message)
+              onSuccess: () => {
+                toast.success('Đặt lịch hẹn thành công.Xem thông tin chi tiết đặt lịch tại Email.')
                 navigate(path.list)
               },
               onError: (error) => {
