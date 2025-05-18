@@ -14,7 +14,7 @@ export const path = {
   otp: '/verify-email',
   booking: '/booking',
   reSendVerifyEmail: '/resend-verify-email',
-
+  policy: '/policy',
   admin: {
     dashboard: '/admin/dashboard',
     vaccines: '/admin/vaccines',

@@ -1769,462 +1769,467 @@ export const trainingData = [
     answer: 'Nếu đi du lịch đến khu vực nguy cơ cao, người 80 tuổi có thể tiêm **Typhim Vi** để phòng thương hàn.'
   },
   {
-    question: 'Vắc-xin nào phòng bệnh tay chân miệng do Enterovirus 71 tại VNVC?',
+    question: 'Vắc-xin nào phòng bệnh tay chân miệng do Enterovirus 71 tại VAXBOT?',
     answer:
-      'VNVC đã ký kết hợp tác với Substipharm Biologics (Thụy Sĩ) để đưa về vắc-xin phòng bệnh tay chân miệng do Enterovirus 71 (EV71). Tuy nhiên, bạn nên liên hệ VNVC để kiểm tra tình trạng sẵn có.'
+      'VAXBOT đã ký kết hợp tác với Substipharm Biologics (Thụy Sĩ) để đưa về vắc-xin phòng bệnh tay chân miệng do Enterovirus 71 (EV71). Tuy nhiên, bạn nên liên hệ VAXBOT để kiểm tra tình trạng sẵn có.'
   },
   {
-    question: 'Vắc-xin Qdenga tại VNVC có tác dụng gì?',
+    question: 'Vắc-xin Qdenga tại VAXBOT có tác dụng gì?',
     answer:
-      'Vắc-xin Qdenga tại VNVC được sử dụng để phòng bệnh sốt xuất huyết, là vắc-xin đầu tiên được phê duyệt tại hơn 40 quốc gia, phù hợp cho trẻ từ 4 tuổi và người lớn.'
+      'Vắc-xin Qdenga tại VAXBOT được sử dụng để phòng bệnh sốt xuất huyết, là vắc-xin đầu tiên được phê duyệt tại hơn 40 quốc gia, phù hợp cho trẻ từ 4 tuổi và người lớn.'
   },
   {
-    question: 'Vắc-xin Shingrix tại VNVC dùng cho đối tượng nào?',
+    question: 'Vắc-xin Shingrix tại VAXBOT dùng cho đối tượng nào?',
     answer:
-      'Vắc-xin Shingrix tại VNVC dùng để phòng bệnh zona thần kinh và biến chứng đau dây thần kinh sau zona, phù hợp cho người từ 50 tuổi trở lên và từ 18 tuổi có nguy cơ cao.'
+      'Vắc-xin Shingrix tại VAXBOT dùng để phòng bệnh zona thần kinh và biến chứng đau dây thần kinh sau zona, phù hợp cho người từ 50 tuổi trở lên và từ 18 tuổi có nguy cơ cao.'
   },
   {
-    question: 'Vắc-xin Bexsero tại VNVC có phòng được bệnh gì?',
+    question: 'Vắc-xin Bexsero tại VAXBOT có phòng được bệnh gì?',
     answer:
-      'Vắc-xin Bexsero tại VNVC được chỉ định để phòng bệnh viêm màng não, nhiễm khuẩn huyết và viêm phổi do não mô cầu khuẩn nhóm B, cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
+      'Vắc-xin Bexsero tại VAXBOT được chỉ định để phòng bệnh viêm màng não, nhiễm khuẩn huyết và viêm phổi do não mô cầu khuẩn nhóm B, cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
   },
   {
-    question: 'Vắc-xin Pneumovax 23 tại VNVC có tác dụng gì?',
+    question: 'Vắc-xin Pneumovax 23 tại VAXBOT có tác dụng gì?',
     answer:
-      'Vắc-xin Pneumovax 23 tại VNVC giúp ngăn ngừa các bệnh nhiễm trùng do vi khuẩn phế cầu (Streptococcus pneumoniae) như viêm phổi, viêm màng não, và nhiễm khuẩn huyết.'
+      'Vắc-xin Pneumovax 23 tại VAXBOT giúp ngăn ngừa các bệnh nhiễm trùng do vi khuẩn phế cầu (Streptococcus pneumoniae) như viêm phổi, viêm màng não, và nhiễm khuẩn huyết.'
   },
   {
-    question: 'Vắc-xin nào tại VNVC phòng bệnh ung thư cổ tử cung do HPV?',
+    question: 'Vắc-xin nào tại VAXBOT phòng bệnh ung thư cổ tử cung do HPV?',
     answer:
-      'Vắc-xin Gardasil và Gardasil 9 tại VNVC giúp phòng bệnh ung thư cổ tử cung, ung thư âm đạo, âm hộ, hậu môn, và ung thư hầu họng do virus HPV.'
+      'Vắc-xin Gardasil và Gardasil 9 tại VAXBOT giúp phòng bệnh ung thư cổ tử cung, ung thư âm đạo, âm hộ, hậu môn, và ung thư hầu họng do virus HPV.'
   },
   {
-    question: 'Vắc-xin nào tại VNVC phòng bệnh ho gà cho trẻ nhỏ?',
+    question: 'Vắc-xin nào tại VAXBOT phòng bệnh ho gà cho trẻ nhỏ?',
     answer:
-      'Vắc-xin 6 trong 1 và 5 trong 1 tại VNVC giúp phòng bệnh ho gà, bạch hầu, uốn ván và các bệnh khác cho trẻ nhỏ.'
+      'Vắc-xin 6 trong 1 và 5 trong 1 tại VAXBOT giúp phòng bệnh ho gà, bạch hầu, uốn ván và các bệnh khác cho trẻ nhỏ.'
   },
   {
-    question: 'Vắc-xin nào tại VNVC phòng bệnh viêm não mô cầu cho trẻ em?',
+    question: 'Vắc-xin nào tại VAXBOT phòng bệnh viêm não mô cầu cho trẻ em?',
     answer:
-      'Vắc-xin Bexsero tại VNVC phòng bệnh viêm não mô cầu khuẩn nhóm B, phù hợp cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
+      'Vắc-xin Bexsero tại VAXBOT phòng bệnh viêm não mô cầu khuẩn nhóm B, phù hợp cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
   },
   {
-    question: 'Vắc-xin nào tại VNVC phòng bệnh sốt xuất huyết cho người lớn?',
-    answer: 'Vắc-xin Qdenga tại VNVC giúp phòng bệnh sốt xuất huyết cho người lớn và trẻ từ 4 tuổi trở lên.'
+    question: 'Vắc-xin nào tại VAXBOT phòng bệnh sốt xuất huyết cho người lớn?',
+    answer: 'Vắc-xin Qdenga tại VAXBOT giúp phòng bệnh sốt xuất huyết cho người lớn và trẻ từ 4 tuổi trở lên.'
   },
   {
-    question: 'Vắc-xin nào tại VNVC phòng bệnh thủy đậu cho người lớn?',
+    question: 'Vắc-xin nào tại VAXBOT phòng bệnh thủy đậu cho người lớn?',
     answer:
-      'Vắc-xin Varivax tại VNVC giúp phòng bệnh thủy đậu cho người lớn và trẻ em, đặc biệt nếu chưa từng mắc bệnh trước đó.'
+      'Vắc-xin Varivax tại VAXBOT giúp phòng bệnh thủy đậu cho người lớn và trẻ em, đặc biệt nếu chưa từng mắc bệnh trước đó.'
   },
 
   // Nhóm 2: Lịch tiêm chủng và độ tuổi
   {
-    question: 'Trẻ 6 tháng tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Trẻ 6 tháng tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Trẻ 6 tháng tuổi tại VNVC nên tiêm gói vắc-xin từ 0-6 tháng, gồm 9-12 mũi tiêm, phòng hơn 12 bệnh như viêm gan B, bạch hầu, ho gà, uốn ván, và phế cầu.'
+      'Trẻ 6 tháng tuổi tại VAXBOT nên tiêm gói vắc-xin từ 0-6 tháng, gồm 9-12 mũi tiêm, phòng hơn 12 bệnh như viêm gan B, bạch hầu, ho gà, uốn ván, và phế cầu.'
   },
   {
-    question: 'Trẻ 9 tháng tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Trẻ 9 tháng tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Trẻ 9 tháng tuổi tại VNVC nên tiêm gói vắc-xin từ 0-9 tháng, gồm 14-17 mũi tiêm, phòng hơn 16 bệnh, bao gồm sởi, viêm não Nhật Bản, và phế cầu.'
+      'Trẻ 9 tháng tuổi tại VAXBOT nên tiêm gói vắc-xin từ 0-9 tháng, gồm 14-17 mũi tiêm, phòng hơn 16 bệnh, bao gồm sởi, viêm não Nhật Bản, và phế cầu.'
   },
   {
-    question: 'Trẻ 12 tháng tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Trẻ 12 tháng tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Trẻ 12 tháng tuổi tại VNVC nên tiêm gói vắc-xin từ 0-12 tháng, gồm 19-23 mũi tiêm, phòng hơn 20 bệnh như sởi, quai bị, rubella, và thủy đậu.'
+      'Trẻ 12 tháng tuổi tại VAXBOT nên tiêm gói vắc-xin từ 0-12 tháng, gồm 19-23 mũi tiêm, phòng hơn 20 bệnh như sởi, quai bị, rubella, và thủy đậu.'
   },
   {
-    question: 'Trẻ tiền học đường tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Trẻ tiền học đường tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Trẻ tiền học đường tại VNVC nên tiêm gói vắc-xin gồm 10 loại, 14 liều cơ bản, phòng 19 bệnh như sởi, quai bị, rubella, và viêm não Nhật Bản.'
+      'Trẻ tiền học đường tại VAXBOT nên tiêm gói vắc-xin gồm 10 loại, 14 liều cơ bản, phòng 19 bệnh như sởi, quai bị, rubella, và viêm não Nhật Bản.'
   },
   {
-    question: 'Trẻ vị thành niên 9-18 tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Trẻ vị thành niên 9-18 tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Trẻ vị thành niên 9-18 tuổi tại VNVC nên tiêm gói vắc-xin gồm 15 mũi, phòng 17 bệnh, bao gồm HPV (Gardasil hoặc Gardasil 9), cúm, và Td.'
+      'Trẻ vị thành niên 9-18 tuổi tại VAXBOT nên tiêm gói vắc-xin gồm 15 mũi, phòng 17 bệnh, bao gồm HPV (Gardasil hoặc Gardasil 9), cúm, và Td.'
   },
   {
-    question: 'Phụ nữ chuẩn bị mang thai tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Phụ nữ chuẩn bị mang thai tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Phụ nữ chuẩn bị mang thai tại VNVC nên tiêm gói vắc-xin gồm 11 mũi, phòng 17 bệnh như sởi, quai bị, rubella, thủy đậu, và uốn ván.'
+      'Phụ nữ chuẩn bị mang thai tại VAXBOT nên tiêm gói vắc-xin gồm 11 mũi, phòng 17 bệnh như sởi, quai bị, rubella, thủy đậu, và uốn ván.'
   },
   {
-    question: 'Người lớn trên 18 tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Người lớn trên 18 tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Người lớn trên 18 tuổi tại VNVC nên tiêm vắc-xin cúm hàng năm, Td (nhắc lại mỗi 10 năm), và các vắc-xin như viêm gan A, B, HPV nếu chưa tiêm.'
+      'Người lớn trên 18 tuổi tại VAXBOT nên tiêm vắc-xin cúm hàng năm, Td (nhắc lại mỗi 10 năm), và các vắc-xin như viêm gan A, B, HPV nếu chưa tiêm.'
   },
   {
-    question: 'Người cao tuổi trên 65 tuổi tại VNVC cần tiêm vắc-xin gì?',
+    question: 'Người cao tuổi trên 65 tuổi tại VAXBOT cần tiêm vắc-xin gì?',
     answer:
-      'Người cao tuổi trên 65 tuổi tại VNVC nên tiêm vắc-xin Pneumovax 23 (phế cầu), Shingrix (zona), và cúm hàng năm để bảo vệ sức khỏe.'
+      'Người cao tuổi trên 65 tuổi tại VAXBOT nên tiêm vắc-xin Pneumovax 23 (phế cầu), Shingrix (zona), và cúm hàng năm để bảo vệ sức khỏe.'
   },
   {
-    question: 'Trẻ 1-10 tuổi tại VNVC có được tiêm vắc-xin sởi miễn phí không?',
+    question: 'Trẻ 1-10 tuổi tại VAXBOT có được tiêm vắc-xin sởi miễn phí không?',
     answer:
-      'Có, từ ngày 12/09/2024, 39 trung tâm VNVC tại TP.HCM triển khai tiêm vắc-xin sởi miễn phí cho trẻ 1-10 tuổi chưa tiêm đủ 2 mũi hoặc không rõ lịch sử tiêm chủng.'
+      'Có, từ ngày 12/09/2024, 39 trung tâm VAXBOT tại TP.HCM triển khai tiêm vắc-xin sởi miễn phí cho trẻ 1-10 tuổi chưa tiêm đủ 2 mũi hoặc không rõ lịch sử tiêm chủng.'
   },
   {
-    question: 'Người 50 tuổi tại VNVC có cần tiêm vắc-xin zona không?',
+    question: 'Người 50 tuổi tại VAXBOT có cần tiêm vắc-xin zona không?',
     answer:
-      'Có, người 50 tuổi trở lên tại VNVC nên tiêm vắc-xin Shingrix để phòng bệnh zona thần kinh và các biến chứng như đau dây thần kinh sau zona.'
+      'Có, người 50 tuổi trở lên tại VAXBOT nên tiêm vắc-xin Shingrix để phòng bệnh zona thần kinh và các biến chứng như đau dây thần kinh sau zona.'
   },
 
-  // Nhóm 3: Giá cả và ưu đãi tại VNVC
+  // Nhóm 3: Giá cả và ưu đãi tại VAXBOT
   {
-    question: 'Giá vắc-xin sởi đa liều tại VNVC Lạc Long Quân là bao nhiêu trong tháng khai trương?',
+    question: 'Giá vắc-xin sởi đa liều tại VAXBOT Lạc Long Quân là bao nhiêu trong tháng khai trương?',
     answer:
-      'Trong tháng khai trương từ 06/09/2024 đến 06/10/2024, giá vắc-xin sởi đa liều tại VNVC Lạc Long Quân là 198.000 VND, áp dụng buổi sáng các ngày trong tuần, thứ 7 và chủ nhật cả ngày.'
+      'Trong tháng khai trương từ 06/09/2024 đến 06/10/2024, giá vắc-xin sởi đa liều tại VAXBOT Lạc Long Quân là 198.000 VND, áp dụng buổi sáng các ngày trong tuần, thứ 7 và chủ nhật cả ngày.'
   },
   {
-    question: 'Ưu đãi khi mua gói vắc-xin thứ 2 tại VNVC Quảng Xương là gì?',
+    question: 'Ưu đãi khi mua gói vắc-xin thứ 2 tại VAXBOT Quảng Xương là gì?',
     answer:
-      'Tại VNVC Quảng Xương, từ 04/10/2024 đến 04/11/2024, khách hàng mua gói vắc-xin thứ 2 trở đi được ưu đãi 1% giá trị gói.'
+      'Tại VAXBOT Quảng Xương, từ 04/10/2024 đến 04/11/2024, khách hàng mua gói vắc-xin thứ 2 trở đi được ưu đãi 1% giá trị gói.'
   },
   {
-    question: 'Khách hàng tiêm lẻ dưới 1 triệu đồng tại VNVC Trung Kính nhận quà gì trong tháng khai trương?',
+    question: 'Khách hàng tiêm lẻ dưới 1 triệu đồng tại VAXBOT Trung Kính nhận quà gì trong tháng khai trương?',
     answer:
-      'Trong tháng khai trương từ 28/03/2024 đến 28/04/2024, khách hàng tiêm lẻ dưới 1 triệu đồng tại VNVC Trung Kính được tặng quạt nhựa VNVC.'
+      'Trong tháng khai trương từ 28/03/2024 đến 28/04/2024, khách hàng tiêm lẻ dưới 1 triệu đồng tại VAXBOT Trung Kính được tặng quạt nhựa VAXBOT.'
   },
   {
-    question: 'Khách hàng tiêm lẻ từ 2 triệu đồng trở lên tại VNVC Lạc Long Quân nhận quà gì trong tháng khai trương?',
+    question:
+      'Khách hàng tiêm lẻ từ 2 triệu đồng trở lên tại VAXBOT Lạc Long Quân nhận quà gì trong tháng khai trương?',
     answer:
-      'Trong tháng khai trương từ 06/09/2024 đến 06/10/2024, khách hàng tiêm lẻ từ 2 triệu đồng trở lên tại VNVC Lạc Long Quân được tặng thú bông rồng VNVC cỡ lớn, túi giữ nhiệt cỡ trung, hoặc túi hai quai.'
+      'Trong tháng khai trương từ 06/09/2024 đến 06/10/2024, khách hàng tiêm lẻ từ 2 triệu đồng trở lên tại VAXBOT Lạc Long Quân được tặng thú bông rồng VAXBOT cỡ lớn, túi giữ nhiệt cỡ trung, hoặc túi hai quai.'
   },
   {
-    question: 'Gói vắc-xin từ 3-5 triệu tại VNVC Quảng Xương có ưu đãi gì trong tháng khai trương?',
+    question: 'Gói vắc-xin từ 3-5 triệu tại VAXBOT Quảng Xương có ưu đãi gì trong tháng khai trương?',
     answer:
-      'Trong tháng khai trương từ 04/10/2024 đến 04/11/2024, khách hàng mua gói vắc-xin từ 3-5 triệu tại VNVC Quảng Xương nhận voucher 100.000 VND, thú bông rồng size to, hoặc gối kê cổ VNVC.'
+      'Trong tháng khai trương từ 04/10/2024 đến 04/11/2024, khách hàng mua gói vắc-xin từ 3-5 triệu tại VAXBOT Quảng Xương nhận voucher 100.000 VND, thú bông rồng size to, hoặc gối kê cổ VAXBOT.'
   },
   {
-    question: 'VNVC có miễn phí tiêm vắc-xin Lao cho trẻ không?',
+    question: 'VAXBOT có miễn phí tiêm vắc-xin Lao cho trẻ không?',
     answer:
-      'Có, trong tháng khai trương tại các trung tâm như VNVC Quảng Xương (04/10/2024 - 04/11/2024), VNVC miễn phí tiêm vắc-xin Lao cho trẻ trong khung giờ hoạt động.'
+      'Có, trong tháng khai trương tại các trung tâm như VAXBOT Quảng Xương (04/10/2024 - 04/11/2024), VAXBOT miễn phí tiêm vắc-xin Lao cho trẻ trong khung giờ hoạt động.'
   },
   {
-    question: 'VNVC có miễn phí tiêm vắc-xin uốn ván cho mẹ bầu không?',
+    question: 'VAXBOT có miễn phí tiêm vắc-xin uốn ván cho mẹ bầu không?',
     answer:
-      'Có, trong tháng khai trương tại các trung tâm như VNVC Lạc Long Quân (06/09/2024 - 06/10/2024), VNVC miễn phí tiêm vắc-xin uốn ván cho mẹ bầu trong khung giờ hoạt động.'
+      'Có, trong tháng khai trương tại các trung tâm như VAXBOT Lạc Long Quân (06/09/2024 - 06/10/2024), VAXBOT miễn phí tiêm vắc-xin uốn ván cho mẹ bầu trong khung giờ hoạt động.'
   },
   {
-    question: 'Khách hàng tiêm lẻ từ 1-2 triệu đồng tại VNVC Quảng Xương nhận quà gì trong tháng khai trương?',
+    question: 'Khách hàng tiêm lẻ từ 1-2 triệu đồng tại VAXBOT Quảng Xương nhận quà gì trong tháng khai trương?',
     answer:
-      'Trong tháng khai trương từ 04/10/2024 đến 04/11/2024, khách hàng tiêm lẻ từ 1-2 triệu đồng tại VNVC Quảng Xương được tặng túi giữ nhiệt nhỏ VNVC hoặc balo baby VNVC.'
+      'Trong tháng khai trương từ 04/10/2024 đến 04/11/2024, khách hàng tiêm lẻ từ 1-2 triệu đồng tại VAXBOT Quảng Xương được tặng túi giữ nhiệt nhỏ VAXBOT hoặc balo baby VAXBOT.'
   },
   {
-    question: 'VNVC có hỗ trợ trả góp không lãi suất cho gói vắc-xin không?',
+    question: 'VAXBOT có hỗ trợ trả góp không lãi suất cho gói vắc-xin không?',
     answer:
-      'Có, VNVC hỗ trợ trả góp không lãi suất trong 6 tháng cho gói vắc-xin, giúp khách hàng chia nhỏ chi phí và giảm áp lực tài chính.'
+      'Có, VAXBOT hỗ trợ trả góp không lãi suất trong 6 tháng cho gói vắc-xin, giúp khách hàng chia nhỏ chi phí và giảm áp lực tài chính.'
   },
   {
-    question: 'VNVC có miễn phí khám trước tiêm không?',
-    answer: 'Có, giá vắc-xin tại VNVC đã bao gồm phí khám trước tiêm miễn phí với đội ngũ bác sĩ chuyên môn cao.'
+    question: 'VAXBOT có miễn phí khám trước tiêm không?',
+    answer: 'Có, giá vắc-xin tại VAXBOT đã bao gồm phí khám trước tiêm miễn phí với đội ngũ bác sĩ chuyên môn cao.'
   },
 
   // Nhóm 4: Tác dụng phụ và chăm sóc sau tiêm
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây sốt nhẹ không?',
+    question: 'Tiêm vắc-xin tại VNVAXBOTVC có gây sốt nhẹ không?',
     answer:
-      'Có thể, sốt nhẹ là phản ứng bình thường sau tiêm vắc-xin tại VNVC, thường tự khỏi sau 24-48 giờ, và khách hàng được theo dõi 30 phút sau tiêm.'
+      'Có thể, sốt nhẹ là phản ứng bình thường sau tiêm vắc-xin tại VAXBOT, thường tự khỏi sau 24-48 giờ, và khách hàng được theo dõi 30 phút sau tiêm.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây sưng đỏ tại chỗ tiêm không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có gây sưng đỏ tại chỗ tiêm không?',
     answer:
-      'Có thể, sưng đỏ tại chỗ tiêm là phản ứng nhẹ sau tiêm vắc-xin tại VNVC, thường biến mất sau 24-48 giờ, và khách hàng được hướng dẫn theo dõi tại nhà.'
+      'Có thể, sưng đỏ tại chỗ tiêm là phản ứng nhẹ sau tiêm vắc-xin tại VAXBOT, thường biến mất sau 24-48 giờ, và khách hàng được hướng dẫn theo dõi tại nhà.'
   },
   {
-    question: 'Sau tiêm vắc-xin tại VNVC có nên tắm ngay không?',
-    answer: 'Có thể tắm, nhưng nên tránh chà xát mạnh vào vị trí tiêm để không gây kích ứng, theo hướng dẫn của VNVC.'
+    question: 'Sau tiêm vắc-xin tại VAXBOT có nên tắm ngay không?',
+    answer: 'Có thể tắm, nhưng nên tránh chà xát mạnh vào vị trí tiêm để không gây kích ứng, theo hướng dẫn của VAXBOT.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây mệt mỏi không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có gây mệt mỏi không?',
     answer:
-      'Có thể, một số người có thể cảm thấy mệt mỏi nhẹ sau tiêm do phản ứng miễn dịch, thường tự khỏi sau 1-2 ngày, theo dõi theo hướng dẫn của VNVC.'
+      'Có thể, một số người có thể cảm thấy mệt mỏi nhẹ sau tiêm do phản ứng miễn dịch, thường tự khỏi sau 1-2 ngày, theo dõi theo hướng dẫn của VAXBOT.'
   },
   {
-    question: 'Sau tiêm vắc-xin tại VNVC có nên uống sữa không?',
+    question: 'Sau tiêm vắc-xin tại VAXBOT có nên uống sữa không?',
     answer:
       'Có, uống sữa không ảnh hưởng đến hiệu quả vắc-xin, nhưng nên tránh nếu cảm thấy khó chịu hoặc có tiền sử dị ứng sữa.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây đau đầu không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có gây đau đầu không?',
     answer:
-      'Hiếm gặp, nhưng một số người có thể bị đau đầu nhẹ do phản ứng miễn dịch, nên nghỉ ngơi và theo dõi theo hướng dẫn của VNVC.'
+      'Hiếm gặp, nhưng một số người có thể bị đau đầu nhẹ do phản ứng miễn dịch, nên nghỉ ngơi và theo dõi theo hướng dẫn của VAXBOT.'
   },
   {
-    question: 'Sau tiêm vắc-xin tại VNVC có nên ăn đồ chua không?',
+    question: 'Sau tiêm vắc-xin tại VAXBOT có nên ăn đồ chua không?',
     answer:
-      'Có thể ăn, nhưng nên hạn chế nếu cảm thấy mệt mỏi hoặc có vấn đề về dạ dày sau tiêm, theo hướng dẫn của VNVC.'
+      'Có thể ăn, nhưng nên hạn chế nếu cảm thấy mệt mỏi hoặc có vấn đề về dạ dày sau tiêm, theo hướng dẫn của VAXBOT.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây buồn nôn không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có gây buồn nôn không?',
     answer:
       'Hiếm gặp, nhưng một số người nhạy cảm có thể bị buồn nôn nhẹ, nên nghỉ ngơi và liên hệ bác sĩ nếu triệu chứng kéo dài.'
   },
   {
-    question: 'Sau tiêm vắc-xin tại VNVC có nên uống trà không?',
+    question: 'Sau tiêm vắc-xin tại VAXBOT có nên uống trà không?',
     answer:
       'Có thể uống, nhưng nên hạn chế nếu cảm thấy mệt mỏi, vì trà có thể gây kích ứng dạ dày trong trạng thái cơ thể đang phản ứng với vắc-xin.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có gây ngứa tại chỗ tiêm không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có gây ngứa tại chỗ tiêm không?',
     answer:
-      'Có thể, ngứa tại chỗ tiêm là phản ứng nhẹ, thường tự khỏi sau vài ngày, nên tránh gãi và theo dõi theo hướng dẫn của VNVC.'
+      'Có thể, ngứa tại chỗ tiêm là phản ứng nhẹ, thường tự khỏi sau vài ngày, nên tránh gãi và theo dõi theo hướng dẫn của VAXBOT.'
   },
 
-  // Nhóm 5: Dịch vụ và quy trình tại VNVC
+  // Nhóm 5: Dịch vụ và quy trình tại VAXBOT
   {
-    question: 'VNVC có hỗ trợ tiêm vắc-xin lưu động cho doanh nghiệp không?',
-    answer: 'Có, VNVC cung cấp dịch vụ tiêm chủng lưu động cho các nhóm khách hàng, cơ quan, doanh nghiệp theo yêu cầu.'
-  },
-  {
-    question: 'VNVC có cấp chứng chỉ tiêm chủng cho người đi du học không?',
+    question: 'VAXBOT có hỗ trợ tiêm vắc-xin lưu động cho doanh nghiệp không?',
     answer:
-      'Có, VNVC hỗ trợ cấp chứng chỉ tiêm chủng cho khách hàng đi du học hoặc du lịch, đảm bảo đáp ứng yêu cầu quốc tế.'
+      'Có, VAXBOT cung cấp dịch vụ tiêm chủng lưu động cho các nhóm khách hàng, cơ quan, doanh nghiệp theo yêu cầu.'
   },
   {
-    question: 'VNVC có khu vui chơi cho trẻ em không?',
+    question: 'VAXBOT có cấp chứng chỉ tiêm chủng cho người đi du học không?',
     answer:
-      'Có, các trung tâm VNVC như VNVC Quảng Xương, Trung Kính đều có khu vui chơi rộng rãi, thoáng mát dành cho trẻ em.'
+      'Có, VAXBOT hỗ trợ cấp chứng chỉ tiêm chủng cho khách hàng đi du học hoặc du lịch, đảm bảo đáp ứng yêu cầu quốc tế.'
   },
   {
-    question: 'VNVC có hỗ trợ đặt giữ vắc-xin online không?',
-    answer: 'Có, khách hàng có thể đặt giữ vắc-xin online qua website vnvc.vn hoặc qua tổng đài 028.7102.6595.'
-  },
-  {
-    question: 'VNVC có hệ thống bảo quản vắc-xin đạt chuẩn không?',
+    question: 'VAXBOT có khu vui chơi cho trẻ em không?',
     answer:
-      'Có, VNVC sở hữu hệ thống dây chuyền lạnh đạt chuẩn GSP, với khả năng bảo quản 400 triệu liều vắc-xin ở nhiệt độ 2-8°C.'
+      'Có, các trung tâm VAXBOT như VAXBOT Quảng Xương, Trung Kính đều có khu vui chơi rộng rãi, thoáng mát dành cho trẻ em.'
   },
   {
-    question: 'VNVC có hỗ trợ thanh toán qua ví điện tử không?',
-    answer:
-      'Có, VNVC hỗ trợ thanh toán qua ví điện tử như VNPAY-QR, Momo, Apple Pay, và các ứng dụng thương mại điện tử.'
+    question: 'VAXBOT có hỗ trợ đặt giữ vắc-xin online không?',
+    answer: 'Có, khách hàng có thể đặt giữ vắc-xin online qua website VAXBOT.vn hoặc qua tổng đài 028.7102.6595.'
   },
   {
-    question: 'VNVC có làm việc vào cuối tuần không?',
+    question: 'VAXBOT có hệ thống bảo quản vắc-xin đạt chuẩn không?',
     answer:
-      'Có, VNVC làm việc tất cả các ngày trong tuần, từ thứ 2 đến chủ nhật, bao gồm cả ngày lễ nếu không có thông báo nghỉ.'
+      'Có, VAXBOT sở hữu hệ thống dây chuyền lạnh đạt chuẩn GSP, với khả năng bảo quản 400 triệu liều vắc-xin ở nhiệt độ 2-8°C.'
   },
   {
-    question: 'VNVC có hỗ trợ tra cứu lịch sử tiêm chủng không?',
+    question: 'VAXBOT có hỗ trợ thanh toán qua ví điện tử không?',
     answer:
-      'Có, khách hàng có thể tra cứu lịch sử tiêm chủng qua Mobile App VNVC, hotline 028.7102.6595, hoặc Hệ thống thông tin Tiêm chủng Quốc gia.'
+      'Có, VAXBOT hỗ trợ thanh toán qua ví điện tử như VNPAY-QR, Momo, Apple Pay, và các ứng dụng thương mại điện tử.'
   },
   {
-    question: 'VNVC có bác sĩ chuyên môn cao không?',
+    question: 'VAXBOT có làm việc vào cuối tuần không?',
     answer:
-      'Có, 100% bác sĩ và điều dưỡng tại VNVC có chứng chỉ an toàn tiêm chủng của Bộ Y tế và được đào tạo kỹ năng xử trí phản ứng sau tiêm.'
+      'Có, vv làm việc tất cả các ngày trong tuần, từ thứ 2 đến chủ nhật, bao gồm cả ngày lễ nếu không có thông báo nghỉ.'
   },
   {
-    question: 'VNVC có hỗ trợ tiêm vắc-xin cho người có bệnh nền không?',
+    question: 'vv có hỗ trợ tra cứu lịch sử tiêm chủng không?',
     answer:
-      'Có, VNVC hỗ trợ tiêm vắc-xin cho người có bệnh nền, nhưng cần được bác sĩ thăm khám và tư vấn trước khi tiêm.'
+      'Có, khách hàng có thể tra cứu lịch sử tiêm chủng qua Mobile App vv, hotline 028.7102.6595, hoặc Hệ thống thông tin Tiêm chủng Quốc gia.'
+  },
+  {
+    question: 'vv có bác sĩ chuyên môn cao không?',
+    answer:
+      'Có, 100% bác sĩ và điều dưỡng tại vv có chứng chỉ an toàn tiêm chủng của Bộ Y tế và được đào tạo kỹ năng xử trí phản ứng sau tiêm.'
+  },
+  {
+    question: 'vv có hỗ trợ tiêm vắc-xin cho người có bệnh nền không?',
+    answer:
+      'Có, vv hỗ trợ tiêm vắc-xin cho người có bệnh nền, nhưng cần được bác sĩ thăm khám và tư vấn trước khi tiêm.'
   },
 
   // Nhóm 6: Tình huống đặc biệt
   {
-    question: 'Người bị bệnh tim mạch có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị bệnh tim mạch có tiêm vắc-xin tại vv được không?',
     answer:
-      'Có, nhưng cần được bác sĩ tại VNVC thăm khám và đánh giá tình trạng tim mạch trước khi tiêm để đảm bảo an toàn.'
+      'Có, nhưng cần được bác sĩ tại vv thăm khám và đánh giá tình trạng tim mạch trước khi tiêm để đảm bảo an toàn.'
   },
   {
-    question: 'Người bị bệnh huyết áp cao có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Có, nhưng cần báo bác sĩ tại VNVC để kiểm tra huyết áp trước khi tiêm, đảm bảo tình trạng ổn định.'
+    question: 'Người bị bệnh huyết áp cao có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Có, nhưng cần báo bác sĩ tại VAXBOT để kiểm tra huyết áp trước khi tiêm, đảm bảo tình trạng ổn định.'
   },
   {
-    question: 'Người bị bệnh ung thư có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị bệnh ung thư có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Có, nhưng cần bác sĩ chuyên khoa ung bướu đánh giá và tư vấn tại VNVC, vì một số vắc-xin có thể không phù hợp.'
+      'Có, nhưng cần bác sĩ chuyên khoa ung bướu đánh giá và tư vấn tại VAXBOT, vì một số vắc-xin có thể không phù hợp.'
   },
   {
-    question: 'Người bị bệnh tự miễn có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Có, nhưng cần bác sĩ tại VNVC đánh giá, đặc biệt nếu đang dùng thuốc ức chế miễn dịch, để đảm bảo an toàn.'
-  },
-  {
-    question: 'Người bị dị ứng nặng có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Có, nhưng cần báo bác sĩ tại VNVC về tiền sử dị ứng để được khám sàng lọc kỹ lưỡng và theo dõi sau tiêm.'
-  },
-  {
-    question: 'Phụ nữ mang thai có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Có, phụ nữ mang thai có thể tiêm một số vắc-xin như uốn ván, cúm tại VNVC, nhưng cần bác sĩ tư vấn trước.'
-  },
-  {
-    question: 'Người vừa phẫu thuật có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Cần hoãn tiêm nếu vừa phẫu thuật, nên đợi ít nhất 1 tháng và tham khảo ý kiến bác sĩ tại VNVC.'
-  },
-  {
-    question: 'Người bị sốt cao có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Không, người bị sốt cao cần hoãn tiêm, nên đến VNVC khi sức khỏe ổn định để được bác sĩ đánh giá.'
-  },
-  {
-    question: 'Người bị nhiễm HPV có tiêm vắc-xin HPV tại VNVC được không?',
+    question: 'Người bị bệnh tự miễn có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Có, người bị nhiễm HPV vẫn có thể tiêm vắc-xin HPV tại VNVC để bảo vệ khỏi các chủng HPV khác, nhưng cần bác sĩ tư vấn.'
+      'Có, nhưng cần bác sĩ tại VAXBOT đánh giá, đặc biệt nếu đang dùng thuốc ức chế miễn dịch, để đảm bảo an toàn.'
   },
   {
-    question: 'Người bị sùi mào gà có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị dị ứng nặng có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Có, nhưng cần báo bác sĩ tại VAXBOT về tiền sử dị ứng để được khám sàng lọc kỹ lưỡng và theo dõi sau tiêm.'
+  },
+  {
+    question: 'Phụ nữ mang thai có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Có, nhưng cần báo bác sĩ tại VNVC để được tư vấn, vì sùi mào gà do HPV gây ra và có thể cần tiêm vắc-xin HPV.'
+      'Có, phụ nữ mang thai có thể tiêm một số vắc-xin như uốn ván, cúm tại VAXBOT, nhưng cần bác sĩ tư vấn trước.'
+  },
+  {
+    question: 'Người vừa phẫu thuật có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Cần hoãn tiêm nếu vừa phẫu thuật, nên đợi ít nhất 1 tháng và tham khảo ý kiến bác sĩ tại VAXBOT.'
+  },
+  {
+    question: 'Người bị sốt cao có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Không, người bị sốt cao cần hoãn tiêm, nên đến VAXBOT khi sức khỏe ổn định để được bác sĩ đánh giá.'
+  },
+  {
+    question: 'Người bị nhiễm HPV có tiêm vắc-xin HPV tại VAXBOT được không?',
+    answer:
+      'Có, người bị nhiễm HPV vẫn có thể tiêm vắc-xin HPV tại VAXBOT để bảo vệ khỏi các chủng HPV khác, nhưng cần bác sĩ tư vấn.'
+  },
+  {
+    question: 'Người bị sùi mào gà có tiêm vắc-xin tại VAXBOT được không?',
+    answer:
+      'Có, nhưng cần báo bác sĩ tại VAXBOT để được tư vấn, vì sùi mào gà do HPV gây ra và có thể cần tiêm vắc-xin HPV.'
   },
 
   // Nhóm 7: Sức khỏe cộng đồng và tiêm chủng
   {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh viêm màng não không?',
-    answer: 'Có, vắc-xin Bexsero và Pneumovax 23 tại VNVC giúp giảm nguy cơ viêm màng não do não mô cầu và phế cầu.'
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh viêm màng não không?',
+    answer: 'Có, vắc-xin Bexsero và Pneumovax 23 tại VAXBOT giúp giảm nguy cơ viêm màng não do não mô cầu và phế cầu.'
   },
   {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh nhiễm khuẩn huyết không?',
-    answer: 'Có, vắc-xin Bexsero và Pneumovax 23 tại VNVC giúp giảm nguy cơ nhiễm khuẩn huyết do não mô cầu và phế cầu.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh viêm phổi không?',
-    answer: 'Có, vắc-xin Pneumovax 23 và cúm tại VNVC giúp giảm nguy cơ viêm phổi do phế cầu và virus cúm.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh ung thư hầu họng không?',
-    answer: 'Có, vắc-xin Gardasil và Gardasil 9 tại VNVC giúp giảm nguy cơ ung thư hầu họng do virus HPV.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh bạch hầu không?',
-    answer: 'Có, vắc-xin 6 trong 1, 5 trong 1, và Td tại VNVC giúp phòng bệnh bạch hầu hiệu quả.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh rubella không?',
-    answer: 'Có, vắc-xin MMR tại VNVC giúp phòng bệnh rubella, bảo vệ trẻ em và phụ nữ chuẩn bị mang thai.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh quai bị không?',
-    answer: 'Có, vắc-xin MMR tại VNVC giúp phòng bệnh quai bị, giảm nguy cơ biến chứng ở trẻ em và người lớn.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh sốt phát ban không?',
-    answer: 'Có, vắc-xin MMR tại VNVC giúp giảm nguy cơ sốt phát ban do rubella, đặc biệt trong thời điểm giao mùa.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh viêm đường hô hấp không?',
-    answer: 'Có, vắc-xin cúm và Pneumovax 23 tại VNVC giúp giảm nguy cơ viêm đường hô hấp do virus cúm và phế cầu.'
-  },
-  {
-    question: 'Tiêm vắc-xin tại VNVC có giúp giảm nguy cơ bệnh tay chân miệng không?',
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh nhiễm khuẩn huyết không?',
     answer:
-      'VNVC đang hợp tác để đưa về vắc-xin phòng tay chân miệng do Enterovirus 71, giúp giảm nguy cơ bệnh này trong tương lai.'
+      'Có, vắc-xin Bexsero và Pneumovax 23 tại VAXBOT giúp giảm nguy cơ nhiễm khuẩn huyết do não mô cầu và phế cầu.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh viêm phổi không?',
+    answer: 'Có, vắc-xin Pneumovax 23 và cúm tại VAXBOT giúp giảm nguy cơ viêm phổi do phế cầu và virus cúm.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh ung thư hầu họng không?',
+    answer: 'Có, vắc-xin Gardasil và Gardasil 9 tại VAXBOT giúp giảm nguy cơ ung thư hầu họng do virus HPV.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh bạch hầu không?',
+    answer: 'Có, vắc-xin 6 trong 1, 5 trong 1, và Td tại VAXBOT giúp phòng bệnh bạch hầu hiệu quả.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh rubella không?',
+    answer: 'Có, vắc-xin MMR tại VAXBOT giúp phòng bệnh rubella, bảo vệ trẻ em và phụ nữ chuẩn bị mang thai.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh quai bị không?',
+    answer: 'Có, vắc-xin MMR tại VAXBOT giúp phòng bệnh quai bị, giảm nguy cơ biến chứng ở trẻ em và người lớn.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh sốt phát ban không?',
+    answer: 'Có, vắc-xin MMR tại VAXBOT giúp giảm nguy cơ sốt phát ban do rubella, đặc biệt trong thời điểm giao mùa.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh viêm đường hô hấp không?',
+    answer: 'Có, vắc-xin cúm và Pneumovax 23 tại VAXBOT giúp giảm nguy cơ viêm đường hô hấp do virus cúm và phế cầu.'
+  },
+  {
+    question: 'Tiêm vắc-xin tại VAXBOT có giúp giảm nguy cơ bệnh tay chân miệng không?',
+    answer:
+      'VAXBOT đang hợp tác để đưa về vắc-xin phòng tay chân miệng do Enterovirus 71, giúp giảm nguy cơ bệnh này trong tương lai.'
   },
 
-  // Nhóm 8: Bảo quản và vận chuyển vắc-xin tại VNVC
+  // Nhóm 8: Bảo quản và vận chuyển vắc-xin tại VAXBOT
   {
-    question: 'VNVC bảo quản vắc-xin ở nhiệt độ bao nhiêu?',
-    answer: 'VNVC bảo quản vắc-xin ở nhiệt độ tiêu chuẩn 2-8°C, đảm bảo chất lượng theo yêu cầu của nhà sản xuất.'
+    question: 'VAXBOT bảo quản vắc-xin ở nhiệt độ bao nhiêu?',
+    answer: 'VAXBOT bảo quản vắc-xin ở nhiệt độ tiêu chuẩn 2-8°C, đảm bảo chất lượng theo yêu cầu của nhà sản xuất.'
   },
   {
-    question: 'VNVC có hệ thống giám sát nhiệt độ bảo quản vắc-xin không?',
-    answer: 'Có, VNVC trang bị hệ thống giám sát nhiệt độ tự động 24/24, phát cảnh báo qua GSM nếu có sự cố.'
+    question: 'VAXBOT có hệ thống giám sát nhiệt độ bảo quản vắc-xin không?',
+    answer: 'Có, VAXBOT trang bị hệ thống giám sát nhiệt độ tự động 24/24, phát cảnh báo qua GSM nếu có sự cố.'
   },
   {
-    question: 'VNVC có xe lạnh chuyên dụng để vận chuyển vắc-xin không?',
+    question: 'VAXBOT có xe lạnh chuyên dụng để vận chuyển vắc-xin không?',
     answer:
-      'Có, VNVC sử dụng xe lạnh chuyên dụng đạt chuẩn GSP để vận chuyển vắc-xin, đảm bảo chất lượng trong suốt hành trình.'
+      'Có, VAXBOT sử dụng xe lạnh chuyên dụng đạt chuẩn GSP để vận chuyển vắc-xin, đảm bảo chất lượng trong suốt hành trình.'
   },
   {
-    question: 'VNVC có kho lạnh âm sâu không?',
-    answer: 'Có, VNVC có 3 kho lạnh âm sâu trên toàn quốc, cùng 4 kho lạnh tổng ở TP.HCM, Đà Nẵng, và Hà Nội.'
+    question: 'VAXBOT có kho lạnh âm sâu không?',
+    answer: 'Có, VAXBOT có 3 kho lạnh âm sâu trên toàn quốc, cùng 4 kho lạnh tổng ở TP.HCM, Đà Nẵng, và Hà Nội.'
   },
   {
-    question: 'VNVC có khả năng bảo quản bao nhiêu liều vắc-xin cùng lúc?',
-    answer: 'VNVC có khả năng bảo quản 400 triệu liều vắc-xin cùng lúc, đảm bảo nhiệt độ 2-8°C.'
+    question: 'VAXBOT có khả năng bảo quản bao nhiêu liều vắc-xin cùng lúc?',
+    answer: 'VAXBOT có khả năng bảo quản 400 triệu liều vắc-xin cùng lúc, đảm bảo nhiệt độ 2-8°C.'
   },
   {
-    question: 'VNVC có hệ thống dự phòng khi mất điện không?',
-    answer: 'Có, VNVC trang bị thiết bị ba nguồn điện tại mỗi kho lạnh với cơ chế kích hoạt khẩn cấp khi mất điện.'
+    question: 'VAXBOT có hệ thống dự phòng khi mất điện không?',
+    answer: 'Có, VAXBOT trang bị thiết bị ba nguồn điện tại mỗi kho lạnh với cơ chế kích hoạt khẩn cấp khi mất điện.'
   },
   {
-    question: 'VNVC có cảnh báo khi nhiệt độ bảo quản vắc-xin bất thường không?',
-    answer: 'Có, VNVC có hệ thống cảnh báo qua SMS và email khi nhiệt độ bảo quản vắc-xin bất thường.'
+    question: 'VAXBOT có cảnh báo khi nhiệt độ bảo quản vắc-xin bất thường không?',
+    answer: 'Có, VAXBOT có hệ thống cảnh báo qua SMS và email khi nhiệt độ bảo quản vắc-xin bất thường.'
   },
   {
-    question: 'VNVC có tủ bảo quản vắc-xin tại phòng tiêm không?',
-    answer: 'Có, 100% phòng tiêm tại VNVC được trang bị tủ bảo quản vắc-xin chuyên dụng, đảm bảo nhiệt độ 2-8°C.'
+    question: 'VAXBOT có tủ bảo quản vắc-xin tại phòng tiêm không?',
+    answer: 'Có, 100% phòng tiêm tại VAXBOT được trang bị tủ bảo quản vắc-xin chuyên dụng, đảm bảo nhiệt độ 2-8°C.'
   },
   {
-    question: 'VNVC có kiểm soát chất lượng vắc-xin từ khâu vận chuyển không?',
-    answer: 'Có, VNVC kiểm soát chặt chẽ chất lượng vắc-xin từ khâu vận chuyển đến khi tiêm, đảm bảo đạt chuẩn GSP.'
+    question: 'VAXBOT có kiểm soát chất lượng vắc-xin từ khâu vận chuyển không?',
+    answer: 'Có, VAXBOT kiểm soát chặt chẽ chất lượng vắc-xin từ khâu vận chuyển đến khi tiêm, đảm bảo đạt chuẩn GSP.'
   },
   {
-    question: 'VNVC có hệ thống dây chuyền lạnh tại chỗ không?',
-    answer: 'Có, tất cả trung tâm VNVC đều có hệ thống dây chuyền lạnh tại chỗ, đảm bảo bảo quản vắc-xin an toàn.'
+    question: 'VAXBOT có hệ thống dây chuyền lạnh tại chỗ không?',
+    answer: 'Có, tất cả trung tâm VAXBOT đều có hệ thống dây chuyền lạnh tại chỗ, đảm bảo bảo quản vắc-xin an toàn.'
   },
 
-  // Nhóm 9: Tiêm chủng và du lịch tại VNVC
+  // Nhóm 9: Tiêm chủng và du lịch tại VAXBOT
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Nhật Bản?',
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Nhật Bản?',
     answer:
-      'Khi đi Nhật Bản, bạn nên tiêm vắc-xin viêm gan A, viêm não Nhật Bản, và cúm tại VNVC, đặc biệt vào mùa đông.'
+      'Khi đi Nhật Bản, bạn nên tiêm vắc-xin viêm gan A, viêm não Nhật Bản, và cúm tại VAXBOT, đặc biệt vào mùa đông.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Hàn Quốc?',
-    answer: 'Khi đi Hàn Quốc, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Hàn Quốc?',
+    answer: 'Khi đi Hàn Quốc, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Úc?',
-    answer: 'Khi đi Úc, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, và cúm tại VNVC, đặc biệt nếu đi vào mùa lạnh.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Úc?',
+    answer: 'Khi đi Úc, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, và cúm tại VAXBOT, đặc biệt nếu đi vào mùa lạnh.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Mỹ?',
-    answer: 'Khi đi Mỹ, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, cúm, và MMR (nếu chưa tiêm đủ) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Mỹ?',
+    answer: 'Khi đi Mỹ, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, cúm, và MMR (nếu chưa tiêm đủ) tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Canada?',
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Canada?',
     answer:
-      'Khi đi Canada, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VNVC, đặc biệt vào mùa đông.'
+      'Khi đi Canada, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VAXBOT, đặc biệt vào mùa đông.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Pháp?',
-    answer: 'Khi đi Pháp, bạn nên tiêm vắc-xin viêm gan A, cúm, và MMR (nếu chưa tiêm đủ) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Pháp?',
+    answer: 'Khi đi Pháp, bạn nên tiêm vắc-xin viêm gan A, cúm, và MMR (nếu chưa tiêm đủ) tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Đức?',
-    answer: 'Khi đi Đức, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Đức?',
+    answer: 'Khi đi Đức, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Ý?',
-    answer: 'Khi đi Ý, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, và cúm tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Ý?',
+    answer: 'Khi đi Ý, bạn nên tiêm vắc-xin viêm gan A, viêm gan B, và cúm tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Anh?',
-    answer: 'Khi đi Anh, bạn nên tiêm vắc-xin viêm gan A, cúm, và MMR (nếu chưa tiêm đủ) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Anh?',
+    answer: 'Khi đi Anh, bạn nên tiêm vắc-xin viêm gan A, cúm, và MMR (nếu chưa tiêm đủ) tại VAXBOT.'
   },
   {
-    question: 'Vắc-xin nào cần tiêm tại VNVC khi đi Thụy Sĩ?',
-    answer: 'Khi đi Thụy Sĩ, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VNVC.'
+    question: 'Vắc-xin nào cần tiêm tại VAXBOT khi đi Thụy Sĩ?',
+    answer: 'Khi đi Thụy Sĩ, bạn nên tiêm vắc-xin viêm gan A, cúm, và Td (uốn ván - bạch hầu) tại VAXBOT.'
   },
 
   // Nhóm 10: Tiêm chủng và sức khỏe tâm lý
   {
-    question: 'Người bị rối loạn lo âu xã hội có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Được, nhưng nên báo bác sĩ tại VNVC nếu có lo lắng nghiêm trọng để được hỗ trợ tâm lý trước khi tiêm.'
+    question: 'Người bị rối loạn lo âu xã hội có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Được, nhưng nên báo bác sĩ tại VAXBOT nếu có lo lắng nghiêm trọng để được hỗ trợ tâm lý trước khi tiêm.'
   },
   {
-    question: 'Người bị rối loạn ám ảnh sợ tiêm có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị rối loạn ám ảnh sợ tiêm có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Được, VNVC có đội ngũ nhân viên y tế chuyên nghiệp, có thể hỗ trợ tâm lý và tạo không gian thoải mái cho người sợ tiêm.'
+      'Được, VAXBOT có đội ngũ nhân viên y tế chuyên nghiệp, có thể hỗ trợ tâm lý và tạo không gian thoải mái cho người sợ tiêm.'
   },
   {
-    question: 'Người bị rối loạn tâm thần nhẹ có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Được, nhưng cần báo bác sĩ tại VNVC để được đánh giá và theo dõi kỹ sau tiêm.'
+    question: 'Người bị rối loạn tâm thần nhẹ có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Được, nhưng cần báo bác sĩ tại VAXBOT để được đánh giá và theo dõi kỹ sau tiêm.'
   },
   {
-    question: 'Người bị rối loạn cảm xúc theo mùa có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị rối loạn cảm xúc theo mùa có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Được, rối loạn cảm xúc theo mùa không ảnh hưởng đến việc tiêm vắc-xin tại VNVC, nhưng nên báo bác sĩ nếu có triệu chứng nghiêm trọng.'
+      'Được, rối loạn cảm xúc theo mùa không ảnh hưởng đến việc tiêm vắc-xin tại VAXBOT, nhưng nên báo bác sĩ nếu có triệu chứng nghiêm trọng.'
   },
   {
-    question: 'Người bị rối loạn căng thẳng mãn tính có tiêm vắc-xin tại VNVC được không?',
-    answer: 'Được, nhưng cần báo bác sĩ tại VNVC để được tư vấn và theo dõi sau tiêm, đặc biệt nếu đang dùng thuốc.'
+    question: 'Người bị rối loạn căng thẳng mãn tính có tiêm vắc-xin tại VAXBOT được không?',
+    answer: 'Được, nhưng cần báo bác sĩ tại VAXBOT để được tư vấn và theo dõi sau tiêm, đặc biệt nếu đang dùng thuốc.'
   },
   {
-    question: 'Người bị rối loạn giấc ngủ mãn tính có tiêm vắc-xin tại VNVC được không?',
+    question: 'Người bị rối loạn giấc ngủ mãn tính có tiêm vắc-xin tại VAXBOT được không?',
     answer:
-      'Được, rối loạn giấc ngủ mãn tính không ảnh hưởng đến việc tiêm vắc-xin tại VNVC, nhưng nên nghỉ ngơi đầy đủ sau tiêm.'
+      'Được, rối loạn giấc ngủ mãn tính không ảnh hưởng đến việc tiêm vắc-xin tại VAXBOT, nhưng nên nghỉ ngơi đầy đủ sau tiêm.'
   },
   {
     question: 'Người bị bệnh vảy phấn hồng có tiêm vắc-xin tại VAXBOT được không?',

@@ -226,56 +226,38 @@ export default function Profile() {
                   <Input
                     id='name'
                     {...formUpdate.register('name')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
+                    className='dark:bg-gray-800 border-gray-300 focus:ring-gray-400  pr-10'
                   />
                   {formUpdate.formState.errors.name && (
                     <p className='text-red-500 text-sm'>{formUpdate.formState.errors.name.message}</p>
                   )}
                 </div>
 
-                <div className='space-y-2'>
-                  <Label htmlFor='phone' className='dark:text-green-300'>
-                    Số điện thoại
-                  </Label>
-                  <Input
-                    id='phone'
-                    type='tel'
-                    {...formUpdate.register('phone')}
-                    placeholder='Số điện thoại'
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
-                  />
-                  {formUpdate.formState.errors.phone && (
-                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.phone.message}</p>
-                  )}
-                </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='address' className='dark:text-green-300'>
-                    Địa chỉ
-                  </Label>
-                  <Input
-                    id='address'
-                    {...formUpdate.register('address')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
-                  />
-                  {formUpdate.formState.errors.address && (
-                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.address.message}</p>
-                  )}
-                </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='date_of_birth' className='dark:text-green-300'>
-                    Ngày sinh
-                  </Label>
-                  <Input
-                    id='date_of_birth'
-                    type='date'
-                    {...formUpdate.register('date_of_birth')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
-                  />
-                  {formUpdate.formState.errors.date_of_birth && (
-                    <p className='text-red-500 text-sm'>{formUpdate.formState.errors.date_of_birth.message}</p>
-                  )}
+                <div className='grid gap-4 md:grid-cols-2'>
+                  <div className='space-y-1'>
+                    <Label htmlFor='phone'>Số điện thoại</Label>
+                    <Input
+                      id='phone'
+                      {...formUpdate.register('phone')}
+                      placeholder='Nhập số điện thoại'
+                      className={formUpdate.formState.errors.phone ? 'border-red-500' : ''}
+                    />
+                    {formUpdate.formState.errors.phone && (
+                      <p className='text-red-500 text-sm'>{formUpdate.formState.errors.phone.message}</p>
+                    )}
+                  </div>
+                  <div className='space-y-1'>
+                    <Label htmlFor='date_of_birth'>Ngày sinh</Label>
+                    <Input
+                      id='date_of_birth'
+                      type='date'
+                      {...formUpdate.register('date_of_birth')}
+                      className={formUpdate.formState.errors.date_of_birth ? 'border-red-500' : ''}
+                    />
+                    {formUpdate.formState.errors.date_of_birth && (
+                      <p className='text-red-500 text-sm'>{formUpdate.formState.errors.date_of_birth.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className='space-y-2'>
@@ -285,7 +267,7 @@ export default function Profile() {
                   <Input
                     id='country'
                     {...formUpdate.register('country')}
-                    className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
+                    className='dark:bg-gray-800 border-gray-300 focus:ring-gray-400  pr-10'
                   />
                   {formUpdate.formState.errors.country && (
                     <p className='text-red-500 text-sm '>{formUpdate.formState.errors.country.message}</p>
@@ -295,7 +277,7 @@ export default function Profile() {
                 <Button
                   onClick={formUpdate.handleSubmit(handleUpdateMe)}
                   variant={'secondary'}
-                  className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
+                  className='w-full dark:bg-green-600 hover:bg-gray-300  transition-colors duration-200 bg-black text-white'
                 >
                   Lưu thay đổi
                 </Button>
@@ -314,14 +296,14 @@ export default function Profile() {
               <CardContent className='space-y-6'>
                 <div className='space-y-2'>
                   <Label htmlFor='current-password' className='dark:text-green-300'>
-                    Mật khẩu hiện tại
+                    Mật khẩu hiện tại <span className='text-red-500'>*</span>
                   </Label>
                   <div className='relative'>
                     <Input
                       id='current-password'
                       {...form.register('current_password')}
                       type={showPassword ? 'text' : 'password'}
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 pr-10'
+                      className='dark:bg-gray-800 border-gray-300 focus:ring-gray-400 pr-10'
                     />
                     <Button
                       variant='ghost'
@@ -345,14 +327,14 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='new-password' className='dark:text-green-300'>
-                    Mật khẩu mới
+                    Mật khẩu mới <span className='text-red-500'>*</span>
                   </Label>
                   <div className='relative'>
                     <Input
                       {...form.register('password')}
                       id='new-password'
                       type={showNewPassword ? 'text' : 'password'}
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-400 ${
                         form.formState.errors.password ? 'border-red-500' : ''
                       }`}
                     />
@@ -378,14 +360,14 @@ export default function Profile() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='confirm-password' className='dark:text-green-300'>
-                    Xác nhận mật khẩu mới
+                    Xác nhận mật khẩu mới <span className='text-red-500'>*</span>
                   </Label>
                   <div className='relative'>
                     <Input
                       {...form.register('confirm_password')}
                       id='confirm-password'
                       type={showConfirmPassword ? 'text' : 'password'}
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-400 ${
                         form.formState.errors.confirm_password ? 'border-red-500' : ''
                       }`}
                     />
@@ -412,7 +394,7 @@ export default function Profile() {
                 <Button
                   onClick={form.handleSubmit(handleChangePassword)}
                   variant={'secondary'}
-                  className='w-full dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
+                  className='w-full dark:bg-green-600 hover:bg-gray-300 transition-colors duration-200 bg-black text-white'
                 >
                   Cập nhật mật khẩu
                 </Button>
@@ -481,7 +463,7 @@ export default function Profile() {
                       <Button
                         onClick={() => navigate(path.list)}
                         variant={'outline'}
-                        className='dark:bg-green-600 hover:dark:bg-green-700 transition-colors duration-200'
+                        className='dark:bg-green-600 hover:bg-gray-300  transition-colors duration-200 bg-black text-white '
                       >
                         Đặt lịch tiêm chủng
                       </Button>

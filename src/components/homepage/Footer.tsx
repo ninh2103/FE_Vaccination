@@ -17,17 +17,17 @@ export default function Footer() {
             <h4 className='font-semibold mb-4 dark:text-white'>Về Vắc xin</h4>
             <ul className='space-y-2'>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/introduce' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Tại sao nên tiêm chủng?
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/introduce' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Cách tiêm chủng
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/introduce' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Các loại vắc xin
                 </Link>
               </li>
@@ -37,17 +37,17 @@ export default function Footer() {
             <h4 className='font-semibold mb-4 dark:text-white'>Tài nguyên</h4>
             <ul className='space-y-2'>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/vaccination/list' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Các loại vắc xin
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/introduce' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Tác dụng phụ và an toàn
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/introduce' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Câu hỏi thường gặp
                 </Link>
               </li>
@@ -57,17 +57,17 @@ export default function Footer() {
             <h4 className='font-semibold mb-4 dark:text-white'>Pháp luật</h4>
             <ul className='space-y-2'>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/policy' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Điều khoản dịch vụ
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/policy' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Chính sách bảo mật
                 </Link>
               </li>
               <li>
-                <Link to='#' className='dark:text-gray-400 dark:hover:text-green-400'>
+                <Link to='/policy' className='dark:text-gray-400 dark:hover:text-green-400'>
                   Bảo mật dữ liệu
                 </Link>
               </li>
@@ -75,9 +75,9 @@ export default function Footer() {
           </div>
           <div className='mx-auto'>
             <h4 className='font-semibold mb-4 dark:text-white'>Liên hệ chúng tôi</h4>
-            <p className='dark:text-gray-400 mb-2'>Trung tâm Y tế</p>
-            <p className='dark:text-gray-400 mb-2'>Đà Nẵng</p>
-            <p className='dark:text-gray-400'>vaxbot@gmail.com</p>
+            <p className='dark:text-gray-400 mb-2'><strong>Địa chỉ:  </strong> 120 Hoàng Minh Thảo, Hòa Khánh Nam, Liên Chiểu, Đà Nẵng</p>
+            <p className='dark:text-gray-400 mb-2'><strong>Điện thoại: </strong>1900.1900  </p>
+            <p className='dark:text-gray-400'><strong>Email: </strong>vaxbot@gmail.com</p>
           </div>
         </div>
         <div className='border-t border-gray-800 pt-8 mt-8 text-center'>
@@ -92,7 +92,7 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} Vax-Bot. Tất cả quyền được bảo lưu.</p>
+          <p className='dark:text-gray-400'>&copy; {new Date().getFullYear()} VAXBOT. All rights reserved.</p>
         </div>
       </div>
     </footer>

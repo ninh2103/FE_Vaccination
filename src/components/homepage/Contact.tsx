@@ -45,8 +45,8 @@ export default function ContactSection() {
   }
 
   return (
-    <section className='px-8 py-16'>
-      <div className='container mx-auto mb-20 text-center'>
+    <section className='px-8 py-8'>
+      <div className='container mx-auto mb-10 text-center'>
         <h1 className='text-3xl font-bold dark:text-white'>Liên hệ với chúng tôi</h1>
         <p className='mx-auto mt-4 w-full dark:text-white lg:w-5/12'>
           Đặt lịch khám và tiêm chủng hôm nay. Điền vào biểu mẫu bên dưới, và đội ngũ của chúng tôi sẽ liên lạc với bạn
@@ -63,7 +63,7 @@ export default function ContactSection() {
               </p>
               <div className='mt-4 flex items-center gap-4'>
                 <PhoneIcon className='h-6 w-6' />
-                <span>+84 909 090 909</span>
+                <span>1900.1900</span>
               </div>
               <div className='mt-2 flex items-center gap-4'>
                 <EnvelopeIcon className='h-6 w-6' />
@@ -78,11 +78,13 @@ export default function ContactSection() {
               <form ref={formRef} onSubmit={form.handleSubmit(handleSubmit)}>
                 <div className='grid gap-4'>
                   <div>
-                    <Label>Họ và tên *</Label>
+                    <Label>
+                      Họ và tên <span className='text-red-500'>*</span>
+                    </Label>
                     <Input
                       {...form.register('name')}
                       placeholder='Ví dụ: Vaxbot'
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-600 ${
                         form.formState.errors.name ? 'border-red-500' : ''
                       }`}
                     />
@@ -96,7 +98,7 @@ export default function ContactSection() {
                       {...form.register('email')}
                       placeholder='Ví dụ: vaxbot@gmail.com'
                       type='email'
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-600 ${
                         form.formState.errors.email ? 'border-red-500' : ''
                       }`}
                     />
@@ -105,7 +107,9 @@ export default function ContactSection() {
                     )}
                   </div>
                   <div>
-                    <Label>Số điện thoại *</Label>
+                    <Label>
+                      Số điện thoại <span className='text-red-500'>*</span>
+                    </Label>
                     <Input
                       {...form.register('phone')}
                       placeholder='Ví dụ: 0909090909'
@@ -113,7 +117,7 @@ export default function ContactSection() {
                       onChange={(e) => {
                         e.target.value = e.target.value.replace(/[^0-9]/g, '')
                       }}
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-600 ${
                         form.formState.errors.phone ? 'border-red-500' : ''
                       }`}
                     />
@@ -122,11 +126,13 @@ export default function ContactSection() {
                     )}
                   </div>
                   <div>
-                    <Label>Lời nhắn *</Label>
+                    <Label>
+                      Lời nhắn <span className='text-red-500'>*</span>
+                    </Label>
                     <Textarea
                       {...form.register('message')}
                       placeholder='Ví dụ: Tôi muốn tiêm Pfizer. Vui lòng liên hệ tôi vào buổi chiều.'
-                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                      className={`dark:bg-gray-800 border-gray-300 focus:ring-gray-600 ${
                         form.formState.errors.message ? 'border-red-500' : ''
                       }`}
                     />

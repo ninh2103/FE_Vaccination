@@ -13,7 +13,7 @@ import VaccinePrices from '@/pages/pricelist/PricelistDetails'
 import ServiceIntro from '@/pages/introduce/ServiceIntroduce'
 import ResetPassword from '@/pages/reset-password/Reset-Password'
 import ForgotPassword from '@/pages/forgot-password/Forgot-Password'
-
+import Policy from '@/pages/Policy/Policy'
 import { OTPInput } from '@/pages/otp/otp'
 import ListVaccination from '@/pages/vaccination/list-vaccination'
 import CheckOutPagePageMain from '@/pages/booking/Booking'
@@ -196,6 +196,7 @@ export default function useRoutesElements() {
           </ProtectedRoute>
         )
       },
+
       {
         path: path.pricelist,
         element: (
@@ -204,6 +205,14 @@ export default function useRoutesElements() {
               <VaccinePrices />
             </LayoutClient>
           </ProtectedRoute>
+        )
+      },
+      {
+        path: path.policy,
+        element: (
+          <LayoutClient>
+            <Policy />
+          </LayoutClient>
         )
       },
       {

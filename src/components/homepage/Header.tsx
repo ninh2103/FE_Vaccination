@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+'use client'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ChevronUp } from 'lucide-react'
+import { ChevronUp, UserCircle, LogOut, Search } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { UserCircle, LogOut, Search } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { Icons } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
@@ -23,22 +23,23 @@ import MessengerButton from '@/pages/Messenger/messenger'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
 
 const navItems = [
-  { name: 'Trang chủ', href: '#home' },
-  { name: 'Giới thiệu', href: '#features' },
-  { name: 'Vắc xin', href: '#vaccines' },
-  { name: 'Bác sĩ', href: '#doctor' },
-  { name: 'Tin tức', href: '#blog' },
-  { name: 'Liên hệ', href: '#contact' }
+  { name: 'Trang chủ', href: path.home, type: 'route' },
+  { name: 'Giới thiệu', href: '#features', type: 'section', sectionId: 'features' },
+  { name: 'Vắc xin', href: '#vaccines', type: 'section', sectionId: 'vaccines' },
+  { name: 'Bác sĩ', href: '#doctor', type: 'section', sectionId: 'doctor' },
+  { name: 'Tin tức', href: '#blog', type: 'section', sectionId: 'blog' },
+  { name: 'Liên hệ', href: '#contact', type: 'section', sectionId: 'contact' }
 ]
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [, setShowAlert] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchResults, setShowSearchResults] = useState(false)
+  const [activeNavItem, setActiveNavItem] = useState('Trang chủ')
+  const location = useLocation()
 
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
@@ -58,19 +59,61 @@ export default function Header() {
     search: searchQuery
   })
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  // Debounce function to limit scroll event frequency
+  const debounce = (func: (...args: any[]) => void, wait: number) => {
+    let timeout: NodeJS.Timeout
+    return (...args: any[]) => {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => func(...args), wait)
+    }
+  }
 
-  useEffect(() => {
-    if (scrollY > 60) {
-      setShowAlert(false)
-    } else {
-      setShowAlert(true)
+  // Check which section is in view
+  const checkSectionInView = useCallback(() => {
+    if (location.pathname !== path.home) return
+
+    const sections = navItems
+      .filter((item) => item.type === 'section' && item.sectionId)
+      .map((item) => ({
+        name: item.name,
+        sectionId: item.sectionId!
+      }))
+
+    let foundSection = null
+    for (const { name, sectionId } of sections) {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        const isInView = rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2
+        if (isInView) {
+          foundSection = name
+          break
+        }
+      }
     }
 
+    // If no section is in view, default to 'Trang chủ' if near the top
+    if (!foundSection && window.scrollY < 300) {
+      foundSection = 'Trang chủ'
+    }
+
+    if (foundSection && foundSection !== activeNavItem) {
+      setActiveNavItem(foundSection)
+    }
+  }, [activeNavItem, location.pathname])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+      checkSectionInView()
+    }
+
+    const debouncedHandleScroll = debounce(handleScroll, 100)
+    window.addEventListener('scroll', debouncedHandleScroll)
+    return () => window.removeEventListener('scroll', debouncedHandleScroll)
+  }, [checkSectionInView])
+
+  useEffect(() => {
     if (scrollY > 300) {
       setShowScrollTop(true)
     } else {
@@ -78,10 +121,29 @@ export default function Header() {
     }
   }, [scrollY])
 
-  const scrollToSection = (sectionId: string) => {
+  useEffect(() => {
+    const token = localStorage.getItem('access_token')
+    setIsLoggedIn(!!token)
+  }, [])
+
+  useEffect(() => {
+    if (location.pathname === path.home) {
+      checkSectionInView()
+    } else {
+      const sectionItem = navItems.find((item) => item.type === 'section' && location.hash === item.href)
+      setActiveNavItem(sectionItem?.name || '')
+    }
+  }, [location.pathname, location.hash, checkSectionInView])
+
+  const scrollToSection = (sectionId: string, name: string) => {
+    if (location.pathname !== path.home) {
+      window.location.href = `${path.home}${sectionId}`
+      return
+    }
     const section = document.getElementById(sectionId.replace('#', ''))
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
+      setActiveNavItem(name)
     }
   }
 
@@ -102,11 +164,6 @@ export default function Header() {
     )
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    setIsLoggedIn(!!token)
-  }, [])
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
     setShowSearchResults(true)
@@ -117,27 +174,62 @@ export default function Header() {
     setSearchQuery('')
   }
 
+  const handleNavItemClick = (item: { name: string; href: string; type: string }) => {
+    if (item.type === 'route') {
+      setActiveNavItem(item.name)
+      setIsMenuOpen(false)
+      if (item.href === path.home) {
+        scrollToTop()
+      }
+    } else {
+      scrollToSection(item.href, item.name)
+      setIsMenuOpen(false)
+    }
+  }
+
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
       <header
-        className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-all duration-300 ease-in-out ${scrollY > 0 ? 'shadow-md' : ''}`}
+        className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-all duration-300 ease-in-out ${
+          scrollY > 0 ? 'shadow-md' : ''
+        }`}
       >
         <div className='container mx-auto px-4 py-4'>
           <div className='flex items-center justify-between'>
-            <Link to={path.home} className='flex items-center space-x-2'>
+            <Link
+              to={path.home}
+              className='flex items-center space-x-2'
+              onClick={() => handleNavItemClick(navItems[0])}
+            >
               <img src={'/logo33.png'} alt='logo' className='w-24 h-20' />
             </Link>
             <nav className='hidden md:flex space-x-6'>
-              {navItems.map((item, index) => (
-                <Button
-                  key={index}
-                  variant='ghost'
-                  className='text-gray-900 dark:text-white hover:text-blue-400 transition-colors'
-                  onClick={() => scrollToSection(item.href)}
-                >
-                  {item.name}
-                </Button>
-              ))}
+              {navItems.map((item) =>
+                item.type === 'route' ? (
+                  <Link key={item.name} to={item.href}>
+                    <Button
+                      variant='ghost'
+                      className={`text-gray-900 dark:text-white hover:text-blue-400 transition-colors ${
+                        activeNavItem === item.name ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
+                      }`}
+                      onClick={() => handleNavItemClick(item)}
+                    >
+                      {item.name}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={item.name}
+                    variant='ghost'
+                    className={`text-gray-900 dark:text-white hover:text-blue-400 transition-colors ${
+                      activeNavItem === item.name ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
+                    }`}
+                    onClick={() => handleNavItemClick(item)}
+                  >
+                    {item.name}
+                  </Button>
+                )
+              )}
             </nav>
             <div className='relative w-1/2 max-w-xs'>
               <div className='relative'>
@@ -145,7 +237,7 @@ export default function Header() {
                   type='search'
                   id='search'
                   placeholder='Tìm kiếm vắc xin...'
-                  className='w-full text-sm p-2 text-blue-400 pl-10'
+                  className='w-full text-sm p-2 text-black-400 pl-10'
                   value={searchQuery}
                   onChange={handleSearch}
                   onFocus={() => setShowSearchResults(true)}
@@ -171,7 +263,6 @@ export default function Header() {
                 </div>
               )}
             </div>
-
             <div className='hidden md:flex items-center space-x-4'>
               <ThemeToggle />
               {isLoggedIn ? (
@@ -230,19 +321,32 @@ export default function Header() {
           </div>
           {isMenuOpen && (
             <div className='mt-4 md:hidden transition-all duration-300 ease-in-out'>
-              {navItems.map((item, index) => (
-                <Button
-                  key={index}
-                  variant='ghost'
-                  className='w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2'
-                  onClick={() => {
-                    scrollToSection(item.href)
-                    setIsMenuOpen(false)
-                  }}
-                >
-                  {item.name}
-                </Button>
-              ))}
+              {navItems.map((item) =>
+                item.type === 'route' ? (
+                  <Link key={item.name} to={item.href}>
+                    <Button
+                      variant='ghost'
+                      className={`w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2 ${
+                        activeNavItem === item.name ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
+                      }`}
+                      onClick={() => handleNavItemClick(item)}
+                    >
+                      {item.name}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={item.name}
+                    variant='ghost'
+                    className={`w-full text-left text-gray-900 dark:text-white hover:text-blue-400 transition-colors py-2 ${
+                      activeNavItem === item.name ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''
+                    }`}
+                    onClick={() => handleNavItemClick(item)}
+                  >
+                    {item.name}
+                  </Button>
+                )
+              )}
               {isLoggedIn ? (
                 <>
                   <Button
@@ -281,17 +385,23 @@ export default function Header() {
         </div>
       </header>
       {showScrollTop && (
-        <Button
-          variant='secondary'
-          size='icon'
-          className='fixed bottom-28 right-4 rounded-full shadow-lg z-50'
-          onClick={scrollToTop}
-        >
-          <ChevronUp className='h-6 w-6' />
-        </Button>
+        <div className='fixed bottom-44 right-8 group z-50'>
+          <button
+            onClick={scrollToTop}
+            className='relative bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white text-sm font-medium p-2 rounded-full shadow-md border border-white/20 w-10 h-10 flex items-center justify-center hover:from-blue-600 hover:via-green-600 hover:to-teal-600 transition-all duration-300'
+            aria-label='Quay về đầu trang'
+          >
+            <ChevronUp className='h-5 w-5' />
+            <div className='absolute right-full mr-3 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center justify-center opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200'>
+              <div className='relative bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg shadow-md border border-white/20 w-48 text-center'>
+                Quay về đầu trang
+                <div className='absolute left-full top-1/2 -translate-y-1/2 border-8 border-transparent border-r-blue-400'></div>
+              </div>
+            </div>
+          </button>
+        </div>
       )}
-
-      <div className='fixed bottom-4 right-4 flex flex-col items-end gap-3 z-50'>
+      <div className='fixed bottom-24 right-6 rounded-full shadow-lg z-50'>
         <MessengerButton />
         <Chatbox />
       </div>

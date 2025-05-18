@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
 import { Skeleton } from '@/components/ui/skeleton'
-
+import { ArrowRightIcon } from '@heroicons/react/24/outline'
 export function Vaccines() {
   const autoplayRef = useRef<NodeJS.Timeout | null>(null)
   const [viewportRef, embla] = useEmblaCarousel({
@@ -117,6 +117,11 @@ export function Vaccines() {
                   </div>
                 ))}
           </div>
+        </div>
+        <div className='flex justify-center mt-8'>
+          <Link to={path.list} className='text-green-600 hover:text-green-700 flex items-center gap-2'>
+            Xem Tất Cả <ArrowRightIcon className='w-4 h-4' />
+          </Link>
         </div>
       </div>
     </section>

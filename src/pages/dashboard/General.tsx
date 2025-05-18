@@ -145,12 +145,12 @@ const General: React.FC = () => {
   }, [])
 
   return (
-    <div className='flex flex-col gap-6 ml-[1cm] p-4'>
+    <div className='flex flex-col gap-6 p-4'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-2'>
           <h1 className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Thống kê tổng quan
+            Tổng quan
           </h1>
           <div className='flex items-center space-x-2'>
             <div className='flex items-center space-x-2'>

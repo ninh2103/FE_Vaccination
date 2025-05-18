@@ -1,6 +1,6 @@
 import LazyLoading from '@/components/common/lazy-loading'
 import Footer from '@/components/homepage/Footer'
-import Header from '@/components/homepage/Header'
+import Header from '@/pages/Header2/Header2'
 import React from 'react'
 
 interface IClientLayoutProps {

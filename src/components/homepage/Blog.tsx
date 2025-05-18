@@ -11,20 +11,20 @@ export default function Blog() {
   const displayedPosts = posts?.data.slice(0, 4) || []
 
   return (
-    <div className='mx-auto max-w-none px-5 sm:max-w-[90%] sm:px-0 2xl:max-w-8xl'>
+    <div className='mx-auto max-w-70% px-5 sm:max-w-[82%] sm:px-0 2xl:max-w-10xl'>
       <h2 className='text-balance text-3xl font-bold xl:text-center'>Bài Viết Mới Nhất</h2>
       <p className='text-gray-500 text-center'>Cập nhật tin tức và thông tin mới nhất từ chúng tôi</p>
       <div className='pt-6 lg:pt-8'>
         <div className='relative'>
           <Carousel>
-            <CarouselContent className='m-0 space-x-4 lg:space-x-6'>
+            <CarouselContent className='ml-2 grid grid-cols-1 gap-12 md:grid-cols-2 xl:grid-cols-4'>
               {displayedPosts.map((post) => {
                 return (
                   <CarouselItem key={post.id} className='p-0 sm:basis-1/2 md:basis-1/3 xl:basis-1/4'>
                     <Link to={`${path.blog}/${post.id}`}>
-                      <figure className='flex h-full flex-col  dark:border-green-500 rounded-lg shadow-lg p-8 border-2 border-green-500'>
+                      <figure className='flex h-full flex-col  dark:border-gray-300 rounded-lg shadow-lg p-8 border-2 border-gray-100'>
                         <div className='flex flex-col h-full'>
-                          <div className='flex items-center justify-between mb-4'>
+                          <div className='flex items-center justify-between mb-5'>
                             <span className='text-sm dark:text-white'>
                               {format(new Date(post.createdAt), 'dd/MM/yyyy')}
                             </span>
