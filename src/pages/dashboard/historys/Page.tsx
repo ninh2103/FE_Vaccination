@@ -101,7 +101,7 @@ const generateCertificateContent = (vaccination: Vaccination) => `
       </div>
       <div class="footer">
         <p>Chứng nhận này xác nhận rằng khách hàng đã nhận tiêm chủng được chỉ định.</p>
-        <p>Để biết thêm thông tin, vui lòng liên hệ: 1900 1900</p>
+        <p>Để biết thêm thông tin, vui lòng liên hệ: 0909 090 909</p>
       </div>
     </div>
     <script>window.onload = function() { window.print(); }</script>
@@ -134,17 +134,17 @@ const generateInvoicePDF = (vaccination: Vaccination) => {
   pdf
     .setFontSize(12)
     .setFont('times', 'normal')
-    .text(`Vaccine: ${vaccination.vaccine}`, 20, 105)
-    .text(`Dose Number: ${vaccination.doseNumber}`, 20, 113)
-    .text(`Date: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
-    .text(`Time: ${vaccination.time}`, 20, 129)
-    .text(`Location: ${vaccination.location || 'Đà Nẵng'}`, 20, 145)
+    .text(`Vắc xin: ${vaccination.vaccine}`, 20, 105)
+    .text(`Số liều: ${vaccination.doseNumber}`, 20, 113)
+    .text(`Ngày: ${format(new Date(vaccination.date), 'dd/MM/yyyy')}`, 20, 121)
+    .text(`Giờ: ${vaccination.time}`, 20, 129)
+    .text(`Địa điểm: ${vaccination.location || 'Đà Nẵng'}`, 20, 145)
 
   pdf
     .setFontSize(10)
     .setTextColor(100)
     .text('Chứng nhận xác nhận dịch vụ tiêm chủng đã cung cấp.', 105, 260, { align: 'center' })
-    .text('Để biết thêm thông tin, vui lòng liên hệ: 1900 1234', 105, 268, { align: 'center' })
+    .text('Để biết thêm thông tin, vui lòng liên hệ: 0909 090 909', 105, 268, { align: 'center' })
 
   pdf.setDrawColor(79, 70, 229).setLineWidth(1).circle(105, 200, 20)
   pdf.setFontSize(12).setTextColor(79, 70, 229).text('VERIFIED', 105, 203, { align: 'center' })

@@ -16,10 +16,11 @@ import { setAccessTokenToLS, setRefreshTokenToLS, setUserToLS } from '@/core/sha
 import { toast } from 'sonner'
 import { LoginResponse } from '@/models/interface/auth.interface'
 import { handleErrorApi } from '@/core/lib/utils'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = useState(false)
-  const { mutate: loginMutation } = useLoginMutation()
+  const { mutate: loginMutation, isPending } = useLoginMutation()
   const navigate = useNavigate()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -127,7 +128,7 @@ export default function FormLogin() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <Label htmlFor='password'>Password</Label>
+                    <Label htmlFor='password'>Mật khẩu</Label>
                     <FormControl>
                       <div className='relative'>
                         <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' size={20} />
@@ -154,8 +155,10 @@ export default function FormLogin() {
               <Button
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
+                disabled={isPending}
               >
-                Đăng nhập
+                {isPending ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+                {isPending ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </form>
           </Form>

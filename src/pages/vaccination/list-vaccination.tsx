@@ -134,7 +134,7 @@ export default function ListVaccination() {
 
   return (
     <div className='container mx-auto px-4 py-8 mt-12'>
-      <h1 className='text-3xl font-bold mb-6'>Danh sách vaccine</h1>
+      <h1 className='text-3xl font-bold mb-6'>Danh sách vắc xin</h1>
 
       {/* Search and Filter Section */}
       <div className='grid gap-4 mb-6 md:grid-cols-3'>
@@ -148,7 +148,7 @@ export default function ListVaccination() {
             <div className='relative w-full'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
               <Input
-                placeholder='Tìm kiếm vaccine...'
+                placeholder='Tìm kiếm vắc xin...'
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -181,7 +181,7 @@ export default function ListVaccination() {
             onClick={() => toggleSort('vaccineName')}
             className='flex-1 dark:text-white dark:bg-gray-900'
           >
-            Tên vaccine
+            Tên vắc xin
             {sortBy === 'vaccineName' &&
               (sortDirection === 'asc' ? (
                 <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />

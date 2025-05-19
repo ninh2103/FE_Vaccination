@@ -163,14 +163,14 @@ export default function PaymentsPage() {
     // Add header
     pdf.setFontSize(18)
     pdf.setFont('times', 'bold')
-    pdf.text('Công ty cổ phần Vaccine', pageWidth / 2, y, { align: 'center' })
+    pdf.text('Công ty cổ phần Vắc xin VAXBOT', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     pdf.setFontSize(12)
     pdf.setFont('times', 'normal')
     pdf.text(`Hóa đơn #${payment.id}`, pageWidth / 2, y, { align: 'center' })
     y += 5
-    pdf.text(`Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Ngày: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}`, pageWidth / 2, y, { align: 'center' })
     y += 10
 
     // Add line
@@ -181,13 +181,13 @@ export default function PaymentsPage() {
     // Add details
     pdf.setFontSize(12)
     pdf.setFont('times', 'bold')
-    pdf.text('Payment ID:', margin, y)
+    pdf.text('Mã thanh toán:', margin, y)
     pdf.setFont('times', 'normal')
     pdf.text(payment.id, margin + 30, y)
     y += 8
 
     pdf.setFont('times', 'bold')
-    pdf.text('Amount:', margin, y)
+    pdf.text('Số tiền:', margin, y)
     pdf.setFont('times', 'normal')
     pdf.text(formatCurrency(payment.amount), margin + 30, y)
     y += 8
@@ -211,9 +211,9 @@ export default function PaymentsPage() {
 
     pdf.setFontSize(10)
     pdf.setFont('times', 'normal')
-    pdf.text('Thank you for your payment!', pageWidth / 2, y, { align: 'center' })
+    pdf.text('Cảm ơn bạn đã thanh toán!', pageWidth / 2, y, { align: 'center' })
     y += 5
-    pdf.text(`Contact: ${payment.user.phone}`, pageWidth / 2, y, { align: 'center' })
+    pdf.text(`Liên hệ: ${payment.user.phone}`, pageWidth / 2, y, { align: 'center' })
     y += 5
     pdf.text(`VAXBOT © ${new Date().getFullYear()}`, pageWidth / 2, y, { align: 'center' })
 
@@ -270,9 +270,9 @@ export default function PaymentsPage() {
       <body>
         <div class="receipt">
           <div class="header">
-            <h2>Công ty cổ phần Vaccine</h2>
-            <p>Receipt #${payment.id}</p>
-            <p>Date: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}</p>
+            <h2>Công ty cổ phần Vắc xin VAXBOT</h2>
+            <p>Hóa đơn #${payment.id}</p>
+            <p>Ngày: ${format(new Date(payment.createdAt), 'dd/MM/yyyy')}</p>
           </div>
           <div class="details">
             <h4>Mã thanh toán</h4>
@@ -292,7 +292,7 @@ export default function PaymentsPage() {
           </div>
           <div class="footer">
             <p>Cảm ơn bạn đã thanh toán!</p>
-            <p>Công ty cổ phần Vaccine © ${new Date().getFullYear()}</p>
+            <p>Công ty cổ phần Vắc xin VAXBOT © ${new Date().getFullYear()}</p>
           </div>
         </div>
       </body>

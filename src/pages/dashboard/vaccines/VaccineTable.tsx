@@ -63,14 +63,14 @@ export default function VaccineTable({
     <Card>
       <CardContent className='p-0'>
         {sortedVaccines.length === 0 ? (
-          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy vaccine.</div>
+          <div className='p-4 text-center text-muted-foreground'>Không tìm thấy vắc xin.</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className='w-[60px]'>STT</TableHead>
                 <TableHead>Ảnh</TableHead>
-                <TableHead>Tên vaccine</TableHead>
+                <TableHead>Tên vắc xin</TableHead>
                 <TableHead>Mô tả</TableHead>
                 <TableHead>Danh mục</TableHead>
                 <TableHead>Giá (VND)</TableHead>
@@ -160,7 +160,7 @@ export default function VaccineTable({
       <Dialog open={openViewDialog} onOpenChange={setOpenViewDialog}>
         <DialogContent className='sm:max-w-[800px]'>
           <DialogHeader>
-            <DialogTitle>Xem chi tiết vaccine</DialogTitle>
+            <DialogTitle>Xem chi tiết vắc xin</DialogTitle>
           </DialogHeader>
           <div className='py-4'>
             {selectedVaccine && (

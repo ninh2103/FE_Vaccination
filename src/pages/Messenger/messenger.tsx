@@ -8,7 +8,7 @@ export default function MessengerButton() {
       onClick={handleMessengerClick}
       className='fixed bottom-14 right-4 w-10 h-10 rounded-full bg-[#0084FF] shadow-xl flex items-center justify-center z-40'
       aria-label='Messenger Chat'
-      title='Chat with us on Messenger'
+      title='Nhắn tin qua Fanpage'
     >
       <div className='bg-white w-7 h-7 rounded-full flex items-center justify-center'>
         <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='#0084FF'>

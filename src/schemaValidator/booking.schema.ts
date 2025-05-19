@@ -41,7 +41,7 @@ export const BookingBodySchema = z.object({
         return timeInMinutes >= 480 && timeInMinutes <= 1020
       },
       {
-        message: 'Giờ hẹn phải từ 8:00 AM đến 5:00 PM'
+        message: 'Giờ hẹn phải từ 8:00 đến 17:00'
       }
     )
     .refine(

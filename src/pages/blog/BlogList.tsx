@@ -72,7 +72,7 @@ const BlogList: React.FC = () => {
                       {post.tag?.name}
                     </Badge>
                     <span className='text-xs text-muted-foreground font-medium'>
-                      {post.createdAt ? format(new Date(post.createdAt), 'MMM d') : 'No date'}
+                      {post.createdAt ? format(new Date(post.createdAt), 'dd/MM/yyyy') : 'No date'}
                     </span>
                   </div>
                 </CardContent>

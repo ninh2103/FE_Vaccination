@@ -133,7 +133,7 @@ export default function VaccinesPage() {
           setOpenDeleteDialog(false)
           setSelectedVaccine(null)
           refetch()
-          toast.success('Vaccine đã được xóa thành công')
+          toast.success('Vắc xin đã được xóa thành công')
         },
         onError: (error) => {
           handleErrorApi({ error, setError: () => {}, duration: 3000 })
@@ -154,9 +154,9 @@ export default function VaccinesPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Vaccines
+            Vắc xin
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi vaccine trong hệ thống.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi vắc xin trong hệ thống.</p>
         </div>
       </div>
 
@@ -235,7 +235,7 @@ export default function VaccinesPage() {
       {allVaccines.length > 0 && (
         <div className='flex items-center justify-between px-2'>
           <div className='flex-1 text-sm text-muted-foreground'>
-            Hiển thị {startIndex} đến {endIndex} của {totalItems} vaccine
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} vắc xin
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -275,8 +275,8 @@ export default function VaccinesPage() {
       <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Thêm vaccine mới</DialogTitle>
-            <DialogDescription>Điền thông tin để thêm vaccine mới vào hệ thống.</DialogDescription>
+            <DialogTitle>Thêm vắc xin mới</DialogTitle>
+            <DialogDescription>Điền thông tin để thêm vắc xin mới vào hệ thống.</DialogDescription>
           </DialogHeader>
           <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
         </DialogContent>
@@ -289,9 +289,9 @@ export default function VaccinesPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Xóa vaccine</DialogTitle>
+            <DialogTitle>Xóa vắc xin</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa vaccine này? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa vắc xin này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>

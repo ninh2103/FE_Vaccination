@@ -14,6 +14,7 @@ import { RegisterBody, RegisterBodyType } from '@/schemaValidator/auth.schema'
 import { useRegisterMutation } from '@/queries/useAuth'
 import { toast } from 'sonner'
 import { handleErrorApi } from '@/core/lib/utils'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export default function FormRegister() {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ export default function FormRegister() {
     }
   })
 
-  const registerMutation = useRegisterMutation()
+  const { mutate: registerMutation, isPending } = useRegisterMutation()
 
   const handleSubmit = (body: RegisterBodyType) => {
     if (body.password !== body.confirmPassword) {
@@ -42,7 +43,7 @@ export default function FormRegister() {
       return
     }
 
-    registerMutation.mutate(body, {
+    registerMutation(body, {
       onSuccess: () => {
         form.reset()
         toast.success('Vào email lấy mã OTP xác thực tài khoản !')
@@ -202,8 +203,10 @@ export default function FormRegister() {
               <Button
                 type='submit'
                 className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600'
+                disabled={isPending}
               >
-                Tạo tài khoản
+                {isPending ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
+                {isPending ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
               </Button>
               <div className='text-sm text-center text-gray-400'>
                 Đã có tài khoản?{' '}

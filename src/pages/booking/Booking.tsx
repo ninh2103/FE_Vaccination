@@ -15,9 +15,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useCreatePaymentMutation } from '@/queries/useMomo'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Banknote, CreditCard, HandCoins, ArrowLeft } from 'lucide-react'
+import { Banknote, CreditCard, HandCoins, ArrowLeft, User, Users } from 'lucide-react'
 import { path } from '@/core/constants/path'
 import { UserBody, UserBodyType } from '@/schemaValidator/user.schema'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 const CheckOutPagePageMain = () => {
   const navigate = useNavigate()
@@ -27,11 +29,12 @@ const CheckOutPagePageMain = () => {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'MOMO' | 'CASH'>('MOMO')
+  const [bookingType, setBookingType] = useState<'self' | 'other'>('self')
   const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
-  const { mutate: createBooking } = useCreateBookingQuery()
+  const { mutate: createBooking, isPending: isCreateBookingPending } = useCreateBookingQuery()
   const { data: userDetail } = useDetailUserQuery(user?.id as string)
   const { mutate: createPayment } = useCreatePaymentMutation()
-  const { mutate: confirmBooking } = useConfirmBookingQuery()
+  const { mutate: confirmBooking, isPending: isConfirmBookingPending } = useConfirmBookingQuery()
   const form = useForm<BookingBodyType>({
     resolver: zodResolver(BookingBodySchema),
     defaultValues: {
@@ -152,116 +155,175 @@ const CheckOutPagePageMain = () => {
         <div className='lg:col-span-2'>
           <Card className='dark:bg-gray-900 h-full'>
             <CardContent className='p-6 space-y-6'>
-              {/* 👉 THÔNG TIN NGƯỜI TIÊM TÁCH KHỎI FORM */}
-              <div className='space-y-4'>
-                <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông Tin Người Tiêm</h2>
-                <div className='grid md:grid-cols-2 gap-6'>
-                  <div>
-                    <Label>
-                      Họ và tên <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      value={formUser.watch('fullName')}
-                      {...formUser.register('fullName')}
-                      placeholder='Họ và tên'
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
-                    />
-                  </div>
-                  <div>
-                    <Label>
-                      Mối quan hệ <span className='text-red-500'>*</span>
-                    </Label>
-                    <select
-                      value={formUser.watch('relationship')}
-                      {...formUser.register('relationship')}
-                      className='w-full border border-green-500 focus:border-green-400 focus:ring-green-400 dark:bg-gray-800 px-3 py-2  rounded-md'
-                    >
-                      <option value=''>Chọn mối quan hệ</option>
-                      <option value='parent'>Cha/Mẹ</option>
-                      <option value='child'>Con</option>
-                      <option value='sibling'>Anh/Chị/Em</option>
-                      <option value='other'>Khác</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label>
-                      Ngày sinh <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      type='date'
-                      value={formUser.watch('date_of_birth')}
-                      {...formUser.register('date_of_birth')}
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
-                    />
-                  </div>
-                  <div>
-                    <Label>
-                      Giới tính <span className='text-red-500'>*</span>
-                    </Label>
-                    <div className='flex items-center gap-4 mt-2'>
-                      <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
-                        <input
-                          type='radio'
-                          value='male'
-                          {...formUser.register('gender')}
-                          checked={formUser.watch('gender') === 'male'}
+              <Tabs
+                defaultValue='self'
+                value={bookingType}
+                onValueChange={(value) => setBookingType(value as 'self' | 'other')}
+              >
+                <TabsList className='grid w-full grid-cols-2'>
+                  <TabsTrigger value='self' className='flex items-center gap-2'>
+                    <User className='w-4 h-4' />
+                    Đặt cho bản thân
+                  </TabsTrigger>
+                  <TabsTrigger value='other' className='flex items-center gap-2'>
+                    <Users className='w-4 h-4' />
+                    Đặt hộ người khác
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value='other'>
+                  {/* 👉 THÔNG TIN NGƯỜI TIÊM TÁCH KHỎI FORM */}
+                  <div className='space-y-4'>
+                    <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông Tin Người Tiêm</h2>
+                    <div className='grid md:grid-cols-2 gap-6'>
+                      <div>
+                        <Label>
+                          Họ và tên <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          value={formUser.watch('fullName')}
+                          {...formUser.register('fullName')}
+                          placeholder='Họ và tên'
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
-                        Nam
-                      </label>
-                      <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
-                        <input
-                          type='radio'
-                          value='female'
-                          {...formUser.register('gender')}
-                          checked={formUser.watch('gender') === 'female'}
+                      </div>
+                      <div>
+                        <Label>
+                          Mối quan hệ <span className='text-red-500'>*</span>
+                        </Label>
+                        <select
+                          value={formUser.watch('relationship')}
+                          {...formUser.register('relationship')}
+                          className='w-full border border-green-500 focus:border-green-400 focus:ring-green-400 dark:bg-gray-800 px-3 py-2  rounded-md'
+                        >
+                          <option value=''>Chọn mối quan hệ</option>
+                          <option value='parent'>Cha/Mẹ</option>
+                          <option value='child'>Con</option>
+                          <option value='sibling'>Anh/Chị/Em</option>
+                          <option value='other'>Khác</option>
+                        </select>
+                      </div>
+                      <div>
+                        <Label>
+                          Ngày sinh <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          type='date'
+                          value={formUser.watch('date_of_birth')}
+                          {...formUser.register('date_of_birth')}
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
-                        Nữ
-                      </label>
+                      </div>
+                      <div>
+                        <Label>
+                          Giới tính <span className='text-red-500'>*</span>
+                        </Label>
+                        <div className='flex items-center gap-4 mt-2'>
+                          <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
+                            <input
+                              type='radio'
+                              value='male'
+                              {...formUser.register('gender')}
+                              checked={formUser.watch('gender') === 'male'}
+                            />
+                            Nam
+                          </label>
+                          <label className='flex items-center gap-2 text-gray-900 dark:text-white'>
+                            <input
+                              type='radio'
+                              value='female'
+                              {...formUser.register('gender')}
+                              checked={formUser.watch('gender') === 'female'}
+                            />
+                            Nữ
+                          </label>
+                        </div>
+                      </div>
+                      <div>
+                        <Label>
+                          Số điện thoại <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          type='tel'
+                          value={formUser.watch('phone')}
+                          {...formUser.register('phone')}
+                          placeholder='Số điện thoại'
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                        {formUser.formState.errors.phone && (
+                          <p className='text-red-500 text-sm'>{formUser.formState.errors.phone.message}</p>
+                        )}
+                        <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                          Nếu người được tiêm chưa có SĐT, vui lòng điền SĐT của cha/mẹ hoặc người giám hộ.
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label>Email</Label>
+                        <Input
+                          type='email'
+                          value={formUser.watch('email')}
+                          {...formUser.register('email')}
+                          placeholder='Email'
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
+
+                      <div className='md:col-span-2'>
+                        <Label>
+                          Địa chỉ <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          value={formUser.watch('address')}
+                          {...formUser.register('address')}
+                          placeholder='Số nhà, tên đường (Theo hộ khẩu/CMND)'
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <Label>
-                      Số điện thoại <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      type='tel'
-                      value={formUser.watch('phone')}
-                      {...formUser.register('phone')}
-                      placeholder='Số điện thoại'
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
-                    />
-                    {formUser.formState.errors.phone && (
-                      <p className='text-red-500 text-sm'>{formUser.formState.errors.phone.message}</p>
-                    )}
-                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                      Nếu người được tiêm chưa có SĐT, vui lòng điền SĐT của cha/mẹ hoặc người giám hộ.
-                    </p>
-                  </div>
+                </TabsContent>
 
-                  <div>
-                    <Label>Email</Label>
-                    <Input
-                      type='email'
-                      value={formUser.watch('email')}
-                      {...formUser.register('email')}
-                      placeholder='Email'
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
-                    />
+                <TabsContent value='self'>
+                  <div className='space-y-4'>
+                    <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>Thông Tin Cá Nhân</h2>
+                    <div className='grid md:grid-cols-2 gap-6'>
+                      <div>
+                        <Label>Họ và tên</Label>
+                        <Input
+                          value={userDetail?.name}
+                          disabled
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
+                      <div>
+                        <Label>Số điện thoại</Label>
+                        <Input
+                          value={userDetail?.phone as string}
+                          disabled
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
+                      <div>
+                        <Label>Email</Label>
+                        <Input
+                          value={userDetail?.email}
+                          disabled
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
+                      <div>
+                        <Label>Địa chỉ</Label>
+                        <Input
+                          value={userDetail?.address as string}
+                          disabled
+                          className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
+                        />
+                      </div>
+                    </div>
                   </div>
-
-                  <div className='md:col-span-2'>
-                    <Label>
-                      Địa chỉ <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      value={formUser.watch('address')}
-                      {...formUser.register('address')}
-                      placeholder='Số nhà, tên đường (Theo hộ khẩu/CMND)'
-                      className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
-                    />
-                  </div>
-                </div>
-              </div>
+                </TabsContent>
+              </Tabs>
 
               <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>
                 <h2 className='text-xl font-semibold text-gray-900 dark:text-white'> Chọn Thời Gian Mong Muốn Tiêm </h2>
@@ -342,8 +404,18 @@ const CheckOutPagePageMain = () => {
                 <Button
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
+                  disabled={isCreateBookingPending || isConfirmBookingPending}
                 >
-                  Xác nhận đặt lịch tiêm
+                  {isCreateBookingPending || isConfirmBookingPending ? (
+                    <>
+                      <LoadingSpinner className='mr-2 h-4 w-4' />
+                      Đang xử lý...
+                    </>
+                  ) : bookingType === 'self' ? (
+                    'Xác nhận đặt lịch tiêm'
+                  ) : (
+                    'Xác nhận đặt lịch tiêm'
+                  )}
                 </Button>
               </form>
             </CardContent>
