@@ -4,22 +4,27 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { PhoneIcon, EnvelopeIcon, CalendarIcon } from '@heroicons/react/24/solid'
-import { useState, useRef, FormEvent } from 'react'
+import { useRef } from 'react'
 import emailjs from '@emailjs/browser'
 import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
+import { ContactBody, ContactBodyType } from '@/schemaValidator/auth.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function ContactSection() {
   const formRef = useRef<HTMLFormElement>(null)
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    time: '',
-    message: ''
+  const form = useForm<ContactBodyType>({
+    resolver: zodResolver(ContactBody),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      message: ''
+    }
   })
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (!formRef.current) return
 
     emailjs
@@ -31,25 +36,12 @@ export default function ContactSection() {
       )
       .then(() => {
         toast.success(`Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ liên lạc với bạn sớm nhất có thể.`)
-        setFormData({
-          name: '',
-          email: '',
-          time: '',
-          message: ''
-        })
+        form.reset()
       })
       .catch((error) => {
         toast.error('Gửi yêu cầu không thành công. Vui lòng thử lại.')
         throw error
       })
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }))
   }
 
   return (
@@ -83,42 +75,64 @@ export default function ContactSection() {
               </div>
             </div>
             <div className='col-span-4 mt-8 md:mt-0 md:px-10'>
-              <form ref={formRef} onSubmit={handleSubmit}>
+              <form ref={formRef} onSubmit={form.handleSubmit(handleSubmit)}>
                 <div className='grid gap-4'>
                   <div>
-                    <Label>Họ và tên</Label>
+                    <Label>Họ và tên *</Label>
                     <Input
-                      name='name'
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder='Ví dụ: John Doe'
-                      required
+                      {...form.register('name')}
+                      placeholder='Ví dụ: Vaxbot'
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.name ? 'border-red-500' : ''
+                      }`}
                     />
+                    {form.formState.errors.name && (
+                      <p className='text-red-500 text-sm'>{form.formState.errors.name.message}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Email</Label>
+                    <Label>Email (tùy chọn)</Label>
                     <Input
-                      name='email'
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder='Ví dụ: john.doe@mail.com'
+                      {...form.register('email')}
+                      placeholder='Ví dụ: vaxbot@gmail.com'
                       type='email'
-                      required
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.email ? 'border-red-500' : ''
+                      }`}
                     />
+                    {form.formState.errors.email && (
+                      <p className='text-red-500 text-sm'>{form.formState.errors.email.message}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Ngày</Label>
-                    <Input name='time' value={formData.time} onChange={handleChange} type='date' required />
+                    <Label>Số điện thoại *</Label>
+                    <Input
+                      {...form.register('phone')}
+                      placeholder='Ví dụ: 0909090909'
+                      type='number'
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/[^0-9]/g, '')
+                      }}
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.phone ? 'border-red-500' : ''
+                      }`}
+                    />
+                    {form.formState.errors.phone && (
+                      <p className='text-red-500 text-sm'>{form.formState.errors.phone.message}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Lời nhắn</Label>
+                    <Label>Lời nhắn *</Label>
                     <Textarea
-                      name='message'
-                      value={formData.message}
-                      onChange={handleChange}
+                      {...form.register('message')}
                       placeholder='Ví dụ: Tôi muốn tiêm Pfizer. Vui lòng liên hệ tôi vào buổi chiều.'
-                      required
+                      className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
+                        form.formState.errors.message ? 'border-red-500' : ''
+                      }`}
                     />
+                    {form.formState.errors.message && (
+                      <p className='text-red-500 text-sm'>{form.formState.errors.message.message}</p>
+                    )}
                   </div>
                 </div>
                 <div className='mt-6 flex justify-end'>

@@ -67,7 +67,6 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
     defaultValues: {
       vaccinationId: '',
       userId: '',
-      vaccinationQuantity: 1,
       appointmentDate: new Date()
     }
   })
@@ -77,10 +76,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
       toast.error('Vacxin này đã hết hàng')
       return
     }
-    if (data.vaccinationQuantity > selectedVaccine?.remainingQuantity) {
-      toast.error(`Số lượng tối đa có thể là ${selectedVaccine?.remainingQuantity}`)
-      return
-    }
+
     createBookingAdmin(data, {
       onSuccess: () => {
         toast.success('Đã tạo đơn hàng thành công')
@@ -111,21 +107,9 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
     form.setValue('vaccinationId', value)
   }
 
-  const handleQuantityChange = (value: string) => {
-    const quantity = parseInt(value)
-    if (selectedVaccine?.remainingQuantity === 0) {
-      toast.error('Vacxin này đã hết hàng')
-      return
-    }
-    if (quantity > selectedVaccine?.remainingQuantity) {
-      toast.error(`Số lượng tối đa có thể là ${selectedVaccine?.remainingQuantity}`)
-      return
-    }
-    form.setValue('vaccinationQuantity', quantity)
-  }
-
-  // lấy ngày hôm sau hoặc ngày hiện tại
   const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
 
   return (
     <DialogContent className='sm:max-w-[550px]'>
@@ -200,25 +184,6 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
         </div>
 
         <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='quantity'>Số lượng *</Label>
-            <Input
-              id='quantity'
-              type='number'
-              min={1}
-              max={selectedVaccine?.remainingQuantity}
-              value={form.watch('vaccinationQuantity')}
-              onChange={(e) => handleQuantityChange(e.target.value)}
-              disabled={!selectedVaccineId || selectedVaccine?.remainingQuantity === 0}
-            />
-            {form.formState.errors.vaccinationQuantity && (
-              <p className='text-red-500 text-sm'>{form.formState.errors.vaccinationQuantity.message}</p>
-            )}
-            {selectedVaccine && (
-              <p className='text-xs text-muted-foreground'>Còn lại: {selectedVaccine.remainingQuantity} liều</p>
-            )}
-          </div>
-
           <div className='space-y-2'>
             <Label htmlFor='appointment-date'>Ngày hẹn *</Label>
             <Input

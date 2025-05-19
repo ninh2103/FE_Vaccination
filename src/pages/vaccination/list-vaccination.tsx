@@ -24,7 +24,7 @@ export default function ListVaccination() {
   const itemsPerPage = 9
   const { data: vaccinationList, isLoading } = useListVaccinationQuery({
     page: 1,
-    items_per_page: 10
+    items_per_page: 100
   })
   const { data: categories } = useListCategoryQuery()
 
@@ -134,7 +134,7 @@ export default function ListVaccination() {
 
   return (
     <div className='container mx-auto px-4 py-8 mt-12'>
-      <h1 className='text-3xl font-bold mb-6'>Danh sách vaccine</h1>
+      <h1 className='text-3xl font-bold mb-6'>Danh sách vắc xin</h1>
 
       {/* Search and Filter Section */}
       <div className='grid gap-4 mb-6 md:grid-cols-3'>
@@ -148,7 +148,7 @@ export default function ListVaccination() {
             <div className='relative w-full'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500' />
               <Input
-                placeholder='Tìm kiếm vaccine...'
+                placeholder='Tìm kiếm vắc xin...'
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -181,7 +181,7 @@ export default function ListVaccination() {
             onClick={() => toggleSort('vaccineName')}
             className='flex-1 dark:text-white dark:bg-gray-900'
           >
-            Tên vaccine
+            Tên vắc xin
             {sortBy === 'vaccineName' &&
               (sortDirection === 'asc' ? (
                 <ChevronUp className='ml-1 h-4 w-4 dark:text-white' />
@@ -303,10 +303,16 @@ export default function ListVaccination() {
               {currentPage > 3 && <span className='px-2'>...</span>}
 
               {/* Show pages around current page */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = Math.max(2, Math.min(currentPage - 2 + i, totalPages - 1))
-                if (page === 1 || page === totalPages) return null
-                return (
+              {(() => {
+                const pages = new Set<number>()
+                const startPage = Math.max(2, currentPage - 2)
+                const endPage = Math.min(totalPages - 1, currentPage + 2)
+
+                for (let page = startPage; page <= endPage; page++) {
+                  pages.add(page)
+                }
+
+                return Array.from(pages).map((page) => (
                   <Button
                     key={page}
                     variant={currentPage === page ? 'default' : 'outline'}
@@ -316,8 +322,8 @@ export default function ListVaccination() {
                   >
                     {page}
                   </Button>
-                )
-              })}
+                ))
+              })()}
 
               {/* Show ellipsis if needed */}
               {currentPage < totalPages - 2 && <span className='px-2'>...</span>}

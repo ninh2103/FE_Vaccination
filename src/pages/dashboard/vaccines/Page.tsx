@@ -35,7 +35,7 @@ export default function VaccinesPage() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set())
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineType | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [vaccines, setVaccines] = useState<VaccineType[]>([])
+  const [allVaccines, setAllVaccines] = useState<VaccineType[]>([])
   const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
@@ -52,34 +52,37 @@ export default function VaccinesPage() {
     isLoading
   } = useListVaccinationQuery({
     search: debouncedSearchTerm,
-    page: currentPage,
-    items_per_page: ITEMS_PER_PAGE
+    items_per_page: 1000
   })
 
   const { mutate: deleteVaccine, isPending: isDeletingVaccine } = useDeleteVaccinationQuery()
   const { data: categories } = useListCategoryQuery()
 
-  // Filter vaccines by category on the frontend
+  // Filter vaccines by category and search term
   useEffect(() => {
     if (vaccineData?.data) {
       let filteredVaccines = vaccineData.data
 
-      // Apply tag filter if a specific tag is selected
+      // Apply category filter if a specific category is selected
       if (selectedCategory !== 'all') {
         filteredVaccines = filteredVaccines.filter((vaccine) => vaccine.categoryVaccinationId === selectedCategory)
       }
 
-      setVaccines(filteredVaccines)
+      setAllVaccines(filteredVaccines)
+      // Reset to first page when filters change
+      setCurrentPage(1)
     }
   }, [vaccineData?.data, selectedCategory])
 
   // Get current page items
   const currentPageVaccines = useMemo(() => {
-    return vaccines
-  }, [vaccines])
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    return allVaccines.slice(startIndex, endIndex)
+  }, [allVaccines, currentPage])
 
-  const totalPages = Math.max(1, Math.ceil((vaccineData?.total ?? 0) / ITEMS_PER_PAGE))
-  const totalItems = vaccineData?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(allVaccines.length / ITEMS_PER_PAGE))
+  const totalItems = allVaccines.length
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems)
 
@@ -130,7 +133,7 @@ export default function VaccinesPage() {
           setOpenDeleteDialog(false)
           setSelectedVaccine(null)
           refetch()
-          toast.success('Vaccine đã được xóa thành công')
+          toast.success('Vắc xin đã được xóa thành công')
         },
         onError: (error) => {
           handleErrorApi({ error, setError: () => {}, duration: 3000 })
@@ -151,9 +154,9 @@ export default function VaccinesPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-green-500 to-teal-500'>
-            Vaccines
+            Vắc xin
           </h1>
-          <p className='text-muted-foreground'>Quản lý và theo dõi vaccine trong hệ thống.</p>
+          <p className='text-muted-foreground'>Quản lý và theo dõi vắc xin trong hệ thống.</p>
         </div>
       </div>
 
@@ -229,10 +232,10 @@ export default function VaccinesPage() {
       />
 
       {/* Pagination */}
-      {vaccines.length > 0 && (
+      {allVaccines.length > 0 && (
         <div className='flex items-center justify-between px-2'>
           <div className='flex-1 text-sm text-muted-foreground'>
-            Hiển thị {startIndex} đến {endIndex} của {totalItems} vaccine
+            Hiển thị {startIndex} đến {endIndex} của {totalItems} vắc xin
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -272,8 +275,8 @@ export default function VaccinesPage() {
       <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Thêm vaccine mới</DialogTitle>
-            <DialogDescription>Điền thông tin để thêm vaccine mới vào hệ thống.</DialogDescription>
+            <DialogTitle>Thêm vắc xin mới</DialogTitle>
+            <DialogDescription>Điền thông tin để thêm vắc xin mới vào hệ thống.</DialogDescription>
           </DialogHeader>
           <AddVaccine open={openAddDialog} onOpenChange={setOpenAddDialog} />
         </DialogContent>
@@ -286,9 +289,9 @@ export default function VaccinesPage() {
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Xóa vaccine</DialogTitle>
+            <DialogTitle>Xóa vắc xin</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa vaccine này? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa vắc xin này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className='py-4'>

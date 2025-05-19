@@ -124,9 +124,9 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
           <TableRow>
             <TableHead className='w-[60px]'>STT</TableHead>
             <TableHead>Khách hàng</TableHead>
-            <TableHead>Vaccine</TableHead>
-            <TableHead>Ngày</TableHead>
-            <TableHead>Giờ</TableHead>
+            <TableHead>Vắc xin</TableHead>
+            <TableHead>Ngày hẹn</TableHead>
+            <TableHead>Giờ hẹn</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead className='w-[80px]'>Hành động</TableHead>
           </TableRow>

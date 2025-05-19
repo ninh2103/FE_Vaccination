@@ -149,3 +149,30 @@ export const RefreshTokenBody = z.object({
 })
 
 export type RefreshTokenBodyType = z.TypeOf<typeof RefreshTokenBody>
+
+export const ContactBody = z.object({
+  name: z
+    .string()
+    .min(2, { message: 'Tên là bắt buộc' })
+    .regex(/^[A-Za-zÀ-ỹ\s]+$/, 'Tên chỉ được chứa chữ cái')
+    .refine((value) => value.trim().length > 0, {
+      message: 'Tên không được chỉ chứa khoảng trắng'
+    }),
+  email: z.string().optional(),
+  phone: z
+    .string({ message: 'Số điện thoại là bắt buộc' })
+    .min(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+    .max(10, 'Số điện thoại là bắt buộc và phải có 10 số')
+    .regex(/^\d{10}$/, { message: 'Số điện thoại phải là số' })
+    .refine((value) => value.trim().length > 0, {
+      message: 'Số điện thoại không được chỉ chứa khoảng trắng'
+    }),
+  message: z
+    .string()
+    .min(2, { message: 'Lời nhắn là bắt buộc' })
+    .refine((value) => value.trim().length > 0, {
+      message: 'Lời nhắn không được chỉ chứa khoảng trắng'
+    })
+})
+
+export type ContactBodyType = z.TypeOf<typeof ContactBody>

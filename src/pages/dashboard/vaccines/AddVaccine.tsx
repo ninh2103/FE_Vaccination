@@ -72,7 +72,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
       }
       await createVaccination(body, {
         onSuccess: () => {
-          toast.success('Vaccine đã được tạo thành công!')
+          toast.success('Vắc xin đã được tạo thành công!')
           onOpenChange(false)
           form.reset()
         },
@@ -96,8 +96,8 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
         <DialogHeader>
-          <DialogTitle>Thêm vaccine mới</DialogTitle>
-          <DialogDescription>Nhập thông tin cho vaccine mới dưới đây.</DialogDescription>
+          <DialogTitle>Thêm vắc xin mới</DialogTitle>
+          <DialogDescription>Nhập thông tin cho vắc xin mới dưới đây.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
           <div className='grid grid-cols-3 gap-4'>
@@ -106,7 +106,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               <Input
                 id='vaccineName'
                 {...form.register('vaccineName')}
-                placeholder='e.g., Vaccine COVID-19'
+                placeholder='e.g., Vắc xin COVID-19'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.vaccineName ? 'border-red-500' : ''
                 }`}
@@ -158,7 +158,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='categoryVaccinationId'>Danh mục vaccine *</Label>
+              <Label htmlFor='categoryVaccinationId'>Danh mục vắc xin *</Label>
               <Select
                 value={form.watch('categoryVaccinationId')}
                 onValueChange={(value) => form.setValue('categoryVaccinationId', value)}
@@ -171,7 +171,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                   <span className='block max-w-[250px] truncate'>
                     {categoryVaccinationData?.data.find(
                       (category) => category.id === form.watch('categoryVaccinationId')
-                    )?.name || 'Chọn danh mục vaccine'}
+                    )?.name || 'Chọn danh mục vắc xin'}
                   </span>
                 </SelectTrigger>
 
@@ -188,7 +188,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='manufacturerId'>Nhà sản xuất vaccine *</Label>
+              <Label htmlFor='manufacturerId'>Nhà sản xuất vắc xin *</Label>
               <Select
                 value={form.watch('manufacturerId')}
                 onValueChange={(value) => form.setValue('manufacturerId', value)}
@@ -214,7 +214,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='supplierId'>Nhà cung cấp vaccine *</Label>
+              <Label htmlFor='supplierId'>Nhà cung cấp vắc xin *</Label>
               <Select value={form.watch('supplierId')} onValueChange={(value) => form.setValue('supplierId', value)}>
                 <SelectTrigger
                   className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
@@ -240,7 +240,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='certificate'>Chứng chỉ vaccine *</Label>
+              <Label htmlFor='certificate'>Chứng chỉ vắc xin *</Label>
               <Input
                 id='certificate'
                 {...form.register('certificate')}
@@ -254,7 +254,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='batchNumber'>Số lô vaccine *</Label>
+              <Label htmlFor='batchNumber'>Số lô vắc xin *</Label>
               <Input
                 id='batchNumber'
                 {...form.register('batchNumber')}
@@ -268,7 +268,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='remainingQuantity'>Số lượng vaccine *</Label>
+              <Label htmlFor='remainingQuantity'>Số lượng vắc xin *</Label>
               <Input
                 id='remainingQuantity'
                 type='number'
@@ -344,7 +344,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='e.g., Mô tả vaccine'
+              placeholder='e.g., Mô tả vắc xin'
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                 form.formState.errors.description ? 'border-red-500' : ''
               }`}
@@ -359,7 +359,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
             </Button>
             <Button type='submit' disabled={isCreating}>
               {isCreating ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isCreating ? 'Đang lưu...' : 'Lưu vaccine'}
+              {isCreating ? 'Đang lưu...' : 'Lưu vắc xin'}
             </Button>
           </DialogFooter>
         </form>

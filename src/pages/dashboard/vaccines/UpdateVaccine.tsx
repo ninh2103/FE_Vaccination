@@ -137,17 +137,17 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[1000px]'>
         <DialogHeader>
-          <DialogTitle>Cập nhật vaccine</DialogTitle>
-          <DialogDescription>Cập nhật thông tin cho vaccine đã chọn.</DialogDescription>
+          <DialogTitle>Cập nhật vắc xin</DialogTitle>
+          <DialogDescription>Cập nhật thông tin cho vắc xin đã chọn.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4 max-h-[80vh] overflow-y-auto'>
           <div className='grid grid-cols-3 gap-4'>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='vaccineName'>Tên vaccine *</Label>
+              <Label htmlFor='vaccineName'>Tên vắc xin *</Label>
               <Input
                 id='vaccineName'
                 {...form.register('vaccineName')}
-                placeholder='e.g., Vaccine COVID-19'
+                placeholder='e.g., Vắc xin COVID-19'
                 className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                   form.formState.errors.vaccineName ? 'border-red-500' : ''
                 }`}
@@ -199,7 +199,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='categoryVaccinationId'>Danh mục vaccine *</Label>
+              <Label htmlFor='categoryVaccinationId'>Danh mục vắc xin *</Label>
               <Select
                 value={form.watch('categoryVaccinationId')}
                 onValueChange={(value) => form.setValue('categoryVaccinationId', value)}
@@ -225,7 +225,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='manufacturerId'>Nhà sản xuất vaccine *</Label>
+              <Label htmlFor='manufacturerId'>Nhà sản xuất vắc xin *</Label>
               <Select
                 value={form.watch('manufacturerId')}
                 onValueChange={(value) => form.setValue('manufacturerId', value)}
@@ -251,7 +251,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='supplierId'>Nhà cung cấp vaccine *</Label>
+              <Label htmlFor='supplierId'>Nhà cung cấp vắc xin *</Label>
               <Select value={form.watch('supplierId')} onValueChange={(value) => form.setValue('supplierId', value)}>
                 <SelectTrigger
                   className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
@@ -275,7 +275,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
             </div>
 
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='certificate'>Chứng chỉ vaccine *</Label>
+              <Label htmlFor='certificate'>Chứng chỉ vắc xin *</Label>
               <Input
                 id='certificate'
                 {...form.register('certificate')}
@@ -289,7 +289,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='batchNumber'>Số lô vaccine *</Label>
+              <Label htmlFor='batchNumber'>Số lô vắc xin *</Label>
               <Input
                 id='batchNumber'
                 {...form.register('batchNumber')}
@@ -303,7 +303,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
               )}
             </div>
             <div className='flex flex-col gap-2'>
-              <Label htmlFor='remainingQuantity'>Số lượng vaccine *</Label>
+              <Label htmlFor='remainingQuantity'>Số lượng vắc xin *</Label>
               <Input
                 id='remainingQuantity'
                 type='number'
@@ -377,7 +377,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
             <Textarea
               id='description'
               {...form.register('description')}
-              placeholder='e.g., Mô tả vaccine'
+              placeholder='e.g., Mô tả vắc xin'
               className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400 ${
                 form.formState.errors.description ? 'border-red-500' : ''
               }`}
@@ -392,7 +392,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
             </Button>
             <Button type='submit' disabled={isLoading}>
               {isLoading ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
-              {isLoading ? 'Đang cập nhật...' : 'Cập nhật vaccine'}
+              {isLoading ? 'Đang cập nhật...' : 'Cập nhật vắc xin'}
             </Button>
           </DialogFooter>
         </form>

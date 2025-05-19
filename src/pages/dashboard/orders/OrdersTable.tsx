@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import { Trash, Calendar, Mail, Clock, Package } from 'lucide-react'
+import { Trash, Calendar, Mail, Clock, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -93,7 +93,7 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
               <TableHead>Số lượng</TableHead>
               <TableHead>Giá</TableHead>
               <TableHead>Tổng tiền</TableHead>
-              <TableHead>Ngày</TableHead>
+              <TableHead>Ngày hẹn</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead className=' text-center'>Hành động</TableHead>
             </TableRow>
@@ -158,7 +158,7 @@ export function OrdersTable({ onDeleteOrder, currentPage, itemsPerPage, bookings
                   <h4 className='text-sm font-medium text-muted-foreground'>Thông tin khách hàng</h4>
                   <div className='mt-2 space-y-2'>
                     <div className='flex items-center gap-2'>
-                      <Mail className='h-4 w-4 text-muted-foreground' />
+                      <User className='h-4 w-4 text-muted-foreground' />
                       <span>{selectedOrder.user.name}</span>
                     </div>
                     <div className='flex items-center gap-2'>

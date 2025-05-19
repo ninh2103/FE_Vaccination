@@ -39,11 +39,7 @@ export default function useRoutesElements() {
     [
       {
         path: path.home,
-        element: (
-          <ProtectedRoute>
-            <HomePage />
-          </ProtectedRoute>
-        )
+        element: <HomePage />
       },
       { path: path.login, element: <Login /> },
       { path: path.register, element: <Register /> },
@@ -165,28 +161,18 @@ export default function useRoutesElements() {
       {
         path: path.blog,
         element: (
-          <ProtectedRoute>
-            <LayoutClient>
-              <BlogLayout />
-            </LayoutClient>
-          </ProtectedRoute>
+          <LayoutClient>
+            <BlogLayout />
+          </LayoutClient>
         ),
         children: [
           {
             path: ':id',
-            element: (
-              <ProtectedRoute>
-                <BlogDetails />
-              </ProtectedRoute>
-            )
+            element: <BlogDetails />
           },
           {
             path: '',
-            element: (
-              <ProtectedRoute>
-                <BlogDetails />
-              </ProtectedRoute>
-            )
+            element: <BlogDetails />
           }
         ]
       },
@@ -223,21 +209,17 @@ export default function useRoutesElements() {
       {
         path: path.list,
         element: (
-          <ProtectedRoute>
-            <LayoutClient>
-              <ListVaccination />
-            </LayoutClient>
-          </ProtectedRoute>
+          <LayoutClient>
+            <ListVaccination />
+          </LayoutClient>
         )
       },
       {
         path: path.detail,
         element: (
-          <ProtectedRoute>
-            <LayoutClient>
-              <VaccineDetail />
-            </LayoutClient>
-          </ProtectedRoute>
+          <LayoutClient>
+            <VaccineDetail />
+          </LayoutClient>
         )
       },
 
@@ -254,11 +236,7 @@ export default function useRoutesElements() {
 
       {
         path: path.introduce,
-        element: (
-          <ProtectedRoute>
-            <ServiceIntro />
-          </ProtectedRoute>
-        )
+        element: <ServiceIntro />
       },
       { path: '*', element: <PageNotFound /> }
     ],
