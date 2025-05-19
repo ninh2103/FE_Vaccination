@@ -1,4 +1,9 @@
-export const trainingData = [
+export interface TrainingItem {
+  question: string
+  answer: string
+}
+
+export const trainingData: TrainingItem[] = [
   {
     question: 'Địa chỉ của trung tâm ',
     answer: 'Trung tâm tiêm chủng VAXBOT có địa chỉ tại 120 Hoàng Minh Thảo, Thành phố Đà Nẵng '
@@ -9,7 +14,7 @@ export const trainingData = [
   },
   {
     question: 'Thời gian làm việc',
-    answer: '- Từ 08h00 đến 19h00 (thứ 2 đến thứ 6) '
+    answer: '- Từ 08h00 đến 17h00 (thứ 2 đến thứ 6) '
   },
   {
     question: 'Vắc-xin nào cần thiết cho trẻ sơ sinh?',
@@ -1471,49 +1476,65 @@ export const trainingData = [
     answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Viêm não Nhật Bản** (nếu đi khu vực nguy cơ cao).'
   },
   {
-    question: 'Vắc-xin nào cần tiêm khi đi Singapore?',
-    answer: '- **Viêm gan A**.\n- **Cúm**.\n- **Td** (nhắc lại nếu cần).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm khi đi Malaysia?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Viêm não Nhật Bản** (nếu đi khu vực nguy cơ cao).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm khi đi Indonesia?',
+    question: 'Vắc-xin nào cần tiêm khi đi Ấn Độ?',
     answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Sốt vàng** (nếu đi qua khu vực có nguy cơ).'
   },
   {
-    question: 'Vắc-xin nào cần tiêm khi đi Philippines?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Viêm não Nhật Bản** (nếu đi khu vực nguy cơ cao).'
+    question: 'Vắc-xin nào cần tiêm khi đi Úc?',
+    answer: '- **Cúm**.\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại nếu cần).'
   },
   {
-    question: 'Vắc-xin nào cần tiêm khi đi Trung Quốc?',
+    question: 'Vắc-xin nào cần tiêm khi đi Nhật Bản?',
     answer: '- **Viêm gan A**.\n- **Viêm não Nhật Bản**.\n- **Cúm** (đặc biệt vào mùa đông).'
   },
   {
-    question: 'Vắc-xin nào cần tiêm khi đi Nga?',
+    question: 'Vắc-xin nào cần tiêm khi đi Hàn Quốc?',
+    answer: '- **Viêm gan A**.\n- **Cúm** (vào mùa đông).\n- **Td** (nhắc lại nếu cần).'
+  },
+  {
+    question: 'Vắc-xin nào cần tiêm khi đi châu Âu?',
+    answer: '- **Cúm**.\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại mỗi 10 năm).'
+  },
+  {
+    question: 'Vắc-xin nào cần tiêm khi đi Trung Đông?',
+    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Viêm màng não** (đặc biệt nếu đi hành hương).'
+  },
+  {
+    question: 'Vắc-xin nào cần tiêm khi đi Nam Phi?',
+    answer: '- **Sốt vàng**.\n- **Viêm gan A**.\n- **Thương hàn**.'
+  },
+  {
+    question: 'Vắc-xin nào cần tiêm khi đi Brazil?',
+    answer: '- **Sốt vàng**.\n- **Viêm gan A**.\n- **Thương hàn**.'
+  },
+  {
+    question: 'Vắc-xin nào cần tiêm khi đi Canada?',
     answer: '- **Cúm** (vào mùa đông).\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại nếu cần).'
   },
-  {
-    question: 'Vắc-xin nào cần tiêm khi đi Ai Cập?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Sốt vàng** (nếu đi qua khu vực có nguy cơ).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm khi đi Mexico?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Sốt vàng** (nếu đi qua khu vực có nguy cơ).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm khi đi Argentina?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Sốt vàng** (nếu đi khu vực có nguy cơ).'
-  },
 
-  // Nhóm 10: Câu hỏi về xét nghiệm và ảnh hưởng
+  // Nhóm 10: Câu hỏi khác
   {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng phổi không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng phổi.'
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm nước tiểu không?',
+    answer: 'Không đáng kể, nhưng nên đợi 1-2 ngày sau tiêm để xét nghiệm nước tiểu cho chính xác.'
   },
   {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tim không?',
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả chụp X-quang không?',
+    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả chụp X-quang.'
+  },
+  {
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả nội soi không?',
+    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả nội soi.'
+  },
+  {
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả siêu âm không?',
+    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả siêu âm.'
+  },
+  {
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm HIV không?',
+    answer: 'Không, nhưng nên đợi 1-2 ngày sau tiêm để tránh nhiễu kết quả do phản ứng miễn dịch.'
+  },
+  {
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng gan không?',
     answer: 'Không đáng kể, nhưng nên đợi 1-2 ngày sau tiêm để kết quả chính xác hơn.'
   },
   {
@@ -1521,301 +1542,66 @@ export const trainingData = [
     answer: 'Không đáng kể, nhưng nên đợi 1-2 ngày sau tiêm để kết quả chính xác hơn.'
   },
   {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng gan không?',
-    answer: 'Không đáng kể, nhưng nên đợi 1-2 ngày sau tiêm để kết quả chính xác hơn.'
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm mỡ máu không?',
+    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm mỡ máu.'
+  },
+  {
+    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm đường huyết không?',
+    answer: 'Không đáng kể, nhưng người tiểu đường nên theo dõi đường huyết sau tiêm để yên tâm.'
   },
   {
     question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp không?',
     answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp.'
   },
   {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến thượng thận không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến thượng thận.'
-  },
-  {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến yên không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến yên.'
-  },
-  {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp trạng không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp trạng.'
-  },
-  {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp phụ không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp phụ.'
-  },
-  {
-    question: 'Tiêm vắc-xin có ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp trạng phụ không?',
-    answer: 'Không, tiêm vắc-xin không ảnh hưởng đến kết quả xét nghiệm chức năng tuyến giáp trạng phụ.'
-  },
-
-  // Nhóm 11: Câu hỏi về tiêm chủng và nghề nghiệp
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành thực phẩm?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Cúm** (hàng năm).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành xây dựng?',
-    answer: '- **Td** (uốn ván - bạch hầu, nhắc lại mỗi 10 năm).\n- **Viêm gan B** (nếu có nguy cơ tiếp xúc máu).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành giáo dục?',
-    answer: '- **Cúm** (hàng năm).\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại nếu cần).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành du lịch?',
-    answer: '- **Viêm gan A**.\n- **Thương hàn**.\n- **Sốt vàng** (nếu đi khu vực nguy cơ cao).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành vận tải?',
-    answer: '- **Cúm** (hàng năm).\n- **Td** (nhắc lại mỗi 10 năm).\n- **Viêm gan A** (nếu đi nhiều nơi).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành nông nghiệp?',
-    answer: '- **Td** (uốn ván - bạch hầu, nhắc lại mỗi 10 năm).\n- **Viêm gan A** (nếu tiếp xúc với nước bẩn).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành thủy sản?',
-    answer: '- **Viêm gan A**.\n- **Td** (uốn ván - bạch hầu).\n- **Thương hàn** (nếu tiếp xúc với nước bẩn).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành môi trường?',
-    answer: '- **Viêm gan A**.\n- **Td** (uốn ván - bạch hầu).\n- **Thương hàn** (nếu tiếp xúc với nước bẩn).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành công nghệ thông tin?',
-    answer: '- **Cúm** (hàng năm).\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại nếu cần).'
-  },
-  {
-    question: 'Vắc-xin nào cần tiêm cho người làm việc trong ngành ngân hàng?',
-    answer: '- **Cúm** (hàng năm).\n- **MMR** (nếu chưa tiêm đủ).\n- **Td** (nhắc lại nếu cần).'
-  },
-
-  // Nhóm 12: Câu hỏi về tiêm chủng và lối sống
-  {
-    question: 'Người ăn chay có cần tiêm vắc-xin khác không?',
-    answer: 'Không, người ăn chay vẫn tiêm vắc-xin như người bình thường, không có sự khác biệt về lịch tiêm.'
-  },
-  {
-    question: 'Người tập thể dục thường xuyên có cần tiêm vắc-xin khác không?',
+    question: 'Vắc-xin nào phòng bệnh viêm khớp do vi khuẩn?',
     answer:
-      'Không, người tập thể dục thường xuyên vẫn tiêm vắc-xin theo lịch thông thường, nhưng nên tránh vận động mạnh ngay sau tiêm.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm khớp do vi khuẩn tại VAXBOT. Tuy nhiên, vắc-xin **phế cầu** có thể giảm nguy cơ từ vi khuẩn liên quan.'
   },
   {
-    question: 'Người hút thuốc lá có cần tiêm vắc-xin khác không?',
+    question: 'Vắc-xin nào phòng bệnh viêm ruột do vi khuẩn E.coli?',
     answer:
-      'Người hút thuốc nên ưu tiên tiêm **cúm** và **phế cầu** để giảm nguy cơ bệnh phổi, ngoài lịch tiêm thông thường.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm ruột do E.coli tại VAXBOT. Bạn nên duy trì vệ sinh thực phẩm để giảm nguy cơ.'
   },
   {
-    question: 'Người uống rượu bia thường xuyên có cần tiêm vắc-xin khác không?',
+    question: 'Vắc-xin nào phòng bệnh viêm màng tim do virus?',
     answer:
-      'Người uống rượu bia nên ưu tiên tiêm **viêm gan A** và **viêm gan B** để bảo vệ gan, ngoài lịch tiêm thông thường.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm màng tim do virus tại VAXBOT. Tuy nhiên, vắc-xin **cúm** có thể giảm nguy cơ biến chứng.'
   },
   {
-    question: 'Người làm việc ca đêm có cần tiêm vắc-xin khác không?',
+    question: 'Vắc-xin nào phòng bệnh viêm amidan do liên cầu khuẩn?',
     answer:
-      'Không, nhưng người làm ca đêm nên tiêm **cúm** hàng năm để tăng cường miễn dịch, vì dễ bị suy giảm sức đề kháng.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm amidan do liên cầu khuẩn tại VAXBOT. Vắc-xin **phế cầu** có thể giảm nguy cơ gián tiếp.'
   },
   {
-    question: 'Người sống ở vùng núi có cần tiêm vắc-xin khác không?',
-    answer: 'Người sống ở vùng núi nên tiêm **viêm não Nhật Bản** và **Td** để phòng bệnh do môi trường và côn trùng.'
-  },
-  {
-    question: 'Người sống ở vùng biển có cần tiêm vắc-xin khác không?',
-    answer: 'Người sống ở vùng biển nên tiêm **viêm gan A** và **thương hàn** để phòng bệnh do nước bẩn.'
-  },
-  {
-    question: 'Người sống ở thành phố có cần tiêm vắc-xin khác không?',
-    answer: 'Người sống ở thành phố nên tiêm **cúm** và **MMR** để phòng bệnh lây lan trong môi trường đông người.'
-  },
-  {
-    question: 'Người sống ở nông thôn có cần tiêm vắc-xin khác không?',
-    answer: 'Người sống ở nông thôn nên tiêm **Td** và **viêm gan A** để phòng bệnh do môi trường và nước bẩn.'
-  },
-  {
-    question: 'Người thường xuyên đi bơi có cần tiêm vắc-xin khác không?',
-    answer: 'Người thường xuyên đi bơi nên tiêm **viêm gan A** và **thương hàn** để phòng bệnh do nước bẩn.'
-  },
-
-  // Nhóm 13: Câu hỏi về tiêm chủng và sức khỏe tâm lý
-  {
-    question: 'Người bị trầm cảm có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm tuyến giáp Hashimoto?',
     answer:
-      'Được, trầm cảm không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu đang dùng thuốc chống trầm cảm.'
+      'Hiện chưa có vắc-xin phòng bệnh viêm tuyến giáp Hashimoto tại VAXBOT, vì đây là bệnh tự miễn, không do virus hay vi khuẩn.'
   },
   {
-    question: 'Người bị lo âu có tiêm vắc-xin được không?',
-    answer: 'Được, lo âu không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có triệu chứng nghiêm trọng.'
-  },
-  {
-    question: 'Người bị rối loạn lưỡng cực có tiêm vắc-xin được không?',
-    answer: 'Được, rối loạn lưỡng cực không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu đang dùng thuốc.'
-  },
-  {
-    question: 'Người bị rối loạn ám ảnh cưỡng chế có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm phế quản mãn tính?',
     answer:
-      'Được, rối loạn ám ảnh cưỡng chế không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có lo lắng.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm phế quản mãn tính tại VAXBOT. Tuy nhiên, vắc-xin **cúm** và **phế cầu** có thể giảm nguy cơ biến chứng.'
   },
   {
-    question: 'Người bị rối loạn ăn uống có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần báo bác sĩ nếu đang suy dinh dưỡng nghiêm trọng để đánh giá trước khi tiêm.'
-  },
-  {
-    question: 'Người bị rối loạn giấc ngủ có tiêm vắc-xin được không?',
-    answer: 'Được, rối loạn giấc ngủ không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên nghỉ ngơi sau tiêm.'
-  },
-  {
-    question: 'Người bị rối loạn căng thẳng sau sang chấn có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng nên báo bác sĩ nếu có lo lắng hoặc căng thẳng nghiêm trọng trước khi tiêm.'
-  },
-  {
-    question: 'Người bị rối loạn tâm thần phân liệt có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần bác sĩ chuyên khoa tâm thần đánh giá nếu đang dùng thuốc chống loạn thần.'
-  },
-  {
-    question: 'Người bị rối loạn nhân cách có tiêm vắc-xin được không?',
-    answer: 'Được, rối loạn nhân cách không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có lo lắng.'
-  },
-  {
-    question: 'Người bị rối loạn phát triển tâm lý có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần báo bác sĩ để được theo dõi kỹ sau tiêm, đặc biệt nếu có tiền sử phản ứng bất thường.'
-  },
-
-  // Nhóm 14: Câu hỏi về tiêm chủng và trẻ em
-  {
-    question: 'Trẻ bị dị ứng đậu phộng có tiêm vắc-xin được không?',
-    answer: 'Được, dị ứng đậu phộng không ảnh hưởng đến việc tiêm vắc-xin, trừ khi có dị ứng với thành phần vắc-xin.'
-  },
-  {
-    question: 'Trẻ bị dị ứng sữa bò có tiêm vắc-xin được không?',
-    answer: 'Được, dị ứng sữa bò không ảnh hưởng đến việc tiêm vắc-xin, trừ khi có dị ứng với thành phần vắc-xin.'
-  },
-  {
-    question: 'Trẻ bị dị ứng lông động vật có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm dạ dày do Helicobacter pylori?',
     answer:
-      'Được, dị ứng lông động vật không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có tiền sử dị ứng.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm dạ dày do Helicobacter pylori tại VAXBOT. Bạn nên duy trì vệ sinh ăn uống để giảm nguy cơ.'
   },
   {
-    question: 'Trẻ bị dị ứng phấn hoa có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm tụy do virus?',
     answer:
-      'Được, dị ứng phấn hoa không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có triệu chứng dị ứng.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm tụy do virus tại VAXBOT. Vắc-xin **MMR** có thể giảm nguy cơ từ virus quai bị.'
   },
   {
-    question: 'Trẻ bị dị ứng bụi có tiêm vắc-xin được không?',
-    answer: 'Được, dị ứng bụi không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có triệu chứng dị ứng.'
-  },
-  {
-    question: 'Trẻ bị dị ứng thời tiết có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm thận do vi khuẩn?',
     answer:
-      'Được, dị ứng thời tiết không ảnh hưởng đến việc tiêm vắc-xin, nhưng nên báo bác sĩ nếu có triệu chứng nghiêm trọng.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm thận do vi khuẩn tại VAXBOT. Vắc-xin **phế cầu** có thể giảm nguy cơ gián tiếp.'
   },
   {
-    question: 'Trẻ bị dị ứng thuốc kháng sinh có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần báo bác sĩ về tiền sử dị ứng để được khám sàng lọc kỹ lưỡng.'
-  },
-  {
-    question: 'Trẻ bị dị ứng thực phẩm có tiêm vắc-xin được không?',
+    question: 'Vắc-xin nào phòng bệnh viêm màng phổi do vi khuẩn?',
     answer:
-      'Được, nhưng cần báo bác sĩ về loại thực phẩm dị ứng để đảm bảo không có thành phần liên quan trong vắc-xin.'
-  },
-  {
-    question: 'Trẻ bị dị ứng hóa chất có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần báo bác sĩ về loại hóa chất dị ứng để đảm bảo an toàn khi tiêm.'
-  },
-  {
-    question: 'Trẻ bị dị ứng mủ cao su có tiêm vắc-xin được không?',
-    answer: 'Được, nhưng cần báo bác sĩ để sử dụng găng tay không chứa mủ cao su trong quá trình tiêm.'
-  },
-
-  // Nhóm 15: Câu hỏi về tiêm chủng và người cao tuổi
-  {
-    question: 'Người 65 tuổi có cần tiêm vắc-xin viêm gan B không?',
-    answer: 'Nếu chưa tiêm và có nguy cơ cao (như tiếp xúc máu), người 65 tuổi có thể tiêm **viêm gan B**.'
-  },
-  {
-    question: 'Người 70 tuổi có cần tiêm vắc-xin cúm không?',
-    answer: 'Có, người 70 tuổi nên tiêm vắc-xin cúm hàng năm để giảm nguy cơ biến chứng.'
-  },
-  {
-    question: 'Người 75 tuổi có cần tiêm vắc-xin phế cầu không?',
-    answer: 'Có, người 75 tuổi nên tiêm **Pneumovax 23** để phòng viêm phổi do phế cầu.'
-  },
-  {
-    question: 'Người 80 tuổi có cần tiêm vắc-xin zona không?',
-    answer: 'Có, người 80 tuổi nên tiêm **Shingrix** để phòng bệnh zona thần kinh.'
-  },
-  {
-    question: 'Người 85 tuổi có cần tiêm vắc-xin uốn ván không?',
-    answer: 'Có, người 85 tuổi nên tiêm nhắc lại **Td** mỗi 10 năm để duy trì miễn dịch.'
-  },
-  {
-    question: 'Người 60 tuổi có cần tiêm vắc-xin viêm gan A không?',
-    answer: 'Nếu chưa tiêm và có nguy cơ cao (như đi du lịch), người 60 tuổi có thể tiêm **viêm gan A**.'
-  },
-  {
-    question: 'Người 65 tuổi có cần tiêm vắc-xin MMR không?',
-    answer: 'Nếu chưa tiêm đủ 2 mũi MMR, người 65 tuổi có thể tiêm bổ sung để phòng sởi, quai bị, rubella.'
-  },
-  {
-    question: 'Người 70 tuổi có cần tiêm vắc-xin thủy đậu không?',
-    answer: 'Nếu chưa từng mắc thủy đậu, người 70 tuổi có thể tiêm **Varivax** để phòng bệnh.'
-  },
-  {
-    question: 'Người 75 tuổi có cần tiêm vắc-xin viêm não Nhật Bản không?',
-    answer: 'Nếu sống ở khu vực nguy cơ cao và chưa tiêm, người 75 tuổi có thể tiêm **Imojev**.'
-  },
-  {
-    question: 'Người 80 tuổi có cần tiêm vắc-xin thương hàn không?',
-    answer: 'Nếu đi du lịch đến khu vực nguy cơ cao, người 80 tuổi có thể tiêm **Typhim Vi** để phòng thương hàn.'
-  },
-  {
-    question: 'Vắc-xin nào phòng bệnh tay chân miệng do Enterovirus 71 tại VAXBOT?',
-    answer:
-      'VAXBOT đã ký kết hợp tác với Substipharm Biologics (Thụy Sĩ) để đưa về vắc-xin phòng bệnh tay chân miệng do Enterovirus 71 (EV71). Tuy nhiên, bạn nên liên hệ VAXBOT để kiểm tra tình trạng sẵn có.'
-  },
-  {
-    question: 'Vắc-xin Qdenga tại VAXBOT có tác dụng gì?',
-    answer:
-      'Vắc-xin Qdenga tại VAXBOT được sử dụng để phòng bệnh sốt xuất huyết, là vắc-xin đầu tiên được phê duyệt tại hơn 40 quốc gia, phù hợp cho trẻ từ 4 tuổi và người lớn.'
-  },
-  {
-    question: 'Vắc-xin Shingrix tại VAXBOT dùng cho đối tượng nào?',
-    answer:
-      'Vắc-xin Shingrix tại VAXBOT dùng để phòng bệnh zona thần kinh và biến chứng đau dây thần kinh sau zona, phù hợp cho người từ 50 tuổi trở lên và từ 18 tuổi có nguy cơ cao.'
-  },
-  {
-    question: 'Vắc-xin Bexsero tại VAXBOT có phòng được bệnh gì?',
-    answer:
-      'Vắc-xin Bexsero tại VAXBOT được chỉ định để phòng bệnh viêm màng não, nhiễm khuẩn huyết và viêm phổi do não mô cầu khuẩn nhóm B, cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
-  },
-  {
-    question: 'Vắc-xin Pneumovax 23 tại VAXBOT có tác dụng gì?',
-    answer:
-      'Vắc-xin Pneumovax 23 tại VAXBOT giúp ngăn ngừa các bệnh nhiễm trùng do vi khuẩn phế cầu (Streptococcus pneumoniae) như viêm phổi, viêm màng não, và nhiễm khuẩn huyết.'
-  },
-  {
-    question: 'Vắc-xin nào tại VAXBOT phòng bệnh ung thư cổ tử cung do HPV?',
-    answer:
-      'Vắc-xin Gardasil và Gardasil 9 tại VAXBOT giúp phòng bệnh ung thư cổ tử cung, ung thư âm đạo, âm hộ, hậu môn, và ung thư hầu họng do virus HPV.'
-  },
-  {
-    question: 'Vắc-xin nào tại VAXBOT phòng bệnh ho gà cho trẻ nhỏ?',
-    answer:
-      'Vắc-xin 6 trong 1 và 5 trong 1 tại VAXBOT giúp phòng bệnh ho gà, bạch hầu, uốn ván và các bệnh khác cho trẻ nhỏ.'
-  },
-  {
-    question: 'Vắc-xin nào tại VAXBOT phòng bệnh viêm não mô cầu cho trẻ em?',
-    answer:
-      'Vắc-xin Bexsero tại VAXBOT phòng bệnh viêm não mô cầu khuẩn nhóm B, phù hợp cho trẻ từ 2 tháng tuổi đến người lớn 50 tuổi.'
-  },
-  {
-    question: 'Vắc-xin nào tại VAXBOT phòng bệnh sốt xuất huyết cho người lớn?',
-    answer: 'Vắc-xin Qdenga tại VAXBOT giúp phòng bệnh sốt xuất huyết cho người lớn và trẻ từ 4 tuổi trở lên.'
-  },
-  {
-    question: 'Vắc-xin nào tại VAXBOT phòng bệnh thủy đậu cho người lớn?',
-    answer:
-      'Vắc-xin Varivax tại VAXBOT giúp phòng bệnh thủy đậu cho người lớn và trẻ em, đặc biệt nếu chưa từng mắc bệnh trước đó.'
+      'Hiện chưa có vắc-xin đặc hiệu phòng viêm màng phổi do vi khuẩn tại VAXBOT. Vắc-xin **phế cầu** và **cúm** có thể giảm nguy cơ biến chứng.'
   },
 
   // Nhóm 2: Lịch tiêm chủng và độ tuổi

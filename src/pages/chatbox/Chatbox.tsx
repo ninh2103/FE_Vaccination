@@ -7,7 +7,6 @@ import { MessageCircle, Send, X, CircleStop } from 'lucide-react'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { trainingData } from './training'
 import { useListVaccinationQuery } from '@/queries/useVaccination'
-import { toast } from 'sonner'
 
 const apiKey = 'AIzaSyAJF8hoEIF2n-iVsaqGrv1M0WS1KvOPmAY'
 const genAI = new GoogleGenerativeAI(apiKey)
@@ -28,78 +27,51 @@ interface Message {
   id: number
   sender: 'user' | 'bot'
   text: string
-  data?: Array<{ id: string; title: string; name: string; amout: string; redirectlink: string }>
+  data?: {
+    url: string
+    image?: string
+  }[]
+}
+
+// Simple UUID generator function
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
+const findTrainingResponse = (question: string) => {
+  const normalizedQuestion = question.toLowerCase().trim()
+  return trainingData.find(
+    (item) =>
+      item.question.toLowerCase().includes(normalizedQuestion) ||
+      normalizedQuestion.includes(item.question.toLowerCase())
+  )
 }
 
 export default function Chatbox() {
-  const { data: vaccinationList } = useListVaccinationQuery({
-    items_per_page: 100
-  })
+  const listVaccinationQuery = useListVaccinationQuery({ items_per_page: 100 })
+
   const [vaccination, setVaccination] = useState<any[]>([])
 
   useEffect(() => {
-    if (vaccinationList) {
-      setVaccination(vaccinationList.data)
+    if (listVaccinationQuery.data) {
+      setVaccination(listVaccinationQuery.data.data)
     }
-  }, [vaccinationList])
+  }, [listVaccinationQuery.data])
 
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: Date.now(),
-      sender: 'bot',
-      text: 'Chào bạn! Bạn có gì muốn hỏi về các loại vắc-xin của chúng tôi không?',
-      data: []
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [displayText, setDisplayText] = useState('')
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const [isRendering, setIsRendering] = useState(false)
 
-  const findMatchingAnswer = (question: string): { answer: string | null; data: any[] } => {
-    const normalizedQuestion = question.toLowerCase().trim()
-
-    // First check training data
-    const trainingMatch = trainingData.find((item) => item.question.toLowerCase().trim() === normalizedQuestion)
-
-    if (trainingMatch) {
-      return { answer: trainingMatch.answer, data: [] }
-    }
-
-    // Check for vaccine-related keywords
-    const vaccineKeywords = ['vắc-xin', 'vaccine', 'tiêm', 'chủng ngừa', 'vaccination']
-    const isVaccineQuestion = vaccineKeywords.some((keyword) => normalizedQuestion.includes(keyword.toLowerCase()))
-
-    if (isVaccineQuestion && vaccination.length > 0) {
-      // Search for matching vaccines in the API data
-      const matchingVaccines = vaccination.filter(
-        (vaccine) =>
-          vaccine.name.toLowerCase().includes(normalizedQuestion) ||
-          vaccine.title.toLowerCase().includes(normalizedQuestion)
-      )
-
-      if (matchingVaccines.length > 0) {
-        const vaccineInfo = matchingVaccines.map((vaccine) => ({
-          id: vaccine.id,
-          title: vaccine.title,
-          name: vaccine.name,
-          amout: vaccine.price?.toString() || 'Liên hệ',
-          redirectlink: `/vaccination/${vaccine.id}`
-        }))
-
-        return {
-          answer: `Tôi tìm thấy ${matchingVaccines.length} vắc-xin phù hợp với yêu cầu của bạn:`,
-          data: vaccineInfo
-        }
-      }
-    }
-
-    return { answer: null, data: [] }
-  }
-
+  // Typing animation effect
   const typeMessage = async (text: string) => {
     let currentText = ''
     for (let i = 0; i < text.length; i++) {
@@ -110,95 +82,86 @@ export default function Chatbox() {
     return currentText
   }
 
+  // Function to call the Gemini API and get a response
   const fetchAIResponse = async (userMessage: string) => {
+    if (isLoading) return
+
     try {
       setIsLoading(true)
       setIsRendering(true)
+
+      setMessages((prev) => [...prev, { id: Date.now(), sender: 'user', text: userMessage }])
+      setMessages((prev) => [...prev, { id: Date.now() + 1, sender: 'bot', text: 'Đợi tôi chút...', data: [] }])
+
+      // Check training data first
+      const trainingResponse = findTrainingResponse(userMessage)
+      if (trainingResponse) {
+        await typeMessage(trainingResponse.answer)
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { id: Date.now() + 1, sender: 'bot', text: trainingResponse.answer, data: [] }
+        ])
+        return
+      }
+
+      // If no training response found, use API
+      const chatSession = model.startChat({
+        generationConfig,
+        history: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: `Bạn là một chuyên gia tư vấn về vắc xin. Với dữ liệu vắc xin từ database của tôi: ${JSON.stringify({ vaccination })}. Người dùng sẽ hỏi về các vấn đề liên quan đến vắc xin như: "Tôi muốn tiêm vắc xin tả thì cần lưu ý gì?", "Vắc xin tả có tác dụng phụ không?", "Giá vắc xin tả là bao nhiêu?". Bạn sẽ tư vấn họ một cách chuyên nghiệp và thân thiện, đồng thời cung cấp đường link chi tiết về vắc xin đó và hình ảnh của vắc xin nếu có. Đường link sẽ là: http://localhost:4000/vaccination/{id} (với id là id của vắc xin). Nếu câu hỏi không liên quan đến vắc xin, bạn sẽ lịch sự từ chối trả lời. Bạn hiểu chứ?`
+              }
+            ]
+          },
+          {
+            role: 'model',
+            parts: [
+              {
+                text: 'Tôi hiểu rõ yêu cầu của bạn. Tôi sẽ đóng vai một chuyên gia tư vấn vắc xin, sử dụng dữ liệu từ database để đưa ra lời khuyên và cung cấp đường link chi tiết về vắc xin phù hợp. Khi người dùng hỏi các câu hỏi không liên quan đến vắc xin, tôi sẽ lịch sự từ chối. Và quan trọng nhất, tất cả các phản hồi của tôi sẽ ở định dạng JSON.\n\nCấu trúc JSON tôi sẽ sử dụng:\n\n```json\n{\n  "message": "Nội dung tư vấn/phản hồi",\n  "data": [\n    {\n      "url": "http://localhost:4000/vaccination/{id1}",\n      "image": "URL hình ảnh vắc xin"\n    },\n    {\n      "url": "http://localhost:4000/vaccination/{id2}",\n      "image": "URL hình ảnh vắc xin"\n    }\n  ]\n}\n```'
+              }
+            ]
+          }
+        ]
+      })
+
+      const result = await chatSession.sendMessage(userMessage)
+      const responseText = result.response.text()
+
+      // Clean the response to remove unwanted characters and the closing ```
+      const cleanedResponseText = responseText
+        .replace(/.*?```json/, '') // Remove everything before the JSON
+        .replace(/```.*$/, '') // Remove the closing ```
+        .replace(/```/g, '') // Remove any remaining ```
+        .trim() // Trim whitespace
+
+      // Check if the response is JSON
+      let botReply
+      try {
+        botReply = JSON.parse(cleanedResponseText)
+      } catch (e) {
+        botReply = { message: cleanedResponseText, data: [] }
+      }
+
+      // Update message with data from response
       setMessages((prev) => [
-        ...prev,
-        { id: Date.now(), sender: 'user', text: userMessage },
-        { id: Date.now() + 1, sender: 'bot', text: 'Đợi tôi chút...', data: [] }
+        ...prev.slice(0, -1),
+        { id: Date.now() + 1, sender: 'bot', text: '', data: botReply.data }
       ])
 
-      // Check for matching answer in training data or vaccination list
-      const { answer, data } = findMatchingAnswer(userMessage)
+      await typeMessage(botReply.message)
 
-      if (answer) {
-        // If we have a matching answer, use it directly
-        await typeMessage(answer)
-        setMessages((prev) => [...prev.slice(0, -1), { id: Date.now() + 1, sender: 'bot', text: answer, data }])
-      } else {
-        // If no matching answer, use the AI model
-        const chatSession = model.startChat({
-          generationConfig,
-          history: [
-            {
-              role: 'user',
-              parts: [
-                {
-                  text: `Bạn là một người tư vấn giỏi. Với dữ liệu được lấy từ database của tôi: ${JSON.stringify({ vaccination })}. Người dùng sẽ hỏi những câu như ví dụ: "Tôi đang tìm hiểu về vắc xin cho trẻ 2 tuổi, nên tiêm loại nào?" hoặc "Người lớn có cần tiêm nhắc lại không?" Bạn sẽ tư vấn họ theo kiểu dễ thương nhưng nghiêm túc, nội dung rõ ràng, dễ hiểu và có thể kèm theo đường link thông tin vắc xin phù hợp. Đường link sẽ là: http://localhost:4000/vaccination/{id} (với id được lấy từ trong database). Nếu câu hỏi không liên quan đến y tế hoặc vắc xin, bạn sẽ lịch sự từ chối vì không nằm trong phạm vi chuyên môn của bạn. Các câu nhỏ như cảm ơn, chào hỏi thì bạn vẫn có thể trả lời nhẹ nhàng, thân thiện. Bạn hãy trả lời bằng đoạn văn bình thường, KHÔNG sử dụng định dạng JSON hoặc bất kỳ ký tự đặc biệt nào như \`\`\`json hoặc { "message": ". Chỉ trả lời bằng văn bản thuần túy.`
-                }
-              ]
-            },
-            {
-              role: 'model',
-              parts: [
-                {
-                  text: `Tôi hiểu rõ yêu cầu của bạn. Tôi sẽ đóng vai một tư vấn viên vắc xin "dễ thương nhưng nghiêm túc", sử dụng dữ liệu từ database của bạn để đưa ra lời khuyên và cung cấp đường link vắc xin phù hợp. Tôi sẽ trả lời bằng văn bản thuần túy, không sử dụng bất kỳ định dạng JSON hay ký tự đặc biệt nào. Khi người dùng hỏi các câu hỏi không liên quan đến y tế hoặc vắc xin, tôi sẽ lịch sự từ chối.`
-                }
-              ]
-            }
-          ]
-        })
-
-        const result = await chatSession.sendMessage(userMessage)
-        const responseText = result.response.text()
-
-        // Clean up any potential JSON formatting that might still appear
-        const cleanResponse = responseText
-          .replace(/```json\s*{/g, '')
-          .replace(/}\s*```/g, '')
-          .replace(/\{\s*"message"\s*:\s*"/g, '')
-          .replace(/"\s*\}\s*$/g, '')
-          .trim()
-
-        // Extract any URLs from the response
-        const urlRegex = /http:\/\/localhost:4000\/vaccination\/\d+/g
-        const urls = cleanResponse.match(urlRegex) || []
-
-        // Extract vaccine IDs from URLs
-        const vaccineData = urls
-          .map((url) => {
-            const id = url.split('/').pop()
-            const vaccine = vaccination.find((v) => v.id === id)
-            if (!vaccine) return null
-            return {
-              id: String(vaccine.id),
-              title: String(vaccine.title),
-              name: String(vaccine.name),
-              amout: String(vaccine.price || 'Liên hệ'),
-              redirectlink: `/vaccination/${vaccine.id}`
-            }
-          })
-          .filter(
-            (item): item is { id: string; title: string; name: string; amout: string; redirectlink: string } =>
-              item !== null
-          )
-
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          { id: Date.now() + 1, sender: 'bot', text: cleanResponse, data: vaccineData }
-        ])
-
-        await typeMessage(cleanResponse)
-
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          { id: Date.now() + 1, sender: 'bot', text: cleanResponse, data: vaccineData }
-        ])
-      }
-    } catch (error) {
-      toast.error('Lỗi khi tư vấn')
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { id: Date.now() + 1, sender: 'bot', text: botReply.message, data: botReply.data }
+      ])
+    } catch {
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { id: Date.now() + 1, sender: 'bot', text: 'Đã xảy ra lỗi. Vui lòng thử lại sau.', data: [] }
+      ])
     } finally {
       setIsLoading(false)
       setDisplayText('')
@@ -206,6 +169,7 @@ export default function Chatbox() {
     }
   }
 
+  // Send message and get response from Gemini
   const handleSendMessage = () => {
     if (!input.trim()) return
     if (isRendering) {
@@ -216,6 +180,27 @@ export default function Chatbox() {
     setInput('')
   }
 
+  // Add the provided JSON response to the messages
+  const addProvidedResponse = () => {
+    const providedResponse = {
+      message: 'Bạn cần giúp gì?',
+      data: []
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now() + 2, sender: 'bot', text: providedResponse.message, data: providedResponse.data }
+    ])
+  }
+
+  // Call this function to add the provided response
+  useEffect(() => {
+    if (isOpen) {
+      addProvidedResponse()
+    }
+  }, [isOpen]) // Chỉ gọi khi isOpen thay đổi
+
+  // Scroll to bottom when new message is added
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, displayText])
@@ -233,7 +218,7 @@ export default function Chatbox() {
           >
             {/* Chatbox Header */}
             <div className='relative border-b bg-primary/10 p-3 backdrop-blur-md dark:bg-gray-800'>
-              <h2 className='text-center text-sm font-medium text-gray-900 dark:text-white'>Trợ lý ảo - VaxBot ✨</h2>
+              <h2 className='text-center text-sm font-medium text-gray-900 dark:text-white'>Trợ lý ảo - Vaxbot ✨</h2>
               <motion.button
                 className='absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-600 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-700'
                 onClick={() => setIsOpen(false)}
@@ -312,18 +297,26 @@ export default function Chatbox() {
                           </motion.div>
                         )}
 
-                        {/* Display Course Suggestions */}
+                        {/* Display Vaccination Image */}
                         {message.sender === 'bot' && message.data && message.data.length > 0 && (
                           <div className='mt-3 space-y-2'>
-                            <h3 className='text-sm font-semibold text-gray-700 dark:text-gray-300'>Gợi ý vắc-xin:</h3>
-                            {message.data.map((course) => (
+                            <h3 className='text-sm font-semibold text-gray-700 dark:text-gray-300'>
+                              Thông tin vắc xin:
+                            </h3>
+                            {message.data.map((item) => (
                               <a
-                                key={course.id}
-                                href={course.redirectlink}
+                                key={item.url + generateUUID()}
+                                href={item.url}
                                 target='_blank'
+                                rel='noopener noreferrer'
                                 className='block rounded-md border p-2 text-sm transition hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800'
                               >
-                                <strong>{course.title}</strong> - {course.name} ({course.amout} VND)
+                                <div className='flex items-center gap-2'>
+                                  {item.image && (
+                                    <img src={item.image} alt='Vaccination' className='w-8 h-8 object-cover rounded' />
+                                  )}
+                                  <strong>Xem chi tiết vắc xin</strong>
+                                </div>
                               </a>
                             ))}
                           </div>
