@@ -33,7 +33,7 @@ const CheckOutPagePageMain = () => {
   const { data: vaccineDetail, refetch: refetchVaccine } = useGetVaccinationByIdQuery(id as string)
   const { mutate: createBooking, isPending: isCreateBookingPending } = useCreateBookingQuery()
   const { data: userDetail } = useDetailUserQuery(user?.id as string)
-  const { mutate: createPayment } = useCreatePaymentMutation()
+  const { mutate: createPayment, isPending: isCreatePaymentPending } = useCreatePaymentMutation()
   const { mutate: confirmBooking, isPending: isConfirmBookingPending } = useConfirmBookingQuery()
   const form = useForm<BookingBodyType>({
     resolver: zodResolver(BookingBodySchema),
@@ -404,9 +404,9 @@ const CheckOutPagePageMain = () => {
                 <Button
                   type='submit'
                   className='w-full bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:text-blue-400 text-white'
-                  disabled={isCreateBookingPending || isConfirmBookingPending}
+                  disabled={isCreateBookingPending || isConfirmBookingPending || isCreatePaymentPending}
                 >
-                  {isCreateBookingPending || isConfirmBookingPending ? (
+                  {isCreateBookingPending || isConfirmBookingPending || isCreatePaymentPending ? (
                     <>
                       <LoadingSpinner className='mr-2 h-4 w-4' />
                       Đang xử lý...
