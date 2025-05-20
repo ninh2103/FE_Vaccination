@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import * as XLSX from 'xlsx'
 import { useCountUserQuery } from '@/queries/useUser'
-import { useInventoryVaccinationQuery } from '@/queries/useVaccination'
+import { useInventoryVaccinationQuery, useListVaccinationQuery } from '@/queries/useVaccination'
 import { useListAppointmentQuery } from '@/queries/useAppointment'
 import { useListPaymentQuery } from '@/queries/useMomo'
 import { formatDate, isWithinInterval, parseISO, format } from 'date-fns'
@@ -76,10 +76,16 @@ const General: React.FC = () => {
 
   const { data: userCount } = useCountUserQuery()
   const { data: appointmentCount } = useListAppointmentQuery({ items_per_page: 5 })
+  const { data: appointData } = useListAppointmentQuery({
+    items_per_page: 100
+  })
   const { data: vaccineInventories } = useInventoryVaccinationQuery({ items_per_page: 5 })
   const { data: supplierCount } = useListSupplierQuery({ items_per_page: 5 })
   const { data: userPaymentTotalPrice, refetch: refetchUserPaymentTotalPrice } = useListPaymentQuery({
     items_per_page: 100
+  })
+  const { data: vaccineData } = useListVaccinationQuery({
+    items_per_page: 1000
   })
 
   const filterDataByDateRange = (data: any[]) => {
@@ -198,7 +204,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{filteredAppointments.length}</div>
+              <div className='text-2xl font-bold'>{vaccineData?.total}</div>
             </div>
           </CardContent>
         </Card>
@@ -210,7 +216,7 @@ const General: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='flex items-center justify-between'>
-              <div className='text-2xl font-bold'>{filteredAppointments.length}</div>
+              <div className='text-2xl font-bold'>{appointData?.total}</div>
             </div>
           </CardContent>
         </Card>
