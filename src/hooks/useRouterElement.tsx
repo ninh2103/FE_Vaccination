@@ -111,7 +111,7 @@ export default function useRoutesElements() {
       {
         path: path.admin.users,
         element: (
-          <AdminRoute allowedRoles={['ADMIN']}>
+          <AdminRoute>
             <LayoutMain>
               <UsersPage />
             </LayoutMain>

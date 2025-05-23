@@ -113,12 +113,7 @@ export default function FormRegister() {
                   <FormItem>
                     <Label>Email</Label>
                     <FormControl>
-                      <Input
-                        {...field}
-                        type='email'
-                        placeholder='Nhập email của bạn'
-                        className='dark:bg-gray-700 border-gray-600'
-                      />
+                      <Input {...field} placeholder='Nhập email của bạn' className='dark:bg-gray-700 border-gray-600' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

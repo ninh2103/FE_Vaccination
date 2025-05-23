@@ -42,15 +42,17 @@ export default function Header() {
 
   const getMeQuery = useGetMeQuery()
   const user = getMeQuery.data
-  if (user) {
-    setUserToLS({
-      id: user?.id,
-      name: user?.name,
-      email: user?.email,
-      role: user?.role.name,
-      isVerified: user?.isVerified
-    })
-  }
+  useEffect(() => {
+    if (user) {
+      setUserToLS({
+        id: user?.id,
+        name: user?.name,
+        email: user?.email,
+        role: user?.role.name,
+        isVerified: user?.isVerified
+      })
+    }
+  }, [user])
   const logoutMutation = useLogoutMutation()
   const { data: vaccination } = useListVaccinationQuery({
     page: 1,

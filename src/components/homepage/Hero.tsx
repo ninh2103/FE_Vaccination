@@ -58,7 +58,7 @@ export default function Hero() {
                 size='lg'
                 className='bg-gradient-to-r from-blue-400 via-green-500 to-teal-500 hover:from-blue-600 hover:to-green-600 font-semibold w-full sm:w-auto text-white'
               >
-                Xem Thông tin Văc-xin
+                Xem Thông Tin Vắc-Xin
               </Button>
             </Link>
           </div>
