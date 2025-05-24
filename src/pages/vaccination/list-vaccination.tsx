@@ -26,7 +26,9 @@ export default function ListVaccination() {
     page: 1,
     items_per_page: 100
   })
-  const { data: categories } = useListCategoryQuery()
+  const { data: categories } = useListCategoryQuery({
+    items_per_page: 1000
+  })
 
   useEffect(() => {
     if (vaccinationList?.data) {
@@ -164,7 +166,7 @@ export default function ListVaccination() {
           <SelectTrigger>
             <SelectValue placeholder='Lọc theo danh mục' />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className='max-h-[300px] overflow-y-auto'>
             <SelectItem value='all'>Tất cả danh mục</SelectItem>
             {categories?.data.map((category) => (
               <SelectItem key={category.id} value={category.id}>

@@ -19,6 +19,7 @@ import { UpdateUserDialog } from './UpdateUser'
 import { useDeleteUserQuery, useListUserQuery } from '@/queries/useUser'
 import { toast } from 'sonner'
 import { numberConstants } from '@/configs/consts'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -41,6 +42,7 @@ export default function UsersPage() {
     search: searchTerm
   })
   const { mutate: deleteUser } = useDeleteUserQuery()
+  const userRole = getUserFromLocalStorage()
 
   useEffect(() => {
     if (usersData?.data) {
@@ -229,11 +231,18 @@ export default function UsersPage() {
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isLoadingUsers}>
               Hủy bỏ
             </Button>
-            <Button variant='destructive' onClick={handleDeleteUser} disabled={isLoadingUsers}>
+            <Button
+              variant='destructive'
+              onClick={handleDeleteUser}
+              disabled={isLoadingUsers || userRole?.role !== 'ADMIN'}
+            >
               {isLoadingUsers ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isLoadingUsers ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
+          <p className='text-sm text-muted-foreground text-red-500'>
+            {userRole?.role !== 'ADMIN' ? '* Bạn không đủ quyền để xóa' : ''}
+          </p>
         </DialogContent>
       </Dialog>
     </div>

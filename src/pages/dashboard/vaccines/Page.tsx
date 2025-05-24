@@ -56,7 +56,9 @@ export default function VaccinesPage() {
   })
 
   const { mutate: deleteVaccine, isPending: isDeletingVaccine } = useDeleteVaccinationQuery()
-  const { data: categories } = useListCategoryQuery()
+  const { data: categories } = useListCategoryQuery({
+    items_per_page: 1000
+  })
 
   // Filter vaccines by category and search term
   useEffect(() => {
@@ -179,7 +181,7 @@ export default function VaccinesPage() {
             <SelectTrigger className='w-[200px]'>
               <SelectValue placeholder='Lọc theo danh mục' />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='max-h-[300px] overflow-y-auto'>
               <SelectItem value='all'>Tất cả danh mục</SelectItem>
               {categories?.data.map((category) => (
                 <SelectItem key={category.id} value={category.id}>

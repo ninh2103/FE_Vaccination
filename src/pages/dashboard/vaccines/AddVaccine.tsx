@@ -36,9 +36,15 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
 
   const { mutate: createVaccination, isPending: isCreating } = useCreateVaccinationQuery()
   const { mutateAsync: uploadImage } = useUploadImageVaccinationQuery()
-  const { data: categoryVaccinationData } = useListCategoryQuery()
-  const { data: manufacturerData } = useListManufacturerQuery()
-  const { data: supplierData } = useListSupplierQuery()
+  const { data: categoryVaccinationData } = useListCategoryQuery({
+    items_per_page: 1000
+  })
+  const { data: manufacturerData } = useListManufacturerQuery({
+    items_per_page: 1000
+  })
+  const { data: supplierData } = useListSupplierQuery({
+    items_per_page: 1000
+  })
 
   const form = useForm<VaccineCreateBodyType>({
     resolver: zodResolver(VaccineCreateBodySchema),
@@ -175,7 +181,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                   </span>
                 </SelectTrigger>
 
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {categoryVaccinationData?.data.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
@@ -201,7 +207,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                   {manufacturerData?.data.find((manufacturer) => manufacturer.id === form.watch('manufacturerId'))
                     ?.name || 'Chọn nhà sản xuất'}
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {manufacturerData?.data.map((manufacturer) => (
                     <SelectItem key={manufacturer.id} value={manufacturer.id}>
                       {manufacturer.name}
@@ -227,7 +233,7 @@ export default function AddVaccine({ open, onOpenChange }: AddVaccineProps) {
                   </span>
                 </SelectTrigger>
 
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {supplierData?.data.map((supplier) => (
                     <SelectItem key={supplier.id} value={supplier.id}>
                       {supplier.name}

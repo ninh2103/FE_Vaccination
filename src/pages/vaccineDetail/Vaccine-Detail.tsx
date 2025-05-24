@@ -132,7 +132,7 @@ export default function VaccineDetail() {
                     <div className='grid grid-cols-2 gap-4 mt-2'>
                       <div className='flex items-center gap-2'>
                         <span className='text-sm text-gray-500'>Địa điểm:</span>
-                        <p>{vaccineDetail.location}</p>
+                        <p>{vaccineDetail.location || 'Việt Nam'}</p>
                       </div>
                       <div className='flex items-center gap-2'>
                         <span className='text-sm text-gray-500'>Số lô:</span>

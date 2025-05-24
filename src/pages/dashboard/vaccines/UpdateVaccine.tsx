@@ -41,9 +41,15 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
 
   const { mutate: updateVaccine } = useUpdateVaccinationQuery()
   const { mutateAsync: uploadImage } = useUploadImageVaccinationQuery()
-  const { data: categoryVaccinationData } = useListCategoryQuery()
-  const { data: manufacturerData } = useListManufacturerQuery()
-  const { data: supplierData } = useListSupplierQuery()
+  const { data: categoryVaccinationData } = useListCategoryQuery({
+    items_per_page: 1000
+  })
+  const { data: manufacturerData } = useListManufacturerQuery({
+    items_per_page: 1000
+  })
+  const { data: supplierData } = useListSupplierQuery({
+    items_per_page: 1000
+  })
   const { data: vaccineData } = useGetVaccinationByIdQuery(selectedVaccine?.id || '')
 
   const form = useForm<VaccineUpdateBodyType>({
@@ -212,7 +218,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
                   {categoryVaccinationData?.data.find((category) => category.id === form.watch('categoryVaccinationId'))
                     ?.name || 'Select Category Vaccination'}
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {categoryVaccinationData?.data.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
@@ -238,7 +244,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
                   {manufacturerData?.data.find((manufacturer) => manufacturer.id === form.watch('manufacturerId'))
                     ?.name || 'Select Manufacturer'}
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {manufacturerData?.data.map((manufacturer) => (
                     <SelectItem key={manufacturer.id} value={manufacturer.id}>
                       {manufacturer.name}
@@ -261,7 +267,7 @@ export default function UpdateVaccine({ open, onOpenChange, selectedVaccine }: U
                   {supplierData?.data.find((supplier) => supplier.id === form.watch('supplierId'))?.name ||
                     'Select Supplier'}
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='max-h-[300px] overflow-y-auto'>
                   {supplierData?.data.map((supplier) => (
                     <SelectItem key={supplier.id} value={supplier.id}>
                       {supplier.name}

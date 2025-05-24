@@ -292,7 +292,6 @@ const CheckOutPagePageMain = () => {
                         <Label>Họ và tên</Label>
                         <Input
                           value={userDetail?.name}
-                          disabled
                           className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
                       </div>
@@ -300,7 +299,6 @@ const CheckOutPagePageMain = () => {
                         <Label>Số điện thoại</Label>
                         <Input
                           value={userDetail?.phone as string}
-                          disabled
                           className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
                       </div>
@@ -308,7 +306,6 @@ const CheckOutPagePageMain = () => {
                         <Label>Email</Label>
                         <Input
                           value={userDetail?.email}
-                          disabled
                           className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
                       </div>
@@ -316,7 +313,6 @@ const CheckOutPagePageMain = () => {
                         <Label>Địa chỉ</Label>
                         <Input
                           value={userDetail?.address as string}
-                          disabled
                           className='dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400'
                         />
                       </div>
