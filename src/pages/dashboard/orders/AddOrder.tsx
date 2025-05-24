@@ -38,7 +38,9 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
   const [selectedVaccineId, setSelectedVaccineId] = useState('')
   const [selectedVaccine, setSelectedVaccine] = useState<any>(null)
 
-  const { data: users } = useListUserQuery({})
+  const { data: users } = useListUserQuery({
+    items_per_page: 1000
+  })
   const userOptions = users?.data
     .filter((user) => user.role.name === 'USER')
     .map((user) => ({
@@ -46,7 +48,9 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
       value: user.id
     }))
 
-  const { data: categories } = useListCategoryQuery()
+  const { data: categories } = useListCategoryQuery({
+    items_per_page: 1000
+  })
   const categoryOptions = categories?.data.map((category) => ({
     label: category.name,
     value: category.id
@@ -124,7 +128,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
             <SelectTrigger className={`dark:bg-gray-800 border-green-500 focus:border-green-400 focus:ring-green-400`}>
               {categoryOptions?.find((option) => option.value === selectedCategoryId)?.label || 'Chọn danh mục'}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='max-h-[300px] overflow-y-auto'>
               {categoryOptions?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -145,7 +149,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
               >
                 {vaccineOptions?.find((option) => option.value === selectedVaccineId)?.label || 'Chọn Vacxin'}
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className='max-h-[300px] overflow-y-auto'>
                 {vaccineOptions?.map((option) => (
                   <SelectItem key={option.value} value={option.value} disabled={option.remainingQuantity === 0}>
                     {option.label}{' '}
@@ -170,7 +174,7 @@ export function AddOrder({ onAdd, onCancel }: AddOrderProps) {
             >
               {userOptions?.find((option) => option.value === form.watch('userId'))?.label || 'Chọn Người dùng'}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='max-h-[300px] overflow-y-auto'>
               {userOptions?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

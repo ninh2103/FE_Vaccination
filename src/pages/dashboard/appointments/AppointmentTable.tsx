@@ -23,6 +23,7 @@ import {
   DialogFooter,
   DialogDescription
 } from '@/components/ui/dialog'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 
 interface Patient {
   name: string
@@ -77,6 +78,7 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null)
+  const userRole = getUserFromLocalStorage()
 
   const handleViewAppointment = (appointment: Appointment) => {
     setSelectedAppointment(appointment)
@@ -297,10 +299,13 @@ export function AppointmentTable({ appointments, onDeleteAppointment, onViewDeta
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
               Hủy bỏ
             </Button>
-            <Button variant='destructive' onClick={handleConfirmDelete}>
+            <Button variant='destructive' onClick={handleConfirmDelete} disabled={userRole?.role !== 'ADMIN'}>
               Xóa
             </Button>
           </DialogFooter>
+          <p className='text-sm text-muted-foreground text-red-500'>
+            {userRole?.role !== 'ADMIN' ? '* Bạn không đủ quyền để xóa' : ''}
+          </p>
         </DialogContent>
       </Dialog>
     </div>

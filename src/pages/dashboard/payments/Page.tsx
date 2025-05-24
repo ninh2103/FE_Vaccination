@@ -22,7 +22,6 @@ import { useDeletePaymentMutation, useListPaymentQuery } from '@/queries/useMomo
 import { toast } from 'sonner'
 import { PaymentResponseType } from '@/schemaValidator/momo.schema'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-
 type Payment = PaymentResponseType
 
 interface Filters {

@@ -21,6 +21,7 @@ import { AddOrder } from './AddOrder'
 import { UpdateOrder } from './UpdateOrder'
 import { useDeleteBookingQuery, useListBookingQuery } from '@/queries/useBooking'
 import { toast } from 'sonner'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 
 interface Booking {
   id: string
@@ -75,6 +76,7 @@ export default function OrdersPage() {
       setTotalItems(bookingData.total)
     }
   }, [bookingData?.total])
+  const userRole = getUserFromLocalStorage()
 
   const filteredBookings = useMemo(() => {
     return bookingsData.filter((booking: Booking) => {
@@ -434,10 +436,17 @@ export default function OrdersPage() {
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)}>
               Hủy bỏ
             </Button>
-            <Button variant='destructive' onClick={handleConfirmDelete} disabled={!selectedOrder}>
+            <Button
+              variant='destructive'
+              onClick={handleConfirmDelete}
+              disabled={!selectedOrder || isLoadingBookings || userRole?.role !== 'ADMIN'}
+            >
               Xóa
             </Button>
           </DialogFooter>
+          <p className='text-sm text-muted-foreground text-red-500'>
+            {userRole?.role !== 'ADMIN' ? '* Bạn không đủ quyền để xóa' : ''}
+          </p>
         </DialogContent>
       </Dialog>
     </div>

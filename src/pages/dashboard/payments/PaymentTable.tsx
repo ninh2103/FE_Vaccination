@@ -34,6 +34,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import { getUserFromLocalStorage } from '@/core/shared/storage'
 
 interface Payment {
   id: string
@@ -84,6 +85,7 @@ export function PaymentTable({
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const userRole = getUserFromLocalStorage()
 
   const handleDeleteClick = (payment: Payment) => {
     setPaymentToDelete(payment)
@@ -568,11 +570,18 @@ export function PaymentTable({
             <Button variant='outline' onClick={() => setOpenDeleteDialog(false)} disabled={isDeleting}>
               Hủy bỏ
             </Button>
-            <Button variant='destructive' onClick={handleConfirmDelete} disabled={isDeleting}>
+            <Button
+              variant='destructive'
+              onClick={handleConfirmDelete}
+              disabled={isDeleting || userRole?.role !== 'ADMIN'}
+            >
               {isDeleting ? <LoadingSpinner className='mr-2 h-4 w-4' /> : null}
               {isDeleting ? 'Đang xóa...' : 'Xóa'}
             </Button>
           </DialogFooter>
+          <p className='text-sm text-muted-foreground text-red-500'>
+            {userRole?.role !== 'ADMIN' ? '* Bạn không đủ quyền để xóa' : ''}
+          </p>
         </DialogContent>
       </Dialog>
     </div>
